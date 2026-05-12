@@ -33,8 +33,15 @@ Timing safety (look-ahead)
 - For each feature, separate `signal_date` from `execution_date` in code and
   in `signals.csv` / `trades.csv`.
 - Prefer the `KRX종가` column over `종가`. The `종가` column may carry
-  NXT-integrated values whose finalization time is not the same as KRX
-  close. Document any deviation in `report.md`.
+  NXT-integrated values (post-2025 KRX panels) whose finalization time
+  differs from the KRX close. For panels that pre-date NXT and
+  therefore lack a `KRX종가` column on disk, the loader must
+  synthesize `KRX종가` from `종가` (which is the KRX close by
+  definition in the pre-NXT era) and tag each row's
+  `krx_close_source` accordingly. When both columns exist on disk,
+  assert row-by-row equality and raise on any mismatch — do not
+  silently overwrite. Document per-panel derivation and any
+  `종가 ≠ KRX종가` row count in `report.md`.
 - Rows with `수급금액추정여부 == True` or `거래대금추정여부 == True` carry
   estimated values that may be revised later. Default policy: **exclude
   these rows from the headline backtest** and run a diagnostic comparison

@@ -44,7 +44,10 @@ before T+1 open**:
   signal_T = 1 if (fnv_5 > 0) AND (inv_5 > 0) else 0
 
 Notes:
-- 종가는 `KRX종가` 컬럼만 사용한다. `종가` (통합 가능성) 사용 금지.
+- 종가는 정규화된 `KRX종가` 컬럼만 사용한다. 사용자가 보는 `KRX종가`는
+  로더가 항상 합성하는 단일 컬럼이며, 원본 CSV에 `KRX종가`가 없는 경우
+  (pre-NXT 패널) `종가`에서 채워진다 — §"Source modules / equity_panel.py"
+  의 정규화 규칙 참조. raw `종가` 컬럼은 본 실험 로직에서 직접 사용 금지.
 - 거래대금 분모는 같은 5거래일 윈도. 윈도 내 결측이 하나라도 있으면 그 종목 그 날 signal = 0.
 - 추정 플래그(`수급금액추정여부`, `거래대금추정여부`)가 True인 행은 본 실험에서 제외.
   추정 행은 진단 실험 E001-D1으로 분리 (아래 §Diagnostic split).
@@ -151,7 +154,9 @@ E. `cost_sensitivity.csv`가 비용 0×→3× 증가에 대해 단조 감소(net
 F. `tests/test_no_lookahead.py`와 `tests/test_feature_timing.py`가 통과.
 G. `report.md`가 baseline B0~B3 비교표를 포함.
 H. `report.md`에 다음 메타 정보가 명시: 사용된 panel 파일, 통합거래량/통합종가
-   사용 여부, 추정 플래그 처리 방식, 캘린더 정의 방식.
+   사용 여부, 추정 플래그 처리 방식, 캘린더 정의 방식, **각 panel별
+   `KRX종가` derivation 출처(native / from `종가` fallback)와
+   `종가 ≠ KRX종가` 행 수**.
 
 ## Kill criteria
 - A~H 중 하나라도 실패 → 인프라 수정 후 재실행. 결과의 알파 해석 금지.
@@ -200,7 +205,16 @@ level at which abstraction is justified.
     (`수급금액추정여부`, `거래대금추정여부`, `동적유니버스포함`) must be
     boolean after load — coerce the literal "True"/"False" strings if
     needed and assert the result.
-  - Do not silently fill NaNs.
+  - **`KRX종가` normalization.** After concatenation, ensure a single
+    `KRX종가` column exists. For source CSVs that do not contain
+    `KRX종가` (e.g., the pre-NXT `dynamic_top100_2018_2024_panel.csv`),
+    populate `KRX종가` from `종가` for those rows — `종가` is the KRX
+    close by definition in the pre-NXT era. Add a `krx_close_source`
+    column per row taking values `"native"` (CSV had `KRX종가`) or
+    `"from_종가_fallback"`. Verification: in panels where both
+    columns exist on disk, every row must have `종가 == KRX종가` after
+    load; assert this and raise on any mismatch (no silent overwrite).
+  - Do not silently fill NaNs in any other column.
 
 - `src/backtest/calendar.py`
   - Derive the KRX trading-day calendar as the sorted unique set of
