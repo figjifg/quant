@@ -1,0 +1,33 @@
+# Read-only research inputs (large, mirrored elsewhere)
+research_input_data/
+
+# Local working data, reproducible from inputs + configs
+data/raw/
+data/processed/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+.vscode/
+.idea/
+
+# Codex / Claude session artifacts
+.codex/
+*.codex-session
+.claude/settings.local.json
