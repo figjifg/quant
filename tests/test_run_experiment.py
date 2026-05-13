@@ -449,6 +449,95 @@ output_dir: {output_dir}
     assert set(holding_periods["run"]) == {"headline", "A002_replay"}
 
 
+def test_run_b003_experiment_cli_writes_trigger_outputs(tmp_path: Path) -> None:
+    panel_path = tmp_path / "synthetic_panel.csv"
+    output_dir = tmp_path / "reports" / "B003_trigger_role_exploration"
+    config_path = tmp_path / "b003.yaml"
+    _write_synthetic_panel(panel_path)
+    config_path.write_text(
+        f"""experiment_id: B003
+panels:
+  - {panel_path}
+periods:
+  is:
+    start: 2025-01-30
+    end:   2025-02-14
+  oos:
+    start: 2025-02-17
+    end:   2025-03-19
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  max_positions: 5
+exit:
+  type: signal_reversal
+trigger:
+  candidates: [immediate, freshness, acceleration, persistence_3d]
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+output_dir: {output_dir}
+""",
+        encoding="utf-8",
+    )
+
+    subprocess.run(
+        [sys.executable, "-m", "src.run_experiment", "--config", str(config_path)],
+        check=True,
+        cwd=Path(__file__).resolve().parents[1],
+    )
+
+    expected_files = {
+        "config.yaml",
+        "metrics.json",
+        "trades.csv",
+        "signals.csv",
+        "equity_curve.csv",
+        "cost_sensitivity.csv",
+        "report.md",
+        "exit_reason_breakdown.csv",
+        "holding_period_distribution.csv",
+        "trade_set_overlap.csv",
+        "trades_immediate.csv",
+        "signals_immediate.csv",
+        "equity_curve_immediate.csv",
+        "trades_freshness.csv",
+        "signals_freshness.csv",
+        "equity_curve_freshness.csv",
+        "trades_acceleration.csv",
+        "signals_acceleration.csv",
+        "equity_curve_acceleration.csv",
+        "trades_persistence_3d.csv",
+        "signals_persistence_3d.csv",
+        "equity_curve_persistence_3d.csv",
+    }
+    assert expected_files == {path.name for path in output_dir.iterdir() if path.is_file()}
+
+    metrics = json.loads((output_dir / "metrics.json").read_text(encoding="utf-8"))
+    assert set(metrics) == {
+        "T1_immediate",
+        "T2_freshness",
+        "T3_acceleration",
+        "T4_persistence_3d",
+        "B0",
+        "B1",
+        "B2",
+        "B3",
+        "diagnostic_estimate_included",
+        "cost_0_T1_immediate",
+        "cost_0_T2_freshness",
+        "cost_0_T3_acceleration",
+        "cost_0_T4_persistence_3d",
+    }
+    assert all(set(metrics[key]) == {"is", "oos", "full"} for key in metrics)
+    assert list(pd.read_csv(output_dir / "cost_sensitivity.csv")["run"].unique())
+
+
 def test_ticker_safe_csv_writer_preserves_leading_zero_codes(tmp_path: Path) -> None:
     path = tmp_path / "trades.csv"
     frame = pd.DataFrame(

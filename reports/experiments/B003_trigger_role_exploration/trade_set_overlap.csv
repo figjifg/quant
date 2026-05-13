@@ -1,0 +1,17 @@
+left_run,right_run,left_count,right_count,overlap_count,left_only_count,right_only_count,jaccard_overlap
+T1_immediate,T1_immediate,730,730,730,0,0,1.0
+T1_immediate,T2_freshness,730,851,171,559,680,0.12127659574468085
+T1_immediate,T3_acceleration,730,724,555,175,169,0.6173526140155728
+T1_immediate,T4_persistence_3d,730,826,88,642,738,0.05994550408719346
+T2_freshness,T1_immediate,851,730,171,680,559,0.12127659574468085
+T2_freshness,T2_freshness,851,851,851,0,0,1.0
+T2_freshness,T3_acceleration,851,724,184,667,540,0.13227893601725377
+T2_freshness,T4_persistence_3d,851,826,0,851,826,0.0
+T3_acceleration,T1_immediate,724,730,555,169,175,0.6173526140155728
+T3_acceleration,T2_freshness,724,851,184,540,667,0.13227893601725377
+T3_acceleration,T3_acceleration,724,724,724,0,0,1.0
+T3_acceleration,T4_persistence_3d,724,826,87,637,739,0.059466848940533154
+T4_persistence_3d,T1_immediate,826,730,88,738,642,0.05994550408719346
+T4_persistence_3d,T2_freshness,826,851,0,826,851,0.0
+T4_persistence_3d,T3_acceleration,826,724,87,739,637,0.059466848940533154
+T4_persistence_3d,T4_persistence_3d,826,826,826,0,0,1.0

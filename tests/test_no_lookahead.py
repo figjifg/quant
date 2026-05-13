@@ -231,6 +231,32 @@ def test_strategy_candidates_at_execution_date_unchanged_by_future_panel_mutatio
     pd.testing.assert_frame_equal(after, before)
 
 
+def test_combined_flow_1_at_signal_date_unchanged_by_future_panel_mutation(
+    synthetic_pipeline: tuple[
+        pd.DataFrame, KRXTradingCalendar, pd.DataFrame, pd.DataFrame, pd.DataFrame
+    ],
+) -> None:
+    panel, calendar, features, _, _ = synthetic_pipeline
+    signal_date = calendar.dates[26]
+    ticker = "000002"
+    before = features.loc[
+        features["종목코드"].eq(ticker) & features["날짜"].eq(signal_date),
+        "combined_flow_1",
+    ].iloc[0]
+
+    mutated = panel.copy()
+    mutated.loc[mutated["날짜"].gt(signal_date), "거래대금추정"] = 1.0
+    mutated.loc[mutated["날짜"].gt(signal_date), "외국인순매수금액추정"] = -999_000_000_000.0
+    mutated.loc[mutated["날짜"].gt(signal_date), "기관순매수금액추정"] = -999_000_000_000.0
+    mutated_features = build_flow_ratios(mutated, calendar)
+    after = mutated_features.loc[
+        mutated_features["종목코드"].eq(ticker) & mutated_features["날짜"].eq(signal_date),
+        "combined_flow_1",
+    ].iloc[0]
+
+    assert after == before
+
+
 def test_full_backtest_trades_for_period_ending_at_T_unchanged_by_mutating_rows_after_T(
     synthetic_pipeline: tuple[
         pd.DataFrame, KRXTradingCalendar, pd.DataFrame, pd.DataFrame, pd.DataFrame

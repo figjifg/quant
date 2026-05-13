@@ -23,6 +23,7 @@ from src.reporting.report import write_report
 from src.roles.exits import exit_signal_reversal, exit_time_cap, exit_volatility_stop_plus_cap
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
 from src.strategies.b002_signal_reversal import build_b002_candidates, build_b002_signal_exit_features
+from src.strategies.b003_trigger_exploration import TRIGGER_CANDIDATES, build_b003_trigger_exploration
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -106,6 +107,18 @@ EXPECTED_B002_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B003_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "periods",
+    "universe",
+    "strategy",
+    "exit",
+    "trigger",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -117,6 +130,7 @@ EXPECTED_STRATEGY_KEYS = ("lookback", "holding", "max_positions")
 EXPECTED_B002_STRATEGY_KEYS = ("lookback", "max_positions")
 EXPECTED_EXIT_KEYS = ("vol_stop_k", "vol_stop_atr_window")
 EXPECTED_B002_EXIT_KEYS = ("type",)
+EXPECTED_B003_TRIGGER_KEYS = ("candidates",)
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
@@ -150,6 +164,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B002":
         _validate_b002_config_shape(config)
         run_b002_experiment(config, config_path)
+    elif experiment_id == "B003":
+        _validate_b003_config_shape(config)
+        run_b003_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -1192,6 +1209,182 @@ def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
     )
 
 
+def run_b003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, diagnostic_universe = _build_common_inputs(config)
+    trigger_candidates, signal_exit_kwargs = build_b003_trigger_exploration(features, headline_universe)
+    diagnostic_candidates, _ = build_b003_trigger_exploration(features, diagnostic_universe)
+
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    strategy = config["strategy"]
+    max_positions = int(strategy["max_positions"])
+    costs = _costs_from_config(config["costs"])
+    labels = {
+        "immediate": "T1_immediate",
+        "freshness": "T2_freshness",
+        "acceleration": "T3_acceleration",
+        "persistence_3d": "T4_persistence_3d",
+    }
+
+    trigger_runs = {
+        labels[name]: run_candidate_backtest(
+            panel,
+            calendar,
+            trigger_candidates[name],
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            **signal_exit_kwargs,
+        )
+        for name in TRIGGER_CANDIDATES
+    }
+    runs: dict[str, BacktestResult] = {
+        **trigger_runs,
+        "B0": run_b0_cash(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B1": run_b1_buy_and_hold(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B2": run_b2_universe_5d_rebalance(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B3": run_b3_price_momentum(
+            panel,
+            calendar,
+            features,
+            headline_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "diagnostic_estimate_included": run_candidate_backtest(
+            panel,
+            calendar,
+            diagnostic_candidates["immediate"],
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            **signal_exit_kwargs,
+        ),
+    }
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _b003_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            candidates_by_label={labels[name]: trigger_candidates[name] for name in TRIGGER_CANDIDATES},
+            signal_exit_features=signal_exit_kwargs["signal_exit_features"],
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+        )
+    )
+
+    best_label = max((labels[name] for name in TRIGGER_CANDIDATES), key=lambda label: metrics[label]["oos"]["total_return"])
+    best_name = next(name for name, label in labels.items() if label == best_label)
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=trigger_candidates[best_name],
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=5,
+        signal_exit_features=signal_exit_kwargs["signal_exit_features"],
+    )
+    cost_sensitivity.insert(0, "run", best_label)
+    split_dates = {"is": (is_start, is_end), "oos": (oos_start, oos_end)}
+    exit_reason_breakdown = _exit_reason_breakdown(
+        trades_by_run={label: trigger_runs[label].trades for label in labels.values()},
+        split_dates=split_dates,
+    )
+    holding_period_distribution = _holding_period_distribution(
+        trades_by_run={label: trigger_runs[label].trades for label in labels.values()},
+        oos_start=oos_start,
+        oos_end=oos_end,
+        calendar=calendar,
+    )
+    trade_set_overlap = _trade_set_overlap_matrix(
+        trades_by_run={label: trigger_runs[label].trades for label in labels.values()},
+        oos_start=oos_start,
+        oos_end=oos_end,
+    )
+
+    immediate_label = labels["immediate"]
+    _write_outputs(
+        config=config,
+        config_path=config_path,
+        panel=panel,
+        calendar=calendar,
+        headline_candidates=trigger_candidates["immediate"],
+        headline_result=trigger_runs[immediate_label],
+        metrics=metrics,
+        report_metrics={
+            label: metrics[label] for label in labels.values()
+        }
+        | {
+            f"cost_0_{label}": metrics[f"cost_0_{label}"] for label in labels.values()
+        }
+        | {
+            "diagnostic_estimate_included": metrics["diagnostic_estimate_included"],
+        },
+        baselines={
+            "B0_cash": metrics["B0"],
+            "B1_buy_and_hold": metrics["B1"],
+            "B2_universe_5d_rebalance": metrics["B2"],
+            "B3_price_momentum": metrics["B3"],
+        },
+        cost_sensitivity=cost_sensitivity,
+        exit_reason_breakdown=exit_reason_breakdown,
+        holding_period_distribution=holding_period_distribution,
+    )
+    output_dir = Path(config["output_dir"])
+    for name in TRIGGER_CANDIDATES:
+        label = labels[name]
+        _write_ticker_safe_csv(trigger_runs[label].trades, output_dir / f"trades_{name}.csv")
+        _write_ticker_safe_csv(_signals_frame(trigger_candidates[name]), output_dir / f"signals_{name}.csv")
+        trigger_runs[label].equity_curve.to_csv(output_dir / f"equity_curve_{name}.csv", index=False)
+    trade_set_overlap.to_csv(output_dir / "trade_set_overlap.csv", index=False)
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -1464,6 +1657,50 @@ def _b002_cost_0_metrics(
     }
 
 
+def _b003_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    candidates_by_label: dict[str, pd.DataFrame],
+    signal_exit_features: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    signal_exit_kwargs = {
+        "holding": 5,
+        "vol_stop_k": None,
+        "vol_stop_atr_window": 20,
+        "atr_features": None,
+        "signal_exit_features": signal_exit_features,
+    }
+    metrics: dict[str, dict[str, dict[str, float | int]]] = {}
+    for label, candidates in candidates_by_label.items():
+        result = run_candidate_backtest(
+            panel,
+            calendar,
+            candidates,
+            zero_costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            **signal_exit_kwargs,
+        )
+        metrics[f"cost_0_{label}"] = metrics_is_oos(
+            result.equity_curve,
+            result.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        )
+    return metrics
+
+
 def _write_outputs(
     *,
     config: dict[str, Any],
@@ -1680,6 +1917,23 @@ def _validate_b002_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("B002 requires exit.type: signal_reversal.")
 
 
+def _validate_b003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B003_CONFIG_KEYS:
+        raise ValueError(f"B003 config keys must be exactly {EXPECTED_B003_CONFIG_KEYS}; got {keys}.")
+    _validate_b002_common_config_shape(config)
+    if tuple(config["exit"].keys()) != EXPECTED_B002_EXIT_KEYS:
+        raise ValueError("B003 exit keys must be exactly ('type',).")
+    if tuple(config["trigger"].keys()) != EXPECTED_B003_TRIGGER_KEYS:
+        raise ValueError(f"B003 trigger keys must be exactly {EXPECTED_B003_TRIGGER_KEYS}.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("B003 requires strategy.max_positions: 5.")
+    if config["exit"]["type"] != "signal_reversal":
+        raise ValueError("B003 requires exit.type: signal_reversal.")
+    if tuple(config["trigger"]["candidates"]) != TRIGGER_CANDIDATES:
+        raise ValueError(f"B003 trigger.candidates must be exactly {list(TRIGGER_CANDIDATES)}.")
+
+
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
     if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
         raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
@@ -1870,6 +2124,60 @@ def _exit_reason_breakdown(
     return pd.DataFrame(rows, columns=["run", "period", "exit_reason", "count", "pct"])
 
 
+def _trade_set_overlap_matrix(
+    *,
+    trades_by_run: dict[str, pd.DataFrame],
+    oos_start: object,
+    oos_end: object,
+) -> pd.DataFrame:
+    start_ts = pd.Timestamp(oos_start).normalize()
+    end_ts = pd.Timestamp(oos_end).normalize()
+    trade_sets: dict[str, set[tuple[pd.Timestamp, str]]] = {}
+    for run_name, trades in trades_by_run.items():
+        if trades.empty:
+            trade_sets[run_name] = set()
+            continue
+        trade_data = trades.copy()
+        trade_data["entry_date"] = pd.to_datetime(trade_data["entry_date"], errors="raise")
+        trade_data["종목코드"] = trade_data["종목코드"].astype("string")
+        trade_data = trade_data.loc[trade_data["entry_date"].between(start_ts, end_ts)]
+        trade_sets[run_name] = {
+            (pd.Timestamp(entry_date).normalize(), str(ticker))
+            for entry_date, ticker in zip(trade_data["entry_date"], trade_data["종목코드"], strict=False)
+        }
+
+    rows: list[dict[str, Any]] = []
+    for left_name, left_set in trade_sets.items():
+        for right_name, right_set in trade_sets.items():
+            union_count = len(left_set | right_set)
+            overlap_count = len(left_set & right_set)
+            rows.append(
+                {
+                    "left_run": left_name,
+                    "right_run": right_name,
+                    "left_count": len(left_set),
+                    "right_count": len(right_set),
+                    "overlap_count": overlap_count,
+                    "left_only_count": len(left_set - right_set),
+                    "right_only_count": len(right_set - left_set),
+                    "jaccard_overlap": float(overlap_count / union_count) if union_count else float("nan"),
+                }
+            )
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "left_run",
+            "right_run",
+            "left_count",
+            "right_count",
+            "overlap_count",
+            "left_only_count",
+            "right_only_count",
+            "jaccard_overlap",
+        ],
+    )
+
+
 def _holding_period_distribution(
     *,
     trades_by_run: dict[str, pd.DataFrame],
@@ -2002,9 +2310,9 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
 
 
 def _signal_exit_policy(config: dict[str, Any]) -> str:
-    if config.get("experiment_id") != "B002":
+    if config.get("experiment_id") not in {"B002", "B003"}:
         return ""
-    return "B002 exits at next trading-day open when fnv_5 <= 0 or inv_5 <= 0; NaN or missing signal components during hold are treated as <= 0 for conservative exit"
+    return "Signal-reversal exits at next trading-day open when fnv_5 <= 0 or inv_5 <= 0; NaN or missing signal components during hold are treated as <= 0 for conservative exit"
 
 
 def _jsonable(value: Any) -> Any:

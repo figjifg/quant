@@ -17,6 +17,7 @@ REQUIRED_COLUMNS = (
     "기관순매수금액추정",
 )
 FEATURE_COLUMNS = (
+    "combined_flow_1",
     "traded_value_5",
     "foreign_net_5",
     "institution_net_5",
@@ -88,11 +89,16 @@ def _features_for_ticker(
     traded_value_5 = aligned["거래대금추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
     foreign_net_5 = aligned["외국인순매수금액추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
     institution_net_5 = aligned["기관순매수금액추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
+    traded_value_1 = aligned["거래대금추정"].where(aligned["거래대금추정"].gt(0))
     market_cap = aligned["시가총액추정"].where(aligned["시가총액추정"].gt(0))
 
     features = pd.DataFrame(
         {
             "종목코드": ticker,
+            "combined_flow_1": (
+                aligned["외국인순매수금액추정"] + aligned["기관순매수금액추정"]
+            )
+            / traded_value_1,
             "traded_value_5": traded_value_5,
             "foreign_net_5": foreign_net_5,
             "institution_net_5": institution_net_5,
