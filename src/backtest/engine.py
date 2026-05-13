@@ -59,6 +59,11 @@ class _Slot:
     exit_date: pd.Timestamp
     signal_date: pd.Timestamp
     exit_reason: str = "holding_period"
+    stop_price: float | None = None
+    cap_exit_date: pd.Timestamp | None = None
+    pending_stop_exit_date: pd.Timestamp | None = None
+    pending_stop_fallback: bool = False
+    last_close: float | None = None
 
 
 def run_headline_backtest(
@@ -103,14 +108,18 @@ def run_candidate_backtest(
     max_positions: int = 5,
     holding: int = 5,
     initial_cash: float = 1.0,
+    vol_stop_k: float | None = None,
+    vol_stop_atr_window: int = 20,
+    atr_features: pd.DataFrame | None = None,
 ) -> BacktestResult:
-    """Run the slot-based fixed-holding engine on pre-ranked entry candidates."""
+    """Run the slot-based engine on pre-ranked entry candidates."""
     if max_positions <= 0:
         raise ValueError("max_positions must be positive.")
     if holding <= 0:
         raise ValueError("holding must be positive.")
 
     _validate_candidate_inputs(panel, candidates)
+    atr_lookup = _ATRLookup(atr_features, vol_stop_atr_window) if vol_stop_k is not None else None
     prices = _PriceLookup(panel)
     period_dates = _period_dates(calendar, period_start, period_end)
     if not period_dates:
@@ -122,15 +131,28 @@ def run_candidate_backtest(
     equity_rows: list[dict[str, object]] = []
 
     for current_date in period_dates:
-        cash = _process_due_exits(
-            current_date=current_date,
-            slots=slots,
-            prices=prices,
-            calendar=calendar,
-            costs=costs,
-            cash=cash,
-            trade_rows=trade_rows,
-        )
+        exited_tickers: set[str] = set()
+        if vol_stop_k is None:
+            cash = _process_due_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+            )
+        else:
+            cash = _process_pending_stop_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+            )
 
         mtm_before_entries = _mtm_value(slots, prices, current_date)
         nav_for_entries = cash + mtm_before_entries
@@ -146,7 +168,22 @@ def run_candidate_backtest(
             cash=cash,
             max_positions=max_positions,
             holding=holding,
+            vol_stop_k=vol_stop_k,
+            atr_lookup=atr_lookup,
+            exited_tickers=exited_tickers,
         )
+
+        if vol_stop_k is not None:
+            cash = _process_dynamic_close_rules(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+            )
 
         mtm_after_entries = _mtm_value(slots, prices, current_date)
         equity_value = cash + mtm_after_entries
@@ -229,6 +266,9 @@ def _process_entries(
     cash: float,
     max_positions: int,
     holding: int,
+    vol_stop_k: float | None = None,
+    atr_lookup: _ATRLookup | None = None,
+    exited_tickers: set[str] | None = None,
 ) -> float:
     open_slots = [index for index, slot in enumerate(slots) if slot is None]
     if not open_slots or pd.isna(nav_for_entries):
@@ -240,6 +280,8 @@ def _process_entries(
         scheduled_exit_date = pd.NaT
 
     held_tickers = {slot.ticker for slot in slots if slot is not None}
+    if exited_tickers:
+        held_tickers.update(exited_tickers)
     todays_candidates = candidates.loc[candidates["execution_date"] == current_date]
     todays_candidates = todays_candidates.loc[~todays_candidates["종목코드"].isin(held_tickers)]
     todays_candidates = todays_candidates.head(len(open_slots))
@@ -249,6 +291,19 @@ def _process_entries(
         entry_price = prices.open(ticker, current_date)
         if pd.isna(entry_price):
             continue
+        signal_date = pd.Timestamp(row["signal_date"]).normalize()
+
+        stop_price: float | None = None
+        cap_exit_date = scheduled_exit_date
+        exit_reason = "holding_period"
+        if vol_stop_k is not None:
+            if atr_lookup is None:
+                raise ValueError("atr_features is required when vol_stop_k is set.")
+            atr_pct = atr_lookup.value(ticker, signal_date)
+            if pd.isna(atr_pct):
+                continue
+            stop_price = float(entry_price) * (1.0 - float(vol_stop_k) * float(atr_pct))
+            exit_reason = "time_cap"
 
         notional = float(nav_for_entries) / max_positions
         cost_paid = buy_cost(notional, costs)
@@ -261,9 +316,94 @@ def _process_entries(
             notional_at_entry=notional,
             buy_cost_paid=cost_paid,
             exit_date=scheduled_exit_date,
-            signal_date=row["signal_date"],
+            signal_date=signal_date,
+            exit_reason=exit_reason,
+            stop_price=stop_price,
+            cap_exit_date=cap_exit_date,
         )
 
+    return cash
+
+
+def _process_pending_stop_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+) -> float:
+    for index, slot in enumerate(slots):
+        if slot is None or slot.pending_stop_exit_date != current_date:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_stop_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_stop_fallback = True
+            continue
+
+        reason = "vol_stop_fallback" if slot.pending_stop_fallback else "vol_stop"
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason=reason,
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
+    return cash
+
+
+def _process_dynamic_close_rules(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+) -> float:
+    for index, slot in enumerate(slots):
+        if slot is None or slot.ticker in exited_tickers:
+            continue
+
+        close_price = prices.close(slot.ticker, current_date)
+        if not pd.isna(close_price):
+            slot.last_close = float(close_price)
+
+        if current_date <= slot.entry_date:
+            continue
+
+        if not pd.isna(close_price) and slot.stop_price is not None and float(close_price) <= slot.stop_price:
+            slot.pending_stop_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_stop_fallback = False
+            continue
+
+        if slot.cap_exit_date is not None and current_date >= slot.cap_exit_date:
+            if pd.isna(close_price):
+                slot.cap_exit_date = _next_trading_day_or_nat(calendar, current_date)
+                slot.exit_reason = "time_cap_fallback"
+                continue
+            cash = _close_slot(
+                slot=slot,
+                exit_date=current_date,
+                exit_price=float(close_price),
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exit_reason=slot.exit_reason,
+            )
+            exited_tickers.add(slot.ticker)
+            slots[index] = None
     return cash
 
 
@@ -280,6 +420,8 @@ def _force_period_end_exits(
         if slot is None:
             continue
         exit_price = prices.close(slot.ticker, current_date)
+        if pd.isna(exit_price) and slot.stop_price is not None and slot.last_close is not None:
+            exit_price = slot.last_close
         cash = _close_slot(
             slot=slot,
             exit_date=current_date,
@@ -334,9 +476,38 @@ def _mtm_value(
             continue
         close_price = prices.close(slot.ticker, current_date)
         if pd.isna(close_price):
-            return float("nan")
+            if slot.stop_price is None or slot.last_close is None:
+                return float("nan")
+            close_price = slot.last_close
+        else:
+            if slot.stop_price is not None:
+                slot.last_close = float(close_price)
         values.append(slot.shares * float(close_price))
     return float(sum(values))
+
+
+class _ATRLookup:
+    def __init__(self, atr_features: pd.DataFrame | None, window: int) -> None:
+        if atr_features is None:
+            raise ValueError("atr_features is required when vol_stop_k is set.")
+        feature_column = f"atr_pct_{window}"
+        _require_columns(atr_features, ("날짜", "종목코드", feature_column), "atr_features")
+        features = atr_features.loc[:, ["날짜", "종목코드", feature_column]].copy()
+        features["날짜"] = pd.to_datetime(features["날짜"], errors="raise").astype("datetime64[ns]")
+        features["종목코드"] = features["종목코드"].astype("string")
+        if features.duplicated(["날짜", "종목코드"]).any():
+            raise ValueError("ATR features contain duplicate rows for (날짜, 종목코드).")
+        self._feature_column = feature_column
+        self._features = features.set_index(["날짜", "종목코드"]).sort_index()
+
+    def value(self, ticker: str, date: pd.Timestamp) -> float:
+        key = (pd.Timestamp(date).normalize(), ticker)
+        if key not in self._features.index:
+            raise ValueError(f"Missing ATR feature for ticker {ticker} on {pd.Timestamp(date).date()}.")
+        value = self._features.loc[key, self._feature_column]
+        if pd.isna(value):
+            return float("nan")
+        return float(value)
 
 
 class _PriceLookup:
@@ -386,6 +557,13 @@ def _period_dates(
     start = pd.Timestamp(period_start).normalize()
     end = pd.Timestamp(period_end).normalize()
     return [date for date in calendar.dates if start <= date <= end]
+
+
+def _next_trading_day_or_nat(calendar: KRXTradingCalendar, date: pd.Timestamp) -> pd.Timestamp:
+    try:
+        return calendar.next_trading_day(date)
+    except ValueError:
+        return pd.NaT
 
 
 def _empty_trades() -> pd.DataFrame:
