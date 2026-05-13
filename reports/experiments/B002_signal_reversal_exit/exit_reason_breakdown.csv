@@ -1,0 +1,9 @@
+run,period,exit_reason,count,pct
+headline,is,signal_reversal,1213,0.999176276771005
+headline,is,signal_reversal_fallback,1,0.0008237232289950577
+headline,oos,period_end,5,0.00684931506849315
+headline,oos,signal_reversal,724,0.9917808219178083
+headline,oos,signal_reversal_fallback,1,0.0013698630136986301
+A002_replay,is,holding_period,305,1.0
+A002_replay,oos,holding_period,200,0.975609756097561
+A002_replay,oos,period_end,5,0.024390243902439025

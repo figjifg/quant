@@ -32,6 +32,7 @@ METADATA_KEYS = (
     "oos_end",
     "estimate_row_policy",
     "integrated_column_policy",
+    "signal_exit_policy",
     "calendar_source",
     "krx_close_derivation_summary",
     "n_tickers",

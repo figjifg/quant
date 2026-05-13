@@ -63,6 +63,8 @@ class _Slot:
     cap_exit_date: pd.Timestamp | None = None
     pending_stop_exit_date: pd.Timestamp | None = None
     pending_stop_fallback: bool = False
+    pending_signal_exit_date: pd.Timestamp | None = None
+    pending_signal_fallback: bool = False
     last_close: float | None = None
 
 
@@ -111,6 +113,7 @@ def run_candidate_backtest(
     vol_stop_k: float | None = None,
     vol_stop_atr_window: int = 20,
     atr_features: pd.DataFrame | None = None,
+    signal_exit_features: pd.DataFrame | None = None,
 ) -> BacktestResult:
     """Run the slot-based engine on pre-ranked entry candidates."""
     if max_positions <= 0:
@@ -120,6 +123,7 @@ def run_candidate_backtest(
 
     _validate_candidate_inputs(panel, candidates)
     atr_lookup = _ATRLookup(atr_features, vol_stop_atr_window) if vol_stop_k is not None else None
+    signal_exit_lookup = _SignalExitLookup(signal_exit_features) if signal_exit_features is not None else None
     prices = _PriceLookup(panel)
     period_dates = _period_dates(calendar, period_start, period_end)
     if not period_dates:
@@ -132,7 +136,18 @@ def run_candidate_backtest(
 
     for current_date in period_dates:
         exited_tickers: set[str] = set()
-        if vol_stop_k is None:
+        if signal_exit_lookup is not None:
+            cash = _process_pending_signal_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+            )
+        elif vol_stop_k is None:
             cash = _process_due_exits(
                 current_date=current_date,
                 slots=slots,
@@ -170,10 +185,20 @@ def run_candidate_backtest(
             holding=holding,
             vol_stop_k=vol_stop_k,
             atr_lookup=atr_lookup,
+            signal_exit_mode=signal_exit_lookup is not None,
             exited_tickers=exited_tickers,
         )
 
-        if vol_stop_k is not None:
+        if signal_exit_lookup is not None:
+            cash = _process_signal_close_rules(
+                current_date=current_date,
+                slots=slots,
+                signal_exit_lookup=signal_exit_lookup,
+                calendar=calendar,
+                cash=cash,
+                exited_tickers=exited_tickers,
+            )
+        elif vol_stop_k is not None:
             cash = _process_dynamic_close_rules(
                 current_date=current_date,
                 slots=slots,
@@ -268,16 +293,19 @@ def _process_entries(
     holding: int,
     vol_stop_k: float | None = None,
     atr_lookup: _ATRLookup | None = None,
+    signal_exit_mode: bool = False,
     exited_tickers: set[str] | None = None,
 ) -> float:
     open_slots = [index for index, slot in enumerate(slots) if slot is None]
     if not open_slots or pd.isna(nav_for_entries):
         return cash
 
-    try:
-        scheduled_exit_date: pd.Timestamp = calendar.add_trading_days(current_date, holding)
-    except ValueError:
-        scheduled_exit_date = pd.NaT
+    scheduled_exit_date = pd.NaT
+    if not signal_exit_mode:
+        try:
+            scheduled_exit_date = calendar.add_trading_days(current_date, holding)
+        except ValueError:
+            scheduled_exit_date = pd.NaT
 
     held_tickers = {slot.ticker for slot in slots if slot is not None}
     if exited_tickers:
@@ -296,7 +324,10 @@ def _process_entries(
         stop_price: float | None = None
         cap_exit_date = scheduled_exit_date
         exit_reason = "holding_period"
-        if vol_stop_k is not None:
+        if signal_exit_mode:
+            cap_exit_date = None
+            exit_reason = "signal_reversal"
+        elif vol_stop_k is not None:
             if atr_lookup is None:
                 raise ValueError("atr_features is required when vol_stop_k is set.")
             atr_pct = atr_lookup.value(ticker, signal_date)
@@ -322,6 +353,42 @@ def _process_entries(
             cap_exit_date=cap_exit_date,
         )
 
+    return cash
+
+
+def _process_pending_signal_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+) -> float:
+    for index, slot in enumerate(slots):
+        if slot is None or slot.pending_signal_exit_date != current_date:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_signal_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_signal_fallback = True
+            continue
+
+        reason = "signal_reversal_fallback" if slot.pending_signal_fallback else "signal_reversal"
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason=reason,
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
     return cash
 
 
@@ -358,6 +425,29 @@ def _process_pending_stop_exits(
         )
         exited_tickers.add(slot.ticker)
         slots[index] = None
+    return cash
+
+
+def _process_signal_close_rules(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    signal_exit_lookup: _SignalExitLookup,
+    calendar: KRXTradingCalendar,
+    cash: float,
+    exited_tickers: set[str],
+) -> float:
+    for slot in slots:
+        if slot is None or slot.ticker in exited_tickers:
+            continue
+        if current_date <= slot.entry_date or slot.pending_signal_exit_date is not None:
+            continue
+
+        # Signals are post-close data for current_date; any exit they trigger
+        # is scheduled for the next trading day's open, matching entry timing.
+        if signal_exit_lookup.is_reversal(slot.ticker, current_date):
+            slot.pending_signal_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_signal_fallback = False
     return cash
 
 
@@ -508,6 +598,26 @@ class _ATRLookup:
         if pd.isna(value):
             return float("nan")
         return float(value)
+
+
+class _SignalExitLookup:
+    def __init__(self, signal_exit_features: pd.DataFrame) -> None:
+        _require_columns(signal_exit_features, ("날짜", "종목코드", "fnv_5", "inv_5"), "signal_exit_features")
+        features = signal_exit_features.loc[:, ["날짜", "종목코드", "fnv_5", "inv_5"]].copy()
+        features["날짜"] = pd.to_datetime(features["날짜"], errors="raise").astype("datetime64[ns]")
+        features["종목코드"] = features["종목코드"].astype("string")
+        if features.duplicated(["날짜", "종목코드"]).any():
+            raise ValueError("Signal exit features contain duplicate rows for (날짜, 종목코드).")
+        self._features = features.set_index(["날짜", "종목코드"]).sort_index()
+
+    def is_reversal(self, ticker: str, date: pd.Timestamp) -> bool:
+        key = (pd.Timestamp(date).normalize(), ticker)
+        if key not in self._features.index:
+            return True
+        row = self._features.loc[key]
+        fnv_5 = row["fnv_5"]
+        inv_5 = row["inv_5"]
+        return bool(pd.isna(fnv_5) or pd.isna(inv_5) or fnv_5 <= 0 or inv_5 <= 0)
 
 
 class _PriceLookup:

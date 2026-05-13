@@ -21,6 +21,7 @@ from src.features.market_gate import build_kospi_proxy_close_series, build_marke
 from src.reporting.metrics import metrics_is_oos
 from src.reporting.report import write_report
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
+from src.strategies.b002_signal_reversal import build_b002_candidates, build_b002_signal_exit_features
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -93,6 +94,17 @@ EXPECTED_B001_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B002_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "periods",
+    "universe",
+    "strategy",
+    "exit",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -101,7 +113,9 @@ EXPECTED_UNIVERSE_KEYS = (
     "exclude_estimated_flag_rows",
 )
 EXPECTED_STRATEGY_KEYS = ("lookback", "holding", "max_positions")
+EXPECTED_B002_STRATEGY_KEYS = ("lookback", "max_positions")
 EXPECTED_EXIT_KEYS = ("vol_stop_k", "vol_stop_atr_window")
+EXPECTED_B002_EXIT_KEYS = ("type",)
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
@@ -132,6 +146,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B001":
         _validate_b001_config_shape(config)
         run_b001_experiment(config, config_path)
+    elif experiment_id == "B002":
+        _validate_b002_config_shape(config)
+        run_b002_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -1008,6 +1025,175 @@ def run_b001_experiment(config: dict[str, Any], config_path: Path) -> None:
     )
 
 
+def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, diagnostic_universe = _build_common_inputs(config)
+    headline_candidates = build_b002_candidates(features, headline_universe)
+    a002_candidates = build_e001_flow_filter_candidates(features, headline_universe)
+    diagnostic_candidates = build_b002_candidates(features, diagnostic_universe)
+    signal_exit_features = build_b002_signal_exit_features(features)
+
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    strategy = config["strategy"]
+    max_positions = int(strategy["max_positions"])
+    costs = _costs_from_config(config["costs"])
+    a002_holding_cap = 20
+
+    runs: dict[str, BacktestResult] = {
+        "headline": run_candidate_backtest(
+            panel,
+            calendar,
+            headline_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            signal_exit_features=signal_exit_features,
+        ),
+        "A002_replay": run_candidate_backtest(
+            panel,
+            calendar,
+            a002_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=a002_holding_cap,
+        ),
+        "B0": run_b0_cash(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B1": run_b1_buy_and_hold(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B2": run_b2_universe_5d_rebalance(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B3": run_b3_price_momentum(
+            panel,
+            calendar,
+            features,
+            headline_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "diagnostic_estimate_included": run_candidate_backtest(
+            panel,
+            calendar,
+            diagnostic_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            signal_exit_features=signal_exit_features,
+        ),
+    }
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _b002_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            headline_candidates=headline_candidates,
+            a002_candidates=a002_candidates,
+            signal_exit_features=signal_exit_features,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+            a002_holding_cap=a002_holding_cap,
+        )
+    )
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=headline_candidates,
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=5,
+        signal_exit_features=signal_exit_features,
+    )
+    split_dates = {"is": (is_start, is_end), "oos": (oos_start, oos_end)}
+    exit_reason_breakdown = _exit_reason_breakdown(
+        trades_by_run={
+            "headline": runs["headline"].trades,
+            "A002_replay": runs["A002_replay"].trades,
+        },
+        split_dates=split_dates,
+    )
+    holding_period_distribution = _holding_period_distribution(
+        trades_by_run={
+            "headline": runs["headline"].trades,
+            "A002_replay": runs["A002_replay"].trades,
+        },
+        oos_start=oos_start,
+        oos_end=oos_end,
+        calendar=calendar,
+    )
+    _write_outputs(
+        config=config,
+        config_path=config_path,
+        panel=panel,
+        calendar=calendar,
+        headline_candidates=headline_candidates,
+        headline_result=runs["headline"],
+        metrics=metrics,
+        report_metrics={
+            "is": metrics["headline"]["is"],
+            "oos": metrics["headline"]["oos"],
+            "full": metrics["headline"]["full"],
+            "A002_replay": metrics["A002_replay"],
+            "cost_0_headline": metrics["cost_0_headline"],
+            "cost_0_A002_replay": metrics["cost_0_A002_replay"],
+            "diagnostic_estimate_included": metrics["diagnostic_estimate_included"],
+        },
+        baselines={
+            "B0_cash": metrics["B0"],
+            "B1_buy_and_hold": metrics["B1"],
+            "B2_universe_5d_rebalance": metrics["B2"],
+            "B3_price_momentum": metrics["B3"],
+        },
+        cost_sensitivity=cost_sensitivity,
+        exit_reason_breakdown=exit_reason_breakdown,
+        holding_period_distribution=holding_period_distribution,
+    )
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -1216,6 +1402,63 @@ def _b001_cost_0_metrics(
     }
 
 
+def _b002_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    headline_candidates: pd.DataFrame,
+    a002_candidates: pd.DataFrame,
+    signal_exit_features: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+    a002_holding_cap: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    cost_0_headline = run_candidate_backtest(
+        panel,
+        calendar,
+        headline_candidates,
+        zero_costs,
+        is_start,
+        oos_end,
+        max_positions=max_positions,
+        signal_exit_features=signal_exit_features,
+    )
+    cost_0_a002_replay = run_candidate_backtest(
+        panel,
+        calendar,
+        a002_candidates,
+        zero_costs,
+        is_start,
+        oos_end,
+        max_positions=max_positions,
+        holding=a002_holding_cap,
+    )
+    return {
+        "cost_0_headline": metrics_is_oos(
+            cost_0_headline.equity_curve,
+            cost_0_headline.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        ),
+        "cost_0_A002_replay": metrics_is_oos(
+            cost_0_a002_replay.equity_curve,
+            cost_0_a002_replay.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        ),
+    }
+
+
 def _write_outputs(
     *,
     config: dict[str, Any],
@@ -1231,6 +1474,8 @@ def _write_outputs(
     market_gate_features: pd.DataFrame | None = None,
     quintile_membership: pd.DataFrame | None = None,
     trade_mcap_composition: pd.DataFrame | None = None,
+    exit_reason_breakdown: pd.DataFrame | None = None,
+    holding_period_distribution: pd.DataFrame | None = None,
 ) -> None:
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1249,6 +1494,10 @@ def _write_outputs(
         )
     if trade_mcap_composition is not None:
         trade_mcap_composition.to_csv(output_dir / "trade_mcap_composition.csv", index=False)
+    if exit_reason_breakdown is not None:
+        exit_reason_breakdown.to_csv(output_dir / "exit_reason_breakdown.csv", index=False)
+    if holding_period_distribution is not None:
+        holding_period_distribution.to_csv(output_dir / "holding_period_distribution.csv", index=False)
     write_report(output_dir, _metadata(config, panel, calendar), report_metrics, baselines, cost_sensitivity)
 
 
@@ -1268,6 +1517,7 @@ def _run_cost_sensitivity(
     vol_stop_k: float | None = None,
     vol_stop_atr_window: int = 20,
     atr_features: pd.DataFrame | None = None,
+    signal_exit_features: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     rows: list[dict[str, float]] = []
     for multiplier in multipliers:
@@ -1288,6 +1538,7 @@ def _run_cost_sensitivity(
             vol_stop_k=vol_stop_k,
             vol_stop_atr_window=vol_stop_atr_window,
             atr_features=atr_features,
+            signal_exit_features=signal_exit_features,
         )
         metric_block = metrics_is_oos(
             result.equity_curve,
@@ -1411,6 +1662,19 @@ def _validate_b001_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("B001 requires normalization.divisor: 시가총액.")
 
 
+def _validate_b002_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B002_CONFIG_KEYS:
+        raise ValueError(f"B002 config keys must be exactly {EXPECTED_B002_CONFIG_KEYS}; got {keys}.")
+    _validate_b002_common_config_shape(config)
+    if tuple(config["exit"].keys()) != EXPECTED_B002_EXIT_KEYS:
+        raise ValueError(f"B002 exit keys must be exactly {EXPECTED_B002_EXIT_KEYS}.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("B002 requires strategy.max_positions: 5.")
+    if config["exit"]["type"] != "signal_reversal":
+        raise ValueError("B002 requires exit.type: signal_reversal.")
+
+
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
     if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
         raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
@@ -1427,6 +1691,24 @@ def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) ->
         raise ValueError(f"{experiment_id} requires universe.require_dynamic_top100: true.")
     if int(config["strategy"]["lookback"]) != 5:
         raise ValueError(f"{experiment_id} requires strategy.lookback: 5.")
+
+
+def _validate_b002_common_config_shape(config: dict[str, Any]) -> None:
+    if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
+        raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
+    for split in EXPECTED_PERIOD_KEYS:
+        if tuple(config["periods"][split].keys()) != EXPECTED_SPLIT_KEYS:
+            raise ValueError(f"periods.{split} keys must be exactly {EXPECTED_SPLIT_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["strategy"].keys()) != EXPECTED_B002_STRATEGY_KEYS:
+        raise ValueError(f"B002 strategy keys must be exactly {EXPECTED_B002_STRATEGY_KEYS}.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("B002 requires universe.require_dynamic_top100: true.")
+    if int(config["strategy"]["lookback"]) != 5:
+        raise ValueError("B002 requires strategy.lookback: 5.")
 
 
 def _costs_from_config(costs: dict[str, Any]) -> Costs:
@@ -1553,6 +1835,125 @@ def _trade_mcap_composition(
     return summary.loc[:, columns].sort_values(["run", "period", "year"]).reset_index(drop=True)
 
 
+def _exit_reason_breakdown(
+    *,
+    trades_by_run: dict[str, pd.DataFrame],
+    split_dates: dict[str, tuple[object, object]],
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for run_name, trades in trades_by_run.items():
+        if trades.empty:
+            continue
+        trade_data = trades.copy()
+        trade_data["entry_date"] = pd.to_datetime(trade_data["entry_date"], errors="raise")
+        for period, (start, end) in split_dates.items():
+            start_ts = pd.Timestamp(start).normalize()
+            end_ts = pd.Timestamp(end).normalize()
+            period_trades = trade_data.loc[trade_data["entry_date"].between(start_ts, end_ts)]
+            total = len(period_trades)
+            counts = period_trades["exit_reason"].value_counts().sort_index()
+            for exit_reason, count in counts.items():
+                rows.append(
+                    {
+                        "run": run_name,
+                        "period": period,
+                        "exit_reason": exit_reason,
+                        "count": int(count),
+                        "pct": float(count / total) if total else 0.0,
+                    }
+                )
+    return pd.DataFrame(rows, columns=["run", "period", "exit_reason", "count", "pct"])
+
+
+def _holding_period_distribution(
+    *,
+    trades_by_run: dict[str, pd.DataFrame],
+    oos_start: object,
+    oos_end: object,
+    calendar: object,
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for run_name, trades in trades_by_run.items():
+        holding_days = _trade_holding_days(trades, oos_start, oos_end, calendar)
+        total = len(holding_days)
+        if total == 0:
+            rows.append(
+                {
+                    "run": run_name,
+                    "period": "oos",
+                    "row_type": "summary",
+                    "holding_days": "",
+                    "trade_count": 0,
+                    "pct": float("nan"),
+                    "metric": "no_trades",
+                    "value": float("nan"),
+                }
+            )
+            continue
+        counts = holding_days.value_counts().sort_index()
+        for holding_day, count in counts.items():
+            rows.append(
+                {
+                    "run": run_name,
+                    "period": "oos",
+                    "row_type": "histogram",
+                    "holding_days": int(holding_day),
+                    "trade_count": int(count),
+                    "pct": float(count / total),
+                    "metric": "",
+                    "value": float("nan"),
+                }
+            )
+        summary = {
+            "mean": holding_days.mean(),
+            "median": holding_days.median(),
+            "p05": holding_days.quantile(0.05),
+            "p25": holding_days.quantile(0.25),
+            "p75": holding_days.quantile(0.75),
+            "p95": holding_days.quantile(0.95),
+        }
+        for metric, value in summary.items():
+            rows.append(
+                {
+                    "run": run_name,
+                    "period": "oos",
+                    "row_type": "summary",
+                    "holding_days": "",
+                    "trade_count": total,
+                    "pct": float("nan"),
+                    "metric": metric,
+                    "value": float(value),
+                }
+            )
+    return pd.DataFrame(
+        rows,
+        columns=["run", "period", "row_type", "holding_days", "trade_count", "pct", "metric", "value"],
+    )
+
+
+def _trade_holding_days(
+    trades: pd.DataFrame,
+    start: object,
+    end: object,
+    calendar: object,
+) -> pd.Series:
+    if trades.empty:
+        return pd.Series(dtype="int64")
+    dates = getattr(calendar, "dates", calendar)
+    index_by_date = {pd.Timestamp(date).normalize(): index for index, date in enumerate(dates)}
+    trade_data = trades.copy()
+    trade_data["entry_date"] = pd.to_datetime(trade_data["entry_date"], errors="raise")
+    trade_data["exit_date"] = pd.to_datetime(trade_data["exit_date"], errors="raise")
+    start_ts = pd.Timestamp(start).normalize()
+    end_ts = pd.Timestamp(end).normalize()
+    trade_data = trade_data.loc[trade_data["entry_date"].between(start_ts, end_ts)]
+    values = [
+        index_by_date[pd.Timestamp(exit_date).normalize()] - index_by_date[pd.Timestamp(entry_date).normalize()]
+        for entry_date, exit_date in zip(trade_data["entry_date"], trade_data["exit_date"], strict=False)
+    ]
+    return pd.Series(values, dtype="int64")
+
+
 def _write_ticker_safe_csv(frame: pd.DataFrame, path: Path) -> None:
     output = frame.copy()
     if "종목코드" in output.columns:
@@ -1578,6 +1979,7 @@ def _metadata(config: dict[str, Any], panel: pd.DataFrame, calendar: object) -> 
         "oos_end": _date_string(config["periods"]["oos"]["end"]),
         "estimate_row_policy": "headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is universally True in the Kiwoom panel and is not used as a filter; diagnostic_estimate_included reincludes the 거래대금추정여부 rows",
         "integrated_column_policy": "KRX종가 preferred; 종가 only as pre-NXT fallback; E003 price_gate_on uses kospi_proxy_5d_return from dynamic-Top100 traded-value-weighted returns, not an official KOSPI close",
+        "signal_exit_policy": _signal_exit_policy(config),
         "calendar_source": "derived from panel non-null KRX종가 rows",
         "krx_close_derivation_summary": {
             key: int(value) for key, value in panel["krx_close_source"].value_counts().sort_index().items()
@@ -1592,6 +1994,12 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
         json.dumps(_jsonable(data), ensure_ascii=False, allow_nan=True, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _signal_exit_policy(config: dict[str, Any]) -> str:
+    if config.get("experiment_id") != "B002":
+        return ""
+    return "B002 exits at next trading-day open when fnv_5 <= 0 or inv_5 <= 0; NaN or missing signal components during hold are treated as <= 0 for conservative exit"
 
 
 def _jsonable(value: Any) -> Any:
