@@ -42,6 +42,23 @@ Timing safety (look-ahead)
   assert row-by-row equality and raise on any mismatch — do not
   silently overwrite. Document per-panel derivation and any
   `종가 ≠ KRX종가` row count in `report.md`.
+
+- The `시가` column does not have an explicit `KRX시가` twin. NXT
+  trading (post-2025-03) could in principle make the meaning of `시가`
+  ambiguous (KRX 09:00 open vs NXT pre-market first print). For the
+  current Kiwoom-sourced panels (`research_input_data/inputs/equity_panels/*`),
+  `시가` was verified to be the **KRX 정규장 09:00 시가** by
+  byte-identical comparison against KIS `inquire-daily-itemchartprice`
+  (TR_ID `FHKST03010100`) for 005930 across the NXT-active period
+  (2026-01). All four NXT integration flags
+  (`통합거래량반영여부`, `통합종가반영여부`, `통합종가제외여부`,
+  `가격범위후보정여부`) are False on every row of the 2025-2026 panel,
+  consistent with KRX-only sourcing. Backtests may use `시가` as the
+  KRX 09:00 open and document that interpretation in `report.md`
+  metadata. If a future data source ingests NXT-integrated values, the
+  loader should add a verification step that re-runs the KIS
+  byte-identical check on a sample of rows, and `시가` should not be
+  used until that check passes.
 - Rows with `거래대금추정여부 == True` carry estimated traded value that
   may be revised later. Default policy: **exclude these rows from the
   headline backtest** and run a diagnostic comparison side-by-side
