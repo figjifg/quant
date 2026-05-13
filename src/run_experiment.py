@@ -28,6 +28,10 @@ from src.strategies.baselines import (
 )
 from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
 from src.strategies.e003_market_gate import build_e003_market_gated_candidates
+from src.strategies.e004_strength_quintile import (
+    build_e004_quintile_membership,
+    build_e004_top_quintile_candidates,
+)
 
 
 EXPECTED_CONFIG_KEYS = (
@@ -64,6 +68,18 @@ EXPECTED_E003_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_E004_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "periods",
+    "universe",
+    "strategy",
+    "exit",
+    "quintile",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -75,6 +91,7 @@ EXPECTED_STRATEGY_KEYS = ("lookback", "holding", "max_positions")
 EXPECTED_EXIT_KEYS = ("vol_stop_k", "vol_stop_atr_window")
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
+EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
 EXPECTED_COST_KEYS = ("commission_bps", "tax_bps_sell", "slippage_bps")
 
 
@@ -95,6 +112,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "E003":
         _validate_e003_config_shape(config)
         run_e003_experiment(config, config_path)
+    elif experiment_id == "E004":
+        _validate_e004_config_shape(config)
+        run_e004_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -598,6 +618,222 @@ def run_e003_experiment(config: dict[str, Any], config_path: Path) -> None:
     )
 
 
+def run_e004_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, diagnostic_universe = _build_common_inputs(config)
+
+    quintile = config["quintile"]
+    quintile_value = int(quintile["value"])
+    min_daily_universe_size = int(quintile["min_daily_universe_size"])
+    headline_candidates = build_e004_top_quintile_candidates(
+        features,
+        headline_universe,
+        quintile_value=quintile_value,
+        min_daily_universe_size=min_daily_universe_size,
+    )
+    cap_only_candidates = build_e001_flow_filter_candidates(features, headline_universe)
+    diagnostic_candidates = build_e004_top_quintile_candidates(
+        features,
+        diagnostic_universe,
+        quintile_value=quintile_value,
+        min_daily_universe_size=min_daily_universe_size,
+    )
+
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    strategy = config["strategy"]
+    max_positions = int(strategy["max_positions"])
+    holding_cap = int(strategy["holding"])
+    costs = _costs_from_config(config["costs"])
+
+    runs: dict[str, BacktestResult] = {
+        "headline": run_candidate_backtest(
+            panel,
+            calendar,
+            headline_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "cap_only": run_candidate_backtest(
+            panel,
+            calendar,
+            cap_only_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "bottom_quintile": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e004_top_quintile_candidates(
+                features,
+                headline_universe,
+                quintile_value=1,
+                min_daily_universe_size=min_daily_universe_size,
+            ),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "middle_quintile": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e004_top_quintile_candidates(
+                features,
+                headline_universe,
+                quintile_value=3,
+                min_daily_universe_size=min_daily_universe_size,
+            ),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "top_decile": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e004_top_quintile_candidates(
+                features,
+                headline_universe,
+                quintile_value="top_decile",
+                min_daily_universe_size=min_daily_universe_size,
+            ),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "B0": run_b0_cash(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B1": run_b1_buy_and_hold(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B2": run_b2_universe_5d_rebalance(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B3": run_b3_price_momentum(
+            panel,
+            calendar,
+            features,
+            headline_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "diagnostic_estimate_included": run_candidate_backtest(
+            panel,
+            calendar,
+            diagnostic_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+    }
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _e003_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            headline_candidates=headline_candidates,
+            cap_only_candidates=cap_only_candidates,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+            holding_cap=holding_cap,
+        )
+    )
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=headline_candidates,
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=holding_cap,
+    )
+    quintile_membership = build_e004_quintile_membership(
+        features,
+        headline_universe,
+        bins=5,
+        min_daily_universe_size=min_daily_universe_size,
+    )
+    _write_outputs(
+        config=config,
+        config_path=config_path,
+        panel=panel,
+        calendar=calendar,
+        headline_candidates=headline_candidates,
+        headline_result=runs["headline"],
+        metrics=metrics,
+        report_metrics={
+            "is": metrics["headline"]["is"],
+            "oos": metrics["headline"]["oos"],
+            "full": metrics["headline"]["full"],
+            "cap_only": metrics["cap_only"],
+            "bottom_quintile": metrics["bottom_quintile"],
+            "middle_quintile": metrics["middle_quintile"],
+            "top_decile": metrics["top_decile"],
+            "cost_0_headline": metrics["cost_0_headline"],
+            "cost_0_cap_only": metrics["cost_0_cap_only"],
+            "diagnostic_estimate_included": metrics["diagnostic_estimate_included"],
+        },
+        baselines={
+            "B0_cash": metrics["B0"],
+            "B1_buy_and_hold": metrics["B1"],
+            "B2_universe_5d_rebalance": metrics["B2"],
+            "B3_price_momentum": metrics["B3"],
+        },
+        cost_sensitivity=cost_sensitivity,
+        quintile_membership=quintile_membership,
+    )
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -763,6 +999,7 @@ def _write_outputs(
     baselines: dict[str, dict[str, Any]],
     cost_sensitivity: pd.DataFrame,
     market_gate_features: pd.DataFrame | None = None,
+    quintile_membership: pd.DataFrame | None = None,
 ) -> None:
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -774,6 +1011,11 @@ def _write_outputs(
     cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
     if market_gate_features is not None:
         _market_gate_timeseries(market_gate_features).to_csv(output_dir / "market_gate_timeseries.csv", index=False)
+    if quintile_membership is not None:
+        _write_ticker_safe_csv(
+            _quintile_membership_sample(quintile_membership),
+            output_dir / "quintile_membership_sample.csv",
+        )
     write_report(output_dir, _metadata(config, panel, calendar), report_metrics, baselines, cost_sensitivity)
 
 
@@ -892,6 +1134,29 @@ def _validate_e003_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("E003 requires gate.threshold: 0.")
 
 
+def _validate_e004_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E004_CONFIG_KEYS:
+        raise ValueError(f"E004 config keys must be exactly {EXPECTED_E004_CONFIG_KEYS}; got {keys}.")
+    _validate_common_config_shape(config, "E004")
+    if tuple(config["exit"].keys()) != EXPECTED_EXIT_KEYS:
+        raise ValueError(f"exit keys must be exactly {EXPECTED_EXIT_KEYS}.")
+    if tuple(config["quintile"].keys()) != EXPECTED_QUINTILE_KEYS:
+        raise ValueError(f"quintile keys must be exactly {EXPECTED_QUINTILE_KEYS}.")
+    if int(config["strategy"]["holding"]) != 20:
+        raise ValueError("E004 requires strategy.holding: 20.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("E004 requires strategy.max_positions: 5.")
+    if config["exit"]["vol_stop_k"] is not None:
+        raise ValueError("E004 requires exit.vol_stop_k: null.")
+    if int(config["exit"]["vol_stop_atr_window"]) != 20:
+        raise ValueError("E004 requires exit.vol_stop_atr_window: 20.")
+    if int(config["quintile"]["value"]) != 5:
+        raise ValueError("E004 requires quintile.value: 5.")
+    if int(config["quintile"]["min_daily_universe_size"]) != 20:
+        raise ValueError("E004 requires quintile.min_daily_universe_size: 20.")
+
+
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
     if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
         raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
@@ -936,6 +1201,42 @@ def _market_gate_timeseries(market_gate_features: pd.DataFrame) -> pd.DataFrame:
         "double_gate_on",
     ]
     return market_gate_features.loc[:, columns].copy()
+
+
+def _quintile_membership_sample(quintile_membership: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "signal_date",
+        "execution_date",
+        "eligible_universe_size",
+        "target_quintile_min",
+        "target_quintile_max",
+        "종목코드",
+        "combined_flow_5",
+        "quantile_label",
+        "selected_headline",
+    ]
+    if quintile_membership.empty:
+        return pd.DataFrame(columns=columns)
+
+    labeled = quintile_membership.copy()
+    labeled["selected_headline"] = (
+        labeled["quantile_label"].eq(5) & labeled["fnv_5"].gt(0) & labeled["inv_5"].gt(0)
+    )
+    labeled["eligible_universe_size"] = labeled.groupby("signal_date")["종목코드"].transform("size")
+    target = labeled.loc[labeled["quantile_label"].eq(5)]
+    bounds = target.groupby("signal_date")["combined_flow_5"].agg(
+        target_quintile_min="min",
+        target_quintile_max="max",
+    )
+    labeled = labeled.merge(bounds, on="signal_date", how="left", validate="many_to_one")
+    dates = pd.Series(labeled["signal_date"].drop_duplicates().sort_values())
+    sampled_dates = dates.sample(n=min(20, len(dates)), random_state=4).sort_values()
+    sample = labeled.loc[labeled["signal_date"].isin(set(sampled_dates))]
+    sample = sample.loc[sample["quantile_label"].eq(5)]
+    return sample.loc[:, columns].sort_values(
+        ["signal_date", "combined_flow_5", "종목코드"],
+        ascending=[True, False, True],
+    ).reset_index(drop=True)
 
 
 def _write_ticker_safe_csv(frame: pd.DataFrame, path: Path) -> None:
