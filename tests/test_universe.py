@@ -98,7 +98,7 @@ def test_headline_excludes_estimated_signal_rows_but_diagnostic_includes_them() 
     dates = pd.date_range("2025-01-02", periods=25, freq="B")
     panel.loc[
         (panel["종목코드"] == "000010") & (panel["날짜"] == dates[18]),
-        "수급금액추정여부",
+        "거래대금추정여부",
     ] = True
     calendar = derive_trading_calendar(panel)
     execution_date = dates[20]
@@ -113,3 +113,20 @@ def test_headline_excludes_estimated_signal_rows_but_diagnostic_includes_them() 
 
     assert "000010" not in headline_tickers
     assert "000010" in diagnostic_tickers
+
+
+def test_headline_does_not_filter_on_수급금액추정여부() -> None:
+    """수급금액추정여부 is universally True in the Kiwoom panel; not a meaningful gate."""
+    panel = _synthetic_panel()
+    dates = pd.date_range("2025-01-02", periods=25, freq="B")
+    panel.loc[
+        (panel["종목코드"] == "000010") & (panel["날짜"] == dates[18]),
+        "수급금액추정여부",
+    ] = True
+    calendar = derive_trading_calendar(panel)
+    execution_date = dates[20]
+
+    headline = build_execution_universe(panel, calendar, exclude_estimated_flag_rows=True)
+    headline_tickers = set(headline.loc[headline["execution_date"] == execution_date, "종목코드"])
+
+    assert "000010" in headline_tickers

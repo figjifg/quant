@@ -133,9 +133,7 @@ def _signal_window_estimates_are_clean(
     aligned = by_date.reindex(calendar_index)
 
     clean_row = (
-        aligned["수급금액추정여부"].eq(False)
-        & aligned["거래대금추정여부"].eq(False)
-        & aligned["수급금액추정여부"].notna()
+        aligned["거래대금추정여부"].eq(False)
         & aligned["거래대금추정여부"].notna()
     )
     clean_window = clean_row.rolling(SIGNAL_LOOKBACK, min_periods=SIGNAL_LOOKBACK).sum().eq(

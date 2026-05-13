@@ -42,11 +42,15 @@ Timing safety (look-ahead)
   assert row-by-row equality and raise on any mismatch — do not
   silently overwrite. Document per-panel derivation and any
   `종가 ≠ KRX종가` row count in `report.md`.
-- Rows with `수급금액추정여부 == True` or `거래대금추정여부 == True` carry
-  estimated values that may be revised later. Default policy: **exclude
-  these rows from the headline backtest** and run a diagnostic comparison
-  side-by-side (estimate-included slice goes into `metrics.json` under a
-  separate key, not into the headline).
+- Rows with `거래대금추정여부 == True` carry estimated traded value that
+  may be revised later. Default policy: **exclude these rows from the
+  headline backtest** and run a diagnostic comparison side-by-side
+  (estimate-included slice goes into `metrics.json` under a separate
+  key, not into the headline). `수급금액추정여부` is universally True
+  in the current Kiwoom panel — Kiwoom computes net-buy amounts as
+  estimates from shares × VWAP rather than reporting actuals — and is
+  therefore a non-filtering label, not a quality gate. Do not use it
+  to drop rows.
 - The `동적유니버스포함` flag is computed after KRX close on T. Use it to
   decide day T+1 trades, never day T trades.
 - Global futures, FRED macro, OpenDART disclosures: timestamp the

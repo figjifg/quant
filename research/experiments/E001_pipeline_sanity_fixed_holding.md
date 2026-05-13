@@ -49,8 +49,13 @@ Notes:
   (pre-NXT 패널) `종가`에서 채워진다 — §"Source modules / equity_panel.py"
   의 정규화 규칙 참조. raw `종가` 컬럼은 본 실험 로직에서 직접 사용 금지.
 - 거래대금 분모는 같은 5거래일 윈도. 윈도 내 결측이 하나라도 있으면 그 종목 그 날 signal = 0.
-- 추정 플래그(`수급금액추정여부`, `거래대금추정여부`)가 True인 행은 본 실험에서 제외.
-  추정 행은 진단 실험 E001-D1으로 분리 (아래 §Diagnostic split).
+- 추정 플래그 정책 (data discovery 후 2026-05-13 갱신):
+  - `수급금액추정여부`는 본 패널의 **모든 행에서 True** — Kiwoom 데이터는 수급
+    금액을 항상 추정 산출하므로 품질 게이트가 아니라 단순 레이블. 본 필터에서
+    제외하지 않는다.
+  - `거래대금추정여부`는 1.14M 행 중 98 행만 True — 의미 있는 품질 플래그로
+    유지. 헤드라인은 이 행만 5일 윈도에서 제외.
+  - 진단 실험(`diagnostic_estimate_included`)은 이 98 행도 포함한 슬라이스.
 
 ## Entry rule
 - signal_date = T
@@ -236,8 +241,9 @@ level at which abstraction is justified.
        at `D-1` is `>= 5_000_000_000` KRW.
     3. For the **headline** slice: every one of the 5 rows used by the
        signal (i.e., `날짜` in {`D-5`, `D-4`, `D-3`, `D-2`, `D-1`} for a
-       signal observed on `D-1`) must have
-       `수급금액추정여부 == False` AND `거래대금추정여부 == False`.
+       signal observed on `D-1`) must have `거래대금추정여부 == False`.
+       (`수급금액추정여부` is universally True in the Kiwoom panel and is
+       therefore not part of the gate — see Signal definition notes.)
        The diagnostic slice skips rule 3.
 
 - `src/features/flow_ratios.py`
