@@ -318,7 +318,10 @@ class _PriceLookup:
         key = (pd.Timestamp(date).normalize(), ticker)
         if key not in self._prices.index:
             return float("nan")
-        return self._prices.loc[key, column]
+        value = self._prices.loc[key, column]
+        if pd.isna(value) or value <= 0:
+            return float("nan")
+        return float(value)
 
 
 class _Holding:

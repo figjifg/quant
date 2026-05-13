@@ -234,6 +234,11 @@ def _process_entries(
     if not open_slots or pd.isna(nav_for_entries):
         return cash
 
+    try:
+        scheduled_exit_date: pd.Timestamp = calendar.add_trading_days(current_date, holding)
+    except ValueError:
+        scheduled_exit_date = pd.NaT
+
     held_tickers = {slot.ticker for slot in slots if slot is not None}
     todays_candidates = candidates.loc[candidates["execution_date"] == current_date]
     todays_candidates = todays_candidates.loc[~todays_candidates["종목코드"].isin(held_tickers)]
@@ -255,7 +260,7 @@ def _process_entries(
             shares=notional / float(entry_price),
             notional_at_entry=notional,
             buy_cost_paid=cost_paid,
-            exit_date=calendar.add_trading_days(current_date, holding),
+            exit_date=scheduled_exit_date,
             signal_date=row["signal_date"],
         )
 
@@ -367,7 +372,10 @@ class _PriceLookup:
         key = (pd.Timestamp(date).normalize(), ticker)
         if key not in self._prices.index:
             return float("nan")
-        return self._prices.loc[key, column]
+        value = self._prices.loc[key, column]
+        if pd.isna(value) or value <= 0:
+            return float("nan")
+        return float(value)
 
 
 def _period_dates(
