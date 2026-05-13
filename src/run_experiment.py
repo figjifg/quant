@@ -14,8 +14,10 @@ from src.backtest.calendar import derive_trading_calendar
 from src.backtest.costs import Costs
 from src.backtest.engine import BacktestResult, run_candidate_backtest
 from src.data.equity_panel import load_equity_panel
+from src.data.market_flow import load_market_flow
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_atr_pct, build_flow_ratios
+from src.features.market_gate import build_kospi_proxy_close_series, build_market_gate_features
 from src.reporting.metrics import metrics_is_oos
 from src.reporting.report import write_report
 from src.strategies.baselines import (
@@ -25,6 +27,7 @@ from src.strategies.baselines import (
     run_b3_price_momentum,
 )
 from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
+from src.strategies.e003_market_gate import build_e003_market_gated_candidates
 
 
 EXPECTED_CONFIG_KEYS = (
@@ -48,6 +51,19 @@ EXPECTED_E002_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_E003_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "market_flow",
+    "periods",
+    "universe",
+    "strategy",
+    "exit",
+    "gate",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -57,6 +73,8 @@ EXPECTED_UNIVERSE_KEYS = (
 )
 EXPECTED_STRATEGY_KEYS = ("lookback", "holding", "max_positions")
 EXPECTED_EXIT_KEYS = ("vol_stop_k", "vol_stop_atr_window")
+EXPECTED_MARKET_FLOW_KEYS = ("path",)
+EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_COST_KEYS = ("commission_bps", "tax_bps_sell", "slippage_bps")
 
 
@@ -74,6 +92,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "E002":
         _validate_e002_config_shape(config)
         run_e002_experiment(config, config_path)
+    elif experiment_id == "E003":
+        _validate_e003_config_shape(config)
+        run_e003_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -382,6 +403,201 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
     )
 
 
+def run_e003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, diagnostic_universe = _build_common_inputs(config)
+    market_flow = load_market_flow(config["market_flow"]["path"], calendar)
+    kospi_proxy_close = build_kospi_proxy_close_series(panel, calendar)
+    market_gate_features = build_market_gate_features(market_flow, calendar, kospi_proxy_close)
+
+    headline_candidates = build_e003_market_gated_candidates(
+        features,
+        headline_universe,
+        market_gate_features,
+        "market_gate_on",
+    )
+    cap_only_candidates = build_e001_flow_filter_candidates(features, headline_universe)
+    diagnostic_candidates = build_e003_market_gated_candidates(
+        features,
+        diagnostic_universe,
+        market_gate_features,
+        "market_gate_on",
+    )
+
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    strategy = config["strategy"]
+    max_positions = int(strategy["max_positions"])
+    holding_cap = int(strategy["holding"])
+    costs = _costs_from_config(config["costs"])
+
+    runs: dict[str, BacktestResult] = {
+        "headline": run_candidate_backtest(
+            panel,
+            calendar,
+            headline_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "cap_only": run_candidate_backtest(
+            panel,
+            calendar,
+            cap_only_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "inverted_gate": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e003_market_gated_candidates(features, headline_universe, market_gate_features, "market_gate_off"),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "price_gate": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e003_market_gated_candidates(features, headline_universe, market_gate_features, "price_gate_on"),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "double_gate": run_candidate_backtest(
+            panel,
+            calendar,
+            build_e003_market_gated_candidates(features, headline_universe, market_gate_features, "double_gate_on"),
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+        "B0": run_b0_cash(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B1": run_b1_buy_and_hold(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B2": run_b2_universe_5d_rebalance(
+            panel,
+            calendar,
+            features,
+            diagnostic_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "B3": run_b3_price_momentum(
+            panel,
+            calendar,
+            features,
+            headline_universe,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=5,
+        ),
+        "diagnostic_estimate_included": run_candidate_backtest(
+            panel,
+            calendar,
+            diagnostic_candidates,
+            costs,
+            is_start,
+            oos_end,
+            max_positions=max_positions,
+            holding=holding_cap,
+        ),
+    }
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _e003_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            headline_candidates=headline_candidates,
+            cap_only_candidates=cap_only_candidates,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+            holding_cap=holding_cap,
+        )
+    )
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=headline_candidates,
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=holding_cap,
+    )
+    _write_outputs(
+        config=config,
+        config_path=config_path,
+        panel=panel,
+        calendar=calendar,
+        headline_candidates=headline_candidates,
+        headline_result=runs["headline"],
+        metrics=metrics,
+        report_metrics={
+            "is": metrics["headline"]["is"],
+            "oos": metrics["headline"]["oos"],
+            "full": metrics["headline"]["full"],
+            "cap_only": metrics["cap_only"],
+            "inverted_gate": metrics["inverted_gate"],
+            "price_gate": metrics["price_gate"],
+            "double_gate": metrics["double_gate"],
+            "cost_0_headline": metrics["cost_0_headline"],
+            "cost_0_cap_only": metrics["cost_0_cap_only"],
+            "diagnostic_estimate_included": metrics["diagnostic_estimate_included"],
+        },
+        baselines={
+            "B0_cash": metrics["B0"],
+            "B1_buy_and_hold": metrics["B1"],
+            "B2_universe_5d_rebalance": metrics["B2"],
+            "B3_price_momentum": metrics["B3"],
+        },
+        cost_sensitivity=cost_sensitivity,
+        market_gate_features=market_gate_features,
+    )
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -478,6 +694,62 @@ def _e002_cost_0_metrics(
     }
 
 
+def _e003_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    headline_candidates: pd.DataFrame,
+    cap_only_candidates: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+    holding_cap: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    cost_0_headline = run_candidate_backtest(
+        panel,
+        calendar,
+        headline_candidates,
+        zero_costs,
+        is_start,
+        oos_end,
+        max_positions=max_positions,
+        holding=holding_cap,
+    )
+    cost_0_cap_only = run_candidate_backtest(
+        panel,
+        calendar,
+        cap_only_candidates,
+        zero_costs,
+        is_start,
+        oos_end,
+        max_positions=max_positions,
+        holding=holding_cap,
+    )
+    return {
+        "cost_0_headline": metrics_is_oos(
+            cost_0_headline.equity_curve,
+            cost_0_headline.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        ),
+        "cost_0_cap_only": metrics_is_oos(
+            cost_0_cap_only.equity_curve,
+            cost_0_cap_only.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        ),
+    }
+
+
 def _write_outputs(
     *,
     config: dict[str, Any],
@@ -490,15 +762,18 @@ def _write_outputs(
     report_metrics: dict[str, Any],
     baselines: dict[str, dict[str, Any]],
     cost_sensitivity: pd.DataFrame,
+    market_gate_features: pd.DataFrame | None = None,
 ) -> None:
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(config_path, output_dir / "config.yaml")
     _write_json(output_dir / "metrics.json", metrics)
-    headline_result.trades.to_csv(output_dir / "trades.csv", index=False)
-    _signals_frame(headline_candidates).to_csv(output_dir / "signals.csv", index=False)
+    _write_ticker_safe_csv(headline_result.trades, output_dir / "trades.csv")
+    _write_ticker_safe_csv(_signals_frame(headline_candidates), output_dir / "signals.csv")
     headline_result.equity_curve.to_csv(output_dir / "equity_curve.csv", index=False)
     cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
+    if market_gate_features is not None:
+        _market_gate_timeseries(market_gate_features).to_csv(output_dir / "market_gate_timeseries.csv", index=False)
     write_report(output_dir, _metadata(config, panel, calendar), report_metrics, baselines, cost_sensitivity)
 
 
@@ -592,6 +867,31 @@ def _validate_e002_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("E002 requires exit.vol_stop_atr_window: 20.")
 
 
+def _validate_e003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E003_CONFIG_KEYS:
+        raise ValueError(f"E003 config keys must be exactly {EXPECTED_E003_CONFIG_KEYS}; got {keys}.")
+    _validate_common_config_shape(config, "E003")
+    if tuple(config["market_flow"].keys()) != EXPECTED_MARKET_FLOW_KEYS:
+        raise ValueError(f"market_flow keys must be exactly {EXPECTED_MARKET_FLOW_KEYS}.")
+    if tuple(config["exit"].keys()) != EXPECTED_EXIT_KEYS:
+        raise ValueError(f"exit keys must be exactly {EXPECTED_EXIT_KEYS}.")
+    if tuple(config["gate"].keys()) != EXPECTED_GATE_KEYS:
+        raise ValueError(f"gate keys must be exactly {EXPECTED_GATE_KEYS}.")
+    if int(config["strategy"]["holding"]) != 20:
+        raise ValueError("E003 requires strategy.holding: 20.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("E003 requires strategy.max_positions: 5.")
+    if config["exit"]["vol_stop_k"] is not None:
+        raise ValueError("E003 requires exit.vol_stop_k: null.")
+    if int(config["exit"]["vol_stop_atr_window"]) != 20:
+        raise ValueError("E003 requires exit.vol_stop_atr_window: 20.")
+    if int(config["gate"]["window"]) != 5:
+        raise ValueError("E003 requires gate.window: 5.")
+    if float(config["gate"]["threshold"]) != 0.0:
+        raise ValueError("E003 requires gate.threshold: 0.")
+
+
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
     if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
         raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
@@ -625,6 +925,35 @@ def _signals_frame(candidates: pd.DataFrame) -> pd.DataFrame:
     return signals
 
 
+def _market_gate_timeseries(market_gate_features: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "signal_date",
+        "execution_date",
+        "kospi_combined_net_5",
+        "market_gate_on",
+        "kospi_5d_return",
+        "price_gate_on",
+        "double_gate_on",
+    ]
+    return market_gate_features.loc[:, columns].copy()
+
+
+def _write_ticker_safe_csv(frame: pd.DataFrame, path: Path) -> None:
+    output = frame.copy()
+    if "종목코드" in output.columns:
+        output["종목코드"] = output["종목코드"].map(_format_ticker_code).astype("string")
+    output.to_csv(path, index=False)
+
+
+def _format_ticker_code(value: Any) -> str:
+    if pd.isna(value):
+        return ""
+    text = str(value)
+    if text.endswith(".0") and text[:-2].isdigit():
+        text = text[:-2]
+    return text.zfill(6) if text.isdigit() else text
+
+
 def _metadata(config: dict[str, Any], panel: pd.DataFrame, calendar: object) -> dict[str, Any]:
     return {
         "panels_used": list(config["panels"]),
@@ -633,7 +962,7 @@ def _metadata(config: dict[str, Any], panel: pd.DataFrame, calendar: object) -> 
         "oos_start": _date_string(config["periods"]["oos"]["start"]),
         "oos_end": _date_string(config["periods"]["oos"]["end"]),
         "estimate_row_policy": "headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is universally True in the Kiwoom panel and is not used as a filter; diagnostic_estimate_included reincludes the 거래대금추정여부 rows",
-        "integrated_column_policy": "KRX종가 preferred; 종가 only as pre-NXT fallback",
+        "integrated_column_policy": "KRX종가 preferred; 종가 only as pre-NXT fallback; E003 price_gate_on uses kospi_proxy_5d_return from dynamic-Top100 traded-value-weighted returns, not an official KOSPI close",
         "calendar_source": "derived from panel non-null KRX종가 rows",
         "krx_close_derivation_summary": {
             key: int(value) for key, value in panel["krx_close_source"].value_counts().sort_index().items()

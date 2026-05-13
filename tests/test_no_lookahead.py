@@ -8,6 +8,7 @@ from src.backtest.costs import Costs
 from src.backtest.engine import run_candidate_backtest
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
+from src.features.market_gate import build_market_gate_features
 from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
 
 
@@ -277,3 +278,26 @@ def test_holding_period_count_is_per_calendar_not_per_calendar_days() -> None:
 
     assert exit_date == pd.Timestamp("2025-01-10")
     assert exit_date != entry_date + pd.Timedelta(days=5)
+
+
+def test_market_gate_at_execution_date_uses_only_prior_signal_date_flows() -> None:
+    calendar = KRXTradingCalendar(pd.date_range("2025-01-02", periods=8, freq="B"))
+    flow = pd.DataFrame(
+        {
+            "date": calendar.dates,
+            "kospi_foreign_net": [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0],
+            "kospi_institution_net": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+        }
+    )
+    signal_date = pd.Timestamp("2025-01-08")
+
+    before = build_market_gate_features(flow, calendar)
+    mutated = flow.copy()
+    future_mask = mutated["date"].gt(signal_date)
+    mutated.loc[future_mask, ["kospi_foreign_net", "kospi_institution_net"]] = -999.0
+    after = build_market_gate_features(mutated, calendar)
+
+    before_row = before.loc[before["signal_date"].eq(signal_date)].reset_index(drop=True)
+    after_row = after.loc[after["signal_date"].eq(signal_date)].reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_row, before_row)

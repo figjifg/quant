@@ -259,11 +259,22 @@ def load_market_flow(path: Path | str, calendar: KRXTradingCalendar) -> pd.DataF
     """Returns DataFrame indexed by date (sorted ascending) with
     columns: kospi_foreign_net, kospi_institution_net.
     Drops rows where date is not in `calendar.dates`.
-    Raises if either column has NaN values inside the calendar range."""
+    Drops rows where either flow column is NaN (logs the count and
+    the date range of dropped rows). Such days become "missing from
+    market_flow" downstream, and the gate feature builder treats
+    them as conservative gate-off — the same behavior as start-of-
+    period rows that lack a 5-day prior window."""
 ```
 
-Strict on missing fields. The market_flow file already has the columns
-we need; other columns in the file are ignored.
+Strict on missing fields and duplicates. The market_flow file already
+has the columns we need; other columns in the file are ignored. The
+spec was amended on 2026-05-13 after the real-panel run revealed 99
+NaN trading days at the recent tail (2025-12-04 onward) — dropping
+those rows is equivalent to the gate being off for those dates,
+which is the same conservative behavior already implemented for
+start-of-period NaN-gate rows. The amendment does **not** introduce
+look-ahead because the dropped dates are simply absent from the gate
+feature frame.
 
 ### Market-gate feature builder spec
 
