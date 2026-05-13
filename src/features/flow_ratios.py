@@ -12,6 +12,7 @@ REQUIRED_COLUMNS = (
     "종목코드",
     "KRX종가",
     "거래대금추정",
+    "시가총액추정",
     "외국인순매수금액추정",
     "기관순매수금액추정",
 )
@@ -22,6 +23,7 @@ FEATURE_COLUMNS = (
     "fnv_5",
     "inv_5",
     "combined_flow_5",
+    "combined_flow_5_mcap",
     "recent_return_5",
 )
 ATR_REQUIRED_COLUMNS = ("날짜", "종목코드", "고가", "저가", "KRX종가")
@@ -86,6 +88,7 @@ def _features_for_ticker(
     traded_value_5 = aligned["거래대금추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
     foreign_net_5 = aligned["외국인순매수금액추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
     institution_net_5 = aligned["기관순매수금액추정"].rolling(LOOKBACK, min_periods=LOOKBACK).sum()
+    market_cap = aligned["시가총액추정"].where(aligned["시가총액추정"].gt(0))
 
     features = pd.DataFrame(
         {
@@ -96,6 +99,7 @@ def _features_for_ticker(
             "fnv_5": foreign_net_5 / traded_value_5,
             "inv_5": institution_net_5 / traded_value_5,
             "combined_flow_5": (foreign_net_5 + institution_net_5) / traded_value_5,
+            "combined_flow_5_mcap": (foreign_net_5 + institution_net_5) / market_cap,
             "recent_return_5": aligned["KRX종가"] / aligned["KRX종가"].shift(LOOKBACK) - 1,
         }
     ).reset_index()

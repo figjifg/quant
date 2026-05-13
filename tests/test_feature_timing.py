@@ -19,6 +19,7 @@ def _synthetic_panel() -> pd.DataFrame:
                     "종목코드": ticker,
                     "KRX종가": 100.0 * ticker_index + day_index,
                     "거래대금추정": 1_000.0 + day_index,
+                    "시가총액추정": 100_000.0 + ticker_index * 10_000.0 + day_index,
                     "외국인순매수금액추정": 10.0 * ticker_index + day_index,
                     "기관순매수금액추정": 20.0 * ticker_index + day_index,
                 }

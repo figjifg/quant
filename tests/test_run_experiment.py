@@ -300,6 +300,81 @@ output_dir: {output_dir}
     assert all(set(metrics[key]) == {"is", "oos", "full"} for key in metrics)
 
 
+def test_run_b001_experiment_cli_writes_required_outputs(tmp_path: Path) -> None:
+    panel_path = tmp_path / "synthetic_panel.csv"
+    output_dir = tmp_path / "reports" / "B001_market_cap_normalized_signal"
+    config_path = tmp_path / "b001.yaml"
+    _write_synthetic_panel(panel_path)
+    config_path.write_text(
+        f"""experiment_id: B001
+panels:
+  - {panel_path}
+periods:
+  is:
+    start: 2025-01-30
+    end:   2025-02-14
+  oos:
+    start: 2025-02-17
+    end:   2025-03-19
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  holding: 20
+  max_positions: 5
+exit:
+  vol_stop_k: null
+  vol_stop_atr_window: 20
+normalization:
+  divisor: 시가총액
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+output_dir: {output_dir}
+""",
+        encoding="utf-8",
+    )
+
+    subprocess.run(
+        [sys.executable, "-m", "src.run_experiment", "--config", str(config_path)],
+        check=True,
+        cwd=Path(__file__).resolve().parents[1],
+    )
+
+    expected_files = {
+        "config.yaml",
+        "metrics.json",
+        "trades.csv",
+        "signals.csv",
+        "equity_curve.csv",
+        "cost_sensitivity.csv",
+        "report.md",
+        "trade_mcap_composition.csv",
+    }
+    assert expected_files == {path.name for path in output_dir.iterdir() if path.is_file()}
+
+    metrics = json.loads((output_dir / "metrics.json").read_text(encoding="utf-8"))
+    assert set(metrics) == {
+        "headline",
+        "A002_replay",
+        "B0",
+        "B1",
+        "B2",
+        "B3",
+        "diagnostic_estimate_included",
+        "cost_0_headline",
+        "cost_0_A002_replay",
+    }
+    assert all(set(metrics[key]) == {"is", "oos", "full"} for key in metrics)
+
+    composition = pd.read_csv(output_dir / "trade_mcap_composition.csv")
+    assert set(composition["run"]) == {"headline", "A002_replay"}
+
+
 def test_ticker_safe_csv_writer_preserves_leading_zero_codes(tmp_path: Path) -> None:
     path = tmp_path / "trades.csv"
     frame = pd.DataFrame(
@@ -332,6 +407,7 @@ def _write_synthetic_panel(path: Path, *, include_high_low: bool = False) -> Non
                 "종가": close_price,
                 "KRX종가": close_price,
                 "거래대금추정": 6_000_000_000.0 + ticker_index * 50_000_000.0,
+                "시가총액추정": 1_000_000_000_000.0 + ticker_index * 10_000_000_000.0,
                 "외국인순매수금액추정": 20_000_000.0 + ticker_index * 1_000_000.0,
                 "기관순매수금액추정": 15_000_000.0 + ticker_index * 1_000_000.0,
                 "수급금액추정여부": False,

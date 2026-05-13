@@ -36,6 +36,7 @@ def synthetic_panel() -> pd.DataFrame:
                     "시가": open_price,
                     "KRX종가": close_price,
                     "거래대금추정": traded_value,
+                    "시가총액추정": 1_000_000_000_000.0 + ticker_index * 10_000_000_000.0 + day_index * 1_000_000.0,
                     "외국인순매수금액추정": foreign_net,
                     "기관순매수금액추정": institution_net,
                     "수급금액추정여부": False,
@@ -104,6 +105,7 @@ def _mutate_panel_from_date(panel: pd.DataFrame, execution_date: pd.Timestamp) -
     mutated = panel.copy()
     future_mask = mutated["날짜"].ge(execution_date)
     mutated.loc[future_mask, "거래대금추정"] = 0.0
+    mutated.loc[future_mask, "시가총액추정"] = 0.0
     mutated.loc[future_mask, "외국인순매수금액추정"] = -999_000_000_000.0
     mutated.loc[future_mask, "기관순매수금액추정"] = -999_000_000_000.0
     mutated.loc[future_mask, "시가"] = 0.0
@@ -249,6 +251,7 @@ def test_full_backtest_trades_for_period_ending_at_T_unchanged_by_mutating_rows_
     mutated = panel.copy()
     future_mask = mutated["날짜"].gt(period_end)
     mutated.loc[future_mask, "거래대금추정"] = 0.0
+    mutated.loc[future_mask, "시가총액추정"] = 0.0
     mutated.loc[future_mask, "외국인순매수금액추정"] = -999_000_000_000.0
     mutated.loc[future_mask, "기관순매수금액추정"] = -999_000_000_000.0
     mutated.loc[future_mask, "시가"] = 0.0
