@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import pandas as pd
 
+from src.roles.filters import filter_flow_sign_both_positive
+from src.roles.rankings import rank_by_combined_flow_5_mcap
+from src.roles.triggers import trigger_immediate
+
 
 FEATURE_COLUMNS = (
     "execution_date",
@@ -29,15 +33,9 @@ def build_b001_mcap_normalized_candidates(
         how="inner",
         validate="one_to_one",
     )
-    candidates = merged.loc[
-        merged["fnv_5"].gt(0)
-        & merged["inv_5"].gt(0)
-        & merged["combined_flow_5_mcap"].notna()
-    ].copy()
-    return candidates.sort_values(
-        ["execution_date", "combined_flow_5_mcap", "종목코드"],
-        ascending=[True, False, True],
-    ).reset_index(drop=True)
+    triggered = trigger_immediate(filter_flow_sign_both_positive(merged))
+    candidates = triggered.loc[triggered["combined_flow_5_mcap"].notna()].copy()
+    return rank_by_combined_flow_5_mcap(candidates)
 
 
 def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) -> None:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from src.strategies.e004_strength_quintile import (
+from src.strategies.a004_strength_quintile import (
     build_e004_quintile_membership,
     build_e004_top_quintile_candidates,
 )

@@ -20,6 +20,7 @@ from src.features.flow_ratios import build_atr_pct, build_flow_ratios
 from src.features.market_gate import build_kospi_proxy_close_series, build_market_gate_features
 from src.reporting.metrics import metrics_is_oos
 from src.reporting.report import write_report
+from src.roles.exits import exit_signal_reversal, exit_time_cap, exit_volatility_stop_plus_cap
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
 from src.strategies.b002_signal_reversal import build_b002_candidates, build_b002_signal_exit_features
 from src.strategies.baselines import (
@@ -28,9 +29,9 @@ from src.strategies.baselines import (
     run_b2_universe_5d_rebalance,
     run_b3_price_momentum,
 )
-from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
-from src.strategies.e003_market_gate import build_e003_market_gated_candidates
-from src.strategies.e004_strength_quintile import (
+from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
+from src.strategies.a003_market_gate import build_e003_market_gated_candidates
+from src.strategies.a004_strength_quintile import (
     build_e004_quintile_membership,
     build_e004_top_quintile_candidates,
 )
@@ -289,6 +290,10 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
     atr_window = int(exit_config["vol_stop_atr_window"])
     vol_stop_k = float(exit_config["vol_stop_k"])
     atr_features = build_atr_pct(panel, calendar, window=atr_window)
+    headline_exit = exit_volatility_stop_plus_cap(holding_cap, vol_stop_k, atr_window, atr_features)
+    cap_only_exit = exit_time_cap(holding_cap)
+    stop_only_exit = exit_volatility_stop_plus_cap(999, vol_stop_k, atr_window, atr_features)
+    e001_replay_exit = exit_time_cap(5)
 
     runs: dict[str, BacktestResult] = {
         "headline": run_candidate_backtest(
@@ -299,10 +304,7 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=holding_cap,
-            vol_stop_k=vol_stop_k,
-            vol_stop_atr_window=atr_window,
-            atr_features=atr_features,
+            **headline_exit,
         ),
         "cap_only": run_candidate_backtest(
             panel,
@@ -312,7 +314,7 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=holding_cap,
+            **cap_only_exit,
         ),
         "stop_only": run_candidate_backtest(
             panel,
@@ -322,10 +324,7 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=999,
-            vol_stop_k=vol_stop_k,
-            vol_stop_atr_window=atr_window,
-            atr_features=atr_features,
+            **stop_only_exit,
         ),
         "E001_replay": run_candidate_backtest(
             panel,
@@ -335,7 +334,7 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=5,
+            **e001_replay_exit,
         ),
         "B0": run_b0_cash(
             panel,
@@ -389,10 +388,7 @@ def run_e002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=holding_cap,
-            vol_stop_k=vol_stop_k,
-            vol_stop_atr_window=atr_window,
-            atr_features=atr_features,
+            **headline_exit,
         ),
     }
     metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
@@ -1041,6 +1037,8 @@ def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
     max_positions = int(strategy["max_positions"])
     costs = _costs_from_config(config["costs"])
     a002_holding_cap = 20
+    signal_exit_kwargs = exit_signal_reversal(features)
+    a002_exit_kwargs = exit_time_cap(a002_holding_cap)
 
     runs: dict[str, BacktestResult] = {
         "headline": run_candidate_backtest(
@@ -1051,7 +1049,7 @@ def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            signal_exit_features=signal_exit_features,
+            **signal_exit_kwargs,
         ),
         "A002_replay": run_candidate_backtest(
             panel,
@@ -1061,7 +1059,7 @@ def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            holding=a002_holding_cap,
+            **a002_exit_kwargs,
         ),
         "B0": run_b0_cash(
             panel,
@@ -1115,7 +1113,7 @@ def run_b002_experiment(config: dict[str, Any], config_path: Path) -> None:
             is_start,
             oos_end,
             max_positions=max_positions,
-            signal_exit_features=signal_exit_features,
+            **signal_exit_kwargs,
         ),
     }
     metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
@@ -1245,6 +1243,8 @@ def _e002_cost_0_metrics(
     atr_features: pd.DataFrame,
 ) -> dict[str, dict[str, dict[str, float | int]]]:
     zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    headline_exit = exit_volatility_stop_plus_cap(holding_cap, vol_stop_k, atr_window, atr_features)
+    e001_replay_exit = exit_time_cap(5)
     cost_0_headline = run_candidate_backtest(
         panel,
         calendar,
@@ -1253,10 +1253,7 @@ def _e002_cost_0_metrics(
         is_start,
         oos_end,
         max_positions=max_positions,
-        holding=holding_cap,
-        vol_stop_k=vol_stop_k,
-        vol_stop_atr_window=atr_window,
-        atr_features=atr_features,
+        **headline_exit,
     )
     cost_0_e001_replay = run_candidate_backtest(
         panel,
@@ -1266,7 +1263,7 @@ def _e002_cost_0_metrics(
         is_start,
         oos_end,
         max_positions=max_positions,
-        holding=5,
+        **e001_replay_exit,
     )
     return {
         "cost_0_headline": metrics_is_oos(
@@ -1417,6 +1414,14 @@ def _b002_cost_0_metrics(
     a002_holding_cap: int,
 ) -> dict[str, dict[str, dict[str, float | int]]]:
     zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    signal_exit_kwargs = {
+        "holding": 5,
+        "vol_stop_k": None,
+        "vol_stop_atr_window": 20,
+        "atr_features": None,
+        "signal_exit_features": signal_exit_features,
+    }
+    a002_exit_kwargs = exit_time_cap(a002_holding_cap)
     cost_0_headline = run_candidate_backtest(
         panel,
         calendar,
@@ -1425,7 +1430,7 @@ def _b002_cost_0_metrics(
         is_start,
         oos_end,
         max_positions=max_positions,
-        signal_exit_features=signal_exit_features,
+        **signal_exit_kwargs,
     )
     cost_0_a002_replay = run_candidate_backtest(
         panel,
@@ -1435,7 +1440,7 @@ def _b002_cost_0_metrics(
         is_start,
         oos_end,
         max_positions=max_positions,
-        holding=a002_holding_cap,
+        **a002_exit_kwargs,
     )
     return {
         "cost_0_headline": metrics_is_oos(

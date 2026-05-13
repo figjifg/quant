@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import pandas as pd
 
+from src.roles.filters import filter_flow_sign_both_positive
+from src.roles.rankings import rank_by_combined_flow_5
+from src.roles.triggers import trigger_immediate
+
 
 FEATURE_COLUMNS = (
     "execution_date",
@@ -12,7 +16,6 @@ FEATURE_COLUMNS = (
     "combined_flow_5",
 )
 UNIVERSE_COLUMNS = ("execution_date", "signal_date", "종목코드")
-TARGET_COLUMNS = ("execution_date", "combined_flow_5", "종목코드")
 
 
 def build_e004_top_quintile_candidates(
@@ -49,11 +52,8 @@ def build_e004_top_quintile_candidates(
     if selected.empty:
         return selected.loc[:, list(FEATURE_COLUMNS)].copy()
 
-    candidates = selected.loc[selected["fnv_5"].gt(0) & selected["inv_5"].gt(0), list(FEATURE_COLUMNS)].copy()
-    return candidates.sort_values(
-        list(TARGET_COLUMNS),
-        ascending=[True, False, True],
-    ).reset_index(drop=True)
+    candidates = trigger_immediate(filter_flow_sign_both_positive(selected.loc[:, list(FEATURE_COLUMNS)]))
+    return rank_by_combined_flow_5(candidates)
 
 
 def build_e004_quintile_membership(

@@ -9,7 +9,7 @@ from src.backtest.engine import run_candidate_backtest
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
 from src.features.market_gate import build_market_gate_features
-from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
+from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
 
 @pytest.fixture

@@ -12,6 +12,7 @@ from src.backtest.engine import (
     TRADE_COLUMNS,
     run_candidate_backtest,
 )
+from src.roles.rankings import rank_by_recent_return_5
 
 
 BASELINE_NAMES = ("B0_cash", "B1_buy_and_hold", "B2_universe_5d_rebalance", "B3_price_momentum")
@@ -293,10 +294,7 @@ def build_price_momentum_candidates(
         validate="one_to_one",
     )
     candidates = merged.loc[merged["recent_return_5"].gt(0)].copy()
-    return candidates.sort_values(
-        ["execution_date", "recent_return_5", "종목코드"],
-        ascending=[True, False, True],
-    ).reset_index(drop=True)
+    return rank_by_recent_return_5(candidates)
 
 
 class _PriceLookup:

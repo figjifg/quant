@@ -82,7 +82,7 @@ def run_headline_backtest(
     initial_cash: float = 1.0,
 ) -> BacktestResult:
     """Run the E001 headline slot-based fixed-holding backtest."""
-    from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
+    from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
     _validate_inputs(panel, flow_features, universe)
     candidates = build_e001_flow_filter_candidates(flow_features, universe)

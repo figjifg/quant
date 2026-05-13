@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
+from src.roles.rankings import rank_by_combined_flow_5
+from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
 
 GATE_KEY_COLUMNS = ("signal_date", "execution_date")
@@ -36,10 +37,7 @@ def build_e003_market_gated_candidates(
         validate="many_to_one",
     )
     filtered = merged.loc[merged[gate_column].fillna(False).astype(bool), candidates.columns].copy()
-    return filtered.sort_values(
-        ["execution_date", "combined_flow_5", "종목코드"],
-        ascending=[True, False, True],
-    ).reset_index(drop=True)
+    return rank_by_combined_flow_5(filtered)
 
 
 def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) -> None:
