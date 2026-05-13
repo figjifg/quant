@@ -305,7 +305,7 @@ def _metadata(config: dict[str, Any], panel: pd.DataFrame, calendar: object) -> 
         "is_end": _date_string(config["periods"]["is"]["end"]),
         "oos_start": _date_string(config["periods"]["oos"]["start"]),
         "oos_end": _date_string(config["periods"]["oos"]["end"]),
-        "estimate_row_policy": "headline excludes rows where 수급금액추정여부 or 거래대금추정여부 is True; diagnostic_estimate_included includes them",
+        "estimate_row_policy": "headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is universally True in the Kiwoom panel and is not used as a filter; diagnostic_estimate_included reincludes the 거래대금추정여부 rows",
         "integrated_column_policy": "KRX종가 preferred; 종가 only as pre-NXT fallback",
         "calendar_source": "derived from panel non-null KRX종가 rows",
         "krx_close_derivation_summary": {
