@@ -39,6 +39,7 @@ FEATURE_REQUIRED_COLUMNS = (
     "combined_flow_5",
 )
 UNIVERSE_REQUIRED_COLUMNS = ("execution_date", "signal_date", "종목코드")
+CANDIDATE_REQUIRED_COLUMNS = ("execution_date", "signal_date", "종목코드")
 
 
 @dataclass(frozen=True)
@@ -74,14 +75,43 @@ def run_headline_backtest(
     initial_cash: float = 1.0,
 ) -> BacktestResult:
     """Run the E001 headline slot-based fixed-holding backtest."""
+    from src.strategies.e001_flow_filter import build_e001_flow_filter_candidates
+
+    _validate_inputs(panel, flow_features, universe)
+    candidates = build_e001_flow_filter_candidates(flow_features, universe)
+    return run_candidate_backtest(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates,
+        costs=costs,
+        period_start=period_start,
+        period_end=period_end,
+        max_positions=max_positions,
+        holding=holding,
+        initial_cash=initial_cash,
+    )
+
+
+def run_candidate_backtest(
+    panel: pd.DataFrame,
+    calendar: KRXTradingCalendar,
+    candidates: pd.DataFrame,
+    costs: Costs,
+    period_start: object,
+    period_end: object,
+    *,
+    max_positions: int = 5,
+    holding: int = 5,
+    initial_cash: float = 1.0,
+) -> BacktestResult:
+    """Run the slot-based fixed-holding engine on pre-ranked entry candidates."""
     if max_positions <= 0:
         raise ValueError("max_positions must be positive.")
     if holding <= 0:
         raise ValueError("holding must be positive.")
 
-    _validate_inputs(panel, flow_features, universe)
+    _validate_candidate_inputs(panel, candidates)
     prices = _PriceLookup(panel)
-    candidates = _build_candidates(flow_features, universe)
     period_dates = _period_dates(calendar, period_start, period_end)
     if not period_dates:
         return BacktestResult(_empty_trades(), _empty_equity_curve())
@@ -304,30 +334,6 @@ def _mtm_value(
     return float(sum(values))
 
 
-def _build_candidates(flow_features: pd.DataFrame, universe: pd.DataFrame) -> pd.DataFrame:
-    merged = universe.merge(
-        flow_features[
-            [
-                "execution_date",
-                "signal_date",
-                "종목코드",
-                "fnv_5",
-                "inv_5",
-                "combined_flow_5",
-            ]
-        ],
-        on=["execution_date", "signal_date", "종목코드"],
-        how="inner",
-        validate="one_to_one",
-    )
-    candidates = merged.loc[merged["fnv_5"].gt(0) & merged["inv_5"].gt(0)].copy()
-    candidates = candidates.sort_values(
-        ["execution_date", "combined_flow_5", "종목코드"],
-        ascending=[True, False, True],
-    ).reset_index(drop=True)
-    return candidates
-
-
 class _PriceLookup:
     def __init__(self, panel: pd.DataFrame) -> None:
         prices = panel.loc[:, ["날짜", "종목코드", "시가", "KRX종가"]].copy()
@@ -390,6 +396,11 @@ def _validate_inputs(
     _require_columns(panel, PANEL_REQUIRED_COLUMNS, "panel")
     _require_columns(flow_features, FEATURE_REQUIRED_COLUMNS, "flow_features")
     _require_columns(universe, UNIVERSE_REQUIRED_COLUMNS, "universe")
+
+
+def _validate_candidate_inputs(panel: pd.DataFrame, candidates: pd.DataFrame) -> None:
+    _require_columns(panel, PANEL_REQUIRED_COLUMNS, "panel")
+    _require_columns(candidates, CANDIDATE_REQUIRED_COLUMNS, "candidates")
 
 
 def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) -> None:
