@@ -42,6 +42,18 @@ def exit_signal_reversal(flow_features: pd.DataFrame) -> dict[str, object]:
     }
 
 
+def exit_on_gate_off(gate_off_signal_dates: set[pd.Timestamp]) -> dict[str, object]:
+    """Return engine kwargs for exits at next open after a regime gate-off flip."""
+    return {
+        "holding": 5,
+        "vol_stop_k": None,
+        "vol_stop_atr_window": 20,
+        "atr_features": None,
+        "signal_exit_features": None,
+        "gate_exit_signal_dates": {pd.Timestamp(date).normalize() for date in gate_off_signal_dates},
+    }
+
+
 def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) -> None:
     missing = [column for column in columns if column not in data.columns]
     if missing:

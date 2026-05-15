@@ -1,0 +1,38 @@
+experiment_id: B004
+panels:
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+market_flow_csv: research_input_data/inputs/market_flow/kiwoom_market_flow_2018_2026_integrated.csv
+market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
+periods:
+  is:
+    start: 2018-01-02
+    end:   2022-12-30
+  oos:
+    start: 2023-01-02
+    end:   2026-05-04
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  max_positions: 5
+regime:
+  gate_type: kospi_sma
+  window: 200
+exit:
+  type: signal_reversal
+trigger:
+  type: immediate
+variants:
+  - signal_plus_gate
+  - signal_only
+  - gate_only_equal_weight
+  - cash
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+output_dir: reports/experiments/B004_regime_sensitivity_diagnosis

@@ -65,6 +65,10 @@ class _Slot:
     pending_stop_fallback: bool = False
     pending_signal_exit_date: pd.Timestamp | None = None
     pending_signal_fallback: bool = False
+    pending_gate_exit_date: pd.Timestamp | None = None
+    pending_gate_fallback: bool = False
+    pending_universe_exit_date: pd.Timestamp | None = None
+    pending_universe_fallback: bool = False
     last_close: float | None = None
 
 
@@ -114,6 +118,9 @@ def run_candidate_backtest(
     vol_stop_atr_window: int = 20,
     atr_features: pd.DataFrame | None = None,
     signal_exit_features: pd.DataFrame | None = None,
+    regime_gate_dates: set[pd.Timestamp] | None = None,
+    gate_exit_signal_dates: set[pd.Timestamp] | None = None,
+    universe_exit_signal_tickers: set[tuple[pd.Timestamp, str]] | None = None,
 ) -> BacktestResult:
     """Run the slot-based engine on pre-ranked entry candidates."""
     if max_positions <= 0:
@@ -124,6 +131,9 @@ def run_candidate_backtest(
     _validate_candidate_inputs(panel, candidates)
     atr_lookup = _ATRLookup(atr_features, vol_stop_atr_window) if vol_stop_k is not None else None
     signal_exit_lookup = _SignalExitLookup(signal_exit_features) if signal_exit_features is not None else None
+    normalized_regime_gate_dates = _normalize_date_set(regime_gate_dates)
+    normalized_gate_exit_dates = _normalize_date_set(gate_exit_signal_dates)
+    normalized_universe_tickers = _normalize_signal_ticker_set(universe_exit_signal_tickers)
     prices = _PriceLookup(panel)
     period_dates = _period_dates(calendar, period_start, period_end)
     if not period_dates:
@@ -136,6 +146,50 @@ def run_candidate_backtest(
 
     for current_date in period_dates:
         exited_tickers: set[str] = set()
+        if normalized_universe_tickers is not None:
+            cash = _process_pending_universe_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+            )
+            cash = _process_universe_open_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+                universe_signal_tickers=normalized_universe_tickers,
+            )
+        if normalized_gate_exit_dates is not None:
+            cash = _process_pending_gate_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+            )
+            cash = _process_gate_off_open_exits(
+                current_date=current_date,
+                slots=slots,
+                prices=prices,
+                calendar=calendar,
+                costs=costs,
+                cash=cash,
+                trade_rows=trade_rows,
+                exited_tickers=exited_tickers,
+                gate_exit_signal_dates=normalized_gate_exit_dates,
+            )
         if signal_exit_lookup is not None:
             cash = _process_pending_signal_exits(
                 current_date=current_date,
@@ -187,6 +241,7 @@ def run_candidate_backtest(
             atr_lookup=atr_lookup,
             signal_exit_mode=signal_exit_lookup is not None,
             exited_tickers=exited_tickers,
+            regime_gate_dates=normalized_regime_gate_dates,
         )
 
         if signal_exit_lookup is not None:
@@ -295,6 +350,7 @@ def _process_entries(
     atr_lookup: _ATRLookup | None = None,
     signal_exit_mode: bool = False,
     exited_tickers: set[str] | None = None,
+    regime_gate_dates: set[pd.Timestamp] | None = None,
 ) -> float:
     open_slots = [index for index, slot in enumerate(slots) if slot is None]
     if not open_slots or pd.isna(nav_for_entries):
@@ -311,6 +367,9 @@ def _process_entries(
     if exited_tickers:
         held_tickers.update(exited_tickers)
     todays_candidates = candidates.loc[candidates["execution_date"] == current_date]
+    if regime_gate_dates is not None:
+        signal_dates = pd.to_datetime(todays_candidates["signal_date"], errors="raise").dt.normalize()
+        todays_candidates = todays_candidates.loc[signal_dates.isin(regime_gate_dates)]
     todays_candidates = todays_candidates.loc[~todays_candidates["종목코드"].isin(held_tickers)]
     todays_candidates = todays_candidates.head(len(open_slots))
 
@@ -353,6 +412,160 @@ def _process_entries(
             cap_exit_date=cap_exit_date,
         )
 
+    return cash
+
+
+def _process_pending_gate_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+) -> float:
+    for index, slot in enumerate(slots):
+        if slot is None or slot.pending_gate_exit_date != current_date:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_gate_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_gate_fallback = True
+            continue
+
+        reason = "gate_off_fallback" if slot.pending_gate_fallback else "gate_off"
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason=reason,
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
+    return cash
+
+
+def _process_pending_universe_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+) -> float:
+    for index, slot in enumerate(slots):
+        if slot is None or slot.pending_universe_exit_date != current_date:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_universe_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_universe_fallback = True
+            continue
+
+        reason = "universe_exit_fallback" if slot.pending_universe_fallback else "universe_exit"
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason=reason,
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
+    return cash
+
+
+def _process_universe_open_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+    universe_signal_tickers: set[tuple[pd.Timestamp, str]],
+) -> float:
+    signal_date = _previous_trading_day_or_nat(calendar, current_date)
+    if pd.isna(signal_date):
+        return cash
+
+    for index, slot in enumerate(slots):
+        if slot is None or slot.ticker in exited_tickers:
+            continue
+        if (signal_date, slot.ticker) in universe_signal_tickers:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_universe_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_universe_fallback = True
+            continue
+
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason="universe_exit",
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
+    return cash
+
+
+def _process_gate_off_open_exits(
+    *,
+    current_date: pd.Timestamp,
+    slots: list[_Slot | None],
+    prices: _PriceLookup,
+    calendar: KRXTradingCalendar,
+    costs: Costs,
+    cash: float,
+    trade_rows: list[dict[str, object]],
+    exited_tickers: set[str],
+    gate_exit_signal_dates: set[pd.Timestamp],
+) -> float:
+    signal_date = _previous_trading_day_or_nat(calendar, current_date)
+    if pd.isna(signal_date) or signal_date not in gate_exit_signal_dates:
+        return cash
+
+    for index, slot in enumerate(slots):
+        if slot is None or slot.ticker in exited_tickers:
+            continue
+
+        exit_price = prices.open(slot.ticker, current_date)
+        if pd.isna(exit_price):
+            slot.pending_gate_exit_date = _next_trading_day_or_nat(calendar, current_date)
+            slot.pending_gate_fallback = True
+            continue
+
+        cash = _close_slot(
+            slot=slot,
+            exit_date=current_date,
+            exit_price=float(exit_price),
+            costs=costs,
+            cash=cash,
+            trade_rows=trade_rows,
+            exit_reason="gate_off",
+        )
+        exited_tickers.add(slot.ticker)
+        slots[index] = None
     return cash
 
 
@@ -674,6 +887,28 @@ def _next_trading_day_or_nat(calendar: KRXTradingCalendar, date: pd.Timestamp) -
         return calendar.next_trading_day(date)
     except ValueError:
         return pd.NaT
+
+
+def _previous_trading_day_or_nat(calendar: KRXTradingCalendar, date: pd.Timestamp) -> pd.Timestamp:
+    dates = pd.Index(calendar.dates)
+    position = int(dates.searchsorted(pd.Timestamp(date).normalize(), side="left")) - 1
+    if position < 0:
+        return pd.NaT
+    return dates[position]
+
+
+def _normalize_date_set(dates: set[pd.Timestamp] | None) -> set[pd.Timestamp] | None:
+    if dates is None:
+        return None
+    return {pd.Timestamp(date).normalize() for date in dates}
+
+
+def _normalize_signal_ticker_set(
+    signal_tickers: set[tuple[pd.Timestamp, str]] | None,
+) -> set[tuple[pd.Timestamp, str]] | None:
+    if signal_tickers is None:
+        return None
+    return {(pd.Timestamp(date).normalize(), str(ticker)) for date, ticker in signal_tickers}
 
 
 def _empty_trades() -> pd.DataFrame:

@@ -18,12 +18,19 @@ from src.data.market_flow import load_market_flow
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_atr_pct, build_flow_ratios
 from src.features.market_gate import build_kospi_proxy_close_series, build_market_gate_features
+from src.data.kospi_proxy import load_kospi_proxy
+from src.features.regime import regime_gate_on, regime_state_log
 from src.reporting.metrics import metrics_is_oos
 from src.reporting.report import write_report
 from src.roles.exits import exit_signal_reversal, exit_time_cap, exit_volatility_stop_plus_cap
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
 from src.strategies.b002_signal_reversal import build_b002_candidates, build_b002_signal_exit_features
 from src.strategies.b003_trigger_exploration import TRIGGER_CANDIDATES, build_b003_trigger_exploration
+from src.strategies.b004_regime_gate import (
+    VARIANTS as B004_VARIANTS,
+    build_gate_only_equal_weight_candidates,
+    run_b004_variants,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -119,6 +126,22 @@ EXPECTED_B003_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B004_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "market_flow_csv",
+    "market_breadth_csv",
+    "periods",
+    "universe",
+    "strategy",
+    "regime",
+    "exit",
+    "trigger",
+    "variants",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -131,6 +154,8 @@ EXPECTED_B002_STRATEGY_KEYS = ("lookback", "max_positions")
 EXPECTED_EXIT_KEYS = ("vol_stop_k", "vol_stop_atr_window")
 EXPECTED_B002_EXIT_KEYS = ("type",)
 EXPECTED_B003_TRIGGER_KEYS = ("candidates",)
+EXPECTED_B004_REGIME_KEYS = ("gate_type", "window")
+EXPECTED_B004_TRIGGER_KEYS = ("type",)
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
@@ -167,6 +192,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B003":
         _validate_b003_config_shape(config)
         run_b003_experiment(config, config_path)
+    elif experiment_id == "B004":
+        _validate_b004_config_shape(config)
+        run_b004_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -1385,6 +1413,78 @@ def run_b003_experiment(config: dict[str, Any], config_path: Path) -> None:
     trade_set_overlap.to_csv(output_dir / "trade_set_overlap.csv", index=False)
 
 
+def run_b004_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, _diagnostic_universe = _build_common_inputs(config)
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    max_positions = int(config["strategy"]["max_positions"])
+    costs = _costs_from_config(config["costs"])
+    kospi_proxy = load_kospi_proxy(config["market_breadth_csv"], window=int(config["regime"]["window"]))
+
+    runs, candidates, gate_frame = run_b004_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=headline_universe,
+        kospi_proxy=kospi_proxy,
+        costs=costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+    )
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _b004_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            features=features,
+            universe=headline_universe,
+            kospi_proxy=kospi_proxy,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+        )
+    )
+    cost_sensitivity = _b004_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        features=features,
+        universe=headline_universe,
+        kospi_proxy=kospi_proxy,
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+    )
+    regime_log = regime_state_log(kospi_proxy)
+    regime_year_breakdown = _b004_regime_year_breakdown(
+        runs=runs,
+        regime_log=regime_log,
+        calendar=calendar,
+        start=is_start,
+        end=oos_end,
+    )
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_combined_trades(runs), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_b004_combined_signals(candidates, runs), output_dir / "signals.csv")
+    _b004_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    regime_year_breakdown.to_csv(output_dir / "regime_year_breakdown.csv", index=False)
+    regime_log.to_csv(output_dir / "regime_state_log.csv", index=False)
+    cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
+    _write_b004_report(output_dir, config, metrics, regime_year_breakdown, cost_sensitivity)
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -1701,6 +1801,88 @@ def _b003_cost_0_metrics(
     return metrics
 
 
+def _b004_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    features: pd.DataFrame,
+    universe: pd.DataFrame,
+    kospi_proxy: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    runs, _, _ = run_b004_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=universe,
+        kospi_proxy=kospi_proxy,
+        costs=zero_costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+    )
+    return {
+        f"cost_0_{name}": metrics_is_oos(result.equity_curve, result.trades, is_start, is_end, oos_start, oos_end, calendar)
+        for name, result in runs.items()
+        if name != "cash"
+    }
+
+
+def _b004_cost_sensitivity(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    features: pd.DataFrame,
+    universe: pd.DataFrame,
+    kospi_proxy: pd.DataFrame,
+    base_costs: Costs,
+    multipliers: list[float],
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for multiplier in multipliers:
+        scaled_costs = Costs(
+            commission_bps=base_costs.commission_bps * float(multiplier),
+            tax_bps_sell=base_costs.tax_bps_sell * float(multiplier),
+            slippage_bps=base_costs.slippage_bps * float(multiplier),
+        )
+        runs, _, _ = run_b004_variants(
+            panel=panel,
+            calendar=calendar,
+            flow_features=features,
+            universe=universe,
+            kospi_proxy=kospi_proxy,
+            costs=scaled_costs,
+            period_start=is_start,
+            period_end=oos_end,
+            max_positions=max_positions,
+        )
+        for variant, result in runs.items():
+            if variant == "cash":
+                continue
+            metric_block = metrics_is_oos(result.equity_curve, result.trades, is_start, is_end, oos_start, oos_end, calendar)
+            rows.append(
+                {
+                    "variant": variant,
+                    "multiplier": float(multiplier),
+                    "is_total_return": metric_block["is"]["total_return"],
+                    "oos_total_return": metric_block["oos"]["total_return"],
+                    "full_total_return": metric_block["full"]["total_return"],
+                    "cost_paid_total": metric_block["full"]["cost_paid_total"],
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 def _write_outputs(
     *,
     config: dict[str, Any],
@@ -1724,7 +1906,10 @@ def _write_outputs(
     shutil.copyfile(config_path, output_dir / "config.yaml")
     _write_json(output_dir / "metrics.json", metrics)
     _write_ticker_safe_csv(headline_result.trades, output_dir / "trades.csv")
-    _write_ticker_safe_csv(_signals_frame(headline_candidates), output_dir / "signals.csv")
+    _write_ticker_safe_csv(
+        _signals_frame(headline_candidates, include_signal_value=config.get("experiment_id") != "E001"),
+        output_dir / "signals.csv",
+    )
     headline_result.equity_curve.to_csv(output_dir / "equity_curve.csv", index=False)
     cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
     if market_gate_features is not None:
@@ -1801,6 +1986,176 @@ def _run_cost_sensitivity(
             }
         )
     return pd.DataFrame(rows)
+
+
+def _combined_trades(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    frames = []
+    for variant in B004_VARIANTS:
+        trades = runs[variant].trades.copy()
+        trades.insert(0, "variant", variant)
+        frames.append(trades)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _b004_combined_signals(
+    candidates: dict[str, pd.DataFrame],
+    runs: dict[str, BacktestResult],
+) -> pd.DataFrame:
+    frames = []
+    for variant in B004_VARIANTS:
+        signals = _signals_frame(candidates[variant], include_signal_value=True)
+        signals.insert(0, "variant", variant)
+        signals["included_in_trade"] = _signal_included_in_trade(signals, runs[variant].trades)
+        frames.append(signals)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _signal_included_in_trade(signals: pd.DataFrame, trades: pd.DataFrame) -> pd.Series:
+    if signals.empty or trades.empty:
+        return pd.Series(False, index=signals.index)
+    trade_keys = {
+        (pd.Timestamp(signal_date).normalize(), pd.Timestamp(entry_date).normalize(), str(ticker))
+        for signal_date, entry_date, ticker in zip(
+            trades["signal_date"],
+            trades["entry_date"],
+            trades["종목코드"],
+            strict=False,
+        )
+    }
+    return pd.Series(
+        [
+            (
+                pd.Timestamp(signal_date).normalize(),
+                pd.Timestamp(execution_date).normalize(),
+                str(ticker),
+            )
+            in trade_keys
+            for signal_date, execution_date, ticker in zip(
+                signals["signal_date"],
+                signals["execution_date"],
+                signals["종목코드"],
+                strict=False,
+            )
+        ],
+        index=signals.index,
+    )
+
+
+def _b004_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    output = pd.DataFrame({"date": runs["signal_plus_gate"].equity_curve["date"]})
+    output["signal_plus_gate_value"] = runs["signal_plus_gate"].equity_curve["net_value"].to_numpy()
+    output["signal_only_value"] = runs["signal_only"].equity_curve["net_value"].to_numpy()
+    output["gate_only_value"] = runs["gate_only_equal_weight"].equity_curve["net_value"].to_numpy()
+    output["cash_value"] = runs["cash"].equity_curve["net_value"].to_numpy()
+    return output
+
+
+def _b004_regime_year_breakdown(
+    *,
+    runs: dict[str, BacktestResult],
+    regime_log: pd.DataFrame,
+    calendar: object,
+    start: object,
+    end: object,
+) -> pd.DataFrame:
+    start_ts = pd.Timestamp(start).normalize()
+    end_ts = pd.Timestamp(end).normalize()
+    years = range(start_ts.year, end_ts.year + 1)
+    rows = []
+    for year in years:
+        year_start = max(pd.Timestamp(year=year, month=1, day=1), start_ts)
+        year_end = min(pd.Timestamp(year=year, month=12, day=31), end_ts)
+        row: dict[str, Any] = {"year": year}
+        for variant in B004_VARIANTS:
+            row[f"{variant}_net_total_return"] = metrics_is_oos(
+                runs[variant].equity_curve,
+                runs[variant].trades,
+                year_start,
+                year_end,
+                year_start,
+                year_end,
+                calendar,
+            )["is"]["total_return"]
+        row["delta_signal_plus_gate_minus_gate_only"] = (
+            row["signal_plus_gate_net_total_return"] - row["gate_only_equal_weight_net_total_return"]
+        )
+        row["delta_signal_plus_gate_minus_signal_only"] = (
+            row["signal_plus_gate_net_total_return"] - row["signal_only_net_total_return"]
+        )
+        year_regime = regime_log.loc[
+            pd.to_datetime(regime_log["signal_date"], errors="raise").dt.year.eq(year)
+        ]
+        row["gate_on_days"] = int(year_regime["regime_gate_on"].sum())
+        row["gate_off_days"] = int(len(year_regime) - row["gate_on_days"])
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _write_b004_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, Any],
+    regime_year_breakdown: pd.DataFrame,
+    cost_sensitivity: pd.DataFrame,
+) -> None:
+    lines = ["# B004 Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| is_start | {config['periods']['is']['start']} |",
+            f"| is_end | {config['periods']['is']['end']} |",
+            f"| oos_start | {config['periods']['oos']['start']} |",
+            f"| oos_end | {config['periods']['oos']['end']} |",
+            "| regime_gate | KOSPI proxy level > same-day 200-day SMA; entry-side only for signal variants; gate-off exit for gate-only variant |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| calendar_source | derived from panel non-null KRX종가 rows |",
+            "",
+        ]
+    )
+    lines.extend(_b004_variant_metric_table("IS Variant Metrics", metrics, "is"))
+    lines.extend(_b004_variant_metric_table("OOS Variant Metrics", metrics, "oos"))
+    lines.extend(_b004_dataframe_table("Regime Year Breakdown", regime_year_breakdown))
+    lines.extend(_b004_dataframe_table("Cost Sensitivity", cost_sensitivity))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _b004_variant_metric_table(title: str, metrics: dict[str, Any], split: str) -> list[str]:
+    columns = ("total_return", "hit_rate", "trade_count", "return_before_cost")
+    lines = [
+        f"## {title}",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in B004_VARIANTS:
+        block = metrics[variant][split]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
+    lines.append("")
+    return lines
+
+
+def _format_report_value(value: Any) -> str:
+    if isinstance(value, float):
+        return f"{value:.12g}"
+    return str(value)
+
+
+def _b004_dataframe_table(title: str, data: pd.DataFrame) -> list[str]:
+    lines = [f"## {title}", ""]
+    if data.empty:
+        lines.extend(["| empty |", "| --- |", ""])
+        return lines
+    columns = [str(column) for column in data.columns]
+    lines.append("| " + " | ".join(columns) + " |")
+    lines.append("| " + " | ".join("---" for _ in columns) + " |")
+    for _, row in data.iterrows():
+        lines.append("| " + " | ".join(_format_report_value(row[column]) for column in data.columns) + " |")
+    lines.append("")
+    return lines
 
 
 def _load_config(config_path: Path) -> dict[str, Any]:
@@ -1934,6 +2289,31 @@ def _validate_b003_config_shape(config: dict[str, Any]) -> None:
         raise ValueError(f"B003 trigger.candidates must be exactly {list(TRIGGER_CANDIDATES)}.")
 
 
+def _validate_b004_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B004_CONFIG_KEYS:
+        raise ValueError(f"B004 config keys must be exactly {EXPECTED_B004_CONFIG_KEYS}; got {keys}.")
+    _validate_b002_common_config_shape(config)
+    if tuple(config["regime"].keys()) != EXPECTED_B004_REGIME_KEYS:
+        raise ValueError(f"B004 regime keys must be exactly {EXPECTED_B004_REGIME_KEYS}.")
+    if tuple(config["exit"].keys()) != EXPECTED_B002_EXIT_KEYS:
+        raise ValueError("B004 exit keys must be exactly ('type',).")
+    if tuple(config["trigger"].keys()) != EXPECTED_B004_TRIGGER_KEYS:
+        raise ValueError(f"B004 trigger keys must be exactly {EXPECTED_B004_TRIGGER_KEYS}.")
+    if tuple(config["variants"]) != B004_VARIANTS:
+        raise ValueError(f"B004 variants must be exactly {list(B004_VARIANTS)}.")
+    if config["regime"]["gate_type"] != "kospi_sma":
+        raise ValueError("B004 requires regime.gate_type: kospi_sma.")
+    if int(config["regime"]["window"]) != 200:
+        raise ValueError("B004 requires regime.window: 200.")
+    if config["exit"]["type"] != "signal_reversal":
+        raise ValueError("B004 requires exit.type: signal_reversal.")
+    if config["trigger"]["type"] != "immediate":
+        raise ValueError("B004 requires trigger.type: immediate.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("B004 requires strategy.max_positions: 5.")
+
+
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
     if tuple(config["periods"].keys()) != EXPECTED_PERIOD_KEYS:
         raise ValueError(f"periods keys must be exactly {EXPECTED_PERIOD_KEYS}.")
@@ -1978,14 +2358,17 @@ def _costs_from_config(costs: dict[str, Any]) -> Costs:
     )
 
 
-def _signals_frame(candidates: pd.DataFrame) -> pd.DataFrame:
+def _signals_frame(candidates: pd.DataFrame, *, include_signal_value: bool = True) -> pd.DataFrame:
     columns = ["execution_date", "signal_date", "종목코드", "fnv_5", "inv_5", "combined_flow_5"]
     if "combined_flow_5_mcap" in candidates.columns:
         columns.append("combined_flow_5_mcap")
     signals = candidates.loc[:, columns].copy()
-    signals["signal_value"] = (
-        signals["combined_flow_5_mcap"] if "combined_flow_5_mcap" in signals.columns else signals["combined_flow_5"]
-    )
+    if include_signal_value:
+        signals["signal_value"] = (
+            signals["combined_flow_5_mcap"]
+            if "combined_flow_5_mcap" in signals.columns
+            else signals["combined_flow_5"]
+        )
     signals["signal"] = True
     return signals
 
