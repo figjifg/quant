@@ -94,15 +94,39 @@ data-snooping. If 200d fails in IS, we accept the result; we do
 NOT try 100d or 150d in this ticket.
 
 **Gate rule (precise)**: On signal_date T, the gate is "ON" iff
-`KOSPI_close(T) > KOSPI_SMA_200(T)`. Gate state at T determines
-whether entries fire on T+1 morning. Existing positions opened
-before the gate flipped to "OFF" continue to follow their normal
-exit rule — the gate is an **entry-side gate only**, not a forced
-liquidation. This avoids whip-saw losses from sudden gate flips.
+`kospi_proxy_level(T) > kospi_proxy_sma_200(T)` (proxy level
+defined in "Data source" below). Gate state at T determines
+whether entries fire on T+1 morning. For variants (a) and (b),
+existing positions opened before the gate flipped to "OFF" continue
+to follow their normal exit rule — the gate is an **entry-side
+gate only** for those variants, not a forced liquidation. This
+avoids whip-saw losses from sudden gate flips. For variant (c),
+the gate flipping OFF forces exit via the new `exit_on_gate_off`
+exit role (see variant (c) spec below); (c) is the only variant
+where the gate also drives exits.
 
-**Data source**: KOSPI daily close — we already have it indirectly
-via `research_input_data/inputs/market_flow/`. Codex confirms the
-exact file used and that no future data is touched.
+**Data source**: We do NOT have a direct KOSPI daily close in our
+processed inputs. Use a **mathematically equivalent KOSPI-proxy
+level**: cumulative product of `cap_weighted_return` from
+`research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv`.
+The 200-day SMA is computed on this cumulative-level series.
+
+The gate condition `level(T) > SMA_200(T)` is multiplicatively
+invariant — a positive scaling of the entire series leaves the
+comparison unchanged — so a proxy level constructed from cumulative
+returns yields the same gate ON/OFF decisions as actual KOSPI
+levels would.
+
+The cumulative series starts at 2010-01-04 = 1.0 baseline. By
+2018-01-02 (IS start) we have ~7 years of warmup — far more than
+the 200-day SMA requires.
+
+**SMA warmup edge case**: On any signal_date T where SMA_200(T)
+is undefined (fewer than 200 trading days of prior level data),
+the gate is **OFF** (conservative — no entries fire). In our
+B004 data window this only affects pre-2010 dates that we are
+not using anyway, but the test suite must verify this behavior on
+synthetic input.
 
 ## Pre-registered variants (ablation strictly required)
 
@@ -120,12 +144,31 @@ costs. Output side-by-side in the same `metrics.json`.
 
 ### (c) `regime gate only` — the DECISIVE comparison
 - No flow filter, no flow ranking, no flow exit.
-- When gate is ON: equal-weight the **same universe** (dynamic
-  Top100 after liquidity filter) into `max_positions=5` slots,
-  picked by **simple rule with no flow content** (e.g., highest
-  prior-day 거래대금, deterministic, no flow-signal involvement).
-- When gate flips OFF: exit existing positions at next-day open
-  (gate-driven exit, since there's no signal-based exit here).
+- **Selection rule** (deterministic, no flow content):
+  on every signal_date T where the gate is ON, take the top 5
+  names from the universe ranked by **prior-day (T) close-based
+  시가총액 (market cap)**. Equal weight in `max_positions=5` slots.
+  Market cap is `종가 × 상장주식수` from the equity panel; if 상장주식수
+  is absent, fall back to the `시가총액` column directly. Ties
+  broken by 종목코드 lexical order (deterministic). Names that are
+  not in the universe on T are skipped.
+- **Hold rule**: until gate flips OFF, OR the name leaves the
+  universe (e.g., dropped from dynamic_top100, fails liquidity
+  filter, panel row missing).
+- **Exit rule**: when the gate flips OFF on signal_date T (i.e.,
+  `gate(T) = OFF` while `gate(T-1) = ON`), exit ALL positions at
+  T+1 시가. This is implemented as a new exit role
+  `exit_on_gate_off` in `src/roles/exits.py`, consistent with the
+  existing exit-role architecture.
+- When gate flips ON again on signal_date T (`gate(T) = ON` while
+  `gate(T-1) = OFF`): rebuild the top-5 portfolio from scratch at
+  T+1 시가.
+- **Why market cap, not 거래대금**: 거래대금 ranking shifts daily
+  and would introduce turnover-driven noise that could look like
+  alpha. Market cap is much more stable, gives a clean "buy the
+  largest 5 names" benchmark, and is what passive index strategies
+  effectively do. The point of (c) is to be the cleanest possible
+  "no-flow-alpha" benchmark.
 - This is the strategy that earns ONLY regime beta. If (a) and (c)
   look similar, our entire alpha story collapses.
 
@@ -181,12 +224,16 @@ entirely different alpha hypotheses.
 ## Data assumptions
 
 **No new external data.** Same two equity panels as the A/B family.
-KOSPI close is read from existing market_flow files. The 200-day
-SMA is computed from existing data only.
 
-If KOSPI close is not present in `market_flow.py` outputs, Codex
-adds the column **from the existing source file** — no new data
-downloads, no API calls.
+KOSPI-proxy level is constructed from
+`research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv`,
+specifically the `cap_weighted_return` column (already present in
+the file). Codex extends `src/data/` to load this file and computes
+the cumulative-level series + 200-day SMA. No new data downloads,
+no API calls.
+
+Market cap for variant (c)'s ranking comes from the existing equity
+panel columns (`종가 × 상장주식수`, or `시가총액` directly if available).
 
 ## Universe / costs / dates (unchanged from B002)
 
@@ -222,47 +269,69 @@ role structure context. Base commit = latest `main`.
 ### Scope discipline (additive only)
 
 Touch:
-- `src/data/market_flow.py` — verify KOSPI close column is loaded.
-  If absent, add it FROM THE EXISTING SOURCE FILE (no new
-  downloads). Add `kospi_sma_200` derived column with timing test
-  (must use closes through T inclusive, no look-ahead).
-- `src/features/regime.py` (NEW) — compute `regime_gate_on(T) =
-  kospi_close(T) > kospi_sma_200(T)`. Returns boolean series
-  indexed by date.
-- `src/strategies/b004_regime_gate.py` (NEW) — sets up the 4
-  variants (a, b, c, d) on the same data window. Each variant is
-  a clean independent backtest run.
-- `src/backtest/engine.py` — minimal extension to accept a
-  `regime_gate_dates` set; on signal_dates NOT in this set,
-  entries are suppressed. Existing positions continue under their
-  normal exit rule. Engine signature change must be backward
-  compatible (default = no gate, all dates allowed).
+- `src/data/kospi_proxy.py` (NEW) — load `krx_market_breadth_kospi_2010_2026.csv`,
+  compute cumulative product of `cap_weighted_return` to derive the
+  KOSPI-proxy level series, then `kospi_proxy_sma_200`. Both indexed
+  by date. Strict no-look-ahead: SMA at T uses levels through T
+  inclusive only.
+- `src/features/regime.py` (NEW) — compute
+  `regime_gate_on(T) = level(T) > sma_200(T)`. Returns boolean
+  series indexed by date. Where `sma_200(T)` is undefined (fewer
+  than 200 prior levels), gate = OFF.
+- `src/roles/exits.py` — add `exit_on_gate_off` exit role function.
+  Signature consistent with the other exit roles (returns
+  parameters consumed by the engine). When the engine sees
+  `gate(T) = OFF` while a position is open from a date when
+  `gate = ON`, exit at T+1 시가.
+- `src/strategies/b004_regime_gate.py` (NEW) — orchestrates the 4
+  variants. Each variant is a clean independent backtest run:
+  - (a) uses B002 carrier + regime_gate suppresses entries when OFF
+  - (b) uses B002 carrier exactly (no gate at all)
+  - (c) uses gate-driven entries (top-5 by 시가총액 when gate ON) +
+    `exit_on_gate_off` + universe-exit rule
+  - (d) cash (no signals, no positions, zero return)
+- `src/backtest/engine.py` — minimal extensions:
+  1. Accept an optional `regime_gate_dates` set; on signal_dates
+     NOT in this set, entries are suppressed (used by variant (a)).
+  2. Support the new `exit_on_gate_off` exit role (used by (c)).
+  3. Backward compatible: default behavior unchanged when neither
+     hook is supplied. All 6 prior experiments must reproduce
+     byte-identical results — verify with a quick rerun of E001
+     (A001) as a regression sanity check before committing the
+     engine change.
 - `src/run_experiment.py` — add `experiment_id == "B004"` dispatch.
 - `configs/backtests/b004.yaml` (NEW).
-- `tests/test_regime_gate.py` (NEW) — feature timing tests for
-  kospi_sma_200 (no look-ahead), gate boolean correctness on a
-  hand-crafted KOSPI series.
+- `tests/test_kospi_proxy.py` (NEW) — feature timing tests for
+  level cumulation and `sma_200` (no look-ahead), warmup-period
+  gate-OFF behavior on synthetic input.
+- `tests/test_regime_gate.py` (NEW) — gate boolean correctness on
+  hand-crafted level series (crossings up and down).
 - `tests/test_engine_regime_gate.py` (NEW) — synthetic backtest
   where the gate is OFF for a known window; verify no entries
-  fire in that window but existing positions still exit normally.
+  fire in that window for variant (a), and verify variant (c)
+  forces exit on gate-OFF flip.
+- `tests/test_exit_on_gate_off.py` (NEW) — unit test for the new
+  exit role independently of the engine.
 
-**Do NOT touch**: existing role functions (filter/trigger/ranking/
-exit), existing strategy modules (a001-a004, b001-b003), baselines,
-existing tests.
+**Do NOT touch**: existing role functions (filter / trigger / ranking /
+existing exit roles), existing strategy modules (a001-a004, b001-b003),
+baselines, existing tests. Adding `exit_on_gate_off` to the exits
+module is allowed; modifying `exit_signal_reversal`, `exit_time_cap`,
+or `exit_volatility_stop_plus_cap` is NOT.
 
 ### Variant (c) implementation note
 
-(c) is "regime-gated equal-weight universe". It is NOT a flow-signal
-variant with the flow signal zeroed out. Specifically:
-- Selection rule: on every signal_date where the gate is ON, take
-  the top 5 names from the universe ranked by **prior-day 거래대금
-  rank** (deterministic, no flow content). Equal weight.
-- Hold until: gate flips OFF, OR the name leaves the universe.
-- When the gate flips OFF: all positions exit at next-day 시가.
-- When gate flips ON again: rebuild the top-5 portfolio.
+(c) is fully specified above in "Pre-registered variants → (c)". To
+recap for implementation:
+- Selection: top 5 names by `시가총액` (prior signal_date close) from
+  the dynamic_top100 universe after liquidity filter. Equal weight.
+  Tie-break by 종목코드.
+- Hold until gate OFF or name leaves universe.
+- Exit on gate OFF at T+1 시가 via `exit_on_gate_off` role.
+- Rebuild on gate flip ON.
 
-This is mechanically simple and contains zero flow-signal alpha.
-The only edge it could have is regime beta.
+Contains zero flow-signal alpha. The only edge it could have is
+regime beta.
 
 ### Configuration file
 
@@ -273,7 +342,8 @@ experiment_id: B004
 panels:
   - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
   - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
-market_flow_csv: research_input_data/inputs/market_flow/kospi_aggregate_flow.csv
+market_flow_csv: research_input_data/inputs/market_flow/kiwoom_market_flow_2018_2026_integrated.csv
+market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
 periods:
   is:
     start: 2018-01-02
@@ -322,8 +392,8 @@ Under `reports/experiments/B004_regime_sensitivity_diagnosis/`:
   signal_only_value, gate_only_value, cash_value`
 - `regime_year_breakdown.csv` — per-year per-variant net total
   return; deltas (a)−(b), (a)−(c) included as separate columns
-- `regime_state_log.csv` — for each signal_date, the KOSPI close,
-  the 200-day SMA, and gate ON/OFF flag
+- `regime_state_log.csv` — for each signal_date, the KOSPI-proxy
+  level, the 200-day SMA, and gate ON/OFF flag
 - `cost_sensitivity.csv`
 - `report.md`
 
@@ -334,11 +404,18 @@ Existing tests must remain green. New tests bring suite to ~115+.
 ### Order of work
 Commit (Claude commits) after each green-test boundary.
 
-1. Load KOSPI close + add 200-day SMA + timing tests
-2. Implement engine gate hook + tests
-3. Implement variant (c) gate-only equal-weight + tests
-4. Implement strategy module + dispatcher + config
-5. Run B004 real-panel
+1. Load KOSPI-proxy level (from cap_weighted_return cumulation) +
+   add 200-day SMA + `regime_gate_on` boolean + timing tests
+2. Add `exit_on_gate_off` exit role in `src/roles/exits.py` + unit
+   test
+3. Extend engine: optional `regime_gate_dates` entry-side hook +
+   support for `exit_on_gate_off` exit role + tests + regression
+   check on E001/A001 byte-identical reproduction
+4. Implement variant (c) gate-only equal-weight setup (market-cap
+   ranked top-5) + integration test
+5. Implement strategy module orchestrating all 4 variants +
+   dispatcher + config
+6. Run B004 real-panel
 
 ### Completion criteria
 - pytest fully green
