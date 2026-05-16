@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from src.data.macro_factors import FRED_SERIES
-from src.features.macro_regime import build_macro_regime_daily, monthly_regime_log
+from src.features.macro_regime import build_macro_regime_daily, monthly_regime_log, quarterly_regime_log
 
 
 def test_macro_regime_uses_only_available_us_observations(tmp_path: Path) -> None:
@@ -76,6 +76,25 @@ def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
 
     assert monthly["signal_date"].tolist() == [pd.Timestamp("2025-01-31"), pd.Timestamp("2025-02-28")]
     assert monthly["regime_score"].tolist() == [2, 0]
+
+
+def test_quarterly_regime_log_selects_last_trading_day_each_quarter() -> None:
+    daily = pd.DataFrame(
+        {
+            "signal_date": pd.to_datetime(
+                ["2025-03-28", "2025-03-31", "2025-04-01", "2025-06-30", "2025-07-01"]
+            ),
+            "regime_score": [1, 2, 3, 0, 1],
+        }
+    )
+
+    quarterly = quarterly_regime_log(daily)
+
+    assert quarterly["signal_date"].tolist() == [
+        pd.Timestamp("2025-03-31"),
+        pd.Timestamp("2025-06-30"),
+    ]
+    assert quarterly["regime_score"].tolist() == [2, 0]
 
 
 def _write_macro_files(base: Path, *, periods: int) -> None:

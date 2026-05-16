@@ -73,6 +73,17 @@ def monthly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:
     return data.loc[data.groupby(month_key)["signal_date"].idxmax()].reset_index(drop=True)
 
 
+def quarterly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:
+    """Select the last available KRX trading date in completed calendar quarters."""
+    _require_columns(daily_regime, ("signal_date",), "daily_regime")
+    data = daily_regime.copy()
+    data["signal_date"] = pd.to_datetime(data["signal_date"], errors="raise").dt.normalize()
+    data = data.loc[data["signal_date"].dt.month.isin((3, 6, 9, 12))].copy()
+    data = data.sort_values("signal_date").reset_index(drop=True)
+    quarter_key = data["signal_date"].dt.to_period("Q")
+    return data.loc[data.groupby(quarter_key)["signal_date"].idxmax()].reset_index(drop=True)
+
+
 def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) -> None:
     missing = [column for column in columns if column not in data.columns]
     if missing:
