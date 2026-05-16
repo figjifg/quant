@@ -10,6 +10,7 @@ from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
 from src.features.market_gate import build_market_gate_features
 from src.features.relative_flow import build_relative_flow_features
+from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
 
@@ -365,3 +366,31 @@ def test_relative_flow_cross_sectional_moments_at_signal_date_ignore_future_rows
     after_rows = after.loc[after["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
 
     pd.testing.assert_frame_equal(after_rows, before_rows)
+
+
+def test_persistence_4_of_5_at_signal_date_ignores_future_daily_flow_rows() -> None:
+    dates = pd.bdate_range("2025-01-02", periods=7)
+    features = pd.DataFrame(
+        {
+            "execution_date": dates + pd.offsets.BDay(1),
+            "signal_date": dates,
+            "종목코드": ["000010"] * len(dates),
+            "fnv_5": [0.1] * len(dates),
+            "inv_5": [0.1] * len(dates),
+            "combined_flow_5": [0.2] * len(dates),
+        }
+    )
+    daily = features.loc[:, ["execution_date", "signal_date", "종목코드"]].copy()
+    daily["combined_flow_1"] = [0.1, -0.1, 0.2, 0.3, 0.4, -0.2, -0.3]
+    signal_date = dates[4]
+
+    before = filter_persistence_4_of_5(features, daily)
+    mutated = daily.copy()
+    mutated.loc[mutated["signal_date"].gt(signal_date), "combined_flow_1"] = 999_000.0
+    after = filter_persistence_4_of_5(features, mutated)
+
+    before_row = before.loc[before["signal_date"].eq(signal_date)].reset_index(drop=True)
+    after_row = after.loc[after["signal_date"].eq(signal_date)].reset_index(drop=True)
+
+    assert not before_row.empty
+    pd.testing.assert_frame_equal(after_row, before_row)
