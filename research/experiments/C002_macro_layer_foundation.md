@@ -107,36 +107,43 @@ C001 v2 의 architecture 의 falsification 적용:
 
 ### 수집 대상 (C001 v2 HIGH priority 일괄)
 
-| 변수 | Source | FRED series | 빈도 | Coverage 필요 |
+| 변수 | Source | FRED series | 빈도 | Coverage |
 |---|---|---|---|---|
-| VIX | FRED | VIXCLS | daily | 2010-2026 |
-| DXY | FRED | DTWEXBGS 또는 ICE DXY | daily | 2010-2026 |
-| US 2y treasury | FRED | DGS2 | daily | 2010-2026 |
-| US 10y treasury | FRED | DGS10 | daily | 2010-2026 |
-| USDCNY | FRED | DEXCHUS | daily | 2010-2026 |
-| HY spread | FRED | BAMLH0A0HYM2 | daily | 2010-2026 |
+| VIX | FRED | VIXCLS | daily | 1990-2026, 4270 rows in 2010-2026 |
+| DXY | FRED | DTWEXBGS | daily | 2006-2026, 4266 rows in 2010-2026 |
+| US 2y treasury | FRED | DGS2 | daily | 1976-2026, 4270 rows in 2010-2026 |
+| US 10y treasury | FRED | DGS10 | daily | 1962-2026, 4270 rows in 2010-2026 |
+| USDCNY | FRED | DEXCHUS | daily | 1981-2026, 4266 rows in 2010-2026 |
+| **Credit spread (Baa-10y)** | FRED | **BAA10Y** | daily | 1986-2026, 4270 rows in 2010-2026 |
 
-### 수집 방법
+**Note on credit spread**: Original plan listed BAMLH0A0HYM2 (ICE BofA
+US HY OAS), but FRED's ICE BofA series were truncated to 2023-2026
+only (license change at some point). Substituted with BAA10Y
+(Moody's Baa Corporate Bond Yield minus 10-Year Treasury) which has
+1986+ history. This is the classical "credit risk" spread proxy
+used in macro research; mechanism equivalent for our purpose.
 
-FRED 는 직접 다운로드 가능 (web 또는 fredapi). 모두 무료, 무인증.
+### 수집 상태 — Claude 가 사용자 승인 후 직접 완료 (2026-05-16)
 
-**Codex 작업 지시**:
-- 각 series 다운로드 (사용자 승인 후 외부 네트워크 접근)
-- `research_input_data/inputs/macro_features/` 아래 새 파일 저장:
-  - `fred_vix.csv`
-  - `fred_dxy.csv`
-  - `fred_dgs2.csv`
-  - `fred_dgs10.csv`
-  - `fred_dexchus.csv`
-  - `fred_hy_spread.csv`
-- 각 파일의 schema 검증 (date 컬럼 + value 컬럼)
-- 결측 / 휴장일 처리 정책 명시 (예: 이전 값 forward fill, 또는 NaN
-  유지)
-- Loader 확장: `src/data/macro_factors.py` (NEW) 또는 기존
-  macro_features 모듈에 추가
-- 각 series 별 unit test (loading, NaN 처리, 날짜 align)
+FRED 다운로드는 Codex sandbox 가 network access 제한 가능성 있어,
+Claude 가 사용자 승인 후 bash curl 로 직접 진행. 다음 6개 파일이
+`research_input_data/inputs/macro_features/` 에 저장됨:
 
-**중요**: 외부 네트워크 접근 필요. 사용자 명시적 승인 필요.
+- `fred_vix.csv`
+- `fred_dxy.csv`
+- `fred_dgs2.csv`
+- `fred_dgs10.csv`
+- `fred_dexchus.csv`
+- `fred_baa10y_spread.csv` (was originally HY spread; substituted)
+
+기존에 있던 `fred_dgs3mo.csv`, `fred_dexkous_usdkrw.csv` 와 함께 총 8개
+FRED series 사용 가능.
+
+**Codex 의 남은 작업** (network access 불필요):
+- 다운로드된 8개 파일의 schema 검증 + loader 확장
+- `src/data/macro_factors.py` (NEW) 또는 기존 모듈에 추가
+- 각 series 별 unit test
+- 결측 / 휴장일 처리 정책 코드화
 
 ### Data timing 정책
 
