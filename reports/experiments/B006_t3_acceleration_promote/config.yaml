@@ -1,0 +1,33 @@
+experiment_id: B006
+panels:
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+periods:
+  is:
+    start: 2018-01-02
+    end:   2022-12-30
+  oos:
+    start: 2023-01-02
+    end:   2026-05-04
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  max_positions: 5
+filter:
+  type: flow_sign_both_positive
+ranking:
+  type: combined_flow_5
+exit:
+  type: signal_reversal
+variants:
+  - t1_baseline
+  - t3_acceleration
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+output_dir: reports/experiments/B006_t3_acceleration_promote

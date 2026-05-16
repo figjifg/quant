@@ -33,6 +33,7 @@ from src.strategies.b004_regime_gate import (
     run_b004_variants,
 )
 from src.strategies.b005_relative_flow import VARIANTS as B005_VARIANTS, run_b005_variants
+from src.strategies.b006_t3_promote import VARIANTS as B006_VARIANTS, run_b006_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -158,6 +159,20 @@ EXPECTED_B005_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B006_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "periods",
+    "universe",
+    "strategy",
+    "filter",
+    "ranking",
+    "exit",
+    "variants",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -173,6 +188,7 @@ EXPECTED_B003_TRIGGER_KEYS = ("candidates",)
 EXPECTED_B004_REGIME_KEYS = ("gate_type", "window")
 EXPECTED_B004_TRIGGER_KEYS = ("type",)
 EXPECTED_B005_RELATIVE_KEYS = ("cross_sectional_min_count",)
+EXPECTED_B006_ROLE_KEYS = ("type",)
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
@@ -215,6 +231,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B005":
         _validate_b005_config_shape(config)
         run_b005_experiment(config, config_path)
+    elif experiment_id == "B006":
+        _validate_b006_config_shape(config)
+        run_b006_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -1576,6 +1595,69 @@ def run_b005_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_b005_report(output_dir, config, metrics, year_breakdown, overlap_matrix, cost_sensitivity)
 
 
+def run_b006_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, _diagnostic_universe = _build_common_inputs(config)
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    max_positions = int(config["strategy"]["max_positions"])
+    costs = _costs_from_config(config["costs"])
+
+    runs, candidates, exit_kwargs = run_b006_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=headline_universe,
+        costs=costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+    )
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _b006_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            features=features,
+            universe=headline_universe,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+        )
+    )
+    year_breakdown = _b006_year_breakdown(runs=runs, calendar=calendar, start=is_start, end=oos_end)
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates["t3_acceleration"],
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=5,
+        signal_exit_features=exit_kwargs["signal_exit_features"],
+    )
+    cost_sensitivity.insert(0, "variant", "t3_acceleration")
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b006_combined_trades(runs), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_b006_combined_signals(candidates, runs), output_dir / "signals.csv")
+    _b006_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    year_breakdown.to_csv(output_dir / "t3_promote_year_breakdown.csv", index=False)
+    cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
+    _write_b006_report(output_dir, config, metrics, year_breakdown, cost_sensitivity)
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -2430,6 +2512,168 @@ def _b005_variant_metric_table(title: str, metrics: dict[str, Any], split: str) 
     return lines
 
 
+def _b006_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    features: pd.DataFrame,
+    universe: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    runs, _, _ = run_b006_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=universe,
+        costs=zero_costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+    )
+    return {
+        f"cost_0_{variant}": metrics_is_oos(
+            result.equity_curve,
+            result.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        )
+        for variant, result in runs.items()
+    }
+
+
+def _b006_combined_trades(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    frames = []
+    for variant in B006_VARIANTS:
+        trades = runs[variant].trades.copy()
+        trades.insert(0, "variant", variant)
+        frames.append(trades)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _b006_combined_signals(
+    candidates: dict[str, pd.DataFrame],
+    runs: dict[str, BacktestResult],
+) -> pd.DataFrame:
+    frames = []
+    for variant in B006_VARIANTS:
+        signals = _signals_frame(candidates[variant], include_signal_value=True)
+        signals.insert(0, "variant", variant)
+        signals["included_in_trade"] = _signal_included_in_trade(signals, runs[variant].trades)
+        frames.append(signals)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _b006_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    output = pd.DataFrame({"date": runs["t1_baseline"].equity_curve["date"]})
+    output["t1_baseline_value"] = runs["t1_baseline"].equity_curve["net_value"].to_numpy()
+    output["t3_acceleration_value"] = runs["t3_acceleration"].equity_curve["net_value"].to_numpy()
+    return output
+
+
+def _b006_year_breakdown(
+    *,
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    start: object,
+    end: object,
+) -> pd.DataFrame:
+    start_ts = pd.Timestamp(start).normalize()
+    end_ts = pd.Timestamp(end).normalize()
+    rows = []
+    for year in range(start_ts.year, end_ts.year + 1):
+        year_start = max(pd.Timestamp(year=year, month=1, day=1), start_ts)
+        year_end = min(pd.Timestamp(year=year, month=12, day=31), end_ts)
+        row: dict[str, Any] = {
+            "year": year,
+            "period": "is" if year <= 2022 else "oos",
+        }
+        for variant in B006_VARIANTS:
+            row[f"{variant}_net_total_return"] = metrics_is_oos(
+                runs[variant].equity_curve,
+                runs[variant].trades,
+                year_start,
+                year_end,
+                year_start,
+                year_end,
+                calendar,
+            )["is"]["total_return"]
+        row["t3_minus_t1_net_total_return"] = (
+            row["t3_acceleration_net_total_return"] - row["t1_baseline_net_total_return"]
+        )
+        row["t3_wins"] = bool(row["t3_minus_t1_net_total_return"] > 0.0)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _write_b006_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, Any],
+    year_breakdown: pd.DataFrame,
+    cost_sensitivity: pd.DataFrame,
+) -> None:
+    lines = ["# B006 Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| is_start | {config['periods']['is']['start']} |",
+            f"| is_end | {config['periods']['is']['end']} |",
+            f"| oos_start | {config['periods']['oos']['start']} |",
+            f"| oos_end | {config['periods']['oos']['end']} |",
+            "| filter | filter_flow_sign_both_positive |",
+            "| trigger_baseline | trigger_immediate |",
+            "| trigger_candidate | trigger_acceleration |",
+            "| ranking | rank_by_combined_flow_5 |",
+            "| exit | exit_signal_reversal |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 시가 used as verified KRX regular-session open per AGENTS.md |",
+            "| calendar_source | derived from panel non-null KRX종가 rows |",
+            "",
+        ]
+    )
+    lines.extend(_b006_variant_metric_table("IS Variant Metrics", metrics, "is"))
+    lines.extend(_b006_variant_metric_table("OOS Variant Metrics", metrics, "oos"))
+    lines.extend(_b004_dataframe_table("T3 Promote Year Breakdown", year_breakdown))
+    lines.extend(_b004_dataframe_table("Cost Sensitivity", cost_sensitivity))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _b006_variant_metric_table(title: str, metrics: dict[str, Any], split: str) -> list[str]:
+    columns = ("total_return", "hit_rate", "trade_count", "return_before_cost")
+    lines = [
+        f"## {title}",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in B006_VARIANTS:
+        block = metrics[variant][split]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
+    for variant in B006_VARIANTS:
+        block = metrics[f"cost_0_{variant}"][split]
+        lines.append(
+            "| cost_0_"
+            + variant
+            + " | "
+            + " | ".join(_format_report_value(block[column]) for column in columns)
+            + " |"
+        )
+    lines.append("")
+    return lines
+
+
 def _load_config(config_path: Path) -> dict[str, Any]:
     with config_path.open("r", encoding="utf-8") as handle:
         loaded = yaml.safe_load(handle)
@@ -2607,6 +2851,29 @@ def _validate_b005_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("B005 requires exit.type: signal_reversal.")
     if int(config["relative"]["cross_sectional_min_count"]) != 30:
         raise ValueError("B005 requires relative.cross_sectional_min_count: 30.")
+
+
+def _validate_b006_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B006_CONFIG_KEYS:
+        raise ValueError(f"B006 config keys must be exactly {EXPECTED_B006_CONFIG_KEYS}; got {keys}.")
+    _validate_b002_common_config_shape(config)
+    if tuple(config["filter"].keys()) != EXPECTED_B006_ROLE_KEYS:
+        raise ValueError(f"B006 filter keys must be exactly {EXPECTED_B006_ROLE_KEYS}.")
+    if tuple(config["ranking"].keys()) != EXPECTED_B006_ROLE_KEYS:
+        raise ValueError(f"B006 ranking keys must be exactly {EXPECTED_B006_ROLE_KEYS}.")
+    if tuple(config["exit"].keys()) != EXPECTED_B002_EXIT_KEYS:
+        raise ValueError("B006 exit keys must be exactly ('type',).")
+    if tuple(config["variants"]) != B006_VARIANTS:
+        raise ValueError(f"B006 variants must be exactly {list(B006_VARIANTS)}.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("B006 requires strategy.max_positions: 5.")
+    if config["filter"]["type"] != "flow_sign_both_positive":
+        raise ValueError("B006 requires filter.type: flow_sign_both_positive.")
+    if config["ranking"]["type"] != "combined_flow_5":
+        raise ValueError("B006 requires ranking.type: combined_flow_5.")
+    if config["exit"]["type"] != "signal_reversal":
+        raise ValueError("B006 requires exit.type: signal_reversal.")
 
 
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
