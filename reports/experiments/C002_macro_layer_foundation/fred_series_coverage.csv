@@ -1,0 +1,9 @@
+name,fred_series,filename,timing,transform,non_null_rows_2010_2026,first_observation,last_observation
+vix,VIXCLS,fred_vix.csv,us_after_close,pct_change,4145,1990-01-02,2026-05-14
+dxy,DTWEXBGS,fred_dxy.csv,us_after_close,pct_change,4071,2006-01-02,2026-05-08
+dgs2,DGS2,fred_dgs2.csv,us_after_close,diff,4094,1976-06-01,2026-05-14
+dgs10,DGS10,fred_dgs10.csv,us_after_close,diff,4094,1962-01-02,2026-05-14
+dexchus_usdcny,DEXCHUS,fred_dexchus.csv,us_after_close,pct_change,4090,1981-01-02,2026-05-08
+baa10y_spread,BAA10Y,fred_baa10y_spread.csv,us_after_close,diff,4089,1986-01-02,2026-05-14
+dgs3mo,DGS3MO,fred_dgs3mo.csv,us_after_close,diff,4089,1981-09-01,2026-05-07
+dexkous_usdkrw,DEXKOUS,fred_dexkous_usdkrw.csv,korea_same_day,pct_change,4080,1981-04-13,2026-04-24
