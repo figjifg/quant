@@ -116,6 +116,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="Long-term government bond yields, 10-year, Korea",
     ),
     FredSeriesSpec(
+        name="kr3m",
+        fred_series="IR3TIB01KRM156N",
+        filename="fred_kr3m.csv",
+        timing=US_AFTER_CLOSE,
+        frequency="monthly",
+        transform="diff",
+        description="3-month interbank rate, Korea",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",

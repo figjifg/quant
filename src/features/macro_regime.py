@@ -100,12 +100,35 @@ KR10Y_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+KR_RATES_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "US3M_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "KR3M_yoy_change",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_KR3M",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
 FIVE_BRENT_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "brent_yoy")
 SIX_COPPER_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "copper_yoy")
 SIX_KR10Y_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "kr10y_yoy_change")
+SEVEN_KR_RATES_SIGNAL_NAMES = (*SIX_KR10Y_SIGNAL_NAMES, "kr3m_yoy_change")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -169,6 +192,30 @@ SIGNAL_VARIANTS = {
         ],
         KR10Y_REGIME_COLUMNS,
     ),
+    SEVEN_KR_RATES_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "US3M_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "KR3M_yoy_change",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_KR3M",
+        ],
+        KR_RATES_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -188,7 +235,8 @@ def build_macro_regime_daily(
     fourth US 2-10y curve signal, C006 opts into a five-signal USDCNY variant,
     C008 opts into a different five-signal Brent variant, and C010 opts into
     six-signal Brent plus copper variant, and C011 opts into a separate
-    six-signal Brent plus KR 10y variant through ``macro_signals``.
+    six-signal Brent plus KR 10y variant, and C012 opts into a seven-signal
+    KR 10y plus KR 3m variant through ``macro_signals``.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -211,10 +259,12 @@ def build_macro_regime_daily(
     dxy = pd.to_numeric(aligned["dxy"], errors="coerce").ffill(limit=5)
     dgs2 = pd.to_numeric(aligned["dgs2"], errors="coerce").ffill(limit=5)
     dgs10 = pd.to_numeric(aligned["dgs10"], errors="coerce").ffill(limit=5)
+    dgs3mo = pd.to_numeric(aligned["dgs3mo"], errors="coerce").ffill(limit=5)
     usdcny = pd.to_numeric(aligned["dexchus_usdcny"], errors="coerce").ffill(limit=5)
     brent = pd.to_numeric(aligned["brent"], errors="coerce").ffill(limit=5)
     copper = pd.to_numeric(aligned["copper"], errors="coerce").ffill()
     kr10y = pd.to_numeric(aligned["kr10y"], errors="coerce").ffill()
+    kr3m = pd.to_numeric(aligned["kr3m"], errors="coerce").ffill()
 
     result = pd.DataFrame({"signal_date": aligned["signal_date"]})
     result["USDKRW_yoy"] = usdkrw / usdkrw.shift(yoy_lookback) - 1.0
@@ -223,10 +273,12 @@ def build_macro_regime_daily(
     result["DXY_yoy"] = dxy / dxy.shift(yoy_lookback) - 1.0
     result["US_2_10_curve_spread"] = dgs10 - dgs2
     result["US10Y_yoy_change"] = dgs10 - dgs10.shift(yoy_lookback)
+    result["US3M_yoy_change"] = dgs3mo - dgs3mo.shift(yoy_lookback)
     result["USDCNY_yoy"] = usdcny / usdcny.shift(yoy_lookback) - 1.0
     result["Brent_yoy"] = brent / brent.shift(yoy_lookback) - 1.0
     result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
     result["KR10Y_yoy_change"] = _monthly_level_change(aligned, "kr10y", months=12)
+    result["KR3M_yoy_change"] = _monthly_level_change(aligned, "kr3m", months=12)
 
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
@@ -236,6 +288,7 @@ def build_macro_regime_daily(
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)
     result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
     result["favorable_KR10Y"] = result["KR10Y_yoy_change"].le(0.0)
+    result["favorable_KR3M"] = result["KR3M_yoy_change"].le(0.0)
 
     value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
 

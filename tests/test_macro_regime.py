@@ -319,6 +319,78 @@ def test_macro_regime_kr10y_unfavorable_when_yield_change_is_positive(tmp_path: 
     assert row["favorable_KR10Y"] == False
 
 
+def test_macro_regime_kr3m_yoy_change_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=340)
+    kr3m = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01", "2026-04-01"],
+            "IR3TIB01KRM156N": [3.25, 2.75, 9.99],
+        }
+    )
+    kr3m.to_csv(tmp_path / "fred_kr3m.csv", index=False)
+    dates = pd.to_datetime(["2025-03-28", "2026-03-31"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "kr3m_yoy_change",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    assert row["KR3M_yoy_change"] == pytest.approx(-0.50)
+    assert row["KR3M_yoy_change"] != pytest.approx(2.75 / 3.25 - 1.0)
+    assert row["favorable_KR3M"] == True
+    assert row["regime_score"] == 5
+    assert row["regime_on"] == True
+    assert "Copper_yoy" not in regime.columns
+    assert "favorable_Copper" not in regime.columns
+    assert "USDCNY_yoy" not in regime.columns
+
+
+def test_macro_regime_kr3m_unfavorable_when_rate_change_is_positive(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=340)
+    kr3m = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "IR3TIB01KRM156N": [3.00, 3.25],
+        }
+    )
+    kr3m.to_csv(tmp_path / "fred_kr3m.csv", index=False)
+    dates = pd.to_datetime(["2025-03-28", "2026-03-31"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "kr3m_yoy_change",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    assert row["KR3M_yoy_change"] == pytest.approx(0.25)
+    assert row["favorable_KR3M"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -365,6 +437,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "DCOILBRENTEU": [100.0 - index for index in range(periods)],
         "PCOPPUSDM": [9000.0 + index for index in range(periods)],
         "IRLTLT01KRM156N": [3.5 - index * 0.01 for index in range(periods)],
+        "IR3TIB01KRM156N": [3.0 - index * 0.01 for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:
