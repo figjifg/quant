@@ -163,6 +163,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="Korea CPI, total, yoy growth rate in percent",
     ),
     FredSeriesSpec(
+        name="kr_exports",
+        fred_series="XTEXVA01KRM664S",
+        filename="fred_kr_exports.csv",
+        timing=KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="pct_change",
+        description="Korea exports of goods, value",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",

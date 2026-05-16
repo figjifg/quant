@@ -734,6 +734,95 @@ def test_macro_regime_kr_cpi_stale_gap_is_false_but_composite_still_counts_other
     assert stale["favorable_KR_CPI"] == False
 
 
+def test_macro_regime_kr_exports_yoy_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    kr_exports = pd.DataFrame(
+        {
+            "observation_date": ["2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01", "2026-04-01"],
+            "XTEXVA01KRM664S": [100.0, 100.0, 110.0, 125.0, 999.0],
+        }
+    )
+    kr_exports.to_csv(tmp_path / "fred_kr_exports.csv", index=False)
+    pd.DataFrame(
+        {
+            "observation_date": ["2024-03-01", "2025-03-01", "2026-03-01"],
+            "CPIAUCSL": [100.0, 110.0, 120.0],
+        }
+    ).to_csv(tmp_path / "fred_us_cpi.csv", index=False)
+    pd.DataFrame(
+        {
+            "observation_date": ["2024-03-01", "2025-03-01", "2026-03-01"],
+            "PPIACO": [100.0, 110.0, 120.0],
+        }
+    ).to_csv(tmp_path / "fred_us_ppi.csv", index=False)
+    dates = pd.to_datetime(["2024-04-15", "2025-03-14", "2025-04-15", "2026-04-13", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_exports_yoy",
+        ],
+    )
+
+    before_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-13"))].iloc[0]
+    after_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert before_release["KR_exports_yoy"] == pytest.approx(110.0 / 100.0 - 1.0)
+    assert after_release["KR_exports_yoy"] == pytest.approx(125.0 / 100.0 - 1.0)
+    assert after_release["favorable_KR_exports"] == True
+    favorable_columns = [column for column in regime.columns if column.startswith("favorable_")]
+    assert after_release["regime_score"] == sum(bool(after_release[column]) for column in favorable_columns)
+    assert after_release["regime_on"] == True
+    assert "KR_CPI_decel" not in regime.columns
+    assert "US_UNRATE_yoy_change" not in regime.columns
+
+
+def test_macro_regime_kr_exports_unfavorable_when_yoy_is_negative(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    kr_exports = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "XTEXVA01KRM664S": [100.0, 95.0],
+        }
+    )
+    kr_exports.to_csv(tmp_path / "fred_kr_exports.csv", index=False)
+    dates = pd.to_datetime(["2025-04-15", "2026-04-15"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_exports_yoy",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-15"))].iloc[0]
+    assert row["KR_exports_yoy"] == pytest.approx(95.0 / 100.0 - 1.0)
+    assert row["favorable_KR_exports"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -785,6 +874,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "PPIACO": [250.0 + index for index in range(periods)],
         "UNRATE": [4.0 + index * 0.01 for index in range(periods)],
         "KORCPALTT01CTGYM": [2.0 + index * 0.01 for index in range(periods)],
+        "XTEXVA01KRM664S": [100.0 + index for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:
