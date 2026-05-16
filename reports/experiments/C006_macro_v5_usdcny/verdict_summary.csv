@@ -1,0 +1,9 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,-0.19668525538708892,0.0,False
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-20.291862881836416,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",2.0,2.0,True
+H4,V1 max drawdown improves on V2 by at least 5pp,-0.3961375598529703,-0.05,True
+H5,V1 positive in >= 8 of 16 years,7.0,8.0,False
+H6,V1 net / V1 cost-0 >= 0.7,2.3448029357975164,0.7,True
+H7,V1 v5 cumulative net improves on C005 v4 by >= 5pp,-0.11190240359586556,0.05,False
+H8,"USDCNY yoy and USDKRW yoy correlation, descriptive only",0.4952931252904423,,
