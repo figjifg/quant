@@ -135,6 +135,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="U.S. CPI All Urban Consumers, seasonally adjusted",
     ),
     FredSeriesSpec(
+        name="us_ppi",
+        fred_series="PPIACO",
+        filename="fred_us_ppi.csv",
+        timing=US_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="pct_change",
+        description="U.S. Producer Price Index by Commodity: All Commodities",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",

@@ -463,6 +463,88 @@ def test_macro_regime_us_cpi_unfavorable_when_inflation_accelerates(tmp_path: Pa
     assert row["favorable_US_CPI"] == False
 
 
+def test_macro_regime_us_ppi_decel_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    us_ppi = pd.DataFrame(
+        {
+            "observation_date": ["2024-02-01", "2024-03-01", "2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01"],
+            "PPIACO": [99.0, 100.0, 110.0, 110.0, 121.0, 115.0],
+        }
+    )
+    us_cpi = pd.DataFrame(
+        {
+            "observation_date": ["2024-02-01", "2024-03-01", "2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01"],
+            "CPIAUCSL": [199.0, 200.0, 210.0, 210.0, 221.0, 215.0],
+        }
+    )
+    us_ppi.to_csv(tmp_path / "fred_us_ppi.csv", index=False)
+    us_cpi.to_csv(tmp_path / "fred_us_cpi.csv", index=False)
+    dates = pd.to_datetime(["2024-03-14", "2024-04-14", "2025-03-14", "2025-04-14", "2026-03-31", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+        ],
+    )
+
+    march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert march_end["US_PPI_yoy"] == pytest.approx(121.0 / 110.0 - 1.0)
+    assert april_release["US_PPI_yoy"] == pytest.approx(115.0 / 110.0 - 1.0)
+    assert april_release["US_PPI_decel"] == pytest.approx((115.0 / 110.0 - 1.0) - (110.0 / 100.0 - 1.0))
+    assert april_release["favorable_US_PPI"] == True
+    assert april_release["regime_on"] == True
+    assert "KR3M_yoy_change" not in regime.columns
+    assert "Copper_yoy" not in regime.columns
+    assert "USDCNY_yoy" not in regime.columns
+
+
+def test_macro_regime_us_ppi_unfavorable_when_inflation_accelerates(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    us_ppi = pd.DataFrame(
+        {
+            "observation_date": ["2024-03-01", "2025-03-01", "2026-03-01"],
+            "PPIACO": [100.0, 102.0, 110.0],
+        }
+    )
+    us_ppi.to_csv(tmp_path / "fred_us_ppi.csv", index=False)
+    dates = pd.to_datetime(["2024-04-14", "2025-04-14", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert row["US_PPI_decel"] == pytest.approx((110.0 / 102.0 - 1.0) - (102.0 / 100.0 - 1.0))
+    assert row["favorable_US_PPI"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -511,6 +593,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "IRLTLT01KRM156N": [3.5 - index * 0.01 for index in range(periods)],
         "IR3TIB01KRM156N": [3.0 - index * 0.01 for index in range(periods)],
         "CPIAUCSL": [300.0 + index for index in range(periods)],
+        "PPIACO": [250.0 + index for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:
