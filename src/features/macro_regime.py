@@ -81,12 +81,95 @@ COPPER_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+KR10Y_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
 FIVE_BRENT_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "brent_yoy")
 SIX_COPPER_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "copper_yoy")
+SIX_KR10Y_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "kr10y_yoy_change")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
+SIGNAL_VARIANTS = {
+    THREE_SIGNAL_NAMES: (
+        ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy"],
+        ["favorable_USDKRW", "favorable_VIX", "favorable_DXY"],
+        REGIME_COLUMNS,
+    ),
+    FOUR_SIGNAL_NAMES: (
+        ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy", "US_2_10_curve_spread"],
+        ["favorable_USDKRW", "favorable_VIX", "favorable_DXY", "favorable_US_2_10_curve"],
+        CURVE_REGIME_COLUMNS,
+    ),
+    FIVE_USDCNY_SIGNAL_NAMES: (
+        ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy", "US_2_10_curve_spread", "USDCNY_yoy"],
+        ["favorable_USDKRW", "favorable_VIX", "favorable_DXY", "favorable_US_2_10_curve", "favorable_USDCNY"],
+        USDCNY_REGIME_COLUMNS,
+    ),
+    FIVE_BRENT_SIGNAL_NAMES: (
+        ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy", "US_2_10_curve_spread", "Brent_yoy"],
+        ["favorable_USDKRW", "favorable_VIX", "favorable_DXY", "favorable_US_2_10_curve", "favorable_Brent"],
+        BRENT_REGIME_COLUMNS,
+    ),
+    SIX_COPPER_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "Brent_yoy",
+            "Copper_yoy",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_Copper",
+        ],
+        COPPER_REGIME_COLUMNS,
+    ),
+    SIX_KR10Y_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+        ],
+        KR10Y_REGIME_COLUMNS,
+    ),
+}
 
 
 def build_macro_regime_daily(
@@ -104,7 +187,8 @@ def build_macro_regime_daily(
     The default preserves C003/C004's three-signal regime. C005 opts into the
     fourth US 2-10y curve signal, C006 opts into a five-signal USDCNY variant,
     C008 opts into a different five-signal Brent variant, and C010 opts into
-    a six-signal Brent plus copper variant through ``macro_signals``.
+    six-signal Brent plus copper variant, and C011 opts into a separate
+    six-signal Brent plus KR 10y variant through ``macro_signals``.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -113,16 +197,9 @@ def build_macro_regime_daily(
     if vix_short_window > vix_long_window:
         raise ValueError("vix_short_window cannot exceed vix_long_window.")
     signal_names = tuple(macro_signals)
-    allowed_signals = (
-        THREE_SIGNAL_NAMES,
-        FOUR_SIGNAL_NAMES,
-        FIVE_USDCNY_SIGNAL_NAMES,
-        FIVE_BRENT_SIGNAL_NAMES,
-        SIX_COPPER_SIGNAL_NAMES,
-    )
-    if signal_names not in allowed_signals:
+    if signal_names not in SIGNAL_VARIANTS:
         raise ValueError(
-            f"macro_signals must be one of {allowed_signals}; "
+            f"macro_signals must be one of {tuple(SIGNAL_VARIANTS)}; "
             f"got {signal_names}."
         )
 
@@ -137,6 +214,7 @@ def build_macro_regime_daily(
     usdcny = pd.to_numeric(aligned["dexchus_usdcny"], errors="coerce").ffill(limit=5)
     brent = pd.to_numeric(aligned["brent"], errors="coerce").ffill(limit=5)
     copper = pd.to_numeric(aligned["copper"], errors="coerce").ffill()
+    kr10y = pd.to_numeric(aligned["kr10y"], errors="coerce").ffill()
 
     result = pd.DataFrame({"signal_date": aligned["signal_date"]})
     result["USDKRW_yoy"] = usdkrw / usdkrw.shift(yoy_lookback) - 1.0
@@ -144,9 +222,11 @@ def build_macro_regime_daily(
     result["VIX_240d_avg"] = vix.rolling(vix_long_window, min_periods=vix_long_window).mean()
     result["DXY_yoy"] = dxy / dxy.shift(yoy_lookback) - 1.0
     result["US_2_10_curve_spread"] = dgs10 - dgs2
+    result["US10Y_yoy_change"] = dgs10 - dgs10.shift(yoy_lookback)
     result["USDCNY_yoy"] = usdcny / usdcny.shift(yoy_lookback) - 1.0
     result["Brent_yoy"] = brent / brent.shift(yoy_lookback) - 1.0
     result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
+    result["KR10Y_yoy_change"] = _monthly_level_change(aligned, "kr10y", months=12)
 
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
@@ -155,26 +235,9 @@ def build_macro_regime_daily(
     result["favorable_USDCNY"] = result["USDCNY_yoy"].le(0.0)
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)
     result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
+    result["favorable_KR10Y"] = result["KR10Y_yoy_change"].le(0.0)
 
-    value_columns = ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy"]
-    favorable_columns = ["favorable_USDKRW", "favorable_VIX", "favorable_DXY"]
-    output_columns = REGIME_COLUMNS
-    if signal_names == FOUR_SIGNAL_NAMES:
-        value_columns.append("US_2_10_curve_spread")
-        favorable_columns.append("favorable_US_2_10_curve")
-        output_columns = CURVE_REGIME_COLUMNS
-    elif signal_names == FIVE_USDCNY_SIGNAL_NAMES:
-        value_columns.extend(["US_2_10_curve_spread", "USDCNY_yoy"])
-        favorable_columns.extend(["favorable_US_2_10_curve", "favorable_USDCNY"])
-        output_columns = USDCNY_REGIME_COLUMNS
-    elif signal_names == FIVE_BRENT_SIGNAL_NAMES:
-        value_columns.extend(["US_2_10_curve_spread", "Brent_yoy"])
-        favorable_columns.extend(["favorable_US_2_10_curve", "favorable_Brent"])
-        output_columns = BRENT_REGIME_COLUMNS
-    elif signal_names == SIX_COPPER_SIGNAL_NAMES:
-        value_columns.extend(["US_2_10_curve_spread", "Brent_yoy", "Copper_yoy"])
-        favorable_columns.extend(["favorable_US_2_10_curve", "favorable_Brent", "favorable_Copper"])
-        output_columns = COPPER_REGIME_COLUMNS
+    value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
 
     complete = result[value_columns].notna().all(axis=1)
     if signal_names == THREE_SIGNAL_NAMES:
@@ -212,3 +275,34 @@ def _require_columns(data: pd.DataFrame, columns: tuple[str, ...], name: str) ->
     missing = [column for column in columns if column not in data.columns]
     if missing:
         raise ValueError(f"{name} is missing required columns: {missing}")
+
+
+def _monthly_level_change(aligned: pd.DataFrame, name: str, *, months: int) -> pd.Series:
+    source_column = f"{name}_source_observation_date"
+    _require_columns(aligned, (name, source_column), "aligned")
+    data = aligned.loc[:, [source_column, name]].copy()
+    data[source_column] = pd.to_datetime(data[source_column], errors="coerce")
+    data[name] = pd.to_numeric(data[name], errors="coerce")
+    monthly = (
+        data.dropna(subset=[source_column])
+        .drop_duplicates(subset=[source_column], keep="last")
+        .sort_values(source_column)
+        .reset_index(drop=True)
+    )
+    monthly = monthly.rename(columns={source_column: "base_source_observation_date", name: "base_value"})
+
+    lookup = pd.DataFrame(
+        {
+            "row_order": range(len(aligned)),
+            "lookup_date": pd.to_datetime(aligned[source_column], errors="coerce") - pd.DateOffset(months=months),
+        }
+    )
+    matched = pd.merge_asof(
+        lookup.sort_values("lookup_date"),
+        monthly,
+        left_on="lookup_date",
+        right_on="base_source_observation_date",
+        direction="backward",
+    ).sort_values("row_order")
+    current = pd.to_numeric(aligned[name], errors="coerce").reset_index(drop=True)
+    return (current - matched["base_value"].reset_index(drop=True)).astype("Float64")

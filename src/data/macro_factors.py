@@ -107,6 +107,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="Global price of copper, U.S. dollars per metric ton",
     ),
     FredSeriesSpec(
+        name="kr10y",
+        fred_series="IRLTLT01KRM156N",
+        filename="fred_kr10y.csv",
+        timing=US_AFTER_CLOSE,
+        frequency="monthly",
+        transform="diff",
+        description="Long-term government bond yields, 10-year, Korea",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",

@@ -1,0 +1,10 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,0.5500320799221281,0.0,True
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-19.5451455465272,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",2.0,2.0,True
+H4,V1 max drawdown improves on V2 by at least 5pp,-0.3299310457213005,-0.05,True
+H5,V1 positive in >= 8 of 16 years,7.0,8.0,False
+H6,V1 net / V1 cost-0 >= 0.7,0.6599433844324342,0.7,False
+H7,V1 v8 cumulative net improves on C008 v6 by >= 5pp,0.1802766167378096,0.05,True
+H8,"Both C011 V1 subperiod cumulative net returns are >= 0, descriptive robustness check",-0.21476707289130448,0.0,False
+H9,"KR10y yoy change and US 10y yoy change correlation, descriptive only",0.7291573771274987,,

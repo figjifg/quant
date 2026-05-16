@@ -54,6 +54,20 @@ def test_copper_fred_series_is_registered_as_monthly_and_loads() -> None:
     assert frame["copper"].notna().sum() > 0
 
 
+def test_kr10y_fred_series_is_registered_as_monthly_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["kr10y"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "IRLTLT01KRM156N"
+    assert spec.filename == "fred_kr10y.csv"
+    assert spec.frequency == "monthly"
+    assert spec.transform == "diff"
+    assert list(frame.columns) == ["observation_date", "kr10y"]
+    assert frame["kr10y"].notna().sum() > 0
+
+
 def test_load_fred_series_rejects_missing_value_column(tmp_path: Path) -> None:
     path = tmp_path / "fred_vix.csv"
     path.write_text("observation_date,WRONG\n2025-01-02,10.0\n", encoding="utf-8")
@@ -119,6 +133,7 @@ def _write_minimal_macro_files(base: Path) -> None:
         "DGS3MO": [5.0, 5.1],
         "DCOILBRENTEU": [80.0, 81.0],
         "PCOPPUSDM": [9000.0, 9100.0],
+        "IRLTLT01KRM156N": [3.5, 3.4],
         "DEXKOUS": [1460.0, 1470.0],
     }
     for spec in FRED_SERIES:
