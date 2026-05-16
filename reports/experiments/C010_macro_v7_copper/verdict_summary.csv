@@ -1,0 +1,10 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,0.09361121690719676,0.0,True
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-20.001566409542132,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",2.0,2.0,True
+H4,V1 max drawdown improves on V2 by at least 5pp,-0.3667064462938395,-0.05,True
+H5,V1 positive in >= 8 of 16 years,5.0,8.0,False
+H6,V1 net / V1 cost-0 >= 0.7,0.3285340114444687,0.7,False
+H7,V1 v7 cumulative net improves on C008 v6 by >= 5pp,-0.27614424627712175,0.05,False
+H8,"Both C010 V1 subperiod cumulative net returns are >= 0, descriptive robustness check",-0.26590110110584475,0.0,False
+H9,"Copper yoy and Brent yoy correlation, descriptive only",0.6950685968091067,,

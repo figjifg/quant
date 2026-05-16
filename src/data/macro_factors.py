@@ -15,6 +15,7 @@ class FredSeriesSpec:
     fred_series: str
     filename: str
     timing: str
+    frequency: str
     transform: str
     description: str
 
@@ -29,6 +30,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="VIXCLS",
         filename="fred_vix.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="pct_change",
         description="CBOE VIX close",
     ),
@@ -37,6 +39,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DTWEXBGS",
         filename="fred_dxy.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="pct_change",
         description="Nominal broad U.S. dollar index",
     ),
@@ -45,6 +48,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DGS2",
         filename="fred_dgs2.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="diff",
         description="U.S. 2-year Treasury yield",
     ),
@@ -53,6 +57,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DGS10",
         filename="fred_dgs10.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="diff",
         description="U.S. 10-year Treasury yield",
     ),
@@ -61,6 +66,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DEXCHUS",
         filename="fred_dexchus.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="pct_change",
         description="Chinese yuan to one U.S. dollar",
     ),
@@ -69,6 +75,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="BAA10Y",
         filename="fred_baa10y_spread.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="diff",
         description="Moody's Baa corporate bond yield minus 10-year Treasury",
     ),
@@ -77,6 +84,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DGS3MO",
         filename="fred_dgs3mo.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="diff",
         description="U.S. 3-month Treasury yield",
     ),
@@ -85,14 +93,25 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         fred_series="DCOILBRENTEU",
         filename="fred_brent.csv",
         timing=US_AFTER_CLOSE,
+        frequency="daily",
         transform="pct_change",
         description="Crude Oil Prices: Brent Europe",
+    ),
+    FredSeriesSpec(
+        name="copper",
+        fred_series="PCOPPUSDM",
+        filename="fred_copper.csv",
+        timing=US_AFTER_CLOSE,
+        frequency="monthly",
+        transform="pct_change",
+        description="Global price of copper, U.S. dollars per metric ton",
     ),
     FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",
         timing=KOREA_SAME_DAY,
+        frequency="daily",
         transform="pct_change",
         description="Korean won to one U.S. dollar",
     ),

@@ -63,10 +63,29 @@ BRENT_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+COPPER_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "Brent_yoy",
+    "Copper_yoy",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_Copper",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
 FIVE_BRENT_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "brent_yoy")
+SIX_COPPER_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "copper_yoy")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 
 
@@ -84,8 +103,8 @@ def build_macro_regime_daily(
 
     The default preserves C003/C004's three-signal regime. C005 opts into the
     fourth US 2-10y curve signal, C006 opts into a five-signal USDCNY variant,
-    and C008 opts into a different five-signal Brent variant through
-    ``macro_signals``.
+    C008 opts into a different five-signal Brent variant, and C010 opts into
+    a six-signal Brent plus copper variant through ``macro_signals``.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -94,7 +113,13 @@ def build_macro_regime_daily(
     if vix_short_window > vix_long_window:
         raise ValueError("vix_short_window cannot exceed vix_long_window.")
     signal_names = tuple(macro_signals)
-    allowed_signals = (THREE_SIGNAL_NAMES, FOUR_SIGNAL_NAMES, FIVE_USDCNY_SIGNAL_NAMES, FIVE_BRENT_SIGNAL_NAMES)
+    allowed_signals = (
+        THREE_SIGNAL_NAMES,
+        FOUR_SIGNAL_NAMES,
+        FIVE_USDCNY_SIGNAL_NAMES,
+        FIVE_BRENT_SIGNAL_NAMES,
+        SIX_COPPER_SIGNAL_NAMES,
+    )
     if signal_names not in allowed_signals:
         raise ValueError(
             f"macro_signals must be one of {allowed_signals}; "
@@ -111,6 +136,7 @@ def build_macro_regime_daily(
     dgs10 = pd.to_numeric(aligned["dgs10"], errors="coerce").ffill(limit=5)
     usdcny = pd.to_numeric(aligned["dexchus_usdcny"], errors="coerce").ffill(limit=5)
     brent = pd.to_numeric(aligned["brent"], errors="coerce").ffill(limit=5)
+    copper = pd.to_numeric(aligned["copper"], errors="coerce").ffill()
 
     result = pd.DataFrame({"signal_date": aligned["signal_date"]})
     result["USDKRW_yoy"] = usdkrw / usdkrw.shift(yoy_lookback) - 1.0
@@ -120,6 +146,7 @@ def build_macro_regime_daily(
     result["US_2_10_curve_spread"] = dgs10 - dgs2
     result["USDCNY_yoy"] = usdcny / usdcny.shift(yoy_lookback) - 1.0
     result["Brent_yoy"] = brent / brent.shift(yoy_lookback) - 1.0
+    result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
 
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
@@ -127,6 +154,7 @@ def build_macro_regime_daily(
     result["favorable_US_2_10_curve"] = result["US_2_10_curve_spread"].gt(0.0)
     result["favorable_USDCNY"] = result["USDCNY_yoy"].le(0.0)
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)
+    result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
 
     value_columns = ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy"]
     favorable_columns = ["favorable_USDKRW", "favorable_VIX", "favorable_DXY"]
@@ -143,6 +171,10 @@ def build_macro_regime_daily(
         value_columns.extend(["US_2_10_curve_spread", "Brent_yoy"])
         favorable_columns.extend(["favorable_US_2_10_curve", "favorable_Brent"])
         output_columns = BRENT_REGIME_COLUMNS
+    elif signal_names == SIX_COPPER_SIGNAL_NAMES:
+        value_columns.extend(["US_2_10_curve_spread", "Brent_yoy", "Copper_yoy"])
+        favorable_columns.extend(["favorable_US_2_10_curve", "favorable_Brent", "favorable_Copper"])
+        output_columns = COPPER_REGIME_COLUMNS
 
     complete = result[value_columns].notna().all(axis=1)
     if signal_names == THREE_SIGNAL_NAMES:

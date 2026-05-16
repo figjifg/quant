@@ -196,6 +196,60 @@ def test_macro_regime_brent_yoy_uses_available_observation_without_lookahead(tmp
     assert "favorable_USDCNY" not in regime.columns
 
 
+def test_macro_regime_copper_yoy_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=340)
+    copper = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01", "2026-04-01"],
+            "PCOPPUSDM": [100.0, 125.0, 999.0],
+        }
+    )
+    copper.to_csv(tmp_path / "fred_copper.csv", index=False)
+    dates = pd.to_datetime(["2025-03-28", "2026-03-31"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve", "brent_yoy", "copper_yoy"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    assert row["Copper_yoy"] == pytest.approx(125.0 / 100.0 - 1.0)
+    assert row["favorable_Copper"] == True
+    assert row["regime_score"] == 4
+    assert row["regime_on"] == True
+    assert "USDCNY_yoy" not in regime.columns
+    assert "favorable_USDCNY" not in regime.columns
+
+
+def test_macro_regime_copper_unfavorable_when_yoy_is_not_positive(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=340)
+    copper = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "PCOPPUSDM": [100.0, 95.0],
+        }
+    )
+    copper.to_csv(tmp_path / "fred_copper.csv", index=False)
+    dates = pd.to_datetime(["2025-03-28", "2026-03-31"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve", "brent_yoy", "copper_yoy"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    assert row["Copper_yoy"] == pytest.approx(95.0 / 100.0 - 1.0)
+    assert row["favorable_Copper"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -240,6 +294,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "BAA10Y": [2.0] * periods,
         "DGS3MO": [5.0] * periods,
         "DCOILBRENTEU": [100.0 - index for index in range(periods)],
+        "PCOPPUSDM": [9000.0 + index for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:
