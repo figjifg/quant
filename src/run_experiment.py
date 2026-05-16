@@ -21,7 +21,7 @@ from src.features.market_gate import build_kospi_proxy_close_series, build_marke
 from src.features.relative_flow import cross_sectional_std_diagnostic
 from src.data.kospi_proxy import load_kospi_proxy
 from src.features.regime import regime_gate_on, regime_state_log
-from src.reporting.metrics import metrics_is_oos
+from src.reporting.metrics import compute_metrics, metrics_is_oos
 from src.reporting.report import write_report
 from src.roles.exits import exit_signal_reversal, exit_time_cap, exit_volatility_stop_plus_cap
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
@@ -42,6 +42,7 @@ from src.strategies.b007_filter_exploration import (
 from src.strategies.b008_f2_promote import VARIANTS as B008_VARIANTS, run_b008_variants
 from src.strategies.b009_f3_promote import VARIANTS as B009_VARIANTS, run_b009_variants
 from src.strategies.b010_old_data_verification import VARIANTS as B010_VARIANTS, run_b010_variants
+from src.strategies.b011_gate_only_full_timeline import VARIANTS as B011_VARIANTS, run_b011_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -242,7 +243,22 @@ EXPECTED_B010_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B011_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "period",
+    "universe",
+    "regime",
+    "selection",
+    "costs",
+    "variants",
+    "output_dir",
+)
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
+EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
+EXPECTED_B011_SELECTION_KEYS = ("type", "n")
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -317,6 +333,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B010":
         _validate_b010_config_shape(config)
         run_b010_experiment(config, config_path)
+    elif experiment_id == "B011":
+        _validate_b011_config_shape(config)
+        run_b011_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -2008,6 +2027,42 @@ def run_b010_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_b010_report(output_dir, config, metrics, year_breakdown, diagnostic, cost_sensitivity)
 
 
+def run_b011_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    kospi_proxy = load_kospi_proxy(config["market_breadth_csv"], window=int(config["regime"]["window"]))
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    runs, candidates, gate = run_b011_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        kospi_proxy=kospi_proxy,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    candidate_years = _b011_candidate_years(config)
+    metrics = _b011_metrics(runs, calendar, candidate_years)
+    year_breakdown = _b011_year_breakdown(runs=runs, calendar=calendar, candidate_years=candidate_years)
+    drawdown = _b011_drawdown(runs)
+    summary = _b011_summary(metrics, year_breakdown)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["gate_only_mcap"], calendar), output_dir / "trades.csv")
+    _b011_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    year_breakdown.to_csv(output_dir / "gate_only_year_breakdown.csv", index=False)
+    drawdown.to_csv(output_dir / "gate_only_drawdown.csv", index=False)
+    summary.to_csv(output_dir / "gate_only_summary.csv", index=False)
+    _write_b011_report(output_dir, config, metrics, year_breakdown, summary, gate)
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -2048,6 +2103,38 @@ def _build_b010_inputs(
     features = _filter_signal_execution_years(features, candidate_years)
     universe = _filter_signal_execution_years(universe, candidate_years)
     return panel, calendar, features, universe
+
+
+def _build_b011_inputs(
+    config: dict[str, Any],
+) -> tuple[pd.DataFrame, object, pd.DataFrame]:
+    frames = []
+    filters = config.get("panel_date_filters", {})
+    for path in config["panels"]:
+        frame = load_equity_panel([path])
+        date_filter = filters.get(path, {})
+        if "start" in date_filter:
+            frame = frame.loc[frame["날짜"].ge(pd.Timestamp(date_filter["start"]).normalize())].copy()
+        if "end" in date_filter:
+            frame = frame.loc[frame["날짜"].le(pd.Timestamp(date_filter["end"]).normalize())].copy()
+        frames.append(frame)
+    panel = pd.concat(frames, ignore_index=True)
+    excluded_years = {int(year) for year in config["period"]["exclude_calendar_years"]}
+    if excluded_years:
+        panel = panel.loc[~panel["날짜"].dt.year.isin(excluded_years)].copy()
+    start = pd.Timestamp(config["period"]["start"]).normalize()
+    end = pd.Timestamp(config["period"]["end"]).normalize()
+    panel = panel.loc[panel["날짜"].between(start, end)].copy()
+    calendar = derive_trading_calendar(panel)
+    universe = build_execution_universe(
+        panel,
+        calendar,
+        min_avg_traded_value_20d=float(config["universe"]["min_avg_traded_value_20d"]),
+        exclude_estimated_flag_rows=bool(config["universe"]["exclude_estimated_flag_rows"]),
+    )
+    years = set(_b011_candidate_years(config))
+    universe = _filter_signal_execution_years(universe, years)
+    return panel, calendar, universe
 
 
 def _filter_signal_execution_years(frame: pd.DataFrame, years: set[int]) -> pd.DataFrame:
@@ -3875,6 +3962,220 @@ def _b010_variant_metric_table(title: str, metrics: dict[str, Any], split: str) 
     return lines
 
 
+def _b011_segments(config: dict[str, Any]) -> tuple[tuple[pd.Timestamp, pd.Timestamp], ...]:
+    start = pd.Timestamp(config["period"]["start"]).normalize()
+    end = pd.Timestamp(config["period"]["end"]).normalize()
+    excluded_years = {int(year) for year in config["period"]["exclude_calendar_years"]}
+    segments: list[tuple[pd.Timestamp, pd.Timestamp]] = []
+    segment_start = start
+    for year in range(start.year, end.year + 1):
+        if year not in excluded_years:
+            continue
+        segment_end = min(pd.Timestamp(year=year - 1, month=12, day=31), end)
+        if segment_start <= segment_end:
+            segments.append((segment_start, segment_end))
+        segment_start = max(pd.Timestamp(year=year + 1, month=1, day=1), start)
+    if segment_start <= end:
+        segments.append((segment_start, end))
+    return tuple(segments)
+
+
+def _b011_candidate_years(config: dict[str, Any]) -> tuple[int, ...]:
+    start_year = pd.Timestamp(config["period"]["start"]).year
+    end_year = pd.Timestamp(config["period"]["end"]).year
+    excluded = {int(year) for year in config["period"]["exclude_calendar_years"]}
+    return tuple(year for year in range(start_year, end_year + 1) if year not in excluded)
+
+
+def _b011_metrics(
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> dict[str, dict[str, Any]]:
+    metrics: dict[str, dict[str, Any]] = {}
+    for variant in B011_VARIANTS:
+        block = dict(compute_metrics(runs[variant].equity_curve, runs[variant].trades, calendar))
+        yearly_returns = _b011_year_returns(runs[variant], calendar, candidate_years)
+        block["cumulative_net_total_return"] = block["total_return"]
+        block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+        block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+        metrics[variant] = block
+    return metrics
+
+
+def _b011_year_returns(
+    result: BacktestResult,
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> dict[int, float]:
+    yearly: dict[int, float] = {}
+    for year in candidate_years:
+        year_start = pd.Timestamp(year=year, month=1, day=1)
+        year_end = pd.Timestamp(year=year, month=12, day=31)
+        yearly[year] = metrics_is_oos(
+            result.equity_curve,
+            result.trades,
+            year_start,
+            year_end,
+            year_start,
+            year_end,
+            calendar,
+        )["is"]["total_return"]
+    return yearly
+
+
+def _b011_year_breakdown(
+    *,
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> pd.DataFrame:
+    rows = []
+    for year in candidate_years:
+        row: dict[str, Any] = {"year": year}
+        for variant in B011_VARIANTS:
+            row[f"{variant}_net_total_return"] = _b011_year_returns(runs[variant], calendar, (year,))[year]
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _b011_drawdown(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    base = pd.DataFrame({"date": runs["gate_only_mcap"].equity_curve["date"]})
+    for variant in ("gate_only_mcap", "kospi_buy_and_hold"):
+        nav = pd.to_numeric(runs[variant].equity_curve["net_value"], errors="raise")
+        base[f"{variant}_drawdown"] = (nav / nav.cummax() - 1.0).to_numpy()
+    return base
+
+
+def _b011_summary(metrics: dict[str, dict[str, Any]], year_breakdown: pd.DataFrame) -> pd.DataFrame:
+    v1 = metrics["gate_only_mcap"]
+    v2 = metrics["kospi_buy_and_hold"]
+    v1_return = float(v1["cumulative_net_total_return"])
+    v2_return = float(v2["cumulative_net_total_return"])
+    v1_mdd = float(v1["max_drawdown"])
+    v2_mdd = float(v2["max_drawdown"])
+    v1_positive_years = int(v1["positive_years"])
+    yearly = v1["yearly_net_total_return"]
+    h3 = all(float(yearly[str(year)]) > 0.0 for year in (2010, 2025, 2026))
+    row = {
+        "h1_cumulative_survival_pass": bool(v1_return > 0.0),
+        "h1_v1_cumulative_net_total_return": v1_return,
+        "h2_vs_kospi_pass": bool(v1_return >= v2_return - 0.10),
+        "h2_v1_minus_v2_cumulative_delta": v1_return - v2_return,
+        "h3_spike_capture_pass": bool(h3),
+        "h3_v1_2010_net": float(yearly["2010"]),
+        "h3_v1_2025_net": float(yearly["2025"]),
+        "h3_v1_2026_net": float(yearly["2026"]),
+        "h4_drawdown_protection_pass": bool(v1_mdd < v2_mdd - 0.05),
+        "h4_v1_max_drawdown": v1_mdd,
+        "h4_v2_max_drawdown": v2_mdd,
+        "h5_positive_years_pass": bool(v1_positive_years >= 8),
+        "h5_v1_positive_years": v1_positive_years,
+        "candidate_year_count": int(len(year_breakdown)),
+    }
+    row["hypotheses_passed"] = int(
+        sum(
+            bool(row[column])
+            for column in (
+                "h1_cumulative_survival_pass",
+                "h2_vs_kospi_pass",
+                "h3_spike_capture_pass",
+                "h4_drawdown_protection_pass",
+                "h5_positive_years_pass",
+            )
+        )
+    )
+    return pd.DataFrame([row])
+
+
+def _b011_trades(result: BacktestResult, calendar: object) -> pd.DataFrame:
+    trades = result.trades.copy()
+    if trades.empty:
+        trades["cost_paid"] = pd.Series(dtype="float64")
+        trades["holding_days"] = pd.Series(dtype="int64")
+        return trades
+    trades["cost_paid"] = pd.to_numeric(trades["buy_cost"], errors="raise") + pd.to_numeric(
+        trades["sell_cost"], errors="raise"
+    )
+    index_by_date = {pd.Timestamp(date).normalize(): index for index, date in enumerate(calendar.dates)}
+    trades["holding_days"] = [
+        index_by_date[pd.Timestamp(exit_date).normalize()] - index_by_date[pd.Timestamp(entry_date).normalize()]
+        for entry_date, exit_date in zip(trades["entry_date"], trades["exit_date"], strict=False)
+    ]
+    return trades
+
+
+def _b011_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "date": runs["gate_only_mcap"].equity_curve["date"],
+            "V1_value": runs["gate_only_mcap"].equity_curve["net_value"],
+            "V2_value": runs["kospi_buy_and_hold"].equity_curve["net_value"],
+            "V3_value": runs["cash"].equity_curve["net_value"],
+        }
+    )
+
+
+def _write_b011_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    year_breakdown: pd.DataFrame,
+    summary: pd.DataFrame,
+    gate: pd.Series,
+) -> None:
+    del gate
+    lines = ["# B011 Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| period_start | {config['period']['start']} |",
+            f"| period_end | {config['period']['end']} |",
+            f"| excluded_years | {json.dumps(config['period']['exclude_calendar_years'])} |",
+            "| regime_gate | KOSPI proxy level > 200-day SMA; B004(c) frozen gate window |",
+            "| selection | top 5 by prior-day market cap, equal weight when gate ON |",
+            "| exit | exit_on_gate_off plus universe exit when name leaves eligibility |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 종가 only as pre-NXT fallback where absent |",
+            "| calendar_source | derived from panel non-null KRX종가 rows after excluding configured years |",
+            "",
+        ]
+    )
+    lines.extend(_b011_metric_table(metrics))
+    lines.extend(_b004_dataframe_table("Gate Only Year Breakdown", year_breakdown))
+    lines.extend(_b004_dataframe_table("Gate Only Summary", summary))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _b011_metric_table(metrics: dict[str, dict[str, Any]]) -> list[str]:
+    columns = (
+        "cumulative_net_total_return",
+        "max_drawdown",
+        "positive_years",
+        "annualized_return",
+        "annualized_volatility",
+        "sharpe",
+        "trade_count",
+        "hit_rate",
+        "cost_paid_total",
+    )
+    lines = [
+        "## Variant Metrics",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in B011_VARIANTS:
+        block = metrics[variant]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
+    lines.append("")
+    return lines
+
+
 def _load_config(config_path: Path) -> dict[str, Any]:
     with config_path.open("r", encoding="utf-8") as handle:
         loaded = yaml.safe_load(handle)
@@ -4183,6 +4484,36 @@ def _validate_b010_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("B010 requires ranking.type: combined_flow_5.")
     if config["exit"]["type"] != "signal_reversal":
         raise ValueError("B010 requires exit.type: signal_reversal.")
+
+
+def _validate_b011_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B011_CONFIG_KEYS:
+        raise ValueError(f"B011 config keys must be exactly {EXPECTED_B011_CONFIG_KEYS}; got {keys}.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError(f"B011 period keys must be exactly {EXPECTED_B011_PERIOD_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"B011 universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["regime"].keys()) != EXPECTED_B004_REGIME_KEYS:
+        raise ValueError(f"B011 regime keys must be exactly {EXPECTED_B004_REGIME_KEYS}.")
+    if tuple(config["selection"].keys()) != EXPECTED_B011_SELECTION_KEYS:
+        raise ValueError(f"B011 selection keys must be exactly {EXPECTED_B011_SELECTION_KEYS}.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"B011 costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if tuple(config["variants"]) != B011_VARIANTS:
+        raise ValueError(f"B011 variants must be exactly {list(B011_VARIANTS)}.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("B011 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("B011 requires period.exclude_calendar_years: [2016].")
+    if config["regime"]["gate_type"] != "kospi_sma":
+        raise ValueError("B011 requires regime.gate_type: kospi_sma.")
+    if int(config["regime"]["window"]) != 200:
+        raise ValueError("B011 requires regime.window: 200.")
+    if config["selection"]["type"] != "market_cap_top_n":
+        raise ValueError("B011 requires selection.type: market_cap_top_n.")
+    if int(config["selection"]["n"]) != 5:
+        raise ValueError("B011 requires selection.n: 5.")
 
 
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:

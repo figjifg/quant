@@ -209,8 +209,11 @@ experiment_id: B011
 panels:
   - research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
   - research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
   - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
 panel_date_filters:
+  # 2017-2024 panel: ONLY 2017 portion (to avoid overlap with the
+  # 2018-2024 panel which is used for 2018-2024 coverage)
   research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv:
     end: 2017-12-31
 market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
