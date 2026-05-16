@@ -1,0 +1,9 @@
+diagnostic,value,threshold,passes
+h1_v1_cost_0_net_gt_0,-0.09895484893159445,0.0,False
+h2_v1_net_total_return_ge_-0.20,-0.7105507913104743,-0.2,False
+h3_v1_positive_years_ge_4_of_7,1.0,4,False
+h4_largest_positive_year_fraction_le_80pct,1.0,0.8,False
+h4_total_positive_year_return,0.24659704379697867,,
+h5_v1_minus_v2_net_total_return,0.025038732876771386,,
+survival_2010_2017_v1_cost_0_full,-0.09895484893159445,,
+survival_2018_2026_v1_cost_0_oos_from_b009,2.4175517306182512,,

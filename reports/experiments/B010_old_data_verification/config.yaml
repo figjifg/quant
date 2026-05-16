@@ -1,0 +1,38 @@
+experiment_id: B010
+panels:
+  - research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+periods:
+  is:
+    start: 2010-01-04
+    end:   2015-12-30
+  oos:
+    start: 2017-01-02
+    end:   2017-12-28
+excluded_years: [2016]
+candidate_years: [2010, 2011, 2012, 2013, 2014, 2015, 2017]
+survival_comparison:
+  b009_metrics_path: reports/experiments/B009_f3_filter_promote/metrics.json
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  max_positions: 5
+trigger:
+  type: acceleration
+ranking:
+  type: combined_flow_5
+exit:
+  type: signal_reversal
+variants:
+  - carrier_t3_f3
+  - t3_f1_baseline
+  - cash
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+output_dir: reports/experiments/B010_old_data_verification
