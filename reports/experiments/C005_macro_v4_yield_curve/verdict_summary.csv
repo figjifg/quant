@@ -1,0 +1,8 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,-0.08478285179122336,0.0,False
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-20.179960478240552,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",2.0,2.0,True
+H4,V1 max drawdown improves on V2 by at least 5pp,-0.36104336931715575,-0.05,True
+H5,V1 positive in >= 8 of 16 years,6.0,8.0,False
+H6,V1 net / V1 cost-0 >= 0.7,-2.3091730255666163,0.7,False
+H7,V1 v4 cumulative net improves on C004 v3 by >= 5pp,0.1353502384813362,0.05,True

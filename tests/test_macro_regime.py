@@ -64,6 +64,86 @@ def test_macro_regime_carries_short_fred_holiday_gap(tmp_path: Path) -> None:
     assert regime.loc[2, "VIX_60d_avg"] == pytest.approx((11.0 + 11.0) / 2.0)
 
 
+def test_macro_regime_default_preserves_three_signal_columns(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=10)
+    dates = pd.date_range("2025-01-01", periods=4, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=2,
+        vix_short_window=2,
+        vix_long_window=3,
+    )
+
+    assert "US_2_10_curve_spread" not in regime.columns
+    assert "favorable_US_2_10_curve" not in regime.columns
+
+
+def test_macro_regime_yield_curve_uses_available_observation_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=10)
+    dgs2 = pd.read_csv(tmp_path / "fred_dgs2.csv")
+    dgs10 = pd.read_csv(tmp_path / "fred_dgs10.csv")
+    dgs2.loc[dgs2["observation_date"].eq("2025-01-03"), "DGS2"] = 10.0
+    dgs10.loc[dgs10["observation_date"].eq("2025-01-03"), "DGS10"] = 1.0
+    dgs2.to_csv(tmp_path / "fred_dgs2.csv", index=False)
+    dgs10.to_csv(tmp_path / "fred_dgs10.csv", index=False)
+    dates = pd.date_range("2025-01-01", periods=4, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-03"))].iloc[0]
+    assert row["US_2_10_curve_spread"] == pytest.approx(0.5)
+    assert row["favorable_US_2_10_curve"] == True
+
+
+def test_macro_regime_yield_curve_formula_and_score(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=10)
+    dates = pd.date_range("2025-01-01", periods=4, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-03"))].iloc[0]
+    assert row["US_2_10_curve_spread"] == pytest.approx(row["US_2_10_curve_spread"])
+    assert row["US_2_10_curve_spread"] == pytest.approx(4.5 - 4.0)
+    assert row["regime_score"] == 2
+    assert row["regime_on"] == True
+
+
+def test_macro_regime_yield_curve_flag_is_independent_of_other_incomplete_windows(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=10)
+    dates = pd.date_range("2025-01-01", periods=2, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=3,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-02"))].iloc[0]
+    assert row["US_2_10_curve_spread"] == pytest.approx(0.5)
+    assert row["favorable_US_2_10_curve"] == True
+    assert pd.isna(row["regime_score"])
+    assert row["regime_on"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
