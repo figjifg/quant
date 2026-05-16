@@ -23,6 +23,7 @@ class FredSeriesSpec:
 US_AFTER_CLOSE = "us_after_close"
 KOREA_SAME_DAY = "korea_same_day"
 US_MONTHLY_AFTER_MONTH_END_LAG = "us_monthly_after_month_end_lag"
+KOREA_MONTHLY_AFTER_MONTH_END_LAG = "korea_monthly_after_month_end_lag"
 
 
 FRED_SERIES: tuple[FredSeriesSpec, ...] = (
@@ -153,6 +154,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="U.S. unemployment rate, seasonally adjusted",
     ),
     FredSeriesSpec(
+        name="kr_cpi",
+        fred_series="KORCPALTT01CTGYM",
+        filename="fred_kr_cpi.csv",
+        timing=KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="diff",
+        description="Korea CPI, total, yoy growth rate in percent",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",
@@ -242,7 +252,7 @@ def _align_one_series(
         targets["lookup_date"] = targets["signal_date"] - pd.Timedelta(days=1)
     elif spec.timing == KOREA_SAME_DAY:
         targets["lookup_date"] = targets["signal_date"]
-    elif spec.timing == US_MONTHLY_AFTER_MONTH_END_LAG:
+    elif spec.timing in (US_MONTHLY_AFTER_MONTH_END_LAG, KOREA_MONTHLY_AFTER_MONTH_END_LAG):
         targets["lookup_date"] = targets["signal_date"]
     else:
         raise ValueError(f"Unsupported timing policy for {spec.name}: {spec.timing}")
@@ -250,7 +260,7 @@ def _align_one_series(
 
     source = raw.rename(columns={"observation_date": "source_observation_date"})
     source["source_observation_date"] = source["source_observation_date"].astype("datetime64[ns]")
-    if spec.timing == US_MONTHLY_AFTER_MONTH_END_LAG:
+    if spec.timing in (US_MONTHLY_AFTER_MONTH_END_LAG, KOREA_MONTHLY_AFTER_MONTH_END_LAG):
         source["availability_date"] = (
             source["source_observation_date"] + pd.offsets.MonthEnd(0) + pd.Timedelta(days=14)
         ).astype("datetime64[ns]")

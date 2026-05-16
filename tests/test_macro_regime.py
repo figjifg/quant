@@ -620,6 +620,120 @@ def test_macro_regime_us_unrate_unfavorable_when_yoy_change_is_negative(tmp_path
     assert row["favorable_US_UNRATE"] == False
 
 
+def test_macro_regime_kr_cpi_decel_uses_already_yoy_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    kr_cpi = pd.DataFrame(
+        {
+            "observation_date": ["2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01"],
+            "KORCPALTT01CTGYM": [3.0, 3.2, 2.8, 2.7],
+        }
+    )
+    kr_cpi.to_csv(tmp_path / "fred_kr_cpi.csv", index=False)
+    dates = pd.to_datetime(["2025-03-14", "2025-04-14", "2026-03-31", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_cpi_decel",
+        ],
+    )
+
+    march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert march_end["KR_CPI_yoy"] == pytest.approx(2.8)
+    assert march_end["KR_CPI_decel"] == pytest.approx(2.8 - 3.0)
+    assert april_release["KR_CPI_yoy"] == pytest.approx(2.7)
+    assert april_release["KR_CPI_decel"] == pytest.approx(2.7 - 3.2)
+    assert april_release["favorable_KR_CPI"] == True
+    assert "US_UNRATE_yoy_change" not in regime.columns
+    assert "favorable_US_UNRATE" not in regime.columns
+
+
+def test_macro_regime_kr_cpi_unfavorable_when_yoy_accelerates(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    kr_cpi = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "KORCPALTT01CTGYM": [2.5, 3.0],
+        }
+    )
+    kr_cpi.to_csv(tmp_path / "fred_kr_cpi.csv", index=False)
+    dates = pd.to_datetime(["2025-04-14", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_cpi_decel",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert row["KR_CPI_decel"] == pytest.approx(0.5)
+    assert row["favorable_KR_CPI"] == False
+
+
+def test_macro_regime_kr_cpi_stale_gap_is_false_but_composite_still_counts_other_signals(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=900)
+    kr_cpi = pd.DataFrame(
+        {
+            "observation_date": ["2025-04-01", "2026-04-01"],
+            "KORCPALTT01CTGYM": [3.0, 2.0],
+        }
+    )
+    kr_cpi.to_csv(tmp_path / "fred_kr_cpi.csv", index=False)
+    dates = pd.to_datetime(["2025-09-30", "2026-05-14", "2026-09-30", "2027-09-30"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_cpi_decel",
+        ],
+    )
+
+    fresh = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-05-14"))].iloc[0]
+    stale = regime.loc[regime["signal_date"].eq(pd.Timestamp("2027-09-30"))].iloc[0]
+    assert fresh["KR_CPI_decel"] == pytest.approx(-1.0)
+    assert fresh["favorable_KR_CPI"] == True
+    assert pd.isna(stale["KR_CPI_decel"])
+    assert stale["favorable_KR_CPI"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -670,6 +784,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "CPIAUCSL": [300.0 + index for index in range(periods)],
         "PPIACO": [250.0 + index for index in range(periods)],
         "UNRATE": [4.0 + index * 0.01 for index in range(periods)],
+        "KORCPALTT01CTGYM": [2.0 + index * 0.01 for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:
