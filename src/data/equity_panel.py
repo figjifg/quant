@@ -22,7 +22,18 @@ REQUIRED_COLUMNS = (
 
 RAW_CLOSE_COLUMN = "종가"
 KRX_CLOSE_SOURCE_VALUES = ("native", "from_종가_fallback")
-BOOL_COLUMNS = ("수급금액추정여부", "거래대금추정여부", "동적유니버스포함")
+INTEGRATION_FLAG_COLUMNS = (
+    "통합거래량반영여부",
+    "통합종가반영여부",
+    "통합종가제외여부",
+    "가격범위후보정여부",
+)
+BOOL_COLUMNS = (
+    "수급금액추정여부",
+    "거래대금추정여부",
+    "동적유니버스포함",
+    *INTEGRATION_FLAG_COLUMNS,
+)
 NUMERIC_COLUMNS = (
     "시가",
     "KRX종가",
@@ -74,6 +85,12 @@ def _read_panel(path: Path) -> pd.DataFrame:
         frame = frame.assign(krx_close_source="native")
     else:
         frame = frame.assign(KRX종가=frame[RAW_CLOSE_COLUMN], krx_close_source="from_종가_fallback")
+
+    missing_integration_flags = [
+        column for column in INTEGRATION_FLAG_COLUMNS if column not in frame.columns
+    ]
+    if missing_integration_flags:
+        frame = frame.assign(**{column: False for column in missing_integration_flags})
 
     return frame
 

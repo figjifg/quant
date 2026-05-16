@@ -74,6 +74,14 @@ def test_load_equity_panel_normalizes_schema_and_sorts_rows(tmp_path) -> None:
     assert panel["수급금액추정여부"].dtype == bool
     assert panel["거래대금추정여부"].dtype == bool
     assert panel["동적유니버스포함"].dtype == bool
+    assert panel["통합거래량반영여부"].dtype == bool
+    assert panel["통합종가반영여부"].dtype == bool
+    assert panel["통합종가제외여부"].dtype == bool
+    assert panel["가격범위후보정여부"].dtype == bool
+    assert not panel["통합거래량반영여부"].any()
+    assert not panel["통합종가반영여부"].any()
+    assert not panel["통합종가제외여부"].any()
+    assert not panel["가격범위후보정여부"].any()
     assert panel["krx_close_source"].dtype.name == "category"
     assert set(panel["krx_close_source"]) == {"native"}
 

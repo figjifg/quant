@@ -140,18 +140,39 @@ Old data may show negative net (current costs are forgiving but
 turnover may still eat alpha). -0.20 is the floor we accept.
 
 **H3 (multi-year contribution)**: V1 produces a positive yearly
-contribution in ≥ 3 of 6 years (2010, 2011, 2012, 2013, 2014, 2015,
-2017 — 7 candidate years, with 2015 partial through 2015-01-06).
+net total return in **≥ 4 of 7 years** (2010, 2011, 2012, 2013,
+2014, 2015, 2017). The "majority of available years positive" bar
+applies the Mode C tightening of the year-wins criterion (per
+[[feedback-experiment-discipline]]).
+
+Note on year set: an earlier draft mistakenly said "5 of 6"; the
+correct candidate year list is 7 years. 2010-2015 inclusive is 6
+years, plus 2017 makes 7. 2016 is excluded due to data gap. The
+2010-2016 panel actually contains full 2015 and full 2016 rows;
+config excludes calendar year 2016 only, so 2015 is treated as a
+full year (not partial).
 
 **H4 (no single-year dominance, IMPROVED CRITERION per Mode C)**:
-The largest single-year (V1 − V2) delta is ≤ 80 % of total (V1 − V2)
-delta. (Equivalent to: removing the best year, the V1 - V2 delta is
-still positive and at least 20 % of the original.)
+**Computed on V1 alone** (carrier's own contribution profile).
+For each of the 7 candidate years, compute V1's per-year net total
+return. Sum the positive contributions to get `total_positive`.
+H4 passes iff the largest single-year positive contribution divided
+by `total_positive` is ≤ 80 %.
+
+If no year is positive (V1 negative every year), H4 is reported as
+"N/A — no positive contribution to assess concentration of" and
+treated as failing (since H1 itself would also have failed).
+
+**Why V1 alone, not V1 − V2**: H4 asks "is the carrier's value
+concentrated in a single year?" That's a property of V1 itself.
+The V1 − V2 delta is about F3 vs F1 attribution and belongs in
+H5 territory. (Earlier draft mixed the two; this clarifies.)
 
 H4 tightens the 2018-2026 criterion 5 ("OOS delta excluding 2025
-alone") by adding the partial-year sensitivity that surfaced in
-B009. With multiple candidate years in old data, no single year
-should dominate.
+alone") by being explicit about the partial-year / single-year
+sensitivity that surfaced in B009. With multiple candidate years
+in old data, no single year should dominate the carrier's positive
+contribution.
 
 **H5 (F3 vs F1 in old data, IMPROVED COMPARISON per Mode C)**: V1
 net total return ≥ V2 net total return - 0.10 (F3 carrier doesn't
@@ -204,10 +225,14 @@ For each of V1, V2, V3 (V3 trivially 0):
 3. Hit rate
 4. Trade count
 5. **Per-year net total return** for each of 2010, 2011, 2012, 2013,
-   2014, 2015 (partial), 2017 — 7 cells per variant
+   2014, 2015, 2017 — **7 cells per variant** (2015 is full-year,
+   not partial — the source file contains complete 2015 rows; only
+   2016 is excluded by config)
 6. (V1 − V2) per-year delta column (the H5 diagnostic)
-7. **Largest single-year contribution as fraction of total** (the
-   H4 diagnostic, computed for V1)
+7. **H4 diagnostic computed on V1 alone**: sum of positive per-year
+   V1 net total returns (`total_positive`), and the largest single
+   positive year's fraction of `total_positive` as a percent.
+   If no year is positive, report "N/A".
 8. Cost sensitivity for V1 at 0×, 1×, 2×, 3×
 9. **Comparison summary table**: 2018-2026 V1 vs 2010-2017 V1, the
    key carrier-survival diagnostic side-by-side
@@ -287,7 +312,14 @@ market_flow_csv: research_input_data/inputs/market_flow/kiwoom_market_flow_2010_
 verification_period:
   start: 2010-01-04
   end:   2017-12-29
-  exclude_calendar_years: [2016]   # gap year, no panel data
+  # NOTE: 2016 calendar year is excluded because the kiwoom panel's
+  # 2010-2016 file labels imply 2016 data exists but in practice
+  # we treat 2016 as a gap to keep year boundaries clean. 2015 is
+  # treated as a FULL year (the source file does contain full 2015 +
+  # 2016 rows; this config drops only 2016 to match the documented
+  # H3 candidate-year list of [2010, 2011, 2012, 2013, 2014, 2015,
+  # 2017]).
+  exclude_calendar_years: [2016]
 universe:
   require_dynamic_top100: true
   min_avg_traded_value_20d: 5_000_000_000
@@ -357,10 +389,12 @@ Commit (Claude commits) after each green-test boundary.
 - engine.py untouched
 - Final assistant message reports the verdict-relevant numbers in
   this exact format:
-  - V1 (T3+F3) cost-0 net: __ (H1 check)
+  - V1 (T3+F3) cost-0 net: __ (H1 check, threshold > 0)
   - V1 net total return: __ (H2 check, threshold ≥ -0.20)
-  - V1 positive years: __ of 6 (H3 check, threshold ≥ 3)
-  - V1 largest-year fraction of total: __ % (H4 check, threshold ≤ 80%)
+  - V1 positive years: __ of 7 (H3 check, threshold ≥ 4)
+  - V1 H4 diagnostic: largest positive year's fraction of
+    sum-of-positive-years: __% (H4 check, threshold ≤ 80%; report
+    "N/A" if no positive years)
   - V1 vs V2 delta: __ (H5 descriptive)
   - 2018-2026 V1 cost-0 OOS vs 2010-2017 V1 cost-0 (the survival
     diagnostic): __

@@ -85,3 +85,18 @@ def test_load_market_flow_raises_on_duplicate_dates(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="duplicate date"):
         load_market_flow(path, calendar)
+
+
+def test_load_market_flow_reads_2010_2017_krx_file() -> None:
+    path = Path("research_input_data/inputs/market_flow/kiwoom_market_flow_2010_2017_krx_trading_days.csv")
+    calendar = KRXTradingCalendar(pd.to_datetime(["2010-01-04", "2010-01-05", "2017-12-28"]))
+
+    result = load_market_flow(path, calendar)
+
+    assert list(result.index) == [
+        pd.Timestamp("2010-01-04"),
+        pd.Timestamp("2010-01-05"),
+        pd.Timestamp("2017-12-28"),
+    ]
+    assert list(result.columns) == ["kospi_foreign_net", "kospi_institution_net"]
+    assert not result.isna().any().any()
