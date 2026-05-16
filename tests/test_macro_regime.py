@@ -898,6 +898,73 @@ def test_macro_regime_kr_exports_unfavorable_when_yoy_is_negative(tmp_path: Path
     assert row["favorable_KR_exports"] == False
 
 
+def test_macro_regime_usdjpy_yoy_uses_available_observation_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    usdjpy = pd.read_csv(tmp_path / "fred_jpy.csv")
+    usdjpy.loc[usdjpy["observation_date"].eq("2025-01-01"), "DEXJPUS"] = 100.0
+    usdjpy.loc[usdjpy["observation_date"].eq("2025-01-02"), "DEXJPUS"] = 110.0
+    usdjpy.loc[usdjpy["observation_date"].eq("2025-01-03"), "DEXJPUS"] = 999.0
+    usdjpy.to_csv(tmp_path / "fred_jpy.csv", index=False)
+    dates = pd.date_range("2025-01-01", periods=4, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "usdjpy_yoy",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-03"))].iloc[0]
+    assert row["USDJPY_yoy"] == pytest.approx(110.0 / 100.0 - 1.0)
+    assert row["favorable_USDJPY"] == True
+    assert "US_M2_yoy" not in regime.columns
+    assert "KR_exports_yoy" not in regime.columns
+
+
+def test_macro_regime_usdjpy_unfavorable_when_yen_strengthens(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    usdjpy = pd.read_csv(tmp_path / "fred_jpy.csv")
+    usdjpy.loc[usdjpy["observation_date"].eq("2025-01-01"), "DEXJPUS"] = 100.0
+    usdjpy.loc[usdjpy["observation_date"].eq("2025-01-02"), "DEXJPUS"] = 95.0
+    usdjpy.to_csv(tmp_path / "fred_jpy.csv", index=False)
+    dates = pd.date_range("2025-01-01", periods=3, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "usdjpy_yoy",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-03"))].iloc[0]
+    assert row["USDJPY_yoy"] == pytest.approx(95.0 / 100.0 - 1.0)
+    assert row["favorable_USDJPY"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -936,6 +1003,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
     values = {
         "VIXCLS": [10.0 + index for index in range(periods)],
         "DTWEXBGS": [100.0 + index for index in range(periods)],
+        "DEXJPUS": [150.0 + index for index in range(periods)],
         "DGS2": [4.0] * periods,
         "DGS10": [4.5] * periods,
         "DEXCHUS": [7.2] * periods,

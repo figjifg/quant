@@ -278,6 +278,33 @@ US_M2_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+USDJPY_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "US_PPI_yoy",
+    "US_PPI_decel",
+    "USDJPY_yoy",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "favorable_US_PPI",
+    "favorable_USDJPY",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -291,6 +318,7 @@ NINE_UNRATE_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_unrate_change")
 NINE_KR_CPI_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_cpi_decel")
 NINE_KR_EXPORTS_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_exports_yoy")
 NINE_US_M2_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_m2_yoy")
+NINE_USDJPY_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "usdjpy_yoy")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -534,6 +562,33 @@ SIGNAL_VARIANTS = {
         ],
         US_M2_REGIME_COLUMNS,
     ),
+    NINE_USDJPY_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+            "US_PPI_decel",
+            "USDJPY_yoy",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+            "favorable_US_PPI",
+            "favorable_USDJPY",
+        ],
+        USDJPY_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -560,8 +615,9 @@ def build_macro_regime_daily(
     CPI/PPI plus US unemployment-rate yoy-change variant, C016 opts
     into a different nine-signal variant that replaces UNRATE with Korean
     CPI deceleration, and C017 opts into a C014-plus-Korean-exports-yoy
-    variant through ``macro_signals``, and C018 opts into a separate
-    C014-plus-US-M2-yoy variant.
+    variant through ``macro_signals``, C018 opts into a separate
+    C014-plus-US-M2-yoy variant, and C019 opts into a C014-plus-USDJPY-yoy
+    variant.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -582,6 +638,7 @@ def build_macro_regime_daily(
     usdkrw = pd.to_numeric(aligned["dexkous_usdkrw"], errors="coerce").ffill(limit=5)
     vix = pd.to_numeric(aligned["vix"], errors="coerce").ffill(limit=5)
     dxy = pd.to_numeric(aligned["dxy"], errors="coerce").ffill(limit=5)
+    usdjpy = pd.to_numeric(aligned["usdjpy"], errors="coerce").ffill(limit=5)
     dgs2 = pd.to_numeric(aligned["dgs2"], errors="coerce").ffill(limit=5)
     dgs10 = pd.to_numeric(aligned["dgs10"], errors="coerce").ffill(limit=5)
     dgs3mo = pd.to_numeric(aligned["dgs3mo"], errors="coerce").ffill(limit=5)
@@ -597,6 +654,7 @@ def build_macro_regime_daily(
     result["VIX_60d_avg"] = vix.rolling(vix_short_window, min_periods=vix_short_window).mean()
     result["VIX_240d_avg"] = vix.rolling(vix_long_window, min_periods=vix_long_window).mean()
     result["DXY_yoy"] = dxy / dxy.shift(yoy_lookback) - 1.0
+    result["USDJPY_yoy"] = usdjpy / usdjpy.shift(yoy_lookback) - 1.0
     result["US_2_10_curve_spread"] = dgs10 - dgs2
     result["US10Y_yoy_change"] = dgs10 - dgs10.shift(yoy_lookback)
     result["US3M_yoy_change"] = dgs3mo - dgs3mo.shift(yoy_lookback)
@@ -620,6 +678,7 @@ def build_macro_regime_daily(
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
     result["favorable_DXY"] = result["DXY_yoy"].le(0.0)
+    result["favorable_USDJPY"] = result["USDJPY_yoy"].ge(0.0)
     result["favorable_US_2_10_curve"] = result["US_2_10_curve_spread"].gt(0.0)
     result["favorable_USDCNY"] = result["USDCNY_yoy"].le(0.0)
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)

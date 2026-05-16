@@ -1,0 +1,38 @@
+experiment_id: C019
+panels:
+  - research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+panel_date_filters:
+  research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv:
+    end: 2017-12-31
+market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
+macro_data_dir: research_input_data/inputs/macro_features
+period:
+  start: 2010-01-04
+  end:   2026-05-04
+  exclude_calendar_years: [2016]
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5_000_000_000
+  exclude_estimated_flag_rows: true
+regime:
+  macro_signals: [usdkrw_yoy, vix_60d_vs_240d, dxy_yoy, us_2_10_curve, brent_yoy, kr10y_yoy_change, us_cpi_decel, us_ppi_decel, usdjpy_yoy]
+  composite_rule: count_favorable
+  on_threshold: 2
+selection:
+  type: market_cap_top_n
+  n: 5
+costs:
+  commission_bps: 1.5
+  tax_bps_sell:   20.0
+  slippage_bps:   5.0
+rebalance:
+  frequency: quarterly
+  anchor: last_trading_day
+variants:
+  - macro_gate_mcap
+  - kospi_buy_and_hold
+  - cash
+output_dir: reports/experiments/C019_macro_v16_usdjpy

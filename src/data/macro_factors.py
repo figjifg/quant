@@ -46,6 +46,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="Nominal broad U.S. dollar index",
     ),
     FredSeriesSpec(
+        name="usdjpy",
+        fred_series="DEXJPUS",
+        filename="fred_jpy.csv",
+        timing=US_AFTER_CLOSE,
+        frequency="daily",
+        transform="pct_change",
+        description="Japanese yen to one U.S. dollar",
+    ),
+    FredSeriesSpec(
         name="dgs2",
         fred_series="DGS2",
         filename="fred_dgs2.csv",

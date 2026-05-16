@@ -136,6 +136,20 @@ def test_us_m2_fred_series_is_registered_as_monthly_and_loads() -> None:
     assert frame["us_m2"].notna().sum() > 0
 
 
+def test_usdjpy_fred_series_is_registered_as_daily_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["usdjpy"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "DEXJPUS"
+    assert spec.filename == "fred_jpy.csv"
+    assert spec.frequency == "daily"
+    assert spec.transform == "pct_change"
+    assert list(frame.columns) == ["observation_date", "usdjpy"]
+    assert frame["usdjpy"].notna().sum() > 0
+
+
 def test_kr_cpi_fred_series_is_registered_as_monthly_yoy_and_loads() -> None:
     specs = {spec.name: spec for spec in FRED_SERIES}
     spec = specs["kr_cpi"]
@@ -348,6 +362,7 @@ def _write_minimal_macro_files(base: Path) -> None:
     values = {
         "VIXCLS": [10.0, 11.0],
         "DTWEXBGS": [100.0, 101.0],
+        "DEXJPUS": [150.0, 151.0],
         "DGS2": [4.0, 4.1],
         "DGS10": [4.5, 4.6],
         "DEXCHUS": [7.2, 7.3],
