@@ -122,6 +122,28 @@ KR_RATES_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+CPI_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -129,6 +151,7 @@ FIVE_BRENT_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "brent_yoy")
 SIX_COPPER_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "copper_yoy")
 SIX_KR10Y_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "kr10y_yoy_change")
 SEVEN_KR_RATES_SIGNAL_NAMES = (*SIX_KR10Y_SIGNAL_NAMES, "kr3m_yoy_change")
+SEVEN_CPI_SIGNAL_NAMES = (*SIX_KR10Y_SIGNAL_NAMES, "us_cpi_decel")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -216,6 +239,29 @@ SIGNAL_VARIANTS = {
         ],
         KR_RATES_REGIME_COLUMNS,
     ),
+    SEVEN_CPI_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+        ],
+        CPI_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -234,9 +280,10 @@ def build_macro_regime_daily(
     The default preserves C003/C004's three-signal regime. C005 opts into the
     fourth US 2-10y curve signal, C006 opts into a five-signal USDCNY variant,
     C008 opts into a different five-signal Brent variant, and C010 opts into
-    six-signal Brent plus copper variant, and C011 opts into a separate
-    six-signal Brent plus KR 10y variant, and C012 opts into a seven-signal
-    KR 10y plus KR 3m variant through ``macro_signals``.
+    six-signal Brent plus copper variant, C011 opts into a separate
+    six-signal Brent plus KR 10y variant, C012 opts into a seven-signal
+    KR 10y plus KR 3m variant, and C013 opts into a seven-signal KR 10y
+    plus US CPI deceleration variant through ``macro_signals``.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -279,6 +326,8 @@ def build_macro_regime_daily(
     result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
     result["KR10Y_yoy_change"] = _monthly_level_change(aligned, "kr10y", months=12)
     result["KR3M_yoy_change"] = _monthly_level_change(aligned, "kr3m", months=12)
+    result["US_CPI_yoy"] = _monthly_yoy(aligned, "us_cpi", months=12)
+    result["US_CPI_decel"] = _monthly_yoy_change(aligned, "us_cpi", months=12)
 
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
@@ -289,6 +338,7 @@ def build_macro_regime_daily(
     result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
     result["favorable_KR10Y"] = result["KR10Y_yoy_change"].le(0.0)
     result["favorable_KR3M"] = result["KR3M_yoy_change"].le(0.0)
+    result["favorable_US_CPI"] = result["US_CPI_decel"].le(0.0)
 
     value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
 
@@ -350,12 +400,108 @@ def _monthly_level_change(aligned: pd.DataFrame, name: str, *, months: int) -> p
             "lookup_date": pd.to_datetime(aligned[source_column], errors="coerce") - pd.DateOffset(months=months),
         }
     )
+    valid_lookup = lookup.loc[lookup["lookup_date"].notna()].copy()
+    output = pd.Series(pd.NA, index=range(len(aligned)), dtype="Float64")
+    if valid_lookup.empty:
+        return output
     matched = pd.merge_asof(
-        lookup.sort_values("lookup_date"),
+        valid_lookup.sort_values("lookup_date"),
         monthly,
         left_on="lookup_date",
         right_on="base_source_observation_date",
         direction="backward",
     ).sort_values("row_order")
     current = pd.to_numeric(aligned[name], errors="coerce").reset_index(drop=True)
-    return (current - matched["base_value"].reset_index(drop=True)).astype("Float64")
+    values = current.loc[matched["row_order"].to_numpy()].reset_index(drop=True) - matched["base_value"].reset_index(
+        drop=True
+    )
+    output.loc[matched["row_order"].to_numpy()] = values.to_numpy()
+    return output
+
+
+def _monthly_yoy(aligned: pd.DataFrame, name: str, *, months: int) -> pd.Series:
+    source_column = f"{name}_source_observation_date"
+    _require_columns(aligned, (name, source_column), "aligned")
+    data = aligned.loc[:, [source_column, name]].copy()
+    data[source_column] = pd.to_datetime(data[source_column], errors="coerce")
+    data[name] = pd.to_numeric(data[name], errors="coerce")
+    monthly = (
+        data.dropna(subset=[source_column])
+        .drop_duplicates(subset=[source_column], keep="last")
+        .sort_values(source_column)
+        .reset_index(drop=True)
+    )
+    monthly = monthly.rename(columns={source_column: "base_source_observation_date", name: "base_value"})
+
+    lookup = pd.DataFrame(
+        {
+            "row_order": range(len(aligned)),
+            "lookup_date": pd.to_datetime(aligned[source_column], errors="coerce") - pd.DateOffset(months=months),
+        }
+    )
+    valid_lookup = lookup.loc[lookup["lookup_date"].notna()].copy()
+    output = pd.Series(pd.NA, index=range(len(aligned)), dtype="Float64")
+    if valid_lookup.empty:
+        return output
+    matched = pd.merge_asof(
+        valid_lookup.sort_values("lookup_date"),
+        monthly,
+        left_on="lookup_date",
+        right_on="base_source_observation_date",
+        direction="backward",
+    ).sort_values("row_order")
+    current = pd.to_numeric(aligned[name], errors="coerce").reset_index(drop=True)
+    values = current.loc[matched["row_order"].to_numpy()].reset_index(drop=True) / matched["base_value"].reset_index(
+        drop=True
+    ) - 1.0
+    output.loc[matched["row_order"].to_numpy()] = values.to_numpy()
+    return output
+
+
+def _monthly_yoy_change(aligned: pd.DataFrame, name: str, *, months: int) -> pd.Series:
+    source_column = f"{name}_source_observation_date"
+    _require_columns(aligned, (name, source_column), "aligned")
+    data = aligned.loc[:, [source_column, name]].copy()
+    data[source_column] = pd.to_datetime(data[source_column], errors="coerce")
+    data[name] = pd.to_numeric(data[name], errors="coerce")
+    monthly = (
+        data.dropna(subset=[source_column])
+        .drop_duplicates(subset=[source_column], keep="last")
+        .sort_values(source_column)
+        .reset_index(drop=True)
+    )
+    monthly = monthly.rename(columns={source_column: "base_source_observation_date", name: "base_value"})
+    lookup = pd.DataFrame(
+        {
+            "row_order": range(len(aligned)),
+            "lookup_date": pd.to_datetime(aligned[source_column], errors="coerce") - pd.DateOffset(months=months),
+            "prior_lookup_date": pd.to_datetime(aligned[source_column], errors="coerce")
+            - pd.DateOffset(months=months * 2),
+        }
+    )
+    valid_lookup = lookup.loc[lookup["lookup_date"].notna() & lookup["prior_lookup_date"].notna()].copy()
+    output = pd.Series(pd.NA, index=range(len(aligned)), dtype="Float64")
+    if valid_lookup.empty:
+        return output
+    current_base = pd.merge_asof(
+        valid_lookup.sort_values("lookup_date"),
+        monthly,
+        left_on="lookup_date",
+        right_on="base_source_observation_date",
+        direction="backward",
+    ).sort_values("row_order")
+    prior_base = pd.merge_asof(
+        valid_lookup.sort_values("prior_lookup_date"),
+        monthly,
+        left_on="prior_lookup_date",
+        right_on="base_source_observation_date",
+        direction="backward",
+    ).sort_values("row_order")
+    current = pd.to_numeric(aligned[name], errors="coerce").reset_index(drop=True)
+    current_value = current.loc[current_base["row_order"].to_numpy()].reset_index(drop=True)
+    current_base_value = current_base["base_value"].reset_index(drop=True)
+    prior_base_value = prior_base["base_value"].reset_index(drop=True)
+    current_yoy = current_value / current_base_value - 1.0
+    prior_yoy = current_base_value / prior_base_value - 1.0
+    output.loc[current_base["row_order"].to_numpy()] = (current_yoy - prior_yoy).to_numpy()
+    return output
