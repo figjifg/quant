@@ -169,6 +169,33 @@ def test_macro_regime_usdcny_yoy_uses_available_observation_without_lookahead(tm
     assert row["regime_on"] == True
 
 
+def test_macro_regime_brent_yoy_uses_available_observation_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=10)
+    brent = pd.read_csv(tmp_path / "fred_brent.csv")
+    brent.loc[brent["observation_date"].eq("2025-01-01"), "DCOILBRENTEU"] = 100.0
+    brent.loc[brent["observation_date"].eq("2025-01-02"), "DCOILBRENTEU"] = 90.0
+    brent.loc[brent["observation_date"].eq("2025-01-03"), "DCOILBRENTEU"] = 999.0
+    brent.to_csv(tmp_path / "fred_brent.csv", index=False)
+    dates = pd.date_range("2025-01-01", periods=4, freq="B")
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=["usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy", "us_2_10_curve", "brent_yoy"],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2025-01-03"))].iloc[0]
+    assert row["Brent_yoy"] == pytest.approx(90.0 / 100.0 - 1.0)
+    assert row["favorable_Brent"] == True
+    assert row["regime_score"] == 3
+    assert row["regime_on"] == True
+    assert "USDCNY_yoy" not in regime.columns
+    assert "favorable_USDCNY" not in regime.columns
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -212,6 +239,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "DEXCHUS": [7.2] * periods,
         "BAA10Y": [2.0] * periods,
         "DGS3MO": [5.0] * periods,
+        "DCOILBRENTEU": [100.0 - index for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:

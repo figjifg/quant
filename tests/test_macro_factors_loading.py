@@ -29,6 +29,18 @@ def test_all_registered_fred_series_load_from_input_directory() -> None:
         assert frame[spec.name].notna().sum() > 0
 
 
+def test_brent_fred_series_is_registered_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["brent"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "DCOILBRENTEU"
+    assert spec.filename == "fred_brent.csv"
+    assert list(frame.columns) == ["observation_date", "brent"]
+    assert frame["brent"].notna().sum() > 0
+
+
 def test_load_fred_series_rejects_missing_value_column(tmp_path: Path) -> None:
     path = tmp_path / "fred_vix.csv"
     path.write_text("observation_date,WRONG\n2025-01-02,10.0\n", encoding="utf-8")
@@ -92,6 +104,7 @@ def _write_minimal_macro_files(base: Path) -> None:
         "DEXCHUS": [7.2, 7.3],
         "BAA10Y": [2.0, 2.1],
         "DGS3MO": [5.0, 5.1],
+        "DCOILBRENTEU": [80.0, 81.0],
         "DEXKOUS": [1460.0, 1470.0],
     }
     for spec in FRED_SERIES:

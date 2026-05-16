@@ -81,6 +81,14 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="U.S. 3-month Treasury yield",
     ),
     FredSeriesSpec(
+        name="brent",
+        fred_series="DCOILBRENTEU",
+        filename="fred_brent.csv",
+        timing=US_AFTER_CLOSE,
+        transform="pct_change",
+        description="Crude Oil Prices: Brent Europe",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",
