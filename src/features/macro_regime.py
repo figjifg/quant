@@ -305,6 +305,34 @@ USDJPY_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+JP10Y_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "US_PPI_yoy",
+    "US_PPI_decel",
+    "USDJPY_yoy",
+    "JP10Y_yoy_change",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "favorable_US_PPI",
+    "favorable_JP10Y",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -319,6 +347,7 @@ NINE_KR_CPI_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_cpi_decel")
 NINE_KR_EXPORTS_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_exports_yoy")
 NINE_US_M2_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_m2_yoy")
 NINE_USDJPY_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "usdjpy_yoy")
+NINE_JP10Y_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "jp10y_yoy_change")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -589,6 +618,33 @@ SIGNAL_VARIANTS = {
         ],
         USDJPY_REGIME_COLUMNS,
     ),
+    NINE_JP10Y_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+            "US_PPI_decel",
+            "JP10Y_yoy_change",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+            "favorable_US_PPI",
+            "favorable_JP10Y",
+        ],
+        JP10Y_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -616,8 +672,8 @@ def build_macro_regime_daily(
     into a different nine-signal variant that replaces UNRATE with Korean
     CPI deceleration, and C017 opts into a C014-plus-Korean-exports-yoy
     variant through ``macro_signals``, C018 opts into a separate
-    C014-plus-US-M2-yoy variant, and C019 opts into a C014-plus-USDJPY-yoy
-    variant.
+    C014-plus-US-M2-yoy variant, C019 opts into a C014-plus-USDJPY-yoy
+    variant, and C020 opts into a C014-plus-Japan-10y-yoy-change variant.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -662,6 +718,7 @@ def build_macro_regime_daily(
     result["Brent_yoy"] = brent / brent.shift(yoy_lookback) - 1.0
     result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
     result["KR10Y_yoy_change"] = _monthly_level_change(aligned, "kr10y", months=12)
+    result["JP10Y_yoy_change"] = _monthly_level_change(aligned, "jp10y", months=12)
     result["KR3M_yoy_change"] = _monthly_level_change(aligned, "kr3m", months=12)
     result["US_CPI_yoy"] = _monthly_yoy(aligned, "us_cpi", months=12)
     result["US_CPI_decel"] = _monthly_yoy_change(aligned, "us_cpi", months=12)
@@ -684,6 +741,7 @@ def build_macro_regime_daily(
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)
     result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
     result["favorable_KR10Y"] = result["KR10Y_yoy_change"].le(0.0)
+    result["favorable_JP10Y"] = result["JP10Y_yoy_change"].le(0.0)
     result["favorable_KR3M"] = result["KR3M_yoy_change"].le(0.0)
     result["favorable_US_CPI"] = result["US_CPI_decel"].le(0.0)
     result["favorable_US_PPI"] = result["US_PPI_decel"].le(0.0)

@@ -68,6 +68,20 @@ def test_kr10y_fred_series_is_registered_as_monthly_and_loads() -> None:
     assert frame["kr10y"].notna().sum() > 0
 
 
+def test_jp10y_fred_series_is_registered_as_monthly_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["jp10y"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "IRLTLT01JPM156N"
+    assert spec.filename == "fred_jp10y.csv"
+    assert spec.frequency == "monthly"
+    assert spec.transform == "diff"
+    assert list(frame.columns) == ["observation_date", "jp10y"]
+    assert frame["jp10y"].notna().sum() > 0
+
+
 def test_kr3m_fred_series_is_registered_as_monthly_and_loads() -> None:
     specs = {spec.name: spec for spec in FRED_SERIES}
     spec = specs["kr3m"]
@@ -371,6 +385,7 @@ def _write_minimal_macro_files(base: Path) -> None:
         "DCOILBRENTEU": [80.0, 81.0],
         "PCOPPUSDM": [9000.0, 9100.0],
         "IRLTLT01KRM156N": [3.5, 3.4],
+        "IRLTLT01JPM156N": [0.8, 0.75],
         "IR3TIB01KRM156N": [3.0, 2.9],
         "CPIAUCSL": [300.0, 301.0],
         "PPIACO": [250.0, 251.0],

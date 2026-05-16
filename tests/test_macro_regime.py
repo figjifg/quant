@@ -965,6 +965,82 @@ def test_macro_regime_usdjpy_unfavorable_when_yen_strengthens(tmp_path: Path) ->
     assert row["favorable_USDJPY"] == False
 
 
+def test_macro_regime_jp10y_yoy_change_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    jp10y = pd.DataFrame(
+        {
+            "observation_date": ["2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01", "2026-04-01"],
+            "IRLTLT01JPM156N": [0.80, 0.75, 0.60, 0.50, 9.99],
+        }
+    )
+    jp10y.to_csv(tmp_path / "fred_jp10y.csv", index=False)
+    dates = pd.to_datetime(["2025-03-31", "2025-04-14", "2026-03-31", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "jp10y_yoy_change",
+        ],
+    )
+
+    march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert march_end["JP10Y_yoy_change"] == pytest.approx(-0.20)
+    assert april_release["JP10Y_yoy_change"] == pytest.approx(-0.25)
+    assert april_release["JP10Y_yoy_change"] != pytest.approx(0.50 / 0.75 - 1.0)
+    assert april_release["favorable_JP10Y"] == True
+    assert "USDJPY_yoy" in regime.columns
+    assert "favorable_USDJPY" not in regime.columns
+    assert "US_M2_yoy" not in regime.columns
+
+
+def test_macro_regime_jp10y_unfavorable_when_yield_change_is_positive(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    jp10y = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "IRLTLT01JPM156N": [0.50, 1.25],
+        }
+    )
+    jp10y.to_csv(tmp_path / "fred_jp10y.csv", index=False)
+    dates = pd.to_datetime(["2025-04-14", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "jp10y_yoy_change",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert row["JP10Y_yoy_change"] == pytest.approx(0.75)
+    assert row["favorable_JP10Y"] == False
+
+
 def test_monthly_regime_log_selects_last_trading_day_each_month() -> None:
     daily = pd.DataFrame(
         {
@@ -1012,6 +1088,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "DCOILBRENTEU": [100.0 - index for index in range(periods)],
         "PCOPPUSDM": [9000.0 + index for index in range(periods)],
         "IRLTLT01KRM156N": [3.5 - index * 0.01 for index in range(periods)],
+        "IRLTLT01JPM156N": [0.8 - index * 0.001 for index in range(periods)],
         "IR3TIB01KRM156N": [3.0 - index * 0.01 for index in range(periods)],
         "CPIAUCSL": [300.0 + index for index in range(periods)],
         "PPIACO": [250.0 + index for index in range(periods)],
