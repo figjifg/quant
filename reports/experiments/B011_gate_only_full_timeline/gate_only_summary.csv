@@ -1,2 +1,2 @@
 h1_cumulative_survival_pass,h1_v1_cumulative_net_total_return,h2_vs_kospi_pass,h2_v1_minus_v2_cumulative_delta,h3_spike_capture_pass,h3_v1_2010_net,h3_v1_2025_net,h3_v1_2026_net,h4_drawdown_protection_pass,h4_v1_max_drawdown,h4_v2_max_drawdown,h5_positive_years_pass,h5_v1_positive_years,candidate_year_count,hypotheses_passed
-False,-0.778333940950358,False,-9.833331305628615,True,0.11059905860255848,0.29259062574694705,0.4624719465421576,True,-0.9166595878432839,-0.21555700105536646,False,4,16,2
+False,-0.9479231572258411,False,-21.04310078367517,True,0.11059905860255848,0.279738447597665,0.46247194654215784,True,-0.9804205228386049,-0.34485340853513224,False,5,16,2

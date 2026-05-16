@@ -2,6 +2,7 @@ experiment_id: B011
 panels:
   - research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
   - research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
   - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
 panel_date_filters:
   research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv:
