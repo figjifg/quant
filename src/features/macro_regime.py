@@ -169,6 +169,33 @@ PPI_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+UNRATE_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "US_PPI_yoy",
+    "US_PPI_decel",
+    "US_UNRATE_yoy_change",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "favorable_US_PPI",
+    "favorable_US_UNRATE",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -178,6 +205,7 @@ SIX_KR10Y_SIGNAL_NAMES = (*FIVE_BRENT_SIGNAL_NAMES, "kr10y_yoy_change")
 SEVEN_KR_RATES_SIGNAL_NAMES = (*SIX_KR10Y_SIGNAL_NAMES, "kr3m_yoy_change")
 SEVEN_CPI_SIGNAL_NAMES = (*SIX_KR10Y_SIGNAL_NAMES, "us_cpi_decel")
 EIGHT_PPI_SIGNAL_NAMES = (*SEVEN_CPI_SIGNAL_NAMES, "us_ppi_decel")
+NINE_UNRATE_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_unrate_change")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -313,6 +341,33 @@ SIGNAL_VARIANTS = {
         ],
         PPI_REGIME_COLUMNS,
     ),
+    NINE_UNRATE_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+            "US_PPI_decel",
+            "US_UNRATE_yoy_change",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+            "favorable_US_PPI",
+            "favorable_US_UNRATE",
+        ],
+        UNRATE_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -334,8 +389,10 @@ def build_macro_regime_daily(
     six-signal Brent plus copper variant, C011 opts into a separate
     six-signal Brent plus KR 10y variant, C012 opts into a seven-signal
     KR 10y plus KR 3m variant, C013 opts into a seven-signal KR 10y
-    plus US CPI deceleration variant, and C014 opts into an eight-signal
-    CPI plus PPI deceleration variant through ``macro_signals``.
+    plus US CPI deceleration variant, C014 opts into an eight-signal
+    CPI plus PPI deceleration variant, and C015 opts into a nine-signal
+    CPI/PPI plus US unemployment-rate yoy-change variant through
+    ``macro_signals``.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -382,6 +439,7 @@ def build_macro_regime_daily(
     result["US_CPI_decel"] = _monthly_yoy_change(aligned, "us_cpi", months=12)
     result["US_PPI_yoy"] = _monthly_yoy(aligned, "us_ppi", months=12)
     result["US_PPI_decel"] = _monthly_yoy_change(aligned, "us_ppi", months=12)
+    result["US_UNRATE_yoy_change"] = _monthly_level_change(aligned, "us_unrate", months=12)
 
     result["favorable_USDKRW"] = result["USDKRW_yoy"].le(0.0)
     result["favorable_VIX"] = result["VIX_60d_avg"].le(result["VIX_240d_avg"])
@@ -394,6 +452,7 @@ def build_macro_regime_daily(
     result["favorable_KR3M"] = result["KR3M_yoy_change"].le(0.0)
     result["favorable_US_CPI"] = result["US_CPI_decel"].le(0.0)
     result["favorable_US_PPI"] = result["US_PPI_decel"].le(0.0)
+    result["favorable_US_UNRATE"] = result["US_UNRATE_yoy_change"].ge(0.0)
 
     value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
 

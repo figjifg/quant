@@ -144,6 +144,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="U.S. Producer Price Index by Commodity: All Commodities",
     ),
     FredSeriesSpec(
+        name="us_unrate",
+        fred_series="UNRATE",
+        filename="fred_us_unrate.csv",
+        timing=US_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="diff",
+        description="U.S. unemployment rate, seasonally adjusted",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",

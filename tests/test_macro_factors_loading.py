@@ -108,6 +108,20 @@ def test_us_ppi_fred_series_is_registered_as_monthly_and_loads() -> None:
     assert frame["us_ppi"].notna().sum() > 0
 
 
+def test_us_unrate_fred_series_is_registered_as_monthly_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["us_unrate"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "UNRATE"
+    assert spec.filename == "fred_us_unrate.csv"
+    assert spec.frequency == "monthly"
+    assert spec.transform == "diff"
+    assert list(frame.columns) == ["observation_date", "us_unrate"]
+    assert frame["us_unrate"].notna().sum() > 0
+
+
 def test_load_fred_series_rejects_missing_value_column(tmp_path: Path) -> None:
     path = tmp_path / "fred_vix.csv"
     path.write_text("observation_date,WRONG\n2025-01-02,10.0\n", encoding="utf-8")
@@ -191,6 +205,27 @@ def test_monthly_us_ppi_uses_post_month_end_lag_without_lookahead(tmp_path: Path
     assert april_release["us_ppi_source_observation_date"] == pd.Timestamp("2025-03-01")
 
 
+def test_monthly_us_unrate_uses_post_month_end_lag_without_lookahead(tmp_path: Path) -> None:
+    _write_minimal_macro_files(tmp_path)
+    unrate = pd.DataFrame(
+        {
+            "observation_date": ["2025-01-01", "2025-02-01", "2025-03-01"],
+            "UNRATE": [4.0, 4.1, 9.9],
+        }
+    )
+    unrate.to_csv(tmp_path / "fred_us_unrate.csv", index=False)
+    signal_dates = pd.to_datetime(["2025-03-31", "2025-04-14"])
+
+    aligned = align_macro_factors_to_korean_signal_dates(signal_dates, tmp_path)
+
+    march_end = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-03-31"))].iloc[0]
+    april_release = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-04-14"))].iloc[0]
+    assert march_end["us_unrate"] == 4.1
+    assert march_end["us_unrate_source_observation_date"] == pd.Timestamp("2025-02-01")
+    assert april_release["us_unrate"] == 9.9
+    assert april_release["us_unrate_source_observation_date"] == pd.Timestamp("2025-03-01")
+
+
 def test_build_macro_factor_changes_uses_no_forward_fill() -> None:
     aligned = pd.DataFrame({"signal_date": pd.date_range("2025-01-02", periods=3, freq="B")})
     for spec in FRED_SERIES:
@@ -219,6 +254,7 @@ def _write_minimal_macro_files(base: Path) -> None:
         "IR3TIB01KRM156N": [3.0, 2.9],
         "CPIAUCSL": [300.0, 301.0],
         "PPIACO": [250.0, 251.0],
+        "UNRATE": [4.0, 4.1],
         "DEXKOUS": [1460.0, 1470.0],
     }
     for spec in FRED_SERIES:
