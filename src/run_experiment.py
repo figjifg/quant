@@ -18,6 +18,7 @@ from src.data.market_flow import load_market_flow
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_atr_pct, build_flow_ratios
 from src.features.market_gate import build_kospi_proxy_close_series, build_market_gate_features
+from src.features.relative_flow import cross_sectional_std_diagnostic
 from src.data.kospi_proxy import load_kospi_proxy
 from src.features.regime import regime_gate_on, regime_state_log
 from src.reporting.metrics import metrics_is_oos
@@ -31,6 +32,7 @@ from src.strategies.b004_regime_gate import (
     build_gate_only_equal_weight_candidates,
     run_b004_variants,
 )
+from src.strategies.b005_relative_flow import VARIANTS as B005_VARIANTS, run_b005_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -142,6 +144,20 @@ EXPECTED_B004_CONFIG_KEYS = (
     "cost_sensitivity_multipliers",
     "output_dir",
 )
+EXPECTED_B005_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "periods",
+    "universe",
+    "strategy",
+    "trigger",
+    "exit",
+    "variants",
+    "relative",
+    "costs",
+    "cost_sensitivity_multipliers",
+    "output_dir",
+)
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
 EXPECTED_UNIVERSE_KEYS = (
@@ -156,6 +172,7 @@ EXPECTED_B002_EXIT_KEYS = ("type",)
 EXPECTED_B003_TRIGGER_KEYS = ("candidates",)
 EXPECTED_B004_REGIME_KEYS = ("gate_type", "window")
 EXPECTED_B004_TRIGGER_KEYS = ("type",)
+EXPECTED_B005_RELATIVE_KEYS = ("cross_sectional_min_count",)
 EXPECTED_MARKET_FLOW_KEYS = ("path",)
 EXPECTED_GATE_KEYS = ("window", "threshold")
 EXPECTED_QUINTILE_KEYS = ("value", "min_daily_universe_size")
@@ -195,6 +212,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "B004":
         _validate_b004_config_shape(config)
         run_b004_experiment(config, config_path)
+    elif experiment_id == "B005":
+        _validate_b005_config_shape(config)
+        run_b005_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -1485,6 +1505,77 @@ def run_b004_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_b004_report(output_dir, config, metrics, regime_year_breakdown, cost_sensitivity)
 
 
+def run_b005_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, features, headline_universe, _diagnostic_universe = _build_common_inputs(config)
+    periods = config["periods"]
+    is_start = periods["is"]["start"]
+    is_end = periods["is"]["end"]
+    oos_start = periods["oos"]["start"]
+    oos_end = periods["oos"]["end"]
+    max_positions = int(config["strategy"]["max_positions"])
+    min_count = int(config["relative"]["cross_sectional_min_count"])
+    costs = _costs_from_config(config["costs"])
+
+    runs, candidates, exit_kwargs, relative_features = run_b005_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=headline_universe,
+        costs=costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+        min_count=min_count,
+    )
+    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
+    metrics.update(
+        _b005_cost_0_metrics(
+            panel=panel,
+            calendar=calendar,
+            features=features,
+            universe=headline_universe,
+            is_start=is_start,
+            is_end=is_end,
+            oos_start=oos_start,
+            oos_end=oos_end,
+            max_positions=max_positions,
+            min_count=min_count,
+        )
+    )
+    year_breakdown = _b005_year_breakdown(runs=runs, calendar=calendar, start=is_start, end=oos_end)
+    overlap_matrix = _b005_trade_overlap_matrix(runs)
+    std_diagnostic = cross_sectional_std_diagnostic(features, headline_universe)
+    best_variant = max(B005_VARIANTS, key=lambda variant: metrics[variant]["oos"]["total_return"])
+    cost_sensitivity = _run_cost_sensitivity(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates[best_variant],
+        base_costs=costs,
+        multipliers=config["cost_sensitivity_multipliers"],
+        is_start=is_start,
+        is_end=is_end,
+        oos_start=oos_start,
+        oos_end=oos_end,
+        max_positions=max_positions,
+        holding=5,
+        signal_exit_features=exit_kwargs[best_variant]["signal_exit_features"],
+    )
+    cost_sensitivity.insert(0, "variant", best_variant)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b005_combined_trades(runs), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_b005_combined_signals(candidates, runs), output_dir / "signals.csv")
+    _b005_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    year_breakdown.to_csv(output_dir / "signal_redesign_year_breakdown.csv", index=False)
+    std_diagnostic.to_csv(output_dir / "cross_sectional_std.csv", index=False)
+    overlap_matrix.to_csv(output_dir / "trigger_overlap_matrix.csv", index=False)
+    cost_sensitivity.to_csv(output_dir / "cost_sensitivity.csv", index=False)
+    _write_b005_report(output_dir, config, metrics, year_breakdown, overlap_matrix, cost_sensitivity)
+
+
 def _build_common_inputs(
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, object, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -2140,7 +2231,7 @@ def _b004_variant_metric_table(title: str, metrics: dict[str, Any], split: str) 
 
 def _format_report_value(value: Any) -> str:
     if isinstance(value, float):
-        return f"{value:.12g}"
+        return str(value)
     return str(value)
 
 
@@ -2154,6 +2245,187 @@ def _b004_dataframe_table(title: str, data: pd.DataFrame) -> list[str]:
     lines.append("| " + " | ".join("---" for _ in columns) + " |")
     for _, row in data.iterrows():
         lines.append("| " + " | ".join(_format_report_value(row[column]) for column in data.columns) + " |")
+    lines.append("")
+    return lines
+
+
+def _b005_cost_0_metrics(
+    *,
+    panel: pd.DataFrame,
+    calendar: object,
+    features: pd.DataFrame,
+    universe: pd.DataFrame,
+    is_start: object,
+    is_end: object,
+    oos_start: object,
+    oos_end: object,
+    max_positions: int,
+    min_count: int,
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    zero_costs = Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0)
+    runs, _, _, _ = run_b005_variants(
+        panel=panel,
+        calendar=calendar,
+        flow_features=features,
+        universe=universe,
+        costs=zero_costs,
+        period_start=is_start,
+        period_end=oos_end,
+        max_positions=max_positions,
+        min_count=min_count,
+    )
+    return {
+        f"cost_0_{variant}": metrics_is_oos(
+            result.equity_curve,
+            result.trades,
+            is_start,
+            is_end,
+            oos_start,
+            oos_end,
+            calendar,
+        )
+        for variant, result in runs.items()
+    }
+
+
+def _b005_combined_trades(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    frames = []
+    for variant in B005_VARIANTS:
+        trades = runs[variant].trades.copy()
+        trades.insert(0, "variant", variant)
+        frames.append(trades)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _b005_combined_signals(
+    candidates: dict[str, pd.DataFrame],
+    runs: dict[str, BacktestResult],
+) -> pd.DataFrame:
+    frames = []
+    for variant in B005_VARIANTS:
+        signals = _signals_frame(candidates[variant], include_signal_value=True)
+        if "rank_score" in candidates[variant].columns:
+            signals["signal_value"] = candidates[variant]["rank_score"].to_numpy()
+        signals.insert(0, "variant", variant)
+        signals["included_in_trade"] = _signal_included_in_trade(signals, runs[variant].trades)
+        frames.append(signals)
+    return pd.concat(frames, ignore_index=True)
+
+
+def _b005_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    output = pd.DataFrame({"date": runs["absolute_baseline"].equity_curve["date"]})
+    for variant in B005_VARIANTS:
+        output[f"{variant}_value"] = runs[variant].equity_curve["net_value"].to_numpy()
+    return output
+
+
+def _b005_year_breakdown(
+    *,
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    start: object,
+    end: object,
+) -> pd.DataFrame:
+    start_ts = pd.Timestamp(start).normalize()
+    end_ts = pd.Timestamp(end).normalize()
+    rows = []
+    for year in range(start_ts.year, end_ts.year + 1):
+        year_start = max(pd.Timestamp(year=year, month=1, day=1), start_ts)
+        year_end = min(pd.Timestamp(year=year, month=12, day=31), end_ts)
+        row: dict[str, Any] = {
+            "year": year,
+            "is_h1_check_2020": year == 2020,
+            "oos_h3_check_2025": year == 2025,
+        }
+        for variant in B005_VARIANTS:
+            row[f"{variant}_net_total_return"] = metrics_is_oos(
+                runs[variant].equity_curve,
+                runs[variant].trades,
+                year_start,
+                year_end,
+                year_start,
+                year_end,
+                calendar,
+            )["is"]["total_return"]
+        row["relative_zscore_minus_absolute_baseline"] = (
+            row["relative_zscore_net_total_return"] - row["absolute_baseline_net_total_return"]
+        )
+        row["relative_median_diff_minus_absolute_baseline"] = (
+            row["relative_median_diff_net_total_return"] - row["absolute_baseline_net_total_return"]
+        )
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _b005_trade_overlap_matrix(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    trade_sets = {variant: _entry_ticker_set(runs[variant].trades) for variant in B005_VARIANTS}
+    rows = []
+    for left in B005_VARIANTS:
+        row: dict[str, Any] = {"variant": left}
+        for right in B005_VARIANTS:
+            union = trade_sets[left].union(trade_sets[right])
+            row[right] = 1.0 if not union else len(trade_sets[left].intersection(trade_sets[right])) / len(union)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _entry_ticker_set(trades: pd.DataFrame) -> set[tuple[pd.Timestamp, str]]:
+    if trades.empty:
+        return set()
+    return {
+        (pd.Timestamp(entry_date).normalize(), str(ticker))
+        for entry_date, ticker in zip(trades["entry_date"], trades["종목코드"], strict=False)
+    }
+
+
+def _write_b005_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, Any],
+    year_breakdown: pd.DataFrame,
+    overlap_matrix: pd.DataFrame,
+    cost_sensitivity: pd.DataFrame,
+) -> None:
+    lines = ["# B005 Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| is_start | {config['periods']['is']['start']} |",
+            f"| is_end | {config['periods']['is']['end']} |",
+            f"| oos_start | {config['periods']['oos']['start']} |",
+            f"| oos_end | {config['periods']['oos']['end']} |",
+            "| strategy | B005 absolute baseline vs relative z-score vs relative median-diff alpha definitions |",
+            "| trigger | trigger_immediate for all variants |",
+            "| exit | signal reversal using each variant's own alpha columns; relative columns are renamed before engine handoff |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 시가 used as verified KRX regular-session open per AGENTS.md |",
+            "| calendar_source | derived from panel non-null KRX종가 rows |",
+            "",
+        ]
+    )
+    lines.extend(_b005_variant_metric_table("IS Variant Metrics", metrics, "is"))
+    lines.extend(_b005_variant_metric_table("OOS Variant Metrics", metrics, "oos"))
+    lines.extend(_b004_dataframe_table("Signal Redesign Year Breakdown", year_breakdown))
+    lines.extend(_b004_dataframe_table("Trade-Set Overlap", overlap_matrix))
+    lines.extend(_b004_dataframe_table("Cost Sensitivity", cost_sensitivity))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _b005_variant_metric_table(title: str, metrics: dict[str, Any], split: str) -> list[str]:
+    columns = ("total_return", "hit_rate", "trade_count", "return_before_cost")
+    lines = [
+        f"## {title}",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in B005_VARIANTS:
+        block = metrics[variant][split]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
     lines.append("")
     return lines
 
@@ -2312,6 +2584,29 @@ def _validate_b004_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("B004 requires trigger.type: immediate.")
     if int(config["strategy"]["max_positions"]) != 5:
         raise ValueError("B004 requires strategy.max_positions: 5.")
+
+
+def _validate_b005_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_B005_CONFIG_KEYS:
+        raise ValueError(f"B005 config keys must be exactly {EXPECTED_B005_CONFIG_KEYS}; got {keys}.")
+    _validate_b002_common_config_shape(config)
+    if tuple(config["trigger"].keys()) != EXPECTED_B004_TRIGGER_KEYS:
+        raise ValueError(f"B005 trigger keys must be exactly {EXPECTED_B004_TRIGGER_KEYS}.")
+    if tuple(config["exit"].keys()) != EXPECTED_B002_EXIT_KEYS:
+        raise ValueError("B005 exit keys must be exactly ('type',).")
+    if tuple(config["relative"].keys()) != EXPECTED_B005_RELATIVE_KEYS:
+        raise ValueError(f"B005 relative keys must be exactly {EXPECTED_B005_RELATIVE_KEYS}.")
+    if tuple(config["variants"]) != B005_VARIANTS:
+        raise ValueError(f"B005 variants must be exactly {list(B005_VARIANTS)}.")
+    if int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("B005 requires strategy.max_positions: 5.")
+    if config["trigger"]["type"] != "immediate":
+        raise ValueError("B005 requires trigger.type: immediate.")
+    if config["exit"]["type"] != "signal_reversal":
+        raise ValueError("B005 requires exit.type: signal_reversal.")
+    if int(config["relative"]["cross_sectional_min_count"]) != 30:
+        raise ValueError("B005 requires relative.cross_sectional_min_count: 30.")
 
 
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:

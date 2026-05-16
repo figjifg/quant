@@ -42,6 +42,36 @@ def exit_signal_reversal(flow_features: pd.DataFrame) -> dict[str, object]:
     }
 
 
+def exit_signal_reversal_z(z_features: pd.DataFrame) -> dict[str, object]:
+    """Return engine kwargs for z-score-relative signal-reversal exits."""
+    _require_columns(z_features, ("날짜", "종목코드", "fnv_5_z", "inv_5_z"), "z_features")
+    signal_exit_features = z_features.loc[:, ["날짜", "종목코드", "fnv_5_z", "inv_5_z"]].rename(
+        columns={"fnv_5_z": "fnv_5", "inv_5_z": "inv_5"}
+    )
+    return {
+        "holding": 5,
+        "vol_stop_k": None,
+        "vol_stop_atr_window": 20,
+        "atr_features": None,
+        "signal_exit_features": signal_exit_features.copy(),
+    }
+
+
+def exit_signal_reversal_rel(rel_features: pd.DataFrame) -> dict[str, object]:
+    """Return engine kwargs for median-relative signal-reversal exits."""
+    _require_columns(rel_features, ("날짜", "종목코드", "fnv_5_rel", "inv_5_rel"), "rel_features")
+    signal_exit_features = rel_features.loc[:, ["날짜", "종목코드", "fnv_5_rel", "inv_5_rel"]].rename(
+        columns={"fnv_5_rel": "fnv_5", "inv_5_rel": "inv_5"}
+    )
+    return {
+        "holding": 5,
+        "vol_stop_k": None,
+        "vol_stop_atr_window": 20,
+        "atr_features": None,
+        "signal_exit_features": signal_exit_features.copy(),
+    }
+
+
 def exit_on_gate_off(gate_off_signal_dates: set[pd.Timestamp]) -> dict[str, object]:
     """Return engine kwargs for exits at next open after a regime gate-off flip."""
     return {

@@ -9,6 +9,7 @@ from src.backtest.engine import run_candidate_backtest
 from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
 from src.features.market_gate import build_market_gate_features
+from src.features.relative_flow import build_relative_flow_features
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
 
@@ -330,3 +331,37 @@ def test_market_gate_at_execution_date_uses_only_prior_signal_date_flows() -> No
     after_row = after.loc[after["signal_date"].eq(signal_date)].reset_index(drop=True)
 
     pd.testing.assert_frame_equal(after_row, before_row)
+
+
+def test_relative_flow_cross_sectional_moments_at_signal_date_ignore_future_rows() -> None:
+    current_signal_date = pd.Timestamp("2025-01-08")
+    future_signal_date = pd.Timestamp("2025-01-09")
+    rows = []
+    for signal_date in (current_signal_date, future_signal_date):
+        execution_date = signal_date + pd.Timedelta(days=1)
+        for ticker_index in range(1, 31):
+            rows.append(
+                {
+                    "날짜": signal_date,
+                    "execution_date": execution_date,
+                    "signal_date": signal_date,
+                    "종목코드": f"{ticker_index:06d}",
+                    "fnv_5": float(ticker_index),
+                    "inv_5": float(ticker_index + 100),
+                    "combined_flow_5": float(ticker_index + 200),
+                }
+            )
+    features = pd.DataFrame(rows)
+    universe = features.loc[:, ["execution_date", "signal_date", "종목코드"]].copy()
+
+    before = build_relative_flow_features(features, universe, min_count=30)
+    mutated = features.copy()
+    future_mask = mutated["signal_date"].eq(future_signal_date)
+    mutated.loc[future_mask, ["fnv_5", "inv_5", "combined_flow_5"]] = 999_000.0
+    after = build_relative_flow_features(mutated, universe, min_count=30)
+
+    columns = ["종목코드", "fnv_5_z", "inv_5_z", "combined_flow_5_z", "fnv_5_rel", "inv_5_rel", "combined_flow_5_rel"]
+    before_rows = before.loc[before["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
+    after_rows = after.loc[after["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_rows, before_rows)

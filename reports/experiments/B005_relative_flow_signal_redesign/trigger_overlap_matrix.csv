@@ -1,0 +1,4 @@
+variant,absolute_baseline,relative_zscore,relative_median_diff
+absolute_baseline,1.0,0.29568491167101074,0.3558449424591157
+relative_zscore,0.29568491167101074,1.0,0.5502143294549908
+relative_median_diff,0.3558449424591157,0.5502143294549908,1.0

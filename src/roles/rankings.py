@@ -11,6 +11,16 @@ def rank_by_combined_flow_5(triggered: pd.DataFrame) -> pd.DataFrame:
     return _rank_by_column(triggered, "combined_flow_5", drop_na=False)
 
 
+def rank_by_combined_flow_5_z(triggered: pd.DataFrame) -> pd.DataFrame:
+    """Return candidates ranked by z-scored 5-day combined flow."""
+    return _rank_by_column(triggered, "combined_flow_5_z", drop_na=True)
+
+
+def rank_by_combined_flow_5_rel(triggered: pd.DataFrame) -> pd.DataFrame:
+    """Return candidates ranked by median-relative 5-day combined flow."""
+    return _rank_by_column(triggered, "combined_flow_5_rel", drop_na=True)
+
+
 def rank_by_combined_flow_5_mcap(triggered: pd.DataFrame) -> pd.DataFrame:
     """Return candidates ranked by market-cap-normalized 5-day combined flow."""
     return _rank_by_column(triggered, "combined_flow_5_mcap", drop_na=False)
