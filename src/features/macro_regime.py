@@ -251,6 +251,33 @@ KR_EXPORTS_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+US_M2_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "US_PPI_yoy",
+    "US_PPI_decel",
+    "US_M2_yoy",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "favorable_US_PPI",
+    "favorable_US_M2",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -263,6 +290,7 @@ EIGHT_PPI_SIGNAL_NAMES = (*SEVEN_CPI_SIGNAL_NAMES, "us_ppi_decel")
 NINE_UNRATE_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_unrate_change")
 NINE_KR_CPI_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_cpi_decel")
 NINE_KR_EXPORTS_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_exports_yoy")
+NINE_US_M2_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_m2_yoy")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
@@ -479,6 +507,33 @@ SIGNAL_VARIANTS = {
         ],
         KR_EXPORTS_REGIME_COLUMNS,
     ),
+    NINE_US_M2_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+            "US_PPI_decel",
+            "US_M2_yoy",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+            "favorable_US_PPI",
+            "favorable_US_M2",
+        ],
+        US_M2_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -505,7 +560,8 @@ def build_macro_regime_daily(
     CPI/PPI plus US unemployment-rate yoy-change variant, C016 opts
     into a different nine-signal variant that replaces UNRATE with Korean
     CPI deceleration, and C017 opts into a C014-plus-Korean-exports-yoy
-    variant through ``macro_signals``.
+    variant through ``macro_signals``, and C018 opts into a separate
+    C014-plus-US-M2-yoy variant.
     """
     if yoy_lookback <= 0:
         raise ValueError("yoy_lookback must be positive.")
@@ -557,6 +613,7 @@ def build_macro_regime_daily(
     result["KR_CPI_yoy"] = kr_cpi
     result["KR_CPI_decel"] = _monthly_level_change(aligned, "kr_cpi", months=12)
     result["KR_exports_yoy"] = _monthly_yoy(aligned, "kr_exports", months=12)
+    result["US_M2_yoy"] = _monthly_yoy(aligned, "us_m2", months=12)
     kr_cpi_stale = _monthly_source_age_days(aligned, "kr_cpi").gt(62)
     result.loc[kr_cpi_stale, ["KR_CPI_yoy", "KR_CPI_decel"]] = pd.NA
 
@@ -574,6 +631,7 @@ def build_macro_regime_daily(
     result["favorable_US_UNRATE"] = result["US_UNRATE_yoy_change"].ge(0.0)
     result["favorable_KR_CPI"] = result["KR_CPI_decel"].le(0.0).fillna(False)
     result["favorable_KR_exports"] = result["KR_exports_yoy"].ge(0.0)
+    result["favorable_US_M2"] = result["US_M2_yoy"].ge(0.05)
 
     value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
 

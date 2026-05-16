@@ -154,6 +154,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="U.S. unemployment rate, seasonally adjusted",
     ),
     FredSeriesSpec(
+        name="us_m2",
+        fred_series="M2SL",
+        filename="fred_us_m2.csv",
+        timing=US_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="pct_change",
+        description="U.S. M2 money stock, seasonally adjusted",
+    ),
+    FredSeriesSpec(
         name="kr_cpi",
         fred_series="KORCPALTT01CTGYM",
         filename="fred_kr_cpi.csv",

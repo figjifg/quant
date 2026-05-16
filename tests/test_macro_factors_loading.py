@@ -122,6 +122,20 @@ def test_us_unrate_fred_series_is_registered_as_monthly_and_loads() -> None:
     assert frame["us_unrate"].notna().sum() > 0
 
 
+def test_us_m2_fred_series_is_registered_as_monthly_and_loads() -> None:
+    specs = {spec.name: spec for spec in FRED_SERIES}
+    spec = specs["us_m2"]
+
+    frame = load_fred_series(MACRO_DIR / spec.filename, spec)
+
+    assert spec.fred_series == "M2SL"
+    assert spec.filename == "fred_us_m2.csv"
+    assert spec.frequency == "monthly"
+    assert spec.transform == "pct_change"
+    assert list(frame.columns) == ["observation_date", "us_m2"]
+    assert frame["us_m2"].notna().sum() > 0
+
+
 def test_kr_cpi_fred_series_is_registered_as_monthly_yoy_and_loads() -> None:
     specs = {spec.name: spec for spec in FRED_SERIES}
     spec = specs["kr_cpi"]
@@ -254,6 +268,27 @@ def test_monthly_us_unrate_uses_post_month_end_lag_without_lookahead(tmp_path: P
     assert april_release["us_unrate_source_observation_date"] == pd.Timestamp("2025-03-01")
 
 
+def test_monthly_us_m2_uses_post_month_end_lag_without_lookahead(tmp_path: Path) -> None:
+    _write_minimal_macro_files(tmp_path)
+    m2 = pd.DataFrame(
+        {
+            "observation_date": ["2025-01-01", "2025-02-01", "2025-03-01"],
+            "M2SL": [21000.0, 21100.0, 99999.0],
+        }
+    )
+    m2.to_csv(tmp_path / "fred_us_m2.csv", index=False)
+    signal_dates = pd.to_datetime(["2025-03-31", "2025-04-14"])
+
+    aligned = align_macro_factors_to_korean_signal_dates(signal_dates, tmp_path)
+
+    march_end = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-03-31"))].iloc[0]
+    april_release = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-04-14"))].iloc[0]
+    assert march_end["us_m2"] == 21100.0
+    assert march_end["us_m2_source_observation_date"] == pd.Timestamp("2025-02-01")
+    assert april_release["us_m2"] == 99999.0
+    assert april_release["us_m2_source_observation_date"] == pd.Timestamp("2025-03-01")
+
+
 def test_monthly_kr_cpi_uses_post_month_end_lag_without_lookahead(tmp_path: Path) -> None:
     _write_minimal_macro_files(tmp_path)
     kr_cpi = pd.DataFrame(
@@ -325,6 +360,7 @@ def _write_minimal_macro_files(base: Path) -> None:
         "CPIAUCSL": [300.0, 301.0],
         "PPIACO": [250.0, 251.0],
         "UNRATE": [4.0, 4.1],
+        "M2SL": [21000.0, 21100.0],
         "KORCPALTT01CTGYM": [2.0, 2.1],
         "XTEXVA01KRM664S": [100.0, 101.0],
         "DEXKOUS": [1460.0, 1470.0],

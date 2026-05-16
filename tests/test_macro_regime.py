@@ -545,6 +545,81 @@ def test_macro_regime_us_ppi_unfavorable_when_inflation_accelerates(tmp_path: Pa
     assert row["favorable_US_PPI"] == False
 
 
+def test_macro_regime_us_m2_yoy_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    us_m2 = pd.DataFrame(
+        {
+            "observation_date": ["2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01"],
+            "M2SL": [20000.0, 21000.0, 21100.0, 22050.0],
+        }
+    )
+    us_m2.to_csv(tmp_path / "fred_us_m2.csv", index=False)
+    dates = pd.to_datetime(["2025-03-14", "2025-04-14", "2026-03-31", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "us_m2_yoy",
+        ],
+    )
+
+    march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert march_end["US_M2_yoy"] == pytest.approx(21100.0 / 20000.0 - 1.0)
+    assert april_release["US_M2_yoy"] == pytest.approx(22050.0 / 21000.0 - 1.0)
+    assert april_release["favorable_US_M2"] == True
+    assert "KR_exports_yoy" not in regime.columns
+    assert "favorable_KR_exports" not in regime.columns
+    assert "US_UNRATE_yoy_change" not in regime.columns
+
+
+def test_macro_regime_us_m2_unfavorable_below_five_percent_growth(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=420)
+    us_m2 = pd.DataFrame(
+        {
+            "observation_date": ["2025-03-01", "2026-03-01"],
+            "M2SL": [20000.0, 20900.0],
+        }
+    )
+    us_m2.to_csv(tmp_path / "fred_us_m2.csv", index=False)
+    dates = pd.to_datetime(["2025-04-14", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "us_m2_yoy",
+        ],
+    )
+
+    row = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert row["US_M2_yoy"] == pytest.approx(20900.0 / 20000.0 - 1.0)
+    assert row["favorable_US_M2"] == False
+
+
 def test_macro_regime_us_unrate_change_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
     _write_macro_files(tmp_path, periods=420)
     us_unrate = pd.DataFrame(
@@ -873,6 +948,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "CPIAUCSL": [300.0 + index for index in range(periods)],
         "PPIACO": [250.0 + index for index in range(periods)],
         "UNRATE": [4.0 + index * 0.01 for index in range(periods)],
+        "M2SL": [21000.0 + index for index in range(periods)],
         "KORCPALTT01CTGYM": [2.0 + index * 0.01 for index in range(periods)],
         "XTEXVA01KRM664S": [100.0 + index for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],

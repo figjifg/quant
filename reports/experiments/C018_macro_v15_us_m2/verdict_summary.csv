@@ -1,0 +1,10 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,0.6902497584375944,0.0,True
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-19.404927868011733,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",2.0,2.0,True
+H4,V1 max drawdown improves on V2 by at least 5pp,-0.30281277226470826,-0.05,True
+H5,V1 positive in >= 8 of 16 years,8.0,8.0,True
+H6,V1 net / V1 cost-0 >= 0.7,0.6905627535441096,0.7,False
+H7,V1 v15 cumulative net improves on C014 v11 by >= 5pp,-0.42335539666058897,0.05,False
+H8,C018 V1 subperiod cumulative net is >= 0 in both 2010-2017 and 2018-2026,-0.08160168142041113,0.0,False
+H9,"US M2 yoy correlations with US CPI decel, curve, and USDKRW are descriptive checks",0.4164868729838499,0.7,
