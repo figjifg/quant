@@ -33,6 +33,12 @@ from src.features.macro_regime import (
 from src.features.regime import regime_gate_on, regime_state_log
 from src.reporting.metrics import compute_metrics, metrics_is_oos
 from src.reporting.report import write_report
+from src.reporting.subperiod_analyzer import (
+    rolling_year_sharpe,
+    spike_years,
+    subperiod_metrics_row,
+    year_breakdown as subperiod_year_breakdown,
+)
 from src.roles.exits import exit_signal_reversal, exit_time_cap, exit_volatility_stop_plus_cap
 from src.strategies.b001_mcap_normalized import build_b001_mcap_normalized_candidates
 from src.strategies.b002_signal_reversal import build_b002_candidates, build_b002_signal_exit_features
@@ -91,6 +97,7 @@ from src.strategies.d004_position_sizing import (
 from src.strategies.d005_korea_growth import VARIANTS as D005_VARIANTS, run_d005_variants
 from src.strategies.d006_window_grid import VARIANTS as D006_VARIANTS, run_d006_variants
 from src.strategies.d007_threshold_grid import VARIANTS as D007_VARIANTS, run_d007_variants
+from src.strategies.d008_subperiod_analysis import VARIANTS as D008_VARIANTS, run_d008_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -405,6 +412,25 @@ EXPECTED_D007_CONFIG_KEYS = (
     "fixed_baselines",
     "output_dir",
 )
+EXPECTED_D008_CONFIG_KEYS = (
+    "experiment_id",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "subperiods",
+    "variants",
+    "per_year_analysis",
+    "rolling_3yr_sharpe",
+    "output_dir",
+)
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
 EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
 EXPECTED_B011_SELECTION_KEYS = ("type", "n")
@@ -416,6 +442,7 @@ EXPECTED_D004_REGIME_KEYS = EXPECTED_D001_REGIME_KEYS
 EXPECTED_D005_REGIME_KEYS = EXPECTED_D001_REGIME_KEYS
 EXPECTED_D006_REGIME_KEYS = ("aggregation", "on_threshold", "z_score_window_grid", "blocks")
 EXPECTED_D007_REGIME_KEYS = ("aggregation", "z_score_window_months", "on_threshold_grid", "blocks")
+EXPECTED_D008_REGIME_KEYS = EXPECTED_D001_REGIME_KEYS
 EXPECTED_D001_STRATEGY_KEYS = ("lookback", "max_positions")
 EXPECTED_D002_STRATEGY_KEYS = EXPECTED_D001_STRATEGY_KEYS
 EXPECTED_D003_STRATEGY_KEYS = EXPECTED_D001_STRATEGY_KEYS
@@ -572,6 +599,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "D007":
         _validate_d007_config_shape(config)
         run_d007_experiment(config, config_path)
+    elif experiment_id == "D008":
+        _validate_d008_config_shape(config)
+        run_d008_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -3643,6 +3673,135 @@ def run_d007_experiment(config: dict[str, Any], config_path: Path) -> None:
     grid_summary.to_csv(output_dir / "grid_summary.csv", index=False)
     verdict_summary.to_csv(output_dir / "verdict_summary.csv", index=False)
     _write_d007_report(output_dir, config, grid_summary, verdict_summary, threshold_metrics)
+
+
+def run_d008_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=EIGHT_PPI_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    base_segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+
+    subperiod_rows: list[dict[str, Any]] = []
+    per_year_frames: list[pd.DataFrame] = []
+    full_result: BacktestResult | None = None
+
+    for subperiod in config["subperiods"]:
+        name = str(subperiod["name"])
+        start = pd.Timestamp(subperiod["start"]).normalize()
+        end = pd.Timestamp(subperiod["end"]).normalize()
+        runs, candidates = run_d008_variants(
+            panel=panel,
+            calendar=calendar,
+            universe=universe,
+            quarterly_regime=quarterly_log,
+            market_breadth=market_breadth,
+            costs=costs,
+            segments=base_segments,
+            max_positions=max_positions,
+            trading_start=start,
+            trading_end=end,
+        )
+        subperiod_config = _d008_config_for_subperiod(config, subperiod)
+        subperiod_years = _d008_candidate_years(start, end, config["period"]["exclude_calendar_years"])
+        metrics, cost_0_result = _d001_metrics(
+            runs=runs,
+            panel=panel,
+            calendar=calendar,
+            candidates=candidates["factor_macro_gate_mcap"],
+            quarterly_regime=quarterly_log,
+            segments=_d008_segments_for_subperiod(base_segments, start, end),
+            candidate_years=subperiod_years,
+        )
+        year_breakdown = _d006_year_breakdown(runs=runs, calendar=calendar, candidate_years=subperiod_years)
+        subperiod_breakdown = _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], cost_0_result, calendar)
+        verdict = _d008_subperiod_verdict_summary(name, metrics)
+        per_year = subperiod_year_breakdown(
+            runs["factor_macro_gate_mcap"],
+            calendar,
+            years=subperiod_years,
+        )
+        per_year.insert(0, "subperiod", name)
+
+        subperiod_dir = output_dir / name
+        subperiod_dir.mkdir(parents=True, exist_ok=True)
+        (subperiod_dir / "config.yaml").write_text(
+            yaml.safe_dump(subperiod_config, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+        _write_json(subperiod_dir / "metrics.json", metrics)
+        _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], calendar), subperiod_dir / "trades.csv")
+        _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), subperiod_dir / "signals.csv")
+        _d001_wide_equity_curve(runs).to_csv(subperiod_dir / "equity_curve.csv", index=False)
+        year_breakdown.to_csv(subperiod_dir / "quarterly_year_breakdown.csv", index=False)
+        quarterly_log.to_csv(subperiod_dir / "quarterly_regime_log.csv", index=False)
+        subperiod_breakdown.to_csv(subperiod_dir / "subperiod_breakdown.csv", index=False)
+        verdict.to_csv(subperiod_dir / "verdict_summary.csv", index=False)
+        _write_d008_subperiod_report(subperiod_dir, subperiod_config, metrics, year_breakdown, subperiod_breakdown, verdict)
+
+        subperiod_rows.append(
+            subperiod_metrics_row(
+                name=name,
+                start=start,
+                end=end,
+                net_result=runs["factor_macro_gate_mcap"],
+                cost_0_result=cost_0_result,
+                calendar=calendar,
+                positive_years=int(metrics["factor_macro_gate_mcap"]["positive_years"]),
+            )
+        )
+        per_year_frames.append(per_year)
+        if name == "full":
+            full_result = runs["factor_macro_gate_mcap"]
+
+    if full_result is None:
+        raise ValueError("D008 requires a subperiod named 'full'.")
+
+    subperiod_table = pd.DataFrame(subperiod_rows)
+    per_year_breakdown = pd.concat(per_year_frames, ignore_index=True)
+    full_years = _d008_candidate_years(
+        pd.Timestamp(config["subperiods"][0]["start"]),
+        pd.Timestamp(config["subperiods"][0]["end"]),
+        config["period"]["exclude_calendar_years"],
+    )
+    rolling = rolling_year_sharpe(
+        full_result,
+        calendar,
+        start_year=min(year for year in full_years if year >= 2015),
+        end_year=max(full_years),
+        window_years=3,
+    )
+    verdict_summary = _d008_verdict_summary(subperiod_table)
+    full_per_year = per_year_breakdown.loc[per_year_breakdown["subperiod"].eq("full")].copy()
+    spike = spike_years(
+        full_per_year.loc[:, ["year", "net"]],
+        float(subperiod_table.loc[subperiod_table["subperiod"].eq("full"), "net"].iloc[0]),
+    )
+
+    subperiod_table.to_csv(output_dir / "subperiod_table.csv", index=False)
+    per_year_breakdown.to_csv(output_dir / "per_year_breakdown.csv", index=False)
+    rolling.to_csv(output_dir / "rolling_3yr_sharpe.csv", index=False)
+    verdict_summary.to_csv(output_dir / "verdict_summary.csv", index=False)
+    spike.to_csv(output_dir / "spike_year_contribution.csv", index=False)
+    _write_d008_report(output_dir, config, subperiod_table, per_year_breakdown, rolling, verdict_summary, spike)
 
 
 def _build_common_inputs(
@@ -8100,6 +8259,95 @@ def _d006_year_breakdown(
     return pd.DataFrame(rows)
 
 
+def _d008_candidate_years(start: object, end: object, excluded_years: list[object]) -> tuple[int, ...]:
+    excluded = {int(year) for year in excluded_years}
+    start_year = pd.Timestamp(start).year
+    end_year = pd.Timestamp(end).year
+    return tuple(year for year in range(start_year, end_year + 1) if year not in excluded)
+
+
+def _d008_segments_for_subperiod(
+    segments: tuple[tuple[object, object], ...],
+    start: object,
+    end: object,
+) -> tuple[tuple[pd.Timestamp, pd.Timestamp], ...]:
+    start_ts = pd.Timestamp(start).normalize()
+    end_ts = pd.Timestamp(end).normalize()
+    restricted: list[tuple[pd.Timestamp, pd.Timestamp]] = []
+    for segment_start, segment_end in segments:
+        left = max(pd.Timestamp(segment_start).normalize(), start_ts)
+        right = min(pd.Timestamp(segment_end).normalize(), end_ts)
+        if left <= right:
+            restricted.append((left, right))
+    return tuple(restricted)
+
+
+def _d008_config_for_subperiod(config: dict[str, Any], subperiod: dict[str, Any]) -> dict[str, Any]:
+    per_subperiod = dict(config)
+    per_subperiod["subperiod"] = dict(subperiod)
+    per_subperiod["period"] = dict(config["period"])
+    per_subperiod["period"]["start"] = subperiod["start"]
+    per_subperiod["period"]["end"] = subperiod["end"]
+    per_subperiod.pop("subperiods", None)
+    per_subperiod.pop("per_year_analysis", None)
+    per_subperiod.pop("rolling_3yr_sharpe", None)
+    per_subperiod["output_dir"] = str(Path(config["output_dir"]) / str(subperiod["name"]))
+    return per_subperiod
+
+
+def _d008_subperiod_verdict_summary(name: str, metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    v1 = metrics["factor_macro_gate_mcap"]
+    sharpe = float(v1["sharpe"])
+    return pd.DataFrame(
+        [
+            {
+                "hypothesis": f"{name}_sharpe_band",
+                "description": "D008 pre-registered OOS Sharpe band applied to this isolated trading window",
+                "value": sharpe,
+                "threshold": 0.30,
+                "verdict": _d008_sharpe_verdict(sharpe),
+                "passes": bool(sharpe >= 0.30),
+            }
+        ]
+    )
+
+
+def _d008_verdict_summary(subperiod_table: pd.DataFrame) -> pd.DataFrame:
+    indexed = subperiod_table.set_index("subperiod")
+    rows: list[dict[str, Any]] = []
+    for scheme in ("a", "b", "c"):
+        is_name = f"scheme_{scheme}_is"
+        oos_name = f"scheme_{scheme}_oos"
+        is_sharpe = float(indexed.loc[is_name, "Sharpe"])
+        oos_sharpe = float(indexed.loc[oos_name, "Sharpe"])
+        rows.append(
+            {
+                "scheme": scheme.upper(),
+                "IS_Sharpe": is_sharpe,
+                "OOS_Sharpe": oos_sharpe,
+                "IS_net": float(indexed.loc[is_name, "net"]),
+                "OOS_net": float(indexed.loc[oos_name, "net"]),
+                "IS_annualized": float(indexed.loc[is_name, "annualized"]),
+                "OOS_annualized": float(indexed.loc[oos_name, "annualized"]),
+                "OOS_ratio_to_IS_Sharpe": oos_sharpe / is_sharpe if is_sharpe != 0.0 else float("nan"),
+                "verdict": _d008_sharpe_verdict(oos_sharpe),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _d008_sharpe_verdict(sharpe: float) -> str:
+    if pd.isna(sharpe) or sharpe < 0.10:
+        return "OOS_COLLAPSE"
+    if sharpe < 0.20:
+        return "WEAK"
+    if sharpe < 0.30:
+        return "MARGINAL"
+    if sharpe < 0.40:
+        return "ACCEPTABLE"
+    return "STRONG"
+
+
 def _d001_verdict_summary(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
     aliased = dict(metrics)
     aliased["macro_gate_mcap"] = metrics["factor_macro_gate_mcap"]
@@ -10206,6 +10454,81 @@ def _write_d001_report(
     lines.extend(_b004_dataframe_table("Quarterly Year Breakdown", year_breakdown))
     lines.extend(_b004_dataframe_table("Subperiod Breakdown", subperiod_breakdown))
     lines.extend(_b004_dataframe_table("Verdict Summary", verdict))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _write_d008_subperiod_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    year_breakdown: pd.DataFrame,
+    subperiod_breakdown: pd.DataFrame,
+    verdict: pd.DataFrame,
+) -> None:
+    lines = ["# D008 Subperiod Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| subperiod | {config['subperiod']['name']} |",
+            f"| trading_start | {config['subperiod']['start']} |",
+            f"| trading_end | {config['subperiod']['end']} |",
+            "| macro_gate | frozen D001 factor aggregation; only trading window is restricted |",
+            "| z_score_warmup | 60-month rolling z-score is computed on full historical monthly regime before each trade quarter |",
+            "| rebalance | signal on last available KRX trading day of Mar/Jun/Sep/Dec; execution at next KRX open |",
+            "| selection | top 5 by signal-date market cap, equal weight when factor macro gate ON |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 종가 only as pre-NXT fallback where absent |",
+            "| open_price_policy | 시가 treated as KRX 09:00 open per AGENTS.md Kiwoom panel verification |",
+            "| calendar_source | derived from panel non-null KRX종가 rows after excluding configured years |",
+            "",
+        ]
+    )
+    lines.extend(_d001_metric_table(metrics))
+    lines.extend(_b004_dataframe_table("Quarterly Year Breakdown", year_breakdown))
+    lines.extend(_b004_dataframe_table("Subperiod Breakdown", subperiod_breakdown))
+    lines.extend(_b004_dataframe_table("Verdict Summary", verdict))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _write_d008_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    subperiod_table: pd.DataFrame,
+    per_year_breakdown: pd.DataFrame,
+    rolling: pd.DataFrame,
+    verdict: pd.DataFrame,
+    spike: pd.DataFrame,
+) -> None:
+    lines = ["# D008 OOS Subperiod Split Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| period_start | {config['period']['start']} |",
+            f"| period_end | {config['period']['end']} |",
+            f"| excluded_years | {json.dumps(config['period']['exclude_calendar_years'])} |",
+            "| macro_gate | frozen D001 factor aggregation; only trading window changes by subperiod |",
+            "| z_score_warmup | 60-month rolling z-score is computed on full historical monthly regime before each trade quarter |",
+            "| rebalance | signal on last available KRX trading day of Mar/Jun/Sep/Dec; execution at next KRX open |",
+            "| baselines | V2 cap-weighted KOSPI proxy buy-and-hold; V3 cash |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 종가 only as pre-NXT fallback where absent |",
+            "| open_price_policy | 시가 treated as KRX 09:00 open per AGENTS.md Kiwoom panel verification |",
+            "| calendar_source | derived from panel non-null KRX종가 rows after excluding configured years |",
+            "",
+        ]
+    )
+    lines.extend(_b004_dataframe_table("Subperiod Table", subperiod_table))
+    lines.extend(_b004_dataframe_table("Per-Year Breakdown", per_year_breakdown))
+    lines.extend(_b004_dataframe_table("Rolling 3-Year Sharpe", rolling))
+    lines.extend(_b004_dataframe_table("Verdict Summary", verdict))
+    lines.extend(_b004_dataframe_table("Spike Year Contribution", spike))
     (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
@@ -13047,6 +13370,68 @@ def _validate_d007_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("D007 requires selection market_cap_top_n n=5.")
     if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
         raise ValueError("D007 requires quarterly last_trading_day rebalance.")
+
+
+def _validate_d008_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_D008_CONFIG_KEYS:
+        raise ValueError(f"D008 config keys must be exactly {EXPECTED_D008_CONFIG_KEYS}; got {keys}.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError(f"D008 period keys must be exactly {EXPECTED_B011_PERIOD_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"D008 universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["strategy"].keys()) != EXPECTED_D001_STRATEGY_KEYS:
+        raise ValueError(f"D008 strategy keys must be exactly {EXPECTED_D001_STRATEGY_KEYS}.")
+    if tuple(config["regime"].keys()) != EXPECTED_D008_REGIME_KEYS:
+        raise ValueError(f"D008 regime keys must be exactly {EXPECTED_D008_REGIME_KEYS}.")
+    if tuple(config["selection"].keys()) != EXPECTED_B011_SELECTION_KEYS:
+        raise ValueError(f"D008 selection keys must be exactly {EXPECTED_B011_SELECTION_KEYS}.")
+    if tuple(config["rebalance"].keys()) != EXPECTED_C003_REBALANCE_KEYS:
+        raise ValueError(f"D008 rebalance keys must be exactly {EXPECTED_C003_REBALANCE_KEYS}.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"D008 costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if tuple(config["variants"]) != D008_VARIANTS:
+        raise ValueError(f"D008 variants must be exactly {list(D008_VARIANTS)}.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("D008 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("D008 requires period.exclude_calendar_years: [2016].")
+    if int(config["strategy"]["lookback"]) != 5 or int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("D008 requires strategy.lookback: 5 and max_positions: 5.")
+    if config["regime"]["aggregation"] != "factor_z_score":
+        raise ValueError("D008 requires regime.aggregation: factor_z_score.")
+    if int(config["regime"]["z_score_window_months"]) != 60:
+        raise ValueError("D008 requires regime.z_score_window_months: 60.")
+    if float(config["regime"]["on_threshold"]) != 0.0:
+        raise ValueError("D008 requires regime.on_threshold: 0.0.")
+    expected_blocks = (
+        ("global_risk", (("vix_60d_vs_240d", -1),)),
+        ("usd_fx", (("usdkrw_yoy", -1), ("dxy_yoy", -1))),
+        ("us_rates", (("us_2_10_curve", 1),)),
+        ("inflation", (("us_cpi_decel", -1), ("us_ppi_decel", -1))),
+        ("commodity", (("brent_yoy", -1),)),
+        ("korea", (("kr10y_yoy_change", -1),)),
+    )
+    if _d001_blocks_from_config(config["regime"]["blocks"]) != expected_blocks:
+        raise ValueError("D008 factor blocks/signs are frozen to D001.")
+    if config["selection"]["type"] != "market_cap_top_n" or int(config["selection"]["n"]) != 5:
+        raise ValueError("D008 requires selection market_cap_top_n n=5.")
+    if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
+        raise ValueError("D008 requires quarterly last_trading_day rebalance.")
+    expected_subperiods = (
+        ("full", "2010-01-04", "2026-05-04"),
+        ("scheme_a_is", "2015-01-01", "2020-12-31"),
+        ("scheme_a_oos", "2021-01-01", "2026-05-04"),
+        ("scheme_b_is", "2015-01-01", "2019-12-31"),
+        ("scheme_b_oos", "2020-01-01", "2026-05-04"),
+        ("scheme_c_is", "2015-01-01", "2021-12-31"),
+        ("scheme_c_oos", "2022-01-01", "2026-05-04"),
+    )
+    observed = tuple((str(item["name"]), str(item["start"]), str(item["end"])) for item in config["subperiods"])
+    if observed != expected_subperiods:
+        raise ValueError("D008 subperiods must match the ticket exactly.")
+    if config["per_year_analysis"] is not True or config["rolling_3yr_sharpe"] is not True:
+        raise ValueError("D008 requires per_year_analysis and rolling_3yr_sharpe enabled.")
 
 
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
