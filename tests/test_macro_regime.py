@@ -985,6 +985,44 @@ def test_macro_regime_kr_exports_unfavorable_when_yoy_is_negative(tmp_path: Path
     assert row["favorable_KR_exports"] == False
 
 
+def test_macro_regime_kr_cli_value_uses_monthly_level_without_lookahead(tmp_path: Path) -> None:
+    _write_macro_files(tmp_path, periods=520)
+    kr_cli = pd.DataFrame(
+        {
+            "observation_date": ["2025-02-01", "2025-03-01", "2026-02-01", "2026-03-01", "2026-04-01"],
+            "KORLOLITOAASTSAM": [99.0, 100.0, 101.0, 102.0, 999.0],
+        }
+    )
+    kr_cli.to_csv(tmp_path / "fred_kr_cli.csv", index=False)
+    dates = pd.to_datetime(["2025-03-31", "2025-04-14", "2026-03-31", "2026-04-14"])
+
+    regime = build_macro_regime_daily(
+        dates,
+        macro_data_dir=str(tmp_path),
+        yoy_lookback=1,
+        vix_short_window=1,
+        vix_long_window=1,
+        macro_signals=[
+            "usdkrw_yoy",
+            "vix_60d_vs_240d",
+            "dxy_yoy",
+            "us_2_10_curve",
+            "brent_yoy",
+            "kr10y_yoy_change",
+            "us_cpi_decel",
+            "us_ppi_decel",
+            "kr_exports_yoy",
+            "kr_cli_value",
+        ],
+    )
+
+    march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
+    april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
+    assert march_end["KR_CLI_value"] == pytest.approx(101.0)
+    assert april_release["KR_CLI_value"] == pytest.approx(102.0)
+    assert april_release["favorable_KR_CLI"] == True
+
+
 def test_macro_regime_usdjpy_yoy_uses_available_observation_without_lookahead(tmp_path: Path) -> None:
     _write_macro_files(tmp_path, periods=520)
     usdjpy = pd.read_csv(tmp_path / "fred_jpy.csv")
@@ -1201,6 +1239,7 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "M2SL": [21000.0 + index for index in range(periods)],
         "KORCPALTT01CTGYM": [2.0 + index * 0.01 for index in range(periods)],
         "XTEXVA01KRM664S": [100.0 + index for index in range(periods)],
+        "KORLOLITOAASTSAM": [99.0 + index * 0.01 for index in range(periods)],
         "DEXKOUS": [1300.0 + index for index in range(periods)],
     }
     for spec in FRED_SERIES:

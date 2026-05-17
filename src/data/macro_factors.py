@@ -199,6 +199,15 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         description="Korea exports of goods, value",
     ),
     FredSeriesSpec(
+        name="kr_cli",
+        fred_series="KORLOLITOAASTSAM",
+        filename="fred_kr_cli.csv",
+        timing=KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        frequency="monthly",
+        transform="level",
+        description="OECD Composite Leading Indicator, amplitude adjusted, Korea",
+    ),
+    FredSeriesSpec(
         name="dexkous_usdkrw",
         fred_series="DEXKOUS",
         filename="fred_dexkous_usdkrw.csv",
@@ -273,6 +282,8 @@ def build_macro_factor_changes(aligned: pd.DataFrame) -> pd.DataFrame:
             result[f"{spec.name}_ret"] = values.pct_change(fill_method=None)
         elif spec.transform == "diff":
             result[f"{spec.name}_diff"] = values.diff()
+        elif spec.transform == "level":
+            result[f"{spec.name}_level"] = values
         else:
             raise ValueError(f"Unsupported transform for {spec.name}: {spec.transform}")
     return result

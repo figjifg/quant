@@ -251,6 +251,35 @@ KR_EXPORTS_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+D005_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "US10Y_yoy_change",
+    "Brent_yoy",
+    "KR10Y_yoy_change",
+    "US_CPI_yoy",
+    "US_CPI_decel",
+    "US_PPI_yoy",
+    "US_PPI_decel",
+    "KR_exports_yoy",
+    "KR_CLI_value",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_KR10Y",
+    "favorable_US_CPI",
+    "favorable_US_PPI",
+    "favorable_KR_exports",
+    "favorable_KR_CLI",
+    "regime_score",
+    "regime_on",
+)
 US_M2_REGIME_COLUMNS = (
     "signal_date",
     "USDKRW_yoy",
@@ -345,6 +374,7 @@ EIGHT_PPI_SIGNAL_NAMES = (*SEVEN_CPI_SIGNAL_NAMES, "us_ppi_decel")
 NINE_UNRATE_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_unrate_change")
 NINE_KR_CPI_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_cpi_decel")
 NINE_KR_EXPORTS_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_exports_yoy")
+D005_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "kr_exports_yoy", "kr_cli_value")
 NINE_US_M2_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_m2_yoy")
 NINE_USDJPY_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "usdjpy_yoy")
 NINE_JP10Y_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "jp10y_yoy_change")
@@ -386,6 +416,8 @@ D001_FACTOR_VARIABLE_COLUMNS = {
     "kr3m_yoy_change": "KR3M_yoy_change",
     "jp10y_yoy_change": "JP10Y_yoy_change",
     "kr_cpi_decel": "KR_CPI_decel",
+    "kr_exports_yoy": "KR_exports_yoy",
+    "kr_cli_value": "KR_CLI_value",
 }
 DEFAULT_FACTOR_Z_SCORE_WINDOW_MONTHS = 60
 SIGNAL_VARIANTS = {
@@ -603,6 +635,35 @@ SIGNAL_VARIANTS = {
         ],
         KR_EXPORTS_REGIME_COLUMNS,
     ),
+    D005_SIGNAL_NAMES: (
+        [
+            "USDKRW_yoy",
+            "VIX_60d_avg",
+            "VIX_240d_avg",
+            "DXY_yoy",
+            "US_2_10_curve_spread",
+            "US10Y_yoy_change",
+            "Brent_yoy",
+            "KR10Y_yoy_change",
+            "US_CPI_decel",
+            "US_PPI_decel",
+            "KR_exports_yoy",
+            "KR_CLI_value",
+        ],
+        [
+            "favorable_USDKRW",
+            "favorable_VIX",
+            "favorable_DXY",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_KR10Y",
+            "favorable_US_CPI",
+            "favorable_US_PPI",
+            "favorable_KR_exports",
+            "favorable_KR_CLI",
+        ],
+        D005_REGIME_COLUMNS,
+    ),
     NINE_US_M2_SIGNAL_NAMES: (
         [
             "USDKRW_yoy",
@@ -808,6 +869,7 @@ def build_macro_regime_daily(
     kr10y = pd.to_numeric(aligned["kr10y"], errors="coerce").ffill()
     kr3m = pd.to_numeric(aligned["kr3m"], errors="coerce").ffill()
     kr_cpi = pd.to_numeric(aligned["kr_cpi"], errors="coerce")
+    kr_cli = pd.to_numeric(aligned["kr_cli"], errors="coerce")
 
     result = pd.DataFrame({"signal_date": aligned["signal_date"]})
     result["USDKRW_yoy"] = usdkrw / usdkrw.shift(yoy_lookback) - 1.0
@@ -832,6 +894,7 @@ def build_macro_regime_daily(
     result["KR_CPI_yoy"] = kr_cpi
     result["KR_CPI_decel"] = _monthly_level_change(aligned, "kr_cpi", months=12)
     result["KR_exports_yoy"] = _monthly_yoy(aligned, "kr_exports", months=12)
+    result["KR_CLI_value"] = kr_cli
     result["US_M2_yoy"] = _monthly_yoy(aligned, "us_m2", months=12)
     kr_cpi_stale = _monthly_source_age_days(aligned, "kr_cpi").gt(62)
     result.loc[kr_cpi_stale, ["KR_CPI_yoy", "KR_CPI_decel"]] = pd.NA
@@ -852,6 +915,7 @@ def build_macro_regime_daily(
     result["favorable_US_UNRATE"] = result["US_UNRATE_yoy_change"].ge(0.0)
     result["favorable_KR_CPI"] = result["KR_CPI_decel"].le(0.0).fillna(False)
     result["favorable_KR_exports"] = result["KR_exports_yoy"].ge(0.0)
+    result["favorable_KR_CLI"] = result["KR_CLI_value"].ge(100.0)
     result["favorable_US_M2"] = result["US_M2_yoy"].ge(0.05)
 
     value_columns, favorable_columns, output_columns = SIGNAL_VARIANTS[signal_names]
