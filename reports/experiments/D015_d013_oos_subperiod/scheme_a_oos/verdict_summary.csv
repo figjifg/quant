@@ -1,0 +1,2 @@
+hypothesis,description,value,threshold,verdict,passes
+scheme_a_oos_sharpe_band,D015 pre-registered OOS Sharpe band applied to this isolated D013 trading window,0.7142516729809981,0.3,STRONG,True

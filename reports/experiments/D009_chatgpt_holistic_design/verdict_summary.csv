@@ -1,6 +1,6 @@
 hypothesis,description,value,threshold,verdict,passes
-H1,D009 cumulative net return is positive,1.2562437299125393,0.0,,True
-H6,D009 net / cost-0 is at least 0.7,0.9173864054870642,0.7,,True
-H7,D009 holistic carrier Sharpe band versus D001 reference,0.4144010855755797,0.55 / 0.40 / 0.30,COMPARABLE ADOPT,True
-H8,2025 contribution share is descriptive spike-dependency diagnostic,0.29806275040607216,,,
-H9,"Block scores, variable z-scores, composite distribution, and D001 overlap are descriptive checks",-0.033479997767023525,,,
+H1,D009 cumulative net return is positive,1.0244143636045604,0.0,,True
+H6,D009 net / cost-0 is at least 0.7,0.9155911930287056,0.7,,True
+H7,D009 holistic carrier Sharpe band versus D001 reference,0.36524689410364136,0.55 / 0.40 / 0.30,MARGINAL,False
+H8,2025 contribution share is descriptive spike-dependency diagnostic,0.365515629828335,,,
+H9,"Block scores, variable z-scores, composite distribution, and D001 overlap are descriptive checks",-0.03428530665464613,,,

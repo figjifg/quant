@@ -46,7 +46,7 @@ def test_d012_full_period_reproduces_d009_metrics_when_outputs_exist() -> None:
         d009["factor_macro_gate_mcap"]["cumulative_net_total_return"],
         abs=0.0,
     )
-    assert d012["factor_macro_gate_mcap"]["sharpe"] == pytest.approx(0.4144, abs=0.00005)
+    assert d012["factor_macro_gate_mcap"]["sharpe"] == pytest.approx(0.36524689410364136, abs=0.00005)
 
 
 def test_d012_zscore_at_trade_quarter_uses_no_future_rows() -> None:

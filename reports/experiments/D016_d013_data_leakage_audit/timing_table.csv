@@ -1,0 +1,11 @@
+variable,source_file,frequency,availability_rule,rows_checked,min_lag_days,max_source_observation_date,violations,passed
+VIX 60d/240d,fred_vix.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+BAA10Y spread,fred_baa10y_spread.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+USDKRW yoy,fred_dexkous_usdkrw.csv,daily,Korea same day: source <= signal_date,61,0,2026-03-31,0,True
+DXY yoy,fred_dxy.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+US 10y real yield,fred_us_10y_real.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+US 2-10y curve,fred_dgs2.csv + fred_dgs10.csv,daily,US after close: both sources <= signal_date - 1d,61,1,2026-03-30,0,True
+Brent yoy,fred_brent.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+10y breakeven,fred_us_breakeven_10y.csv,daily,US after close: source <= signal_date - 1d,61,1,2026-03-30,0,True
+OECD CLI Korea,fred_kr_cli.csv,monthly,OECD CLI conservative lag: observation month-end +75 calendar days,61,118,2025-12-01,0,True
+KR exports yoy,fred_kr_exports.csv,monthly,KR exports lag: observation month-end +14 calendar days,61,56,2026-02-01,0,True

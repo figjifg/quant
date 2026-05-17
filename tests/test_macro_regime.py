@@ -994,7 +994,9 @@ def test_macro_regime_kr_cli_value_uses_monthly_level_without_lookahead(tmp_path
         }
     )
     kr_cli.to_csv(tmp_path / "fred_kr_cli.csv", index=False)
-    dates = pd.to_datetime(["2025-03-31", "2025-04-14", "2026-03-31", "2026-04-14"])
+    dates = pd.to_datetime(
+        ["2025-03-31", "2025-04-14", "2026-03-31", "2026-04-14", "2026-05-14", "2026-06-14"]
+    )
 
     regime = build_macro_regime_daily(
         dates,
@@ -1018,9 +1020,13 @@ def test_macro_regime_kr_cli_value_uses_monthly_level_without_lookahead(tmp_path
 
     march_end = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-03-31"))].iloc[0]
     april_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-04-14"))].iloc[0]
-    assert march_end["KR_CLI_value"] == pytest.approx(101.0)
-    assert april_release["KR_CLI_value"] == pytest.approx(102.0)
-    assert april_release["favorable_KR_CLI"] == True
+    may_after_feb_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-05-14"))].iloc[0]
+    june_after_march_release = regime.loc[regime["signal_date"].eq(pd.Timestamp("2026-06-14"))].iloc[0]
+    assert march_end["KR_CLI_value"] == pytest.approx(100.0)
+    assert april_release["KR_CLI_value"] == pytest.approx(100.0)
+    assert may_after_feb_release["KR_CLI_value"] == pytest.approx(101.0)
+    assert june_after_march_release["KR_CLI_value"] == pytest.approx(102.0)
+    assert june_after_march_release["favorable_KR_CLI"] == True
 
 
 def test_macro_regime_usdjpy_yoy_uses_available_observation_without_lookahead(tmp_path: Path) -> None:

@@ -1,0 +1,5 @@
+window,hypothesis,description,value,threshold,passes
+60,H1,60-month D014 reproduces D013 Sharpe 0.5334,0.5333654677635088,0.5334,True
+60,H7,Window Sharpe is at least 0.40 for plateau count,0.5333654677635088,0.4,True
+60,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True
+60,H9,"ON share, max DD, and composite distribution are descriptive checks",0.3770491803278688,,

@@ -1,17 +1,17 @@
 scope,hypothesis,description,value,threshold,passes,verdict,window
-grid,H7,Pre-registered count of windows with Sharpe >= 0.40,4.0,3 of 5 for plateau; 4 of 5 for strong plateau,True,STRONG PLATEAU,
+grid,H7,Pre-registered count of windows with Sharpe >= 0.40,3.0,3 of 5 for plateau; 4 of 5 for strong plateau,True,PLATEAU,
 window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.31836179076818916,0.4144,,,36.0
 window,H7,Window Sharpe is at least 0.40 for plateau count,0.31836179076818916,0.4,False,,36.0
 window,H8,2010-2014 warmup-artifact trade count and return diagnostic,20.0,>0 for 36mo/48mo,True,,36.0
 window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.4098360655737705,,,,36.0
-window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.4295609629982839,0.4144,,,48.0
-window,H7,Window Sharpe is at least 0.40 for plateau count,0.4295609629982839,0.4,True,,48.0
+window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.4224498634487824,0.4144,,,48.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.4224498634487824,0.4,True,,48.0
 window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,False,,48.0
-window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.29508196721311475,,,,48.0
-window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.4144010855755797,0.4144,True,,60.0
-window,H7,Window Sharpe is at least 0.40 for plateau count,0.4144010855755797,0.4,True,,60.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.26229508196721313,,,,48.0
+window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.36524689410364136,0.4144,False,,60.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.36524689410364136,0.4,False,,60.0
 window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True,,60.0
-window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.26229508196721313,,,,60.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.2459016393442623,,,,60.0
 window,H1,60-month D010 reproduces D009 Sharpe 0.4144,0.417558089653482,0.4144,,,72.0
 window,H7,Window Sharpe is at least 0.40 for plateau count,0.417558089653482,0.4,True,,72.0
 window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True,,72.0

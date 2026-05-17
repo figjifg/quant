@@ -1,0 +1,80 @@
+experiment_id: D014
+panels:
+- research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+panel_date_filters:
+  research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv:
+    end: 2017-12-31
+market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
+macro_data_dir: research_input_data/inputs/macro_features
+period:
+  start: 2010-01-04
+  end: 2026-05-04
+  exclude_calendar_years:
+  - 2016
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5000000000
+  exclude_estimated_flag_rows: true
+strategy:
+  lookback: 5
+  max_positions: 5
+regime:
+  aggregation: factor_z_score
+  on_threshold: -0.2
+  z_score_window_grid:
+  - 36
+  - 48
+  - 60
+  - 72
+  - 84
+  blocks:
+  - name: global_risk
+    vars:
+    - name: vix_60d_vs_240d
+      sign: -1
+    - name: baa10y_spread_level
+      sign: -1
+  - name: usd_fx
+    vars:
+    - name: usdkrw_yoy
+      sign: -1
+    - name: dxy_yoy
+      sign: -1
+  - name: us_rates
+    vars:
+    - name: us_10y_real_level
+      sign: -1
+    - name: us_2_10_curve
+      sign: 1
+  - name: inflation
+    vars:
+    - name: brent_yoy
+      sign: -1
+    - name: us_breakeven_level
+      sign: -1
+  - name: growth
+    vars:
+    - name: kr_cli_value
+      sign: 1
+    - name: kr_exports_yoy
+      sign: 1
+  z_score_window_months: 84
+selection:
+  type: market_cap_top_n
+  n: 5
+rebalance:
+  frequency: quarterly
+  anchor: last_trading_day
+costs:
+  commission_bps: 1.5
+  tax_bps_sell: 20.0
+  slippage_bps: 5.0
+variants_per_window:
+- factor_macro_gate_mcap
+fixed_baselines:
+- kospi_buy_and_hold
+- cash
+output_dir: reports/experiments/D014_d013_window_grid

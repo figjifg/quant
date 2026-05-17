@@ -373,7 +373,7 @@ def test_monthly_kr_exports_uses_post_month_end_lag_without_lookahead(tmp_path: 
     assert april_release["kr_exports_source_observation_date"] == pd.Timestamp("2025-03-01")
 
 
-def test_monthly_kr_cli_uses_post_month_end_lag_without_lookahead(tmp_path: Path) -> None:
+def test_monthly_kr_cli_uses_oecd_75_day_lag_without_lookahead(tmp_path: Path) -> None:
     _write_minimal_macro_files(tmp_path)
     kr_cli = pd.DataFrame(
         {
@@ -382,16 +382,43 @@ def test_monthly_kr_cli_uses_post_month_end_lag_without_lookahead(tmp_path: Path
         }
     )
     kr_cli.to_csv(tmp_path / "fred_kr_cli.csv", index=False)
-    signal_dates = pd.to_datetime(["2025-03-31", "2025-04-14"])
+    signal_dates = pd.to_datetime(["2025-03-31", "2025-04-16", "2025-05-16"])
 
     aligned = align_macro_factors_to_korean_signal_dates(signal_dates, tmp_path)
 
     march_end = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-03-31"))].iloc[0]
-    april_release = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-04-14"))].iloc[0]
-    assert march_end["kr_cli"] == 100.0
-    assert march_end["kr_cli_source_observation_date"] == pd.Timestamp("2025-02-01")
-    assert april_release["kr_cli"] == 999.0
-    assert april_release["kr_cli_source_observation_date"] == pd.Timestamp("2025-03-01")
+    april_after_jan_release = aligned.loc[
+        aligned["signal_date"].eq(pd.Timestamp("2025-04-16"))
+    ].iloc[0]
+    may_after_feb_release = aligned.loc[aligned["signal_date"].eq(pd.Timestamp("2025-05-16"))].iloc[0]
+    assert march_end["kr_cli"] != 100.0
+    assert march_end["kr_cli_source_observation_date"] != pd.Timestamp("2025-02-01")
+    assert april_after_jan_release["kr_cli"] == 99.0
+    assert april_after_jan_release["kr_cli_source_observation_date"] == pd.Timestamp("2025-01-01")
+    assert may_after_feb_release["kr_cli"] == 100.0
+    assert may_after_feb_release["kr_cli_source_observation_date"] == pd.Timestamp("2025-02-01")
+
+
+def test_monthly_kr_cli_source_observation_is_at_least_75_days_old(tmp_path: Path) -> None:
+    _write_minimal_macro_files(tmp_path)
+    kr_cli = pd.DataFrame(
+        {
+            "observation_date": pd.date_range("2024-01-01", periods=18, freq="MS"),
+            "KORLOLITOAASTSAM": range(18),
+        }
+    )
+    kr_cli.to_csv(tmp_path / "fred_kr_cli.csv", index=False)
+    signal_dates = pd.date_range("2025-01-02", "2025-06-30", freq="B")
+
+    aligned = align_macro_factors_to_korean_signal_dates(signal_dates, tmp_path)
+    observed = aligned.dropna(subset=["kr_cli_source_observation_date"]).copy()
+
+    assert not observed.empty
+    assert (
+        observed["kr_cli_source_observation_date"]
+        + pd.offsets.MonthEnd(0)
+        + pd.Timedelta(days=75)
+    ).le(observed["signal_date"]).all()
 
 
 def test_build_macro_factor_changes_uses_no_forward_fill() -> None:

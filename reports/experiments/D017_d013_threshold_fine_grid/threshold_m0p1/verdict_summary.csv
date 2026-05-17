@@ -1,0 +1,4 @@
+threshold,hypothesis,description,value,threshold_value,passes
+-0.1,H1,Threshold 0.0 reproduces D009 Sharpe 0.4144,0.4163435506054858,0.4144,
+-0.1,H7,Threshold Sharpe is at least 0.40 for plateau count,0.4163435506054858,0.4,True
+-0.1,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.32786885245901637,,

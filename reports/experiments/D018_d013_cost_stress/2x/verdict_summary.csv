@@ -1,0 +1,6 @@
+hypothesis,description,value,threshold,verdict,passes
+H1,D013 reproduces D011 threshold -0.2 cumulative return,2.2994412001168385,2.5458,,False
+H6,D009 net / cost-0 is at least 0.7,0.8183261482153854,0.7,,True
+H7,D013 pre-registered threshold -0.2 Sharpe band,0.5017312487668135,0.50+ and 200%+ / 0.45 / 0.40,CHAMPION,True
+H8,2025 contribution share is descriptive spike-dependency diagnostic,0.24414397122618003,,,
+H9,"Block scores, variable z-scores, composite distribution, and D001 overlap are descriptive checks",-0.03428530665464613,,,

@@ -20,7 +20,7 @@
 
 | variant | cumulative_net_total_return | max_drawdown | positive_years | annualized_return | annualized_volatility | sharpe | trade_count | cost_paid_total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| factor_macro_gate_mcap | 1.2562437299125393 | -0.3336818664706047 | 5 | 0.05582094116655911 | 0.1347026904840922 | 0.4144010855755797 | 75 | 0.061858744714751 |
+| factor_macro_gate_mcap | 1.0244143636045604 | -0.3336818664706047 | 4 | 0.04820688257946193 | 0.13198437374195135 | 0.36524689410364136 | 70 | 0.056031724909098524 |
 | kospi_buy_and_hold | 20.095177626449328 | -0.34485340853513224 | 14 | 0.2257327915799301 | 0.18914309081113953 | 1.1934498406041465 | 0 | 0.0 |
 | cash | 0.0 | 0.0 | 0 | 0.0 | 0.0 | nan | 0 | 0.0 |
 
@@ -28,24 +28,24 @@
 
 | metric | value |
 | --- | ---: |
-| cost_0_cumulative_net_total_return | 1.3693725156582923 |
+| cost_0_cumulative_net_total_return | 1.1188556327370036 |
 | d001_cumulative_net_total_return | 1.2906841868750734 |
 | d001_cost_0_cumulative_net_total_return | 1.397144393892741 |
-| d009_minus_d001_cumulative_net_pp | -0.03444045696253406 |
-| d009_minus_d001_cost_0_cumulative_net_pp | -0.02777187823444871 |
-| regime_on_share | 0.26229508196721313 |
-| composite_mean | -0.033479997767023525 |
-| composite_std | 0.41738983159305604 |
-| composite_positive_share | 0.42105263157894735 |
+| d009_minus_d001_cumulative_net_pp | -0.26626982327051296 |
+| d009_minus_d001_cost_0_cumulative_net_pp | -0.2782887611557374 |
+| regime_on_share | 0.2459016393442623 |
+| composite_mean | -0.03428530665464613 |
+| composite_std | 0.40416182915908916 |
+| composite_positive_share | 0.39473684210526316 |
 | global_risk_avg_score | 0.23811249262650716 |
 | usd_fx_avg_score | 0.055982348313387324 |
 | us_rates_avg_score | -0.5002514470306956 |
 | inflation_avg_score | -0.09127345214730313 |
-| growth_avg_score | 0.13003006940298645 |
-| return_2025_contribution_share | 0.29806275040607216 |
-| d001_trade_quarter_overlap_jaccard | 0.2608695652173913 |
+| growth_avg_score | 0.12600352496487346 |
+| return_2025_contribution_share | 0.365515629828335 |
+| d001_trade_quarter_overlap_jaccard | 0.21739130434782608 |
 | d009_on_d001_off_quarter_count | 10 |
-| d009_off_d001_on_quarter_count | 8 |
+| d009_off_d001_on_quarter_count | 9 |
 | vix_60d_vs_240d_z_mean | 0.06400131015837443 |
 | vix_60d_vs_240d_z_std | 1.0884279098463474 |
 | vix_60d_vs_240d_z_positive_share | 0.3684210526315789 |
@@ -70,8 +70,8 @@
 | us_breakeven_level_z_mean | -0.023450805434342498 |
 | us_breakeven_level_z_std | 1.1858892037420037 |
 | us_breakeven_level_z_positive_share | 0.5526315789473685 |
-| kr_cli_value_z_mean | 0.05082155929730396 |
-| kr_cli_value_z_std | 1.224207628490567 |
+| kr_cli_value_z_mean | 0.04276847042107795 |
+| kr_cli_value_z_std | 1.2150334479576115 |
 | kr_cli_value_z_positive_share | 0.4473684210526316 |
 | kr_exports_yoy_z_mean | 0.20923857950866892 |
 | kr_exports_yoy_z_std | 1.2657037838380627 |
@@ -94,19 +94,19 @@
 | 2021.0 | -0.12419945981131231 | 0.13170240063376726 | 0.0 | -0.035316520549102 | -0.0888829392622103 |
 | 2022.0 | -0.09716827644733184 | -0.18442405395793493 | 0.0 | 0.0 | -0.09716827644733184 |
 | 2023.0 | 0.0 | 0.3279894204214897 | 0.0 | -0.0177293971971159 | 0.0177293971971159 |
-| 2024.0 | 0.010394436376717442 | 0.034981455283805474 | 0.0 | 0.0422472179791628 | -0.03185278160244536 |
-| 2025.0 | 0.37443946131811434 | 1.047004780803555 | 0.0 | 0.7666554035490463 | -0.3922159422309319 |
-| 2026.0 | 0.5621484118981517 | 0.7344109727369705 | 0.0 | 0.0 | 0.5621484118981517 |
+| 2024.0 | -0.07976588247723293 | 0.034981455283805474 | 0.0 | 0.0422472179791628 | -0.12201310045639574 |
+| 2025.0 | 0.3744394613181139 | 1.047004780803555 | 0.0 | 0.7666554035490463 | -0.39221594223093237 |
+| 2026.0 | 0.5621484118981519 | 0.7344109727369705 | 0.0 | 0.0 | 0.5621484118981519 |
 
 ## Subperiod Breakdown
 
 | period | start | end | v1_net_total_return | v1_cost_0_total_return | v1_annualized_return | v1_cost_0_annualized_return | v1_max_drawdown | v1_cost_0_max_drawdown | v1_trade_count | v1_cost_0_trade_count |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2010-2017 | 2010-01-04 | 2017-12-31 | 0.09401472235486108 | 0.10111100738801637 | 0.013174613461145235 | 0.014129268394949213 | -0.11120123654025105 | -0.10825712142713284 | 10 | 10 |
-| 2018-2026 | 2018-01-01 | 2026-05-04 | 1.061524791980136 | 1.1495201732653597 | 0.09324282198844225 | 0.09888836906109977 | -0.3336818664706047 | -0.3249118089570776 | 65 | 65 |
+| 2018-2026 | 2018-01-01 | 2026-05-04 | 0.8497028244254743 | 0.9222485686425406 | 0.07873377270582815 | 0.08385979786348652 | -0.3336818664706047 | -0.3249118089570776 | 60 | 60 |
 
 ## Verdict Summary
 
 | hypothesis | description | value | threshold | verdict | passes |
 | --- | --- | --- | --- | --- | --- |
-| full_sharpe_band | D012 pre-registered OOS Sharpe band applied to this isolated D009 trading window | 0.4144010855755797 | 0.3 | STRONG | True |
+| full_sharpe_band | D012 pre-registered OOS Sharpe band applied to this isolated D009 trading window | 0.36524689410364136 | 0.3 | ACCEPTABLE | True |

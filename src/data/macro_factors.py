@@ -24,6 +24,7 @@ US_AFTER_CLOSE = "us_after_close"
 KOREA_SAME_DAY = "korea_same_day"
 US_MONTHLY_AFTER_MONTH_END_LAG = "us_monthly_after_month_end_lag"
 KOREA_MONTHLY_AFTER_MONTH_END_LAG = "korea_monthly_after_month_end_lag"
+OECD_CLI_AFTER_MONTH_END_LAG = "oecd_cli_after_month_end_lag"
 
 
 FRED_SERIES: tuple[FredSeriesSpec, ...] = (
@@ -220,7 +221,7 @@ FRED_SERIES: tuple[FredSeriesSpec, ...] = (
         name="kr_cli",
         fred_series="KORLOLITOAASTSAM",
         filename="fred_kr_cli.csv",
-        timing=KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        timing=OECD_CLI_AFTER_MONTH_END_LAG,
         frequency="monthly",
         transform="level",
         description="OECD Composite Leading Indicator, amplitude adjusted, Korea",
@@ -317,7 +318,11 @@ def _align_one_series(
         targets["lookup_date"] = targets["signal_date"] - pd.Timedelta(days=1)
     elif spec.timing == KOREA_SAME_DAY:
         targets["lookup_date"] = targets["signal_date"]
-    elif spec.timing in (US_MONTHLY_AFTER_MONTH_END_LAG, KOREA_MONTHLY_AFTER_MONTH_END_LAG):
+    elif spec.timing in (
+        US_MONTHLY_AFTER_MONTH_END_LAG,
+        KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        OECD_CLI_AFTER_MONTH_END_LAG,
+    ):
         targets["lookup_date"] = targets["signal_date"]
     else:
         raise ValueError(f"Unsupported timing policy for {spec.name}: {spec.timing}")
@@ -325,9 +330,18 @@ def _align_one_series(
 
     source = raw.rename(columns={"observation_date": "source_observation_date"})
     source["source_observation_date"] = source["source_observation_date"].astype("datetime64[ns]")
-    if spec.timing in (US_MONTHLY_AFTER_MONTH_END_LAG, KOREA_MONTHLY_AFTER_MONTH_END_LAG):
+    if spec.timing in (
+        US_MONTHLY_AFTER_MONTH_END_LAG,
+        KOREA_MONTHLY_AFTER_MONTH_END_LAG,
+        OECD_CLI_AFTER_MONTH_END_LAG,
+    ):
+        lag_days = 75 if spec.timing == OECD_CLI_AFTER_MONTH_END_LAG else 14
+        # OECD Korea CLI is published with roughly a two-month delay
+        # (for example, January observations around late March), so use a
+        # conservative month-end +75 calendar-day availability rule. Other
+        # monthly series keep the pre-registered month-end +14 day lag.
         source["availability_date"] = (
-            source["source_observation_date"] + pd.offsets.MonthEnd(0) + pd.Timedelta(days=14)
+            source["source_observation_date"] + pd.offsets.MonthEnd(0) + pd.Timedelta(days=lag_days)
         ).astype("datetime64[ns]")
         right_on = "availability_date"
     else:
