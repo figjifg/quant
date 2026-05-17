@@ -1,0 +1,22 @@
+scope,hypothesis,description,value,threshold,passes,verdict,window
+grid,H7,Pre-registered count of windows with Sharpe >= 0.40,4.0,3 of 5 for plateau; 4 of 5 for strong plateau,True,STRONG PLATEAU,
+window,H1,60-month D006 reproduces D001 Sharpe 0.4842,0.3163979756328085,0.4842,,,36.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.3163979756328085,0.4,False,,36.0
+window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,False,,36.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.3114754098360656,,,,36.0
+window,H1,60-month D006 reproduces D001 Sharpe 0.4842,0.4687319570751616,0.4842,,,48.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.4687319570751616,0.4,True,,48.0
+window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,False,,48.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.26229508196721313,,,,48.0
+window,H1,60-month D006 reproduces D001 Sharpe 0.4842,0.48422119520674023,0.4842,True,,60.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.48422119520674023,0.4,True,,60.0
+window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True,,60.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.22950819672131148,,,,60.0
+window,H1,60-month D006 reproduces D001 Sharpe 0.4842,0.4756713625654831,0.4842,,,72.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.4756713625654831,0.4,True,,72.0
+window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True,,72.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.21311475409836064,,,,72.0
+window,H1,60-month D006 reproduces D001 Sharpe 0.4842,0.4783455711739302,0.4842,,,84.0
+window,H7,Window Sharpe is at least 0.40 for plateau count,0.4783455711739302,0.4,True,,84.0
+window,H8,2010-2014 warmup-artifact trade count and return diagnostic,0.0,>0 for 36mo/48mo,True,,84.0
+window,H9,"ON share, max DD, and composite distribution are descriptive checks",0.18032786885245902,,,,84.0
