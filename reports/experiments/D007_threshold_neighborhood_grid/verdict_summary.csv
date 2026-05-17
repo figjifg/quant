@@ -1,0 +1,17 @@
+scope,hypothesis,description,value,threshold,passes,verdict,threshold_value
+grid,H7,Pre-registered count of thresholds with Sharpe >= 0.40,2.0,3 of 5 for plateau; 4 of 5 for strong plateau,False,MARGINAL,
+threshold,H1,Threshold 0.0 reproduces D001 Sharpe 0.4842,0.34651678156753457,-0.2,,,0.4842
+threshold,H7,Threshold Sharpe is at least 0.40 for plateau count,0.34651678156753457,-0.2,False,,0.4
+threshold,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.29508196721311475,-0.2,,,
+threshold,H1,Threshold 0.0 reproduces D001 Sharpe 0.4842,0.3699827913567774,-0.1,,,0.4842
+threshold,H7,Threshold Sharpe is at least 0.40 for plateau count,0.3699827913567774,-0.1,False,,0.4
+threshold,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.2459016393442623,-0.1,,,
+threshold,H1,Threshold 0.0 reproduces D001 Sharpe 0.4842,0.48422119520674023,0.0,True,,0.4842
+threshold,H7,Threshold Sharpe is at least 0.40 for plateau count,0.48422119520674023,0.0,True,,0.4
+threshold,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.22950819672131148,0.0,,,
+threshold,H1,Threshold 0.0 reproduces D001 Sharpe 0.4842,0.4704346395631132,0.1,,,0.4842
+threshold,H7,Threshold Sharpe is at least 0.40 for plateau count,0.4704346395631132,0.1,True,,0.4
+threshold,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.19672131147540983,0.1,,,
+threshold,H1,Threshold 0.0 reproduces D001 Sharpe 0.4842,0.28286169332397637,0.2,,,0.4842
+threshold,H7,Threshold Sharpe is at least 0.40 for plateau count,0.28286169332397637,0.2,False,,0.4
+threshold,H8,"ON share, trade count, max DD, and subperiod returns are descriptive checks",0.14754098360655737,0.2,,,
