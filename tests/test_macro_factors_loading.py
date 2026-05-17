@@ -416,6 +416,8 @@ def _write_minimal_macro_files(base: Path) -> None:
         "DGS10": [4.5, 4.6],
         "DEXCHUS": [7.2, 7.3],
         "BAA10Y": [2.0, 2.1],
+        "DFII10": [1.5, 1.6],
+        "T10YIE": [2.3, 2.4],
         "DGS3MO": [5.0, 5.1],
         "DCOILBRENTEU": [80.0, 81.0],
         "PCOPPUSDM": [9000.0, 9100.0],

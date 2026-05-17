@@ -1227,6 +1227,8 @@ def _write_macro_files(base: Path, *, periods: int) -> None:
         "DGS10": [4.5] * periods,
         "DEXCHUS": [7.2] * periods,
         "BAA10Y": [2.0] * periods,
+        "DFII10": [1.5] * periods,
+        "T10YIE": [2.3] * periods,
         "DGS3MO": [5.0] * periods,
         "DCOILBRENTEU": [100.0 - index for index in range(periods)],
         "PCOPPUSDM": [9000.0 + index for index in range(periods)],

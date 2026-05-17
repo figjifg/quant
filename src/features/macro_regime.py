@@ -362,6 +362,33 @@ JP10Y_REGIME_COLUMNS = (
     "regime_score",
     "regime_on",
 )
+D009_REGIME_COLUMNS = (
+    "signal_date",
+    "USDKRW_yoy",
+    "VIX_60d_avg",
+    "VIX_240d_avg",
+    "VIX_60d_vs_240d",
+    "DXY_yoy",
+    "US_2_10_curve_spread",
+    "Brent_yoy",
+    "BAA10Y_spread_level",
+    "US_10Y_real_level",
+    "US_breakeven_level",
+    "KR_exports_yoy",
+    "KR_CLI_value",
+    "favorable_USDKRW",
+    "favorable_VIX",
+    "favorable_DXY",
+    "favorable_US_2_10_curve",
+    "favorable_Brent",
+    "favorable_BAA10Y",
+    "favorable_US_10Y_real",
+    "favorable_US_breakeven",
+    "favorable_KR_exports",
+    "favorable_KR_CLI",
+    "regime_score",
+    "regime_on",
+)
 THREE_SIGNAL_NAMES = ("usdkrw_yoy", "vix_60d_vs_240d", "dxy_yoy")
 FOUR_SIGNAL_NAMES = (*THREE_SIGNAL_NAMES, "us_2_10_curve")
 FIVE_USDCNY_SIGNAL_NAMES = (*FOUR_SIGNAL_NAMES, "usdcny_yoy")
@@ -393,6 +420,18 @@ D003_SIGNAL_NAMES = (
     "kr_cpi_decel",
     "brent_yoy",
 )
+D009_SIGNAL_NAMES = (
+    "vix_60d_vs_240d",
+    "baa10y_spread_level",
+    "usdkrw_yoy",
+    "dxy_yoy",
+    "us_10y_real_level",
+    "us_2_10_curve",
+    "brent_yoy",
+    "us_breakeven_level",
+    "kr_cli_value",
+    "kr_exports_yoy",
+)
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
 D001_FACTOR_BLOCKS = (
     ("global_risk", (("vix_60d_vs_240d", -1),)),
@@ -418,6 +457,9 @@ D001_FACTOR_VARIABLE_COLUMNS = {
     "kr_cpi_decel": "KR_CPI_decel",
     "kr_exports_yoy": "KR_exports_yoy",
     "kr_cli_value": "KR_CLI_value",
+    "baa10y_spread_level": "BAA10Y_spread_level",
+    "us_10y_real_level": "US_10Y_real_level",
+    "us_breakeven_level": "US_breakeven_level",
 }
 DEFAULT_FACTOR_Z_SCORE_WINDOW_MONTHS = 60
 SIGNAL_VARIANTS = {
@@ -810,6 +852,33 @@ SIGNAL_VARIANTS = {
             "regime_on",
         ),
     ),
+    D009_SIGNAL_NAMES: (
+        [
+            "VIX_60d_vs_240d",
+            "BAA10Y_spread_level",
+            "USDKRW_yoy",
+            "DXY_yoy",
+            "US_10Y_real_level",
+            "US_2_10_curve_spread",
+            "Brent_yoy",
+            "US_breakeven_level",
+            "KR_CLI_value",
+            "KR_exports_yoy",
+        ],
+        [
+            "favorable_VIX",
+            "favorable_BAA10Y",
+            "favorable_USDKRW",
+            "favorable_DXY",
+            "favorable_US_10Y_real",
+            "favorable_US_2_10_curve",
+            "favorable_Brent",
+            "favorable_US_breakeven",
+            "favorable_KR_CLI",
+            "favorable_KR_exports",
+        ],
+        D009_REGIME_COLUMNS,
+    ),
 }
 
 
@@ -864,6 +933,9 @@ def build_macro_regime_daily(
     dgs10 = pd.to_numeric(aligned["dgs10"], errors="coerce").ffill(limit=5)
     dgs3mo = pd.to_numeric(aligned["dgs3mo"], errors="coerce").ffill(limit=5)
     usdcny = pd.to_numeric(aligned["dexchus_usdcny"], errors="coerce").ffill(limit=5)
+    baa10y = pd.to_numeric(aligned["baa10y_spread"], errors="coerce").ffill(limit=5)
+    us_10y_real = pd.to_numeric(aligned["us_10y_real"], errors="coerce").ffill(limit=5)
+    us_breakeven = pd.to_numeric(aligned["us_breakeven_10y"], errors="coerce").ffill(limit=5)
     brent = pd.to_numeric(aligned["brent"], errors="coerce").ffill(limit=5)
     copper = pd.to_numeric(aligned["copper"], errors="coerce").ffill()
     kr10y = pd.to_numeric(aligned["kr10y"], errors="coerce").ffill()
@@ -875,12 +947,16 @@ def build_macro_regime_daily(
     result["USDKRW_yoy"] = usdkrw / usdkrw.shift(yoy_lookback) - 1.0
     result["VIX_60d_avg"] = vix.rolling(vix_short_window, min_periods=vix_short_window).mean()
     result["VIX_240d_avg"] = vix.rolling(vix_long_window, min_periods=vix_long_window).mean()
+    result["VIX_60d_vs_240d"] = result["VIX_60d_avg"] / result["VIX_240d_avg"]
     result["DXY_yoy"] = dxy / dxy.shift(yoy_lookback) - 1.0
     result["USDJPY_yoy"] = usdjpy / usdjpy.shift(yoy_lookback) - 1.0
     result["US_2_10_curve_spread"] = dgs10 - dgs2
     result["US10Y_yoy_change"] = dgs10 - dgs10.shift(yoy_lookback)
     result["US3M_yoy_change"] = dgs3mo - dgs3mo.shift(yoy_lookback)
     result["USDCNY_yoy"] = usdcny / usdcny.shift(yoy_lookback) - 1.0
+    result["BAA10Y_spread_level"] = baa10y
+    result["US_10Y_real_level"] = us_10y_real
+    result["US_breakeven_level"] = us_breakeven
     result["Brent_yoy"] = brent / brent.shift(yoy_lookback) - 1.0
     result["Copper_yoy"] = copper / copper.shift(yoy_lookback) - 1.0
     result["KR10Y_yoy_change"] = _monthly_level_change(aligned, "kr10y", months=12)
@@ -905,6 +981,9 @@ def build_macro_regime_daily(
     result["favorable_USDJPY"] = result["USDJPY_yoy"].ge(0.0)
     result["favorable_US_2_10_curve"] = result["US_2_10_curve_spread"].gt(0.0)
     result["favorable_USDCNY"] = result["USDCNY_yoy"].le(0.0)
+    result["favorable_BAA10Y"] = result["BAA10Y_spread_level"].le(0.0)
+    result["favorable_US_10Y_real"] = result["US_10Y_real_level"].le(0.0)
+    result["favorable_US_breakeven"] = result["US_breakeven_level"].le(0.0)
     result["favorable_Brent"] = result["Brent_yoy"].le(0.0)
     result["favorable_Copper"] = result["Copper_yoy"].gt(0.0)
     result["favorable_KR10Y"] = result["KR10Y_yoy_change"].le(0.0)
