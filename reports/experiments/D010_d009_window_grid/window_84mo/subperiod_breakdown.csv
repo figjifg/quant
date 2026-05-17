@@ -1,0 +1,3 @@
+period,start,end,v1_net_total_return,v1_cost_0_total_return,v1_annualized_return,v1_cost_0_annualized_return,v1_max_drawdown,v1_cost_0_max_drawdown,v1_trade_count,v1_cost_0_trade_count
+2010-2017,2010-01-04,2017-12-31,0.0,0.0,0.0,0.0,0.0,0.0,0,0
+2018-2026,2018-01-01,2026-05-04,1.2940096492430464,1.3777042738173986,0.1077332915748479,0.11263558665204831,-0.34232184209223526,-0.3292315947597916,55,55
