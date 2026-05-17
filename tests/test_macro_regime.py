@@ -570,6 +570,21 @@ def test_factor_aggregation_composite_z_score_signs_and_blocks() -> None:
     assert row["regime_on"] == False
 
 
+def test_factor_aggregation_composite_accepts_24_month_window() -> None:
+    dates = pd.date_range("2020-01-31", periods=60, freq="ME")
+    regime = _factor_regime_frame(dates, base=1.0)
+
+    result_24 = factor_aggregation_composite(regime, z_score_window_months=24)
+    result_60 = factor_aggregation_composite(regime, z_score_window_months=60)
+
+    expected_z_24 = (24.0 - 12.5) / pd.Series(range(1, 25), dtype="float64").std(ddof=0)
+    assert pd.isna(result_24.loc[22, "composite"])
+    assert not pd.isna(result_24.loc[23, "composite"])
+    assert result_24.loc[23, "usdkrw_yoy_z"] == pytest.approx(expected_z_24)
+    assert pd.isna(result_60.loc[23, "composite"])
+    assert result_24.loc[59, "composite"] != pytest.approx(result_60.loc[59, "composite"])
+
+
 def test_factor_aggregation_composite_zero_std_is_neutral_and_nan_off() -> None:
     dates = pd.date_range("2020-01-31", periods=60, freq="ME")
     regime = _factor_regime_frame(dates, base=1.0)

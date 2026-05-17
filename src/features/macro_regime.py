@@ -367,6 +367,7 @@ D001_FACTOR_VARIABLE_COLUMNS = {
     "us_cpi_decel": "US_CPI_decel",
     "us_ppi_decel": "US_PPI_decel",
 }
+DEFAULT_FACTOR_Z_SCORE_WINDOW_MONTHS = 60
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
         ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy"],
@@ -798,7 +799,7 @@ def monthly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:
 def factor_aggregation_composite(
     regime: pd.DataFrame,
     *,
-    z_score_window_months: int = 60,
+    z_score_window_months: int = DEFAULT_FACTOR_Z_SCORE_WINDOW_MONTHS,
     on_threshold: float = 0.0,
     blocks: tuple[tuple[str, tuple[tuple[str, int], ...]], ...] = D001_FACTOR_BLOCKS,
 ) -> pd.DataFrame:
