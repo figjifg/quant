@@ -931,6 +931,16 @@ def factor_aggregation_composite(
     return output
 
 
+def exposure_scalar(composite: object, *, k: float = 1.0) -> float:
+    """D004 fixed linear composite-magnitude exposure scalar."""
+    if k != 1.0:
+        raise ValueError("D004 exposure sizing requires fixed k=1.0.")
+    value = pd.to_numeric(pd.Series([composite]), errors="coerce").iloc[0]
+    if pd.isna(value) or float(value) <= 0.0:
+        return 0.0
+    return float(min(float(value), k) / k)
+
+
 def quarterly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:
     """Select the last available KRX trading date in completed calendar quarters."""
     _require_columns(daily_regime, ("signal_date",), "daily_regime")
