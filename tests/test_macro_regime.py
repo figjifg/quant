@@ -6,7 +6,12 @@ import pandas as pd
 import pytest
 
 from src.data.macro_factors import FRED_SERIES
-from src.features.macro_regime import build_macro_regime_daily, monthly_regime_log, quarterly_regime_log
+from src.features.macro_regime import (
+    build_macro_regime_daily,
+    factor_aggregation_composite,
+    monthly_regime_log,
+    quarterly_regime_log,
+)
 
 
 def test_macro_regime_uses_only_available_us_observations(tmp_path: Path) -> None:
@@ -545,6 +550,73 @@ def test_macro_regime_us_ppi_unfavorable_when_inflation_accelerates(tmp_path: Pa
     assert row["favorable_US_PPI"] == False
 
 
+def test_factor_aggregation_composite_z_score_signs_and_blocks() -> None:
+    dates = pd.date_range("2020-01-31", periods=61, freq="ME")
+    regime = _factor_regime_frame(dates, base=1.0)
+
+    result = factor_aggregation_composite(regime, z_score_window_months=60)
+
+    warmup = result.iloc[58]
+    row = result.iloc[59]
+    expected_z = (60.0 - 30.5) / pd.Series(range(1, 61), dtype="float64").std(ddof=0)
+    assert pd.isna(warmup["composite"])
+    assert warmup["regime_on"] == False
+    assert row["usdkrw_yoy_z"] == pytest.approx(expected_z)
+    assert row["usdkrw_yoy_fav_score"] == pytest.approx(-expected_z)
+    assert row["us_2_10_curve_fav_score"] == pytest.approx(expected_z)
+    assert row["block_usd_fx_score"] == pytest.approx((-expected_z + -expected_z) / 2.0)
+    assert row["block_inflation_score"] == pytest.approx((-expected_z + -expected_z) / 2.0)
+    assert row["composite"] == pytest.approx((-5.0 * expected_z + expected_z) / 6.0)
+    assert row["regime_on"] == False
+
+
+def test_factor_aggregation_composite_zero_std_is_neutral_and_nan_off() -> None:
+    dates = pd.date_range("2020-01-31", periods=60, freq="ME")
+    regime = _factor_regime_frame(dates, base=1.0)
+    for column in (
+        "USDKRW_yoy",
+        "DXY_yoy",
+        "US_2_10_curve_spread",
+        "Brent_yoy",
+        "KR10Y_yoy_change",
+        "US_CPI_decel",
+        "US_PPI_decel",
+    ):
+        regime[column] = 1.0
+    regime["VIX_60d_avg"] = 10.0
+    regime["VIX_240d_avg"] = 10.0
+
+    result = factor_aggregation_composite(regime, z_score_window_months=60)
+
+    row = result.iloc[-1]
+    assert row["composite"] == pytest.approx(0.0)
+    assert row["regime_on"] == True
+
+
+def test_factor_aggregation_composite_uses_no_future_rows() -> None:
+    dates = pd.date_range("2020-01-31", periods=61, freq="ME")
+    before = _factor_regime_frame(dates, base=1.0)
+    after = before.copy()
+    signal_columns = [
+        "USDKRW_yoy",
+        "DXY_yoy",
+        "US_2_10_curve_spread",
+        "Brent_yoy",
+        "KR10Y_yoy_change",
+        "US_CPI_decel",
+        "US_PPI_decel",
+        "VIX_60d_avg",
+    ]
+    after.loc[60, signal_columns] = 9999.0
+
+    before_result = factor_aggregation_composite(before, z_score_window_months=60)
+    after_result = factor_aggregation_composite(after, z_score_window_months=60)
+
+    columns = [column for column in before_result.columns if column.endswith("_z") or column.startswith("block_")]
+    columns.append("composite")
+    pd.testing.assert_series_equal(before_result.loc[59, columns], after_result.loc[59, columns])
+
+
 def test_macro_regime_us_m2_yoy_uses_monthly_value_without_lookahead(tmp_path: Path) -> None:
     _write_macro_files(tmp_path, periods=420)
     us_m2 = pd.DataFrame(
@@ -1072,6 +1144,24 @@ def test_quarterly_regime_log_selects_last_trading_day_each_quarter() -> None:
         pd.Timestamp("2025-06-30"),
     ]
     assert quarterly["regime_score"].tolist() == [2, 0]
+
+
+def _factor_regime_frame(dates: pd.DatetimeIndex, *, base: float) -> pd.DataFrame:
+    values = [base + index for index in range(len(dates))]
+    return pd.DataFrame(
+        {
+            "signal_date": dates,
+            "USDKRW_yoy": values,
+            "VIX_60d_avg": values,
+            "VIX_240d_avg": [1.0] * len(dates),
+            "DXY_yoy": values,
+            "US_2_10_curve_spread": values,
+            "Brent_yoy": values,
+            "KR10Y_yoy_change": values,
+            "US_CPI_decel": values,
+            "US_PPI_decel": values,
+        }
+    )
 
 
 def _write_macro_files(base: Path, *, periods: int) -> None:

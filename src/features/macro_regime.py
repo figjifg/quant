@@ -349,6 +349,24 @@ NINE_US_M2_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "us_m2_yoy")
 NINE_USDJPY_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "usdjpy_yoy")
 NINE_JP10Y_SIGNAL_NAMES = (*EIGHT_PPI_SIGNAL_NAMES, "jp10y_yoy_change")
 FIVE_SIGNAL_NAMES = FIVE_USDCNY_SIGNAL_NAMES
+D001_FACTOR_BLOCKS = (
+    ("global_risk", (("vix_60d_vs_240d", -1),)),
+    ("usd_fx", (("usdkrw_yoy", -1), ("dxy_yoy", -1))),
+    ("us_rates", (("us_2_10_curve", 1),)),
+    ("inflation", (("us_cpi_decel", -1), ("us_ppi_decel", -1))),
+    ("commodity", (("brent_yoy", -1),)),
+    ("korea", (("kr10y_yoy_change", -1),)),
+)
+D001_FACTOR_VARIABLE_COLUMNS = {
+    "usdkrw_yoy": "USDKRW_yoy",
+    "vix_60d_vs_240d": "VIX_60d_vs_240d",
+    "dxy_yoy": "DXY_yoy",
+    "us_2_10_curve": "US_2_10_curve_spread",
+    "brent_yoy": "Brent_yoy",
+    "kr10y_yoy_change": "KR10Y_yoy_change",
+    "us_cpi_decel": "US_CPI_decel",
+    "us_ppi_decel": "US_PPI_decel",
+}
 SIGNAL_VARIANTS = {
     THREE_SIGNAL_NAMES: (
         ["USDKRW_yoy", "VIX_60d_avg", "VIX_240d_avg", "DXY_yoy"],
@@ -775,6 +793,56 @@ def monthly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:
     data = data.sort_values("signal_date").reset_index(drop=True)
     month_key = data["signal_date"].dt.to_period("M")
     return data.loc[data.groupby(month_key)["signal_date"].idxmax()].reset_index(drop=True)
+
+
+def factor_aggregation_composite(
+    regime: pd.DataFrame,
+    *,
+    z_score_window_months: int = 60,
+    on_threshold: float = 0.0,
+    blocks: tuple[tuple[str, tuple[tuple[str, int], ...]], ...] = D001_FACTOR_BLOCKS,
+) -> pd.DataFrame:
+    """Add D001 factor-block z-score aggregation beside count-favorable regimes."""
+    if z_score_window_months <= 0:
+        raise ValueError("z_score_window_months must be positive.")
+    _require_columns(regime, ("signal_date",), "regime")
+    output = regime.copy()
+    output["signal_date"] = pd.to_datetime(output["signal_date"], errors="raise").dt.normalize()
+    output = output.sort_values("signal_date").reset_index(drop=True)
+
+    if "VIX_60d_vs_240d" not in output.columns:
+        _require_columns(output, ("VIX_60d_avg", "VIX_240d_avg"), "regime")
+        vix_long = pd.to_numeric(output["VIX_240d_avg"], errors="coerce")
+        output["VIX_60d_vs_240d"] = pd.to_numeric(output["VIX_60d_avg"], errors="coerce") / vix_long
+
+    block_columns: list[str] = []
+    for block_name, variables in blocks:
+        fav_columns: list[str] = []
+        for variable_name, sign in variables:
+            if sign not in (-1, 1):
+                raise ValueError(f"Factor sign for {variable_name!r} must be -1 or 1.")
+            raw_column = D001_FACTOR_VARIABLE_COLUMNS.get(variable_name, variable_name)
+            _require_columns(output, (raw_column,), "regime")
+            values = pd.to_numeric(output[raw_column], errors="coerce")
+            rolling = values.rolling(z_score_window_months, min_periods=z_score_window_months)
+            mean = rolling.mean()
+            std = rolling.std(ddof=0)
+            z_column = f"{variable_name}_z"
+            fav_column = f"{variable_name}_fav_score"
+            z = (values - mean) / std
+            z = z.mask(std.eq(0.0), 0.0)
+            output[z_column] = z
+            output[fav_column] = z * float(sign)
+            fav_columns.append(fav_column)
+
+        block_column = f"block_{block_name}_score"
+        output[block_column] = output[fav_columns].mean(axis=1, skipna=False)
+        block_columns.append(block_column)
+
+    output["composite"] = output[block_columns].mean(axis=1, skipna=False)
+    output["regime_on"] = output["composite"].ge(on_threshold).fillna(False).astype(bool)
+    output["regime_score"] = output["composite"]
+    return output
 
 
 def quarterly_regime_log(daily_regime: pd.DataFrame) -> pd.DataFrame:

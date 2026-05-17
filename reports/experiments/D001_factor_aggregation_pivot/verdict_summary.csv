@@ -1,0 +1,10 @@
+hypothesis,description,value,threshold,passes
+H1,V1 cumulative net total return > 0,1.2906841868750734,0.0,True
+H2,V1 cumulative net >= V2 cumulative net - 30pp,-18.804493439574255,-0.3,False
+H3,"V1 positive in at least 2 of 2010, 2025, 2026",1.0,2.0,False
+H4,V1 max drawdown improves on V2 by at least 5pp,0.10811881078800467,-0.05,False
+H5,V1 positive in >= 8 of 16 years,4.0,8.0,False
+H6,V1 net / V1 cost-0 >= 0.7,0.9238015716320866,0.7,True
+H7,D001 cumulative net improves on C014 v11 by >= 5pp,0.17707903177689,0.05,True
+H8,D001 V1 subperiod cumulative net is >= 0 in both 2010-2017 and 2018-2026,0.0,0.0,True
+H9,Regime ON share and composite/block distributions are descriptive checks,0.22950819672131148,,
