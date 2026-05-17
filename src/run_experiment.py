@@ -21,6 +21,7 @@ from src.features.market_gate import build_kospi_proxy_close_series, build_marke
 from src.features.relative_flow import cross_sectional_std_diagnostic
 from src.data.kospi_proxy import load_kospi_proxy
 from src.features.macro_regime import (
+    D003_SIGNAL_NAMES,
     EIGHT_PPI_SIGNAL_NAMES,
     build_macro_regime_daily,
     factor_aggregation_composite,
@@ -79,6 +80,7 @@ from src.strategies.c019_quarterly_macro_v16 import VARIANTS as C019_VARIANTS, r
 from src.strategies.c020_quarterly_macro_v17 import VARIANTS as C020_VARIANTS, run_c020_variants
 from src.strategies.d001_factor_aggregation import VARIANTS as D001_VARIANTS, run_d001_variants
 from src.strategies.d002_zscore_24mo import VARIANTS as D002_VARIANTS, run_d002_variants
+from src.strategies.d003_block_expansion import VARIANTS as D003_VARIANTS, run_d003_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -340,14 +342,17 @@ EXPECTED_D001_CONFIG_KEYS = (
     "output_dir",
 )
 EXPECTED_D002_CONFIG_KEYS = EXPECTED_D001_CONFIG_KEYS
+EXPECTED_D003_CONFIG_KEYS = EXPECTED_D001_CONFIG_KEYS
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
 EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
 EXPECTED_B011_SELECTION_KEYS = ("type", "n")
 EXPECTED_C003_REGIME_KEYS = ("macro_signals", "composite_rule", "on_threshold")
 EXPECTED_D001_REGIME_KEYS = ("aggregation", "z_score_window_months", "on_threshold", "blocks")
 EXPECTED_D002_REGIME_KEYS = EXPECTED_D001_REGIME_KEYS
+EXPECTED_D003_REGIME_KEYS = EXPECTED_D001_REGIME_KEYS
 EXPECTED_D001_STRATEGY_KEYS = ("lookback", "max_positions")
 EXPECTED_D002_STRATEGY_KEYS = EXPECTED_D001_STRATEGY_KEYS
+EXPECTED_D003_STRATEGY_KEYS = EXPECTED_D001_STRATEGY_KEYS
 EXPECTED_C003_REBALANCE_KEYS = ("frequency", "anchor")
 EXPECTED_PERIOD_KEYS = ("is", "oos")
 EXPECTED_SPLIT_KEYS = ("start", "end")
@@ -483,6 +488,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "D002":
         _validate_d002_config_shape(config)
         run_d002_experiment(config, config_path)
+    elif experiment_id == "D003":
+        _validate_d003_config_shape(config)
+        run_d003_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -3191,6 +3199,65 @@ def run_d002_experiment(config: dict[str, Any], config_path: Path) -> None:
     subperiod_breakdown.to_csv(output_dir / "subperiod_breakdown.csv", index=False)
     verdict.to_csv(output_dir / "verdict_summary.csv", index=False)
     _write_d002_report(output_dir, config, metrics, year_breakdown, subperiod_breakdown, verdict)
+
+
+def run_d003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D003_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    runs, candidates = run_d003_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    candidate_years = _b011_candidate_years(config)
+    metrics, cost_0_result = _d003_metrics(
+        runs=runs,
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates["factor_macro_gate_mcap"],
+        quarterly_regime=quarterly_log,
+        segments=segments,
+        candidate_years=candidate_years,
+    )
+    year_breakdown = _d003_year_breakdown(runs=runs, calendar=calendar, candidate_years=candidate_years)
+    subperiod_breakdown = _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], cost_0_result, calendar)
+    verdict = _d003_verdict_summary(metrics)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), output_dir / "signals.csv")
+    _d003_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    year_breakdown.to_csv(output_dir / "quarterly_year_breakdown.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    subperiod_breakdown.to_csv(output_dir / "subperiod_breakdown.csv", index=False)
+    verdict.to_csv(output_dir / "verdict_summary.csv", index=False)
+    _write_d003_report(output_dir, config, metrics, year_breakdown, subperiod_breakdown, verdict)
 
 
 def _build_common_inputs(
@@ -7756,6 +7823,170 @@ def _d002_verdict_summary(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
     return pd.concat([base, h7_h9], ignore_index=True)
 
 
+def _d003_metrics(
+    *,
+    runs: dict[str, BacktestResult],
+    panel: pd.DataFrame,
+    calendar: object,
+    candidates: pd.DataFrame,
+    quarterly_regime: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidate_years: tuple[int, ...],
+) -> tuple[dict[str, dict[str, Any]], BacktestResult]:
+    metrics: dict[str, dict[str, Any]] = {}
+    for variant in D003_VARIANTS:
+        block = dict(compute_metrics(runs[variant].equity_curve, runs[variant].trades, calendar))
+        yearly_returns = _b011_year_returns(runs[variant], calendar, candidate_years)
+        block["cumulative_net_total_return"] = block["total_return"]
+        block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+        block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+        metrics[variant] = block
+
+    zero_result = run_quarterly_mcap_backtest(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates,
+        costs=Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0),
+        segments=segments,
+        rebalance_dates=quarterly_execution_dates(calendar, quarterly_regime, segments),
+    )
+    cost_0 = dict(compute_metrics(zero_result.equity_curve, zero_result.trades, calendar))
+    cost_0["cumulative_net_total_return"] = cost_0["total_return"]
+    metrics["cost_0_factor_macro_gate_mcap"] = cost_0
+
+    v1 = metrics["factor_macro_gate_mcap"]
+    cost_0_return = float(cost_0["cumulative_net_total_return"])
+    v1_return = float(v1["cumulative_net_total_return"])
+    complete_quarters = quarterly_regime.loc[quarterly_regime["composite"].notna()]
+    block_columns = [column for column in quarterly_regime.columns if column.startswith("block_") and column.endswith("_score")]
+
+    v1["cost_0_cumulative_net_total_return"] = cost_0_return
+    v1["net_to_cost_0_ratio"] = v1_return / cost_0_return if cost_0_return != 0.0 else float("nan")
+    v1["regime_on_share"] = float(quarterly_regime["regime_on"].mean()) if not quarterly_regime.empty else float("nan")
+    v1["regime_on_share_complete_quarters"] = (
+        float(complete_quarters["regime_on"].mean()) if not complete_quarters.empty else float("nan")
+    )
+    v1["d001_cumulative_net_total_return"] = D001_CUMULATIVE_NET
+    v1["d001_cost_0_cumulative_net_total_return"] = D001_COST_0_CUMULATIVE_NET
+    v1["d003_minus_d001_cumulative_net_pp"] = v1_return - D001_CUMULATIVE_NET
+    v1["d003_minus_d001_cost_0_cumulative_net_pp"] = cost_0_return - D001_COST_0_CUMULATIVE_NET
+    v1["c014_v11_cumulative_net_total_return"] = C014_QUARTERLY_CUMULATIVE_NET
+    v1["c014_v11_cost_0_cumulative_net_total_return"] = C014_QUARTERLY_COST_0_CUMULATIVE_NET
+    v1["d003_minus_c014_v11_cumulative_net_pp"] = v1_return - C014_QUARTERLY_CUMULATIVE_NET
+    v1["d003_minus_c014_v11_cost_0_cumulative_net_pp"] = cost_0_return - C014_QUARTERLY_COST_0_CUMULATIVE_NET
+    v1["composite_mean"] = float(complete_quarters["composite"].mean()) if not complete_quarters.empty else float("nan")
+    v1["composite_std"] = float(complete_quarters["composite"].std(ddof=0)) if not complete_quarters.empty else float("nan")
+    v1["composite_positive_share"] = (
+        float(complete_quarters["composite"].ge(0.0).mean()) if not complete_quarters.empty else float("nan")
+    )
+    for column in block_columns:
+        metric_name = column.removeprefix("block_").removesuffix("_score") + "_avg_score"
+        v1[metric_name] = float(complete_quarters[column].mean()) if not complete_quarters.empty else float("nan")
+
+    for block_name, columns in {
+        "usd_fx": ("usdkrw_yoy_fav_score", "dxy_yoy_fav_score", "usdcny_yoy_fav_score"),
+        "rates": (
+            "us_2_10_curve_fav_score",
+            "kr10y_yoy_change_fav_score",
+            "kr3m_yoy_change_fav_score",
+            "jp10y_yoy_change_fav_score",
+        ),
+        "inflation": ("us_cpi_decel_fav_score", "us_ppi_decel_fav_score", "kr_cpi_decel_fav_score"),
+    }.items():
+        v1[f"{block_name}_within_block_avg_std"] = (
+            float(complete_quarters.loc[:, list(columns)].std(axis=1, ddof=0).mean())
+            if not complete_quarters.empty
+            else float("nan")
+        )
+
+    d001_trades = _read_reference_trades(D001_OUTPUT_DIR / "trades.csv")
+    d003_trade_keys = _trade_key_set(runs["factor_macro_gate_mcap"].trades)
+    v1["d001_trade_overlap_jaccard"] = _jaccard(d003_trade_keys, d001_trades)
+    v1["d003_trade_count_for_overlap"] = int(len(d003_trade_keys))
+    v1["d001_trade_count_for_overlap"] = int(len(d001_trades))
+
+    trades = runs["factor_macro_gate_mcap"].trades
+    if trades.empty:
+        v1["trade_count_2010_2014"] = 0
+        v1["subperiod_2010_2017_trade_count"] = 0
+        v1["subperiod_2018_2026_trade_count"] = 0
+    else:
+        entry_dates = pd.to_datetime(trades["entry_date"], errors="raise")
+        v1["trade_count_2010_2014"] = int(entry_dates.between("2010-01-01", "2014-12-31").sum())
+        v1["subperiod_2010_2017_trade_count"] = int(entry_dates.between("2010-01-01", "2017-12-31").sum())
+        v1["subperiod_2018_2026_trade_count"] = int(entry_dates.between("2018-01-01", "2026-12-31").sum())
+
+    subperiod = _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, calendar)
+    for _, row in subperiod.iterrows():
+        prefix = str(row["period"]).replace("-", "_")
+        v1[f"subperiod_{prefix}_net_total_return"] = float(row["v1_net_total_return"])
+        v1[f"subperiod_{prefix}_cost_0_total_return"] = float(row["v1_cost_0_total_return"])
+    return metrics, zero_result
+
+
+def _d003_year_breakdown(
+    *,
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> pd.DataFrame:
+    d001_quarterly = _d001_quarterly_year_reference()
+    rows = []
+    for year in candidate_years:
+        row: dict[str, Any] = {"year": year}
+        for variant in D003_VARIANTS:
+            row[f"{variant}_net_total_return"] = _b011_year_returns(runs[variant], calendar, (year,))[year]
+        row["d001_factor_macro_gate_mcap_net_total_return"] = d001_quarterly.get(year, float("nan"))
+        row["d003_minus_d001_factor_macro_gate_mcap_return"] = (
+            row["factor_macro_gate_mcap_net_total_return"] - row["d001_factor_macro_gate_mcap_net_total_return"]
+        )
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _d003_verdict_summary(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    aliased = dict(metrics)
+    aliased["macro_gate_mcap"] = metrics["factor_macro_gate_mcap"]
+    base = _c003_verdict_summary(aliased)
+    v1 = metrics["factor_macro_gate_mcap"]
+    h7_pass = (
+        float(v1["d003_minus_d001_cumulative_net_pp"]) >= 0.0
+        or (float(v1["sharpe"]) >= 0.48 and float(v1["max_drawdown"]) >= -0.2367)
+    ) and float(v1["sharpe"]) >= 0.40
+    h7_h9 = pd.DataFrame(
+        [
+            {
+                "hypothesis": "H7",
+                "description": "D003 block expansion improves D001 net, or improves/holds risk-adjusted profile with Sharpe >= 0.40",
+                "value": float(v1["d003_minus_d001_cumulative_net_pp"]),
+                "threshold": 0.0,
+                "passes": bool(h7_pass),
+            },
+            {
+                "hypothesis": "H8",
+                "description": "D003 V1 subperiod cumulative net is >= 0 in both 2010-2017 and 2018-2026",
+                "value": min(
+                    float(v1["subperiod_2010_2017_net_total_return"]),
+                    float(v1["subperiod_2018_2026_net_total_return"]),
+                ),
+                "threshold": 0.0,
+                "passes": bool(
+                    float(v1["subperiod_2010_2017_net_total_return"]) >= 0.0
+                    and float(v1["subperiod_2018_2026_net_total_return"]) >= 0.0
+                ),
+            },
+            {
+                "hypothesis": "H9",
+                "description": "Block scores, within-block dispersion, composite distribution, ON share, and D001 overlap are descriptive checks",
+                "value": float(v1["regime_on_share"]),
+                "threshold": "",
+                "passes": pd.NA,
+            },
+        ]
+    )
+    return pd.concat([base, h7_h9], ignore_index=True)
+
+
 def _c011_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -7815,6 +8046,10 @@ def _d001_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
 
 
 def _d002_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
+    return _d001_wide_equity_curve(runs)
+
+
+def _d003_wide_equity_curve(runs: dict[str, BacktestResult]) -> pd.DataFrame:
     return _d001_wide_equity_curve(runs)
 
 
@@ -8757,6 +8992,46 @@ def _write_d002_report(
     (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
+def _write_d003_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    year_breakdown: pd.DataFrame,
+    subperiod_breakdown: pd.DataFrame,
+    verdict: pd.DataFrame,
+) -> None:
+    lines = ["# D003 Metrics Summary", ""]
+    lines.extend(
+        [
+            "## Metadata",
+            "",
+            "| key | value |",
+            "| --- | --- |",
+            f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+            f"| period_start | {config['period']['start']} |",
+            f"| period_end | {config['period']['end']} |",
+            f"| excluded_years | {json.dumps(config['period']['exclude_calendar_years'])} |",
+            "| macro_gate | Thirteen raw variables transformed to 60-month rolling z-scores, sign-adjusted, averaged by five equal-weight factor blocks; ON when composite >= 0 |",
+            "| z_score_warmup | rows with fewer than 60 monthly observations have NaN composite and regime OFF |",
+            "| rebalance | signal on last available KRX trading day of Mar/Jun/Sep/Dec; execution at next KRX open |",
+            "| selection | top 5 by signal-date market cap, equal weight when factor macro gate ON |",
+            "| baselines | V2 cap-weighted KOSPI proxy buy-and-hold; V3 cash |",
+            "| d001_reference | D001 quarterly cumulative net +129.07%; cost-0 +139.71%; 60-month z-score window |",
+            "| c014_v11_reference | C014 v11 quarterly cumulative net +111.36%; cost-0 +148.39%; yearly columns read from C014 output files |",
+            "| estimate_row_policy | headline excludes rows where 거래대금추정여부 is True; 수급금액추정여부 is not used as a filter |",
+            "| integrated_column_policy | KRX종가 preferred; 종가 only as pre-NXT fallback where absent |",
+            "| open_price_policy | 시가 treated as KRX 09:00 open per AGENTS.md Kiwoom panel verification |",
+            "| calendar_source | derived from panel non-null KRX종가 rows after excluding configured years |",
+            "",
+        ]
+    )
+    lines.extend(_d003_metric_table(metrics))
+    lines.extend(_b004_dataframe_table("Quarterly Year Breakdown", year_breakdown))
+    lines.extend(_b004_dataframe_table("Subperiod Breakdown", subperiod_breakdown))
+    lines.extend(_b004_dataframe_table("Verdict Summary", verdict))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
 def _c003_metric_table(metrics: dict[str, dict[str, Any]]) -> list[str]:
     columns = (
         "cumulative_net_total_return",
@@ -9566,6 +9841,63 @@ def _d002_metric_table(metrics: dict[str, dict[str, Any]]) -> list[str]:
         ("c014_trade_overlap_jaccard", v1["c014_trade_overlap_jaccard"]),
     ]
     lines.extend(["", "## D002 Diagnostics", "", "| metric | value |", "| --- | ---: |"])
+    for metric, value in reference_rows:
+        lines.append(f"| {metric} | {_format_report_value(value)} |")
+    lines.append("")
+    return lines
+
+
+def _d003_metric_table(metrics: dict[str, dict[str, Any]]) -> list[str]:
+    columns = (
+        "cumulative_net_total_return",
+        "max_drawdown",
+        "positive_years",
+        "annualized_return",
+        "annualized_volatility",
+        "sharpe",
+        "trade_count",
+        "cost_paid_total",
+    )
+    lines = [
+        "## Variant Metrics",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in D003_VARIANTS:
+        block = metrics[variant]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
+    v1 = metrics["factor_macro_gate_mcap"]
+    reference_rows = [
+        ("d001_cumulative_net_total_return", D001_CUMULATIVE_NET),
+        ("d001_cost_0_cumulative_net_total_return", D001_COST_0_CUMULATIVE_NET),
+        ("d003_minus_d001_cumulative_net_pp", v1["d003_minus_d001_cumulative_net_pp"]),
+        ("d003_minus_d001_cost_0_cumulative_net_pp", v1["d003_minus_d001_cost_0_cumulative_net_pp"]),
+        ("c014_v11_cumulative_net_total_return", C014_QUARTERLY_CUMULATIVE_NET),
+        ("c014_v11_cost_0_cumulative_net_total_return", C014_QUARTERLY_COST_0_CUMULATIVE_NET),
+        ("d003_minus_c014_v11_cumulative_net_pp", v1["d003_minus_c014_v11_cumulative_net_pp"]),
+        ("d003_minus_c014_v11_cost_0_cumulative_net_pp", v1["d003_minus_c014_v11_cost_0_cumulative_net_pp"]),
+        ("subperiod_2010_2017_net_total_return", v1["subperiod_2010_2017_net_total_return"]),
+        ("subperiod_2010_2017_cost_0_total_return", v1["subperiod_2010_2017_cost_0_total_return"]),
+        ("subperiod_2010_2017_trade_count", v1["subperiod_2010_2017_trade_count"]),
+        ("trade_count_2010_2014", v1["trade_count_2010_2014"]),
+        ("subperiod_2018_2026_net_total_return", v1["subperiod_2018_2026_net_total_return"]),
+        ("subperiod_2018_2026_cost_0_total_return", v1["subperiod_2018_2026_cost_0_total_return"]),
+        ("regime_on_share", v1["regime_on_share"]),
+        ("composite_mean", v1["composite_mean"]),
+        ("composite_std", v1["composite_std"]),
+        ("composite_positive_share", v1["composite_positive_share"]),
+        ("global_risk_avg_score", v1["global_risk_avg_score"]),
+        ("usd_fx_avg_score", v1["usd_fx_avg_score"]),
+        ("rates_avg_score", v1["rates_avg_score"]),
+        ("inflation_avg_score", v1["inflation_avg_score"]),
+        ("commodity_avg_score", v1["commodity_avg_score"]),
+        ("usd_fx_within_block_avg_std", v1["usd_fx_within_block_avg_std"]),
+        ("rates_within_block_avg_std", v1["rates_within_block_avg_std"]),
+        ("inflation_within_block_avg_std", v1["inflation_within_block_avg_std"]),
+        ("d001_trade_overlap_jaccard", v1["d001_trade_overlap_jaccard"]),
+    ]
+    lines.extend(["", "## D003 Diagnostics", "", "| metric | value |", "| --- | ---: |"])
     for metric, value in reference_rows:
         lines.append(f"| {metric} | {_format_report_value(value)} |")
     lines.append("")
@@ -10754,6 +11086,61 @@ def _validate_d002_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("D002 requires selection market_cap_top_n n=5.")
     if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
         raise ValueError("D002 requires quarterly last_trading_day rebalance.")
+
+
+def _validate_d003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_D003_CONFIG_KEYS:
+        raise ValueError(f"D003 config keys must be exactly {EXPECTED_D003_CONFIG_KEYS}; got {keys}.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError(f"D003 period keys must be exactly {EXPECTED_B011_PERIOD_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"D003 universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["strategy"].keys()) != EXPECTED_D003_STRATEGY_KEYS:
+        raise ValueError(f"D003 strategy keys must be exactly {EXPECTED_D003_STRATEGY_KEYS}.")
+    if tuple(config["regime"].keys()) != EXPECTED_D003_REGIME_KEYS:
+        raise ValueError(f"D003 regime keys must be exactly {EXPECTED_D003_REGIME_KEYS}.")
+    if tuple(config["selection"].keys()) != EXPECTED_B011_SELECTION_KEYS:
+        raise ValueError(f"D003 selection keys must be exactly {EXPECTED_B011_SELECTION_KEYS}.")
+    if tuple(config["rebalance"].keys()) != EXPECTED_C003_REBALANCE_KEYS:
+        raise ValueError(f"D003 rebalance keys must be exactly {EXPECTED_C003_REBALANCE_KEYS}.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"D003 costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if tuple(config["variants"]) != D003_VARIANTS:
+        raise ValueError(f"D003 variants must be exactly {list(D003_VARIANTS)}.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("D003 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("D003 requires period.exclude_calendar_years: [2016].")
+    if int(config["strategy"]["lookback"]) != 5 or int(config["strategy"]["max_positions"]) != 5:
+        raise ValueError("D003 requires strategy.lookback: 5 and max_positions: 5.")
+    if config["regime"]["aggregation"] != "factor_z_score":
+        raise ValueError("D003 requires regime.aggregation: factor_z_score.")
+    if int(config["regime"]["z_score_window_months"]) != 60:
+        raise ValueError("D003 requires regime.z_score_window_months: 60.")
+    if float(config["regime"]["on_threshold"]) != 0.0:
+        raise ValueError("D003 requires regime.on_threshold: 0.0.")
+    expected_blocks = (
+        ("global_risk", (("vix_60d_vs_240d", -1), ("usdjpy_yoy", 1))),
+        ("usd_fx", (("usdkrw_yoy", -1), ("dxy_yoy", -1), ("usdcny_yoy", -1))),
+        (
+            "rates",
+            (
+                ("us_2_10_curve", 1),
+                ("kr10y_yoy_change", -1),
+                ("kr3m_yoy_change", -1),
+                ("jp10y_yoy_change", -1),
+            ),
+        ),
+        ("inflation", (("us_cpi_decel", -1), ("us_ppi_decel", -1), ("kr_cpi_decel", -1))),
+        ("commodity", (("brent_yoy", -1),)),
+    )
+    if _d001_blocks_from_config(config["regime"]["blocks"]) != expected_blocks:
+        raise ValueError("D003 factor blocks/signs are frozen by the ticket.")
+    if config["selection"]["type"] != "market_cap_top_n" or int(config["selection"]["n"]) != 5:
+        raise ValueError("D003 requires selection market_cap_top_n n=5.")
+    if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
+        raise ValueError("D003 requires quarterly last_trading_day rebalance.")
 
 
 def _validate_common_config_shape(config: dict[str, Any], experiment_id: str) -> None:
