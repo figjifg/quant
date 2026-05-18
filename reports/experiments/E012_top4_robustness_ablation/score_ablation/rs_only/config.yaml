@@ -1,0 +1,111 @@
+experiment_id: E012
+panels:
+- research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+panel_date_filters:
+  research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv:
+    end: 2017-12-31
+market_breadth_csv: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
+macro_data_dir: research_input_data/inputs/macro_features
+sector_aggregate_csv: data/processed/sector_aggregate_daily.csv
+stock_sector_daily_csv: data/processed/stock_with_sector_daily.csv
+sector_mapping_csv: data/processed/stock_sector_mapping_20260518.csv
+period:
+  start: 2010-01-04
+  end: 2026-05-04
+  exclude_calendar_years:
+  - 2016
+universe:
+  require_dynamic_top100: true
+  min_avg_traded_value_20d: 5000000000
+  exclude_estimated_flag_rows: true
+strategy:
+  flow_by_value_window: 20
+  flow_by_mcap_window: 60
+  short_window: 20
+  long_window: 60
+  breadth_window: 20
+regime:
+  aggregation: factor_z_score
+  z_score_window_months: 60
+  on_threshold: -0.2
+  blocks:
+  - name: global_risk
+    vars:
+    - name: vix_60d_vs_240d
+      sign: -1
+    - name: baa10y_spread_level
+      sign: -1
+  - name: usd_fx
+    vars:
+    - name: usdkrw_yoy
+      sign: -1
+    - name: dxy_yoy
+      sign: -1
+  - name: us_rates
+    vars:
+    - name: us_10y_real_level
+      sign: -1
+    - name: us_2_10_curve
+      sign: 1
+  - name: inflation
+    vars:
+    - name: brent_yoy
+      sign: -1
+    - name: us_breakeven_level
+      sign: -1
+  - name: growth
+    vars:
+    - name: kr_cli_value
+      sign: 1
+    - name: kr_exports_yoy
+      sign: 1
+selection:
+  score_ablation_top_sector_stock_counts:
+  - 2
+  - 1
+  - 1
+  - 1
+  top_sector_stock_counts_grid:
+  - - 2
+    - 2
+    - 1
+  - - 2
+    - 1
+    - 1
+    - 1
+  - - 1
+    - 1
+    - 1
+    - 1
+    - 1
+  min_sector_stocks: 3
+rebalance:
+  frequency: quarterly
+  anchor: last_trading_day
+cost_scenarios:
+  base:
+    commission_bps: 1.5
+    tax_bps_sell: 20.0
+    slippage_bps: 5.0
+  2x:
+    commission_bps: 3.0
+    tax_bps_sell: 40.0
+    slippage_bps: 10.0
+  3x:
+    commission_bps: 4.5
+    tax_bps_sell: 60.0
+    slippage_bps: 15.0
+  extra_slippage:
+    commission_bps: 1.5
+    tax_bps_sell: 20.0
+    slippage_bps: 15.0
+diagnostics:
+  top_bottom_k: 3
+variants:
+- score_ablation
+- topk_grid
+- cost_stress
+output_dir: reports/experiments/E012_top4_robustness_ablation/score_ablation/rs_only
