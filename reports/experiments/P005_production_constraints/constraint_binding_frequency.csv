@@ -1,0 +1,6 @@
+constraint,binding_quarters,total_quarters,binding_frequency
+single_weight_bound,0,22,0.0
+top2_weight_bound,0,22,0.0
+liquidity_bound,0,22,0.0
+status_bound,0,22,0.0
+turnover_bound,0,22,0.0

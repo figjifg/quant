@@ -219,6 +219,13 @@ from src.strategies.p003_d013_cost_capacity import (
     multiply_costs,
     run_capacity_backtest,
 )
+from src.strategies.p005_d013_with_constraints import (
+    VARIANT as P005_VARIANT,
+    apply_p005_constraints,
+    binding_frequency,
+    constraints_from_config,
+    run_p005_variants,
+)
 from src.strategies.f002_stock_rs_d013_direct import (
     build_f002_d013_direct_score_universe,
     build_f002_stock_rs_d013_direct_candidates,
@@ -700,6 +707,23 @@ EXPECTED_P003_CONFIG_KEYS = (
     "scenarios",
     "output_dir",
 )
+EXPECTED_P005_CONFIG_KEYS = (
+    "experiment_id",
+    "carrier",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "constraints",
+    "output_dir",
+)
 EXPECTED_D014_CONFIG_KEYS = EXPECTED_D006_CONFIG_KEYS
 EXPECTED_D015_CONFIG_KEYS = EXPECTED_D008_CONFIG_KEYS
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
@@ -808,6 +832,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "P003":
         _validate_p003_config_shape(config)
         run_p003_experiment(config, config_path)
+    elif experiment_id == "P005":
+        _validate_p005_config_shape(config)
+        run_p005_experiment(config, config_path)
     elif experiment_id == "E015":
         _validate_e015_config_shape(config)
         run_e015_experiment(config, config_path)
@@ -10110,6 +10137,183 @@ def _p003_metric(summary: pd.DataFrame, group: str, scenario: str) -> float:
     if row.empty:
         return float("nan")
     return float(row["cumulative_net_total_return"].iloc[0])
+
+
+def run_p005_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    _, candidates_by_variant = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    candidates = candidates_by_variant[P005_VARIANT]
+    constrained, binding_log = apply_p005_constraints(
+        candidates=candidates,
+        panel=panel,
+        universe=universe,
+        constraints=constraints_from_config(config["constraints"]),
+        max_positions=max_positions,
+    )
+    runs = run_p005_variants(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates,
+        constrained_candidates=constrained,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+    )
+    candidate_years = _b011_candidate_years(config)
+    metrics = _p005_metrics(runs, calendar, candidate_years)
+    comparison = _p005_comparison(metrics)
+    frequency = binding_frequency(binding_log)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs[P005_VARIANT], calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(constrained), output_dir / "signals.csv")
+    _d001_wide_equity_curve(
+        {
+            "factor_macro_gate_mcap": runs[P005_VARIANT],
+            "kospi_buy_and_hold": runs["kospi_buy_and_hold"],
+            "cash": runs["cash"],
+        }
+    ).to_csv(output_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    binding_log.to_csv(output_dir / "constraint_binding_log.csv", index=False)
+    comparison.to_csv(output_dir / "comparison_with_d013.csv", index=False)
+    frequency.to_csv(output_dir / "constraint_binding_frequency.csv", index=False)
+    _write_p005_rulebook(output_dir, config)
+    _write_p005_report(output_dir, config, metrics, comparison, binding_log, frequency)
+
+
+def _p005_metrics(
+    runs: dict[str, BacktestResult],
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> dict[str, dict[str, Any]]:
+    metrics: dict[str, dict[str, Any]] = {}
+    for variant in (P005_VARIANT, "d013_baseline", "kospi_buy_and_hold", "cash"):
+        block = dict(compute_metrics(runs[variant].equity_curve, runs[variant].trades, calendar))
+        yearly_returns = _b011_year_returns(runs[variant], calendar, candidate_years)
+        block["cumulative_net_total_return"] = block["total_return"]
+        block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+        block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+        metrics[variant] = block
+    return metrics
+
+
+def _p005_comparison(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    constrained = metrics[P005_VARIANT]
+    baseline = metrics["d013_baseline"]
+    rows = []
+    for field in ("cumulative_net_total_return", "sharpe", "max_drawdown", "trade_count"):
+        constrained_value = constrained.get(field)
+        baseline_value = baseline.get(field)
+        rows.append(
+            {
+                "metric": field,
+                "p005_constrained": constrained_value,
+                "d013_baseline": baseline_value,
+                "difference": float(constrained_value) - float(baseline_value),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _write_p005_rulebook(output_dir: Path, config: dict[str, Any]) -> None:
+    constraints = config["constraints"]
+    lines = [
+        "# P005 Production Rulebook",
+        "",
+        "- Carrier: D013 unchanged.",
+        f"- Single-name cap: {constraints['max_single_weight']:.0%}.",
+        f"- Top-2 aggregate cap: {constraints['max_top2_weight']:.0%}.",
+        f"- Liquidity floor: 20-day average traded value >= {float(constraints['min_avg_traded_value_20d']):,.0f} KRW.",
+        "- Status exclusion: exclude rows flagged as trading halt, administrative issue, or delisting when panel flags exist.",
+        f"- Turnover cap: one-way quarterly turnover <= {constraints['max_quarterly_turnover']:.0%}.",
+        f"- AUM cap: {constraints['aum_cap_krw']:,.0f} KRW; defined as a production constraint only and not applied to backtest fills.",
+    ]
+    (output_dir / "production_rulebook.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _write_p005_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    comparison: pd.DataFrame,
+    binding_log: pd.DataFrame,
+    frequency: pd.DataFrame,
+) -> None:
+    lines = [
+        "# P005 D013 Production Constraints",
+        "",
+        "## Metadata",
+        "",
+        "| key | value |",
+        "| --- | --- |",
+        "| carrier | D013 unchanged: 10 variables, 5 blocks, 60-month z-score, threshold -0.2, market-cap top 5 |",
+        "| implementation_scope | strategy layer only; src/backtest/engine.py unchanged |",
+        f"| constraints | {json.dumps(config['constraints'], ensure_ascii=False)} |",
+        "",
+    ]
+    lines.extend(_p005_metric_table(metrics))
+    lines.extend(_b004_dataframe_table("D013 Comparison", comparison))
+    lines.extend(_b004_dataframe_table("Constraint Binding Frequency", frequency))
+    lines.extend(_b004_dataframe_table("Constraint Binding Log", binding_log))
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _p005_metric_table(metrics: dict[str, dict[str, Any]]) -> list[str]:
+    columns = (
+        "cumulative_net_total_return",
+        "max_drawdown",
+        "positive_years",
+        "annualized_return",
+        "annualized_volatility",
+        "sharpe",
+        "trade_count",
+        "cost_paid_total",
+    )
+    variants = (P005_VARIANT, "d013_baseline", "kospi_buy_and_hold", "cash")
+    lines = [
+        "## Variant Metrics",
+        "",
+        "| variant | " + " | ".join(columns) + " |",
+        "| --- | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for variant in variants:
+        block = metrics[variant]
+        lines.append("| " + variant + " | " + " | ".join(_format_report_value(block[column]) for column in columns) + " |")
+    lines.append("")
+    return lines
 
 
 def run_d014_experiment(config: dict[str, Any], config_path: Path) -> None:
@@ -22335,6 +22539,38 @@ def _validate_p003_config_shape(config: dict[str, Any]) -> None:
                 raise ValueError("P003 capacity adv_window must be 60.")
     else:
         raise ValueError("P003 scenario_group must be cost_stress, slippage, or capacity.")
+
+
+def _validate_p005_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_P005_CONFIG_KEYS:
+        raise ValueError(f"P005 config keys must be exactly {EXPECTED_P005_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("constraints")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("P005 carrier must be d013.")
+    expected = (
+        "max_single_weight",
+        "max_top2_weight",
+        "min_avg_traded_value_20d",
+        "max_quarterly_turnover",
+        "aum_cap_krw",
+    )
+    if tuple(config["constraints"].keys()) != expected:
+        raise ValueError(f"P005 constraints keys must be exactly {expected}.")
+    if float(config["constraints"]["max_single_weight"]) != 0.25:
+        raise ValueError("P005 max_single_weight must be 0.25.")
+    if float(config["constraints"]["max_top2_weight"]) != 0.50:
+        raise ValueError("P005 max_top2_weight must be 0.50.")
+    if float(config["constraints"]["min_avg_traded_value_20d"]) != 5_000_000_000.0:
+        raise ValueError("P005 min_avg_traded_value_20d must be 5e9.")
+    if float(config["constraints"]["max_quarterly_turnover"]) != 1.0:
+        raise ValueError("P005 max_quarterly_turnover must be 1.0.")
 
 
 def _validate_d014_config_shape(config: dict[str, Any]) -> None:
