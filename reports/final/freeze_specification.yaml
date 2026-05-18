@@ -1,23 +1,23 @@
-# Final Freeze Specification (P000)
-# Frozen 2026-05-18
+# Final Freeze Specification (P-family complete)
+# Updated 2026-05-18 after P000-P005
 
-phase: research_complete
-status: production_validation_pending
+phase: production_validation_complete
+status: paper_trading_ready
 
 layer_1_champion:
   name: D013
   type: macro_gate
   variables:
-    - vix_60d_vs_240d  # sign -1
-    - baa10y_spread_level  # sign -1
-    - usdkrw_yoy  # sign -1
-    - dxy_yoy  # sign -1
-    - us_10y_real_level  # sign -1
-    - us_2_10_curve  # sign +1
-    - brent_yoy  # sign -1
-    - us_breakeven_level  # sign -1
-    - kr_cli_value  # sign +1
-    - kr_exports_yoy  # sign +1
+    - vix_60d_vs_240d
+    - baa10y_spread_level
+    - usdkrw_yoy
+    - dxy_yoy
+    - us_10y_real_level
+    - us_2_10_curve
+    - brent_yoy
+    - us_breakeven_level
+    - kr_cli_value
+    - kr_exports_yoy
   blocks: 5
   z_score_window_months: 60
   on_threshold: -0.2
@@ -27,52 +27,42 @@ layer_1_champion:
     sharpe: 0.5334
     max_drawdown: -0.3392
 
-layer_2_prototype_champion:
-  name: E014
-  type: sector_selection
-  layer_1: D013-L1-FROZEN
-  score: RS + Breadth  # Flow 제거 (E012 ablation finding)
-  top_k: 4
-  allocation: [2, 1, 1, 1]
-  universe: dynamic_top_100
-  sector_mapping: E001-rev (KIS snapshot + KSIC fallback)
-  rebalance: quarterly
-  performance:
-    cumulative_net: 3.6211
-    sharpe: 0.6312
-    max_drawdown: -0.3564
+layer_2_status:
+  E014: INVALIDATED (PIT FAIL, demoted to backlog)
+  conclusion: snapshot bias 가 결정적, PIT 으로 D013 단독보다 못함
 
-layer_3:
-  status: null_result
-  family: F (13 ticket)
-  finding: stock-level algorithmic ranking < 시총 top 5 단순 (current setup)
-  do_not_promote: true
+layer_3_status: null_result (F-family)
+layer_4_status: null_result (G-family)
 
-layer_4_alpha_overlay:
-  status: null_result
-  family: G (3 ticket: G000 변동성, G001 MDD, G002 stress)
-  finding: slow exposure overlay 가 누적 큰 폭 깎고 MDD 개선 작음
-  do_not_promote: true
+final_carrier: D013_only
 
-final_prototype:
-  name: E014
-  status: prototype_champion
-  rating: B+ (production candidate, not deployable)
-  blockers:
-    - KIS snapshot sector mapping (PIT 미검증)
-    - 진짜 OOS 없음
-    - execution simulation 부족
-    - MDD -36%
-    - PIT 검증 전
+production_validation:
+  P001: FAIL (E014 demoted)
+  P001_5: E014 close (no fix)
+  P002_execution: 5/6 PASS (unfavorable fill 만 worst case fail)
+  P003_cost_slippage_capacity: PASS (3x/5x/10x, +20bps, AUM 1000억)
+  P004_paper_trading: protocol 완성
+  P005_constraints: byte-identical (binding 0)
 
-production_validation_roadmap:
-  P001: point_in_time_sector_membership
-  P002: execution_simulation
-  P003: cost_slippage_capacity
-  P004: paper_trading_forward_oos
-  P005: production_risk_limits
+operational_guidelines:
+  aum:
+    conservative: <= 100e8 KRW
+    expansion: 300-500e8 KRW
+    stress_limit: 1000e8 KRW (max participation 49%)
+  execution:
+    timing: 분기말 +1 거래일 시가
+    quarterly: True
+  signal_generation:
+    script: scripts/quarterly_signal_generator.py
+    output: signals/YYYY-Q.json
 
-prohibited_actions:
-  - new_alpha_search_before_p001_p005
-  - layer_3_promotion (backlog only)
-  - layer_4_alpha_overlay (backlog only)
+current_status:
+  research_phase: complete
+  validation_phase: complete
+  paper_trading: ready (start 2026-Q3 next signal)
+  live_deployment: requires 4-quarter paper trading evaluation
+
+next_steps:
+  immediate: paper trading 시작 (2026-Q3 신호)
+  4_quarters_later: paper vs backtest 평가
+  conditional_live: paper trading PASS 시 small AUM 시작
