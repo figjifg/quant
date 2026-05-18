@@ -168,6 +168,11 @@ from src.strategies.e008_topk_grid import (
     build_e008_topk_grid_candidates,
     topk_label,
 )
+from src.strategies.e009_cost_stress import (
+    SCENARIO_ORDER as E009_SCENARIO_ORDER,
+    build_e009_cost_stress_candidates,
+    validate_e009_cost_scenarios,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -247,6 +252,9 @@ EXPECTED_E005_CONFIG_KEYS = tuple(
 EXPECTED_E006_CONFIG_KEYS = EXPECTED_E005_CONFIG_KEYS
 EXPECTED_E007_CONFIG_KEYS = EXPECTED_E005_CONFIG_KEYS
 EXPECTED_E008_CONFIG_KEYS = EXPECTED_E005_CONFIG_KEYS
+EXPECTED_E009_CONFIG_KEYS = tuple(
+    "cost_scenarios" if key == "costs" else key for key in EXPECTED_E007_CONFIG_KEYS
+)
 EXPECTED_B001_CONFIG_KEYS = (
     "experiment_id",
     "panels",
@@ -609,6 +617,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "E008":
         _validate_e008_config_shape(config)
         run_e008_experiment(config, config_path)
+    elif experiment_id == "E009":
+        _validate_e009_config_shape(config)
+        run_e009_experiment(config, config_path)
     elif experiment_id == "B001":
         _validate_b001_config_shape(config)
         run_b001_experiment(config, config_path)
@@ -2754,6 +2765,183 @@ def _write_e008_report(
             "",
             f"- verdict: {_e008_robustness_verdict(grid_summary)}",
             f"- E007 K=3 exact reproduction: {bool(grid_summary.loc[grid_summary['top_k'].eq(3), 'e007_exact_reproduction'].any())}",
+            "",
+        ]
+    )
+    output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run_e009_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    sector_daily = pd.read_csv(config["sector_aggregate_csv"], encoding="utf-8-sig")
+    sector_daily = _e004_filter_sector_daily_to_period(sector_daily, config)
+    stock_daily = pd.read_csv(config["stock_sector_daily_csv"], encoding="utf-8-sig", dtype={"ticker": "string"})
+    stock_daily = _e004_filter_sector_daily_to_period(stock_daily, config)
+
+    sector_dates = rs_quarter_end_dates(sector_daily)
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    flow_scores = build_sector_flow_scores(
+        sector_daily,
+        signal_dates=sector_dates,
+        value_window=int(config["strategy"]["flow_by_value_window"]),
+        mcap_window=int(config["strategy"]["flow_by_mcap_window"]),
+        min_stocks=int(config["selection"]["min_sector_stocks"]),
+    )
+    rs_scores = build_sector_rs_scores(
+        sector_daily,
+        market_breadth,
+        signal_dates=sector_dates,
+        short_window=int(config["strategy"]["short_window"]),
+        long_window=int(config["strategy"]["long_window"]),
+        min_stocks=int(config["selection"]["min_sector_stocks"]),
+    )
+    breadth_scores = build_sector_breadth_scores(
+        stock_daily,
+        market_breadth,
+        signal_dates=sector_dates,
+        window=int(config["strategy"]["breadth_window"]),
+        min_stocks=int(config["selection"]["min_sector_stocks"]),
+    )
+    combined_scores = build_sector_combined_scores(flow_scores, rs_scores, breadth_scores)
+
+    segments = _b011_segments(config)
+    candidate_years = _b011_candidate_years(config)
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+
+    sector_mapping = pd.read_csv(config["sector_mapping_csv"], encoding="utf-8-sig", dtype={"ticker": "string"})
+    candidates = build_e009_cost_stress_candidates(
+        panel=panel,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        combined_scores=combined_scores,
+        sector_mapping=sector_mapping,
+        calendar=calendar,
+    )
+    filtered_candidates = _quarterly_execution_candidates(candidates, calendar, quarterly_log, segments)
+    rebalance_dates = quarterly_execution_dates(calendar, quarterly_log, segments)
+    zero_result = _e003_zero_cost_result(panel, calendar, filtered_candidates, quarterly_log, segments, weighted=True)
+
+    summary_rows: list[dict[str, Any]] = []
+    metrics_by_scenario: dict[str, dict[str, dict[str, Any]]] = {}
+    for scenario in E009_SCENARIO_ORDER:
+        scenario_config = dict(config)
+        scenario_config["costs"] = dict(config["cost_scenarios"][scenario])
+        scenario_config["output_dir"] = str(output_dir / scenario)
+        scenario_dir = output_dir / scenario
+        scenario_dir.mkdir(parents=True, exist_ok=True)
+        _write_json(scenario_dir / "config.yaml", scenario_config)
+
+        runs = {
+            "factor_macro_gate_mcap": run_weighted_quarterly_basket_backtest(
+                panel=panel,
+                calendar=calendar,
+                candidates=filtered_candidates,
+                costs=_costs_from_config(config["cost_scenarios"][scenario]),
+                segments=segments,
+                rebalance_dates=rebalance_dates,
+            ),
+            "kospi_buy_and_hold": build_kospi_buy_and_hold_result(market_breadth, calendar=calendar, segments=segments),
+            "cash": _run_segmented_cash(calendar=calendar, segments=segments),
+        }
+        portfolio_metrics = _e003_variant_metrics(runs, zero_result, calendar, candidate_years)
+        metrics_by_scenario[scenario] = portfolio_metrics
+        _write_json(scenario_dir / "metrics.json", portfolio_metrics)
+        _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], calendar), scenario_dir / "trades.csv")
+        _write_ticker_safe_csv(_e007_signals(filtered_candidates), scenario_dir / "signals.csv")
+        _d001_wide_equity_curve(runs).to_csv(scenario_dir / "equity_curve.csv", index=False)
+        _d009_year_breakdown(runs=runs, calendar=calendar, candidate_years=candidate_years).to_csv(
+            scenario_dir / "quarterly_year_breakdown.csv",
+            index=False,
+        )
+        _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, calendar).to_csv(
+            scenario_dir / "subperiod_breakdown.csv",
+            index=False,
+        )
+        block = portfolio_metrics["factor_macro_gate_mcap"]
+        summary_rows.append(
+            {
+                "scenario": scenario,
+                "commission_bps": float(config["cost_scenarios"][scenario]["commission_bps"]),
+                "tax_bps_sell": float(config["cost_scenarios"][scenario]["tax_bps_sell"]),
+                "slippage_bps": float(config["cost_scenarios"][scenario]["slippage_bps"]),
+                "cumulative_net_total_return": block["cumulative_net_total_return"],
+                "sharpe": block["sharpe"],
+                "max_drawdown": block["max_drawdown"],
+                "trade_count": block["trade_count"],
+            }
+        )
+
+    summary = pd.DataFrame(summary_rows)
+    summary["base_exact_e007_reproduction"] = False
+    summary.loc[summary["scenario"].eq("base"), "base_exact_e007_reproduction"] = _e009_base_matches_e007(
+        metrics_by_scenario["base"]
+    )
+    summary.to_csv(output_dir / "cost_stress_summary.csv", index=False)
+    _write_e009_report(output_dir, config, summary)
+
+
+def _e009_base_matches_e007(portfolio_metrics: dict[str, dict[str, Any]]) -> bool:
+    e007_path = Path("reports/experiments/E007_flow_rs_breadth/portfolio/metrics.json")
+    if not e007_path.exists():
+        return False
+    e007_metrics = json.loads(e007_path.read_text(encoding="utf-8"))
+    current = portfolio_metrics.get("factor_macro_gate_mcap", {})
+    expected = e007_metrics.get("factor_macro_gate_mcap", {})
+    keys = ("cumulative_net_total_return", "sharpe", "max_drawdown", "trade_count")
+    return all(current.get(key) == expected.get(key) for key in keys)
+
+
+def _write_e009_report(output_dir: Path, config: dict[str, Any], summary: pd.DataFrame) -> None:
+    d018 = pd.DataFrame()
+    d018_path = Path("reports/experiments/D018_d013_cost_stress/cost_stress_summary.csv")
+    if d018_path.exists():
+        d018 = pd.read_csv(d018_path)
+    three_x = summary.loc[summary["scenario"].eq("3x")].iloc[0]
+    lines = [
+        "# E009 Cost Stress Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        "- carrier: E007 Flow + RS + Breadth, Top 3 sectors, holdings 2/2/1",
+        "- macro_gate: D013 10 variables, 5 blocks, 60-month z-score, threshold -0.2",
+        "- timing: signal quarter-end T uses stock, sector, and KOSPI data through T; execution is T+1 or later",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Cost Stress Summary", summary))
+    if not d018.empty:
+        comparison = d018.loc[d018["scenario"].isin(["base", "3x"]), ["scenario", "net_cum", "sharpe", "max_drawdown"]].copy()
+        comparison = comparison.rename(
+            columns={
+                "net_cum": "d018_d013_cumulative_net_total_return",
+                "sharpe": "d018_d013_sharpe",
+                "max_drawdown": "d018_d013_max_drawdown",
+            }
+        )
+        lines.extend(_b004_dataframe_table("D018 D013 Comparison", comparison))
+    lines.extend(
+        [
+            "## Verdict Checks",
+            "",
+            f"- base_exact_e007_reproduction: {bool(summary.loc[summary['scenario'].eq('base'), 'base_exact_e007_reproduction'].iloc[0])}",
+            f"- 3x cumulative_net_total_return >= 0: {bool(float(three_x['cumulative_net_total_return']) >= 0.0)}",
+            f"- 3x sharpe >= 0.20: {bool(float(three_x['sharpe']) >= 0.20)}",
             "",
         ]
     )
@@ -15176,6 +15364,22 @@ def _validate_e008_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("E008 requires diagnostics.top_bottom_k: 3.")
     if tuple(config["variants"]) != ("diagnostics", "portfolio_if_pass"):
         raise ValueError("E008 variants must be diagnostics, portfolio_if_pass.")
+
+
+def _validate_e009_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E009_CONFIG_KEYS:
+        raise ValueError(f"E009 config keys must be exactly {EXPECTED_E009_CONFIG_KEYS}; got {keys}.")
+    e007_like = {
+        key: (dict(config["cost_scenarios"]["base"]) if key == "costs" else config[key])
+        for key in EXPECTED_E007_CONFIG_KEYS
+    }
+    e007_like["experiment_id"] = "E007"
+    e007_like["variants"] = ["diagnostics", "portfolio_if_pass"]
+    _validate_e007_config_shape(e007_like)
+    validate_e009_cost_scenarios(config["cost_scenarios"])
+    if tuple(config["variants"]) != ("cost_stress",):
+        raise ValueError("E009 variants must be exactly cost_stress.")
 
 
 def _validate_b001_config_shape(config: dict[str, Any]) -> None:

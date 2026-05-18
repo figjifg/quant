@@ -1,0 +1,157 @@
+{
+  "cost_scenarios": {
+    "2x": {
+      "commission_bps": 3.0,
+      "slippage_bps": 10.0,
+      "tax_bps_sell": 40.0
+    },
+    "3x": {
+      "commission_bps": 4.5,
+      "slippage_bps": 15.0,
+      "tax_bps_sell": 60.0
+    },
+    "base": {
+      "commission_bps": 1.5,
+      "slippage_bps": 5.0,
+      "tax_bps_sell": 20.0
+    },
+    "extra_slippage": {
+      "commission_bps": 1.5,
+      "slippage_bps": 15.0,
+      "tax_bps_sell": 20.0
+    }
+  },
+  "costs": {
+    "commission_bps": 1.5,
+    "slippage_bps": 15.0,
+    "tax_bps_sell": 20.0
+  },
+  "diagnostics": {
+    "top_bottom_k": 3
+  },
+  "experiment_id": "E009",
+  "macro_data_dir": "research_input_data/inputs/macro_features",
+  "market_breadth_csv": "research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv",
+  "output_dir": "reports/experiments/E009_cost_stress/extra_slippage",
+  "panel_date_filters": {
+    "research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv": {
+      "end": "2017-12-31"
+    }
+  },
+  "panels": [
+    "research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv",
+    "research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv",
+    "research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv",
+    "research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv"
+  ],
+  "period": {
+    "end": "2026-05-04",
+    "exclude_calendar_years": [
+      2016
+    ],
+    "start": "2010-01-04"
+  },
+  "rebalance": {
+    "anchor": "last_trading_day",
+    "frequency": "quarterly"
+  },
+  "regime": {
+    "aggregation": "factor_z_score",
+    "blocks": [
+      {
+        "name": "global_risk",
+        "vars": [
+          {
+            "name": "vix_60d_vs_240d",
+            "sign": -1
+          },
+          {
+            "name": "baa10y_spread_level",
+            "sign": -1
+          }
+        ]
+      },
+      {
+        "name": "usd_fx",
+        "vars": [
+          {
+            "name": "usdkrw_yoy",
+            "sign": -1
+          },
+          {
+            "name": "dxy_yoy",
+            "sign": -1
+          }
+        ]
+      },
+      {
+        "name": "us_rates",
+        "vars": [
+          {
+            "name": "us_10y_real_level",
+            "sign": -1
+          },
+          {
+            "name": "us_2_10_curve",
+            "sign": 1
+          }
+        ]
+      },
+      {
+        "name": "inflation",
+        "vars": [
+          {
+            "name": "brent_yoy",
+            "sign": -1
+          },
+          {
+            "name": "us_breakeven_level",
+            "sign": -1
+          }
+        ]
+      },
+      {
+        "name": "growth",
+        "vars": [
+          {
+            "name": "kr_cli_value",
+            "sign": 1
+          },
+          {
+            "name": "kr_exports_yoy",
+            "sign": 1
+          }
+        ]
+      }
+    ],
+    "on_threshold": -0.2,
+    "z_score_window_months": 60
+  },
+  "sector_aggregate_csv": "data/processed/sector_aggregate_daily.csv",
+  "sector_mapping_csv": "data/processed/stock_sector_mapping_20260518.csv",
+  "selection": {
+    "min_sector_stocks": 3,
+    "top_sector_stock_counts": [
+      2,
+      2,
+      1
+    ],
+    "top_sectors": 3
+  },
+  "stock_sector_daily_csv": "data/processed/stock_with_sector_daily.csv",
+  "strategy": {
+    "breadth_window": 20,
+    "flow_by_mcap_window": 60,
+    "flow_by_value_window": 20,
+    "long_window": 60,
+    "short_window": 20
+  },
+  "universe": {
+    "exclude_estimated_flag_rows": true,
+    "min_avg_traded_value_20d": 5000000000,
+    "require_dynamic_top100": true
+  },
+  "variants": [
+    "cost_stress"
+  ]
+}
