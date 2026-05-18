@@ -203,6 +203,7 @@ from src.strategies.e015_validation import (
     e015_segments_for_trading_window,
     topk_label as e015_topk_label,
 )
+from src.strategies.p001_e014_pit import build_p001_e014_pit_candidates
 from src.strategies.f002_stock_rs_d013_direct import (
     build_f002_d013_direct_score_universe,
     build_f002_stock_rs_d013_direct_candidates,
@@ -749,6 +750,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "E014":
         _validate_e014_config_shape(config)
         run_e014_experiment(config, config_path)
+    elif experiment_id == "P001_E014_PIT":
+        _validate_p001_e014_pit_config_shape(config)
+        run_p001_e014_pit_experiment(config, config_path)
     elif experiment_id == "E015":
         _validate_e015_config_shape(config)
         run_e015_experiment(config, config_path)
@@ -3429,6 +3433,56 @@ def run_e014_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_e014_report(output_dir, config, summary, comparison)
 
 
+def run_p001_e014_pit_experiment(config: dict[str, Any], config_path: Path) -> None:
+    context = _build_e_layer2_context(config)
+    costs = _costs_from_config(config["costs"])
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+
+    candidates = build_p001_e014_pit_candidates(
+        panel=context["panel"],
+        universe=context["universe"],
+        quarterly_regime=context["quarterly_log"],
+        combined_scores=context["combined_scores"],
+        pit_sector_mapping=context["sector_mapping"],
+        calendar=context["calendar"],
+    )
+    filtered = _quarterly_execution_candidates(
+        candidates, context["calendar"], context["quarterly_log"], context["segments"]
+    )
+    runs, metrics, zero_result = _run_e_layer2_portfolio(
+        panel=context["panel"],
+        calendar=context["calendar"],
+        market_breadth=context["market_breadth"],
+        candidates=filtered,
+        quarterly_log=context["quarterly_log"],
+        costs=costs,
+        segments=context["segments"],
+        candidate_years=context["candidate_years"],
+    )
+    summary = pd.DataFrame([_summary_row("P001_E014_pit", metrics)])
+    comparison = _p001_snapshot_vs_pit_comparison(metrics)
+
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], context["calendar"]), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_e007_signals(filtered), output_dir / "signals.csv")
+    _d001_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    _d009_year_breakdown(runs=runs, calendar=context["calendar"], candidate_years=context["candidate_years"]).to_csv(
+        output_dir / "quarterly_year_breakdown.csv", index=False
+    )
+    _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, context["calendar"]).to_csv(
+        output_dir / "subperiod_breakdown.csv", index=False
+    )
+    build_e008_sector_selection_log(filtered, rs_breadth_score_view(context["combined_scores"])).to_csv(
+        output_dir / "sector_selection_log.csv", index=False
+    )
+    context["quarterly_log"].to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    summary.to_csv(output_dir / "champion_summary.csv", index=False)
+    comparison.to_csv(output_dir / "snapshot_vs_pit_comparison.csv", index=False)
+    _write_p001_e014_pit_report(output_dir, config, summary, comparison)
+
+
 def run_g000_experiment(config: dict[str, Any], config_path: Path) -> None:
     carrier = str(config["carrier"])
     output_root = Path(config["output_dir"])
@@ -4853,6 +4907,27 @@ def _e014_comparison(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
         )
         frame["sharpe_diff_vs_e014"] = pd.to_numeric(frame["sharpe"], errors="coerce") - float(base["sharpe"])
         frame["mdd_diff_vs_e014"] = pd.to_numeric(frame["max_drawdown"], errors="coerce") - float(base["max_drawdown"])
+    return frame
+
+
+def _p001_snapshot_vs_pit_comparison(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    rows = [_summary_row("P001_E014_pit", metrics)]
+    references = (
+        ("E014_snapshot", Path("reports/experiments/E014_rs_breadth_top4_registration/metrics.json")),
+        ("D013", Path("reports/experiments/D013_d009_threshold_minus_0p2/metrics.json")),
+    )
+    for label, path in references:
+        if path.exists():
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+            rows.append(_summary_row(label, loaded))
+    frame = pd.DataFrame(rows)
+    if len(frame) > 1:
+        pit = frame.loc[frame["variant"].eq("P001_E014_pit")].iloc[0]
+        frame["cumulative_diff_vs_pit"] = pd.to_numeric(frame["cumulative_net_total_return"], errors="coerce") - float(
+            pit["cumulative_net_total_return"]
+        )
+        frame["sharpe_diff_vs_pit"] = pd.to_numeric(frame["sharpe"], errors="coerce") - float(pit["sharpe"])
+        frame["mdd_diff_vs_pit"] = pd.to_numeric(frame["max_drawdown"], errors="coerce") - float(pit["max_drawdown"])
     return frame
 
 
@@ -6346,6 +6421,29 @@ def _write_e014_report(output_dir: Path, config: dict[str, Any], summary: pd.Dat
     ]
     lines.extend(_b004_dataframe_table("Champion Summary", summary))
     lines.extend(_b004_dataframe_table("D013/E011 Comparison", comparison))
+    output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_p001_e014_pit_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    summary: pd.DataFrame,
+    comparison: pd.DataFrame,
+) -> None:
+    lines = [
+        "# P001 E014 PIT Sector Validation Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        "- carrier: E014 frozen RS + Breadth Top 4, holdings 2/1/1/1",
+        "- sector_membership: point-in-time KRX industry classifications mapped to frozen 12 groups",
+        "- macro_gate: D013 10 variables, 5 blocks, 60-month z-score, threshold -0.2",
+        "- timing: signal quarter-end T uses stock, sector, and KOSPI data through T; execution is T+1 or later",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Champion Summary", summary))
+    lines.extend(_b004_dataframe_table("Snapshot/D013 Comparison", comparison))
     output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -19085,6 +19183,19 @@ def _validate_e014_config_shape(config: dict[str, Any]) -> None:
     _validate_e011_config_shape(e011_like)
     if tuple(config["variants"]) != ("champion",):
         raise ValueError("E014 variants must be exactly champion.")
+
+
+def _validate_p001_e014_pit_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E014_CONFIG_KEYS:
+        raise ValueError(f"P001_E014_PIT config keys must be exactly {EXPECTED_E014_CONFIG_KEYS}; got {keys}.")
+    e014_like = dict(config)
+    e014_like["experiment_id"] = "E014"
+    _validate_e014_config_shape(e014_like)
+    if not str(config["sector_aggregate_csv"]).endswith("_pit.csv"):
+        raise ValueError("P001_E014_PIT requires PIT sector_aggregate_csv.")
+    if "pit" not in str(config["sector_mapping_csv"]):
+        raise ValueError("P001_E014_PIT requires PIT sector_mapping_csv.")
 
 
 def _validate_f002_config_shape(config: dict[str, Any]) -> None:

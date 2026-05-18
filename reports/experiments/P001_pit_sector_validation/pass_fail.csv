@@ -1,0 +1,6 @@
+﻿criterion,actual,threshold,passed
+1 cumulative >= 80% of E014 snapshot,1.468682405568845,2.8968677914713803,False
+2 Sharpe >= 0.55,0.3458238305516483,0.55,False
+3 cumulative >= D013 + 50pp,1.468682405568845,3.0457702903350135,False
+4 Top4 sector frequency Jaccard >= 0.70,0.6068696330991414,0.7,False
+5 Sector contribution top4 Jaccard >= 0.70,1.0,0.7,True
