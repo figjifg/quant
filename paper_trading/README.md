@@ -1,10 +1,10 @@
 # Paper Trading Operations
 
-D013 paper trading 실거래 framework.
+D013 / H001 paper trading 실거래 framework.
 
 ## 디렉토리
 
-- signals/YYYY-Q.json — 분기별 D013 신호 (사전 등록, 수정 금지)
+- signals/YYYY-Q.json — 분기별 D013 신호 + H001 OFF sleeve 정보 (사전 등록, 수정 금지)
 - executions/YYYY-Q.json — 실제 체결 기록
 - evaluations/YYYY-Q.md — 분기말 성과 + IS / slippage 보고
 
@@ -21,12 +21,14 @@ D013 paper trading 실거래 framework.
 - D013 backtest 재실행 (최신 데이터 반영)
 - signals/YYYY-Q.json 자동 생성
 - regime_on, composite, top 5 tickers, intended weights
+- regime_off_sleeve, kr_rate_source, estimated_quarter_carry 기록
 
-### 2. 다음 거래일 (T+1) 매수 실행
+### 2. 다음 거래일 (T+1) 실행
 
-- 매도: 이전 분기 보유 종목 매도 (rollover)
-- 매수: signals/YYYY-Q.json 의 5 종목 each 20%
-- 체결가 = 시가 (또는 VWAP/TWAP 사전 선택)
+- regime_on = true: 이전 분기 보유 종목 매도 후 signals/YYYY-Q.json 의 5 종목 each 20% 매수
+- regime_on = false: 주식 신규 매수 없이 H001 OFF sleeve 보유
+- OFF sleeve carry asset: MMF / 단기채 ETF / 정기예금 / 한국 국채 단기물 중 사전 선택
+- 체결가 = 시가 (또는 VWAP/TWAP 사전 선택); OFF sleeve는 해당 상품의 실행 가능 가격/금리 사용
 - 시장가 금지 (docs/execution_rules.md)
 
 ### 3. 체결 기록 (T+1 장 마감 후)
@@ -57,6 +59,7 @@ executions/YYYY-Q.json 수동 작성:
 evaluations/YYYY-Q.md 작성:
 - 실제 누적 수익 (1 분기)
 - 백테스트 기준 가상 누적 (D013 outputs 참조)
+- H001 KR carry contribution: estimated_quarter_carry vs 실제 carry
 - 차이 (실제 - 백테스트)
 - IS 평균
 - 평균 slippage
@@ -81,5 +84,6 @@ docs/live_pilot_criteria.md 의 10 go/no-go criteria 확인.
 
 - 사후 신호 수정 금지 (사전 등록 신호 그대로)
 - 임의 종목 추가/제거 금지
-- D013 regime OFF 시 cash 보유 (강제)
+- D013 regime OFF 시 H001 KR short-rate carry sleeve 보유
+- D013 original cash baseline도 가상 추적하여 4 분기 후 H001 carrier와 비교
 - AUM 단계 docs/aum_progression.md 준수

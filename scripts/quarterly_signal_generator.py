@@ -13,6 +13,10 @@ if str(ROOT) not in sys.path:
 
 from src.audit.paper_trading_protocol import build_signal_record, write_signal_record
 
+KR_RATE_SOURCE = "FRED IR3TIB01KRM156N"
+KR_RATE_CSV = ROOT / "research_input_data/inputs/macro_features/fred_kr_short_rate.csv"
+KR_RATE_COLUMN = "IR3TIB01KRM156N"
+
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate one quarterly D013 paper-trading signal JSON.")
@@ -41,9 +45,27 @@ def main(argv: list[str] | None = None) -> None:
         quarter=args.quarter,
         max_positions=5,
     )
+    record.update(_regime_off_sleeve_fields(record["signal_date"]))
     path = write_signal_record(record, ROOT / args.output_root)
     print(path.relative_to(ROOT))
     print(record)
+
+
+def _regime_off_sleeve_fields(signal_date: str) -> dict[str, object]:
+    rates = pd.read_csv(KR_RATE_CSV, parse_dates=["observation_date"], na_values=["."])
+    rates[KR_RATE_COLUMN] = pd.to_numeric(rates[KR_RATE_COLUMN], errors="coerce")
+    rates = rates.dropna(subset=[KR_RATE_COLUMN]).sort_values("observation_date")
+    asof = rates.loc[rates["observation_date"].le(pd.Timestamp(signal_date))]
+    if asof.empty:
+        estimated_quarter_carry = None
+    else:
+        annual_rate = float(asof.iloc[-1][KR_RATE_COLUMN]) / 100.0
+        estimated_quarter_carry = (1.0 + annual_rate / 12.0) ** 3 - 1.0
+    return {
+        "regime_off_sleeve": "KR_short_rate_carry",
+        "kr_rate_source": KR_RATE_SOURCE,
+        "estimated_quarter_carry": estimated_quarter_carry,
+    }
 
 
 if __name__ == "__main__":

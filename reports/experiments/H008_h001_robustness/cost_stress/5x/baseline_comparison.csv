@@ -1,0 +1,4 @@
+variant,cumulative_net_total_return,sharpe,max_drawdown,off_carry_cumulative,cumulative_delta_vs_d013,sharpe_delta_vs_d013,mdd_delta_vs_d013,cumulative_pass,sharpe_pass,mdd_pass,pass
+d013_baseline,1.6561033507740772,0.40609740522480003,-0.36780655081455826,0.0,0.0,0.0,0.0,,,,
+d013_kr_short_rate_sleeve,2.424757395051927,0.5162581285545621,-0.36780655081455826,0.2893916172552795,0.7686540442778496,0.11016072332976207,0.0,,,,
+verdict,,,,0.2893916172552795,0.7686540442778496,0.11016072332976207,0.0,True,True,True,True

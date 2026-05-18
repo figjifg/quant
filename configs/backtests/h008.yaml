@@ -1,0 +1,22 @@
+experiment_id: H008
+base_config: configs/backtests/h001.yaml
+output_dir: reports/experiments/H008_h001_robustness
+cost_stress:
+  base: 1.0
+  2x: 2.0
+  3x: 3.0
+  5x: 5.0
+slippage_stress:
+  plus_5_bps: 5.0
+  plus_10_bps: 10.0
+  plus_20_bps: 20.0
+subperiods:
+  - {name: "2010_2017", start: 2010-01-04, end: 2017-12-31}
+  - {name: "2018_2026", start: 2018-01-01, end: 2026-05-04}
+spike_exclusion_years: [2020, 2025]
+pass_criteria:
+  cost_3x_cumulative_min: 2.50
+  cost_5x_cumulative_min: 1.80
+  plus_20bps_slippage_cumulative_min: 2.80
+  spike_excluded_cumulative_min: 1.30
+  max_single_year_delta_share: 0.50

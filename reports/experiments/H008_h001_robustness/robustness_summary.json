@@ -1,0 +1,295 @@
+{
+  "cost_stress": [
+    {
+      "commission_bps": 1.5,
+      "cost_multiplier": 1.0,
+      "d013_cumulative_net_total_return": 2.5457702903,
+      "delta_vs_d013": 1.0261161987,
+      "extra_slippage_bps": null,
+      "h001_cumulative_net_total_return": 3.5718864891,
+      "h001_max_drawdown": -0.3392346175,
+      "h001_sharpe": 0.6461391043,
+      "scenario": "base",
+      "slippage_bps": 5.0,
+      "tax_bps_sell": 20.0
+    },
+    {
+      "commission_bps": 3.0,
+      "cost_multiplier": 2.0,
+      "d013_cumulative_net_total_return": 2.2994412001,
+      "delta_vs_d013": 0.9548306249,
+      "extra_slippage_bps": null,
+      "h001_cumulative_net_total_return": 3.2542718251,
+      "h001_max_drawdown": -0.3423554765,
+      "h001_sharpe": 0.6139370562,
+      "scenario": "2x",
+      "slippage_bps": 10.0,
+      "tax_bps_sell": 40.0
+    },
+    {
+      "commission_bps": 4.5,
+      "cost_multiplier": 3.0,
+      "d013_cumulative_net_total_return": 2.069773268,
+      "delta_vs_d013": 0.8883666506,
+      "extra_slippage_bps": null,
+      "h001_cumulative_net_total_return": 2.9581399187,
+      "h001_max_drawdown": -0.3509335356,
+      "h001_sharpe": 0.5815220556,
+      "scenario": "3x",
+      "slippage_bps": 15.0,
+      "tax_bps_sell": 60.0
+    },
+    {
+      "commission_bps": 7.5,
+      "cost_multiplier": 5.0,
+      "d013_cumulative_net_total_return": 1.6561033508,
+      "delta_vs_d013": 0.7686540443,
+      "extra_slippage_bps": null,
+      "h001_cumulative_net_total_return": 2.4247573951,
+      "h001_max_drawdown": -0.3678065508,
+      "h001_sharpe": 0.5162581286,
+      "scenario": "5x",
+      "slippage_bps": 25.0,
+      "tax_bps_sell": 100.0
+    }
+  ],
+  "sleeve_year_decomposition": [
+    {
+      "abs_delta_share": 0.0752049894,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0195162582,
+      "delta_vs_d013": 0.0200259487,
+      "h001_return": 0.0200259487,
+      "year": 2010
+    },
+    {
+      "abs_delta_share": 0.125945899,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0326839044,
+      "delta_vs_d013": 0.0335374837,
+      "h001_return": 0.0335374837,
+      "year": 2011
+    },
+    {
+      "abs_delta_share": 0.1307822722,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0339389795,
+      "delta_vs_d013": 0.0348253366,
+      "h001_return": 0.0348253366,
+      "year": 2012
+    },
+    {
+      "abs_delta_share": 0.1045144632,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0271222862,
+      "delta_vs_d013": 0.0278306172,
+      "h001_return": 0.0278306172,
+      "year": 2013
+    },
+    {
+      "abs_delta_share": 0.0974321649,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0252843768,
+      "delta_vs_d013": 0.0259447086,
+      "h001_return": 0.0259447086,
+      "year": 2014
+    },
+    {
+      "abs_delta_share": 0.0695357632,
+      "d013_return": 0.0,
+      "delta_share_of_total_delta": 0.0180450515,
+      "delta_vs_d013": 0.0185163197,
+      "h001_return": 0.0185163197,
+      "year": 2015
+    },
+    {
+      "abs_delta_share": 0.0168989989,
+      "d013_return": 0.0940147224,
+      "delta_share_of_total_delta": 0.0043854168,
+      "delta_vs_d013": 0.0044999472,
+      "h001_return": 0.0985146696,
+      "year": 2017
+    },
+    {
+      "abs_delta_share": 0.0450533854,
+      "d013_return": -0.0358625449,
+      "delta_share_of_total_delta": 0.0116916911,
+      "delta_vs_d013": 0.0119970336,
+      "h001_return": -0.0238655113,
+      "year": 2018
+    },
+    {
+      "abs_delta_share": 0.0365936822,
+      "d013_return": 0.0277493483,
+      "delta_share_of_total_delta": 0.0094963347,
+      "delta_vs_d013": 0.0097443429,
+      "h001_return": 0.0374936912,
+      "year": 2019
+    },
+    {
+      "abs_delta_share": 8.338612284e-16,
+      "d013_return": 0.4630990404,
+      "delta_share_of_total_delta": -2.163932362e-16,
+      "delta_vs_d013": -2.220446049e-16,
+      "h001_return": 0.4630990404,
+      "year": 2020
+    },
+    {
+      "abs_delta_share": 4.169306142e-16,
+      "d013_return": -0.1241994598,
+      "delta_share_of_total_delta": -1.081966181e-16,
+      "delta_vs_d013": -1.110223025e-16,
+      "h001_return": -0.1241994598,
+      "year": 2021
+    },
+    {
+      "abs_delta_share": 0.0554905422,
+      "d013_return": -0.0971682764,
+      "delta_share_of_total_delta": 0.0144002114,
+      "delta_vs_d013": 0.0147762902,
+      "h001_return": -0.0823919862,
+      "year": 2022
+    },
+    {
+      "abs_delta_share": 0.1164231754,
+      "d013_return": 0.0822421125,
+      "delta_share_of_total_delta": 0.0302126863,
+      "delta_vs_d013": 0.0310017268,
+      "h001_return": 0.1132438393,
+      "year": 2023
+    },
+    {
+      "abs_delta_share": 0.0353320667,
+      "d013_return": 0.042247218,
+      "delta_share_of_total_delta": 0.009168936,
+      "delta_vs_d013": 0.0094083938,
+      "h001_return": 0.0516556118,
+      "year": 2024
+    },
+    {
+      "abs_delta_share": 0.0907925973,
+      "d013_return": 0.5670092245,
+      "delta_share_of_total_delta": 0.0235613592,
+      "delta_vs_d013": 0.0241766924,
+      "h001_return": 0.5911859169,
+      "year": 2025
+    },
+    {
+      "abs_delta_share": 0.0,
+      "d013_return": 0.5621484119,
+      "delta_share_of_total_delta": 4.327864723e-16,
+      "delta_vs_d013": 4.440892099e-16,
+      "h001_return": 0.5621484119,
+      "year": 2026
+    }
+  ],
+  "slippage_stress": [
+    {
+      "commission_bps": 1.5,
+      "cost_multiplier": null,
+      "d013_cumulative_net_total_return": 2.4707176816,
+      "delta_vs_d013": 1.0043966029,
+      "extra_slippage_bps": 5.0,
+      "h001_cumulative_net_total_return": 3.4751142845,
+      "h001_max_drawdown": -0.3391463037,
+      "h001_sharpe": 0.6365834485,
+      "scenario": "plus_5_bps",
+      "slippage_bps": 10.0,
+      "tax_bps_sell": 20.0
+    },
+    {
+      "commission_bps": 1.5,
+      "cost_multiplier": null,
+      "d013_cumulative_net_total_return": 2.3972530611,
+      "delta_vs_d013": 0.9831365576,
+      "extra_slippage_bps": 10.0,
+      "h001_cumulative_net_total_return": 3.3803896187,
+      "h001_max_drawdown": -0.3390579888,
+      "h001_sharpe": 0.6270123985,
+      "scenario": "plus_10_bps",
+      "slippage_bps": 15.0,
+      "tax_bps_sell": 20.0
+    },
+    {
+      "commission_bps": 1.5,
+      "cost_multiplier": null,
+      "d013_cumulative_net_total_return": 2.2549540087,
+      "delta_vs_d013": 0.9419564047,
+      "extra_slippage_bps": 20.0,
+      "h001_cumulative_net_total_return": 3.1969104134,
+      "h001_max_drawdown": -0.3439921158,
+      "h001_sharpe": 0.6078293422,
+      "scenario": "plus_20_bps",
+      "slippage_bps": 25.0,
+      "tax_bps_sell": 20.0
+    }
+  ],
+  "subperiod_breakdown": [
+    {
+      "d013_cumulative_return": 0.0940147224,
+      "delta_vs_d013": 0.1939459363,
+      "end": "2017-12-31",
+      "h001_cumulative_return": 0.2879606586,
+      "start": "2010-01-04",
+      "subperiod": "2010_2017"
+    },
+    {
+      "d013_cumulative_return": 2.2397622931,
+      "delta_vs_d013": 0.3085232171,
+      "end": "2026-05-04",
+      "h001_cumulative_return": 2.5482855102,
+      "start": "2018-01-01",
+      "subperiod": "2018_2026"
+    },
+    {
+      "d013_cumulative_return": 0.5170708942,
+      "delta_vs_d013": 0.4090286219,
+      "end": "2026-05-04",
+      "h001_cumulative_return": 0.9260995161,
+      "start": "2010-01-04",
+      "subperiod": "exclude_2020_2025"
+    }
+  ],
+  "verdict": [
+    {
+      "criterion": "3x cost cumulative",
+      "operator": ">=",
+      "overall_pass": false,
+      "passes": true,
+      "threshold": 2.5,
+      "value": 2.9581399187
+    },
+    {
+      "criterion": "5x cost cumulative",
+      "operator": ">=",
+      "overall_pass": false,
+      "passes": true,
+      "threshold": 1.8,
+      "value": 2.4247573951
+    },
+    {
+      "criterion": "+20bps slippage cumulative",
+      "operator": ">=",
+      "overall_pass": false,
+      "passes": true,
+      "threshold": 2.8,
+      "value": 3.1969104134
+    },
+    {
+      "criterion": "spike years excluded cumulative",
+      "operator": ">=",
+      "overall_pass": false,
+      "passes": false,
+      "threshold": 1.3,
+      "value": 0.9260995161
+    },
+    {
+      "criterion": "max single-year contribution share",
+      "operator": "<",
+      "overall_pass": false,
+      "passes": true,
+      "threshold": 0.5,
+      "value": 0.1307822722
+    }
+  ]
+}
