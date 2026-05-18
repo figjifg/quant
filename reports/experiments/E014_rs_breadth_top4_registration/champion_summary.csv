@@ -1,0 +1,2 @@
+variant,cumulative_net_total_return,sharpe,max_drawdown,trade_count,e012_rs_breadth_exact_reproduction,e011_exact_match,d013_exact_match
+E014_rs_breadth_top4,3.621084739339225,0.6311872415922518,-0.35641869371448887,110,True,False,False

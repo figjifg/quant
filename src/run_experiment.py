@@ -183,6 +183,16 @@ from src.strategies.e012_robustness_ablation import (
     validate_e012_cost_scenarios,
 )
 from src.strategies.e013_subperiod_spike import build_e013_top4_candidates, e013_segments_for_trading_window
+from src.strategies.e014_rs_breadth_top4 import build_e014_rs_breadth_top4_candidates, rs_breadth_score_view
+from src.strategies.e015_validation import (
+    PASS_THRESHOLDS as E015_PASS_THRESHOLDS,
+    SPIKE_EXCLUSION_GROUPS as E015_SPIKE_EXCLUSION_GROUPS,
+    TOPK_STABILITY_GRID as E015_TOPK_STABILITY_GRID,
+    build_e015_validation_candidates,
+    drawdown_summary as e015_drawdown_summary,
+    e015_segments_for_trading_window,
+    topk_label as e015_topk_label,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -275,6 +285,14 @@ EXPECTED_E013_CONFIG_KEYS = EXPECTED_E007_CONFIG_KEYS[:-4] + (
     "variants",
     "per_year_analysis",
     "rolling_3yr_sharpe",
+    "output_dir",
+)
+EXPECTED_E014_CONFIG_KEYS = EXPECTED_E011_CONFIG_KEYS
+EXPECTED_E015_CONFIG_KEYS = EXPECTED_E007_CONFIG_KEYS[:-4] + (
+    "cost_scenarios",
+    "subperiods",
+    "spike_exclusions",
+    "validation",
     "output_dir",
 )
 EXPECTED_B001_CONFIG_KEYS = (
@@ -651,6 +669,12 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "E013":
         _validate_e013_config_shape(config)
         run_e013_experiment(config, config_path)
+    elif experiment_id == "E014":
+        _validate_e014_config_shape(config)
+        run_e014_experiment(config, config_path)
+    elif experiment_id == "E015":
+        _validate_e015_config_shape(config)
+        run_e015_experiment(config, config_path)
     elif experiment_id == "B001":
         _validate_b001_config_shape(config)
         run_b001_experiment(config, config_path)
@@ -3020,6 +3044,7 @@ def run_e011_experiment(config: dict[str, Any], config_path: Path) -> None:
         metrics,
         Path("reports/experiments/D013_d009_threshold_minus_0p2/metrics.json"),
     )
+    comparison = _e014_comparison(metrics)
 
     _write_json(output_dir / "metrics.json", metrics)
     _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], context["calendar"]), output_dir / "trades.csv")
@@ -3241,6 +3266,420 @@ def run_e013_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_e013_report(output_dir, config, subperiod_table, per_year_breakdown, spike, contribution, overlap)
 
 
+def run_e014_experiment(config: dict[str, Any], config_path: Path) -> None:
+    context = _build_e_layer2_context(config)
+    costs = _costs_from_config(config["costs"])
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+
+    candidates = build_e014_rs_breadth_top4_candidates(
+        panel=context["panel"],
+        universe=context["universe"],
+        quarterly_regime=context["quarterly_log"],
+        combined_scores=context["combined_scores"],
+        sector_mapping=context["sector_mapping"],
+        calendar=context["calendar"],
+    )
+    filtered = _quarterly_execution_candidates(
+        candidates, context["calendar"], context["quarterly_log"], context["segments"]
+    )
+    runs, metrics, zero_result = _run_e_layer2_portfolio(
+        panel=context["panel"],
+        calendar=context["calendar"],
+        market_breadth=context["market_breadth"],
+        candidates=filtered,
+        quarterly_log=context["quarterly_log"],
+        costs=costs,
+        segments=context["segments"],
+        candidate_years=context["candidate_years"],
+    )
+    summary = pd.DataFrame([_summary_row("E014_rs_breadth_top4", metrics)])
+    summary["e012_rs_breadth_exact_reproduction"] = _metrics_match_path(
+        metrics,
+        Path("reports/experiments/E012_top4_robustness_ablation/score_ablation/rs_breadth/metrics.json"),
+    )
+    summary["e011_exact_match"] = _metrics_match_path(
+        metrics,
+        Path("reports/experiments/E011_top4_champion_registration/metrics.json"),
+    )
+    summary["d013_exact_match"] = _metrics_match_path(
+        metrics,
+        Path("reports/experiments/D013_d009_threshold_minus_0p2/metrics.json"),
+    )
+
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], context["calendar"]), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_e007_signals(filtered), output_dir / "signals.csv")
+    _d001_wide_equity_curve(runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    _d009_year_breakdown(runs=runs, calendar=context["calendar"], candidate_years=context["candidate_years"]).to_csv(
+        output_dir / "quarterly_year_breakdown.csv", index=False
+    )
+    _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, context["calendar"]).to_csv(
+        output_dir / "subperiod_breakdown.csv", index=False
+    )
+    build_e008_sector_selection_log(filtered, rs_breadth_score_view(context["combined_scores"])).to_csv(
+        output_dir / "sector_selection_log.csv", index=False
+    )
+    context["quarterly_log"].to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    summary.to_csv(output_dir / "champion_summary.csv", index=False)
+    comparison = _e014_comparison(metrics)
+    comparison.to_csv(output_dir / "comparison_with_d013_e011.csv", index=False)
+    _write_e014_report(output_dir, config, summary, comparison)
+
+
+def run_e015_experiment(config: dict[str, Any], config_path: Path) -> None:
+    context = _build_e_layer2_context(config)
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+
+    base_candidates = build_e015_validation_candidates(
+        panel=context["panel"],
+        universe=context["universe"],
+        quarterly_regime=context["quarterly_log"],
+        combined_scores=context["combined_scores"],
+        sector_mapping=context["sector_mapping"],
+        calendar=context["calendar"],
+    )
+    filtered = _quarterly_execution_candidates(
+        base_candidates, context["calendar"], context["quarterly_log"], context["segments"]
+    )
+    base_runs, base_metrics, zero_result = _run_e_layer2_portfolio(
+        panel=context["panel"],
+        calendar=context["calendar"],
+        market_breadth=context["market_breadth"],
+        candidates=filtered,
+        quarterly_log=context["quarterly_log"],
+        costs=_costs_from_config(config["cost_scenarios"]["base"]),
+        segments=context["segments"],
+        candidate_years=context["candidate_years"],
+    )
+    _write_json(output_dir / "metrics.json", base_metrics)
+    _write_ticker_safe_csv(_b011_trades(base_runs["factor_macro_gate_mcap"], context["calendar"]), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_e007_signals(filtered), output_dir / "signals.csv")
+    _d001_wide_equity_curve(base_runs).to_csv(output_dir / "equity_curve.csv", index=False)
+    _c010_subperiod_breakdown(base_runs["factor_macro_gate_mcap"], zero_result, context["calendar"]).to_csv(
+        output_dir / "subperiod_breakdown.csv", index=False
+    )
+    context["quarterly_log"].to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+
+    cost_summary = _e015_cost_stress(config, context, filtered)
+    topk_stability = _e015_topk_stability(config, context)
+    subperiod_table = _e015_subperiod_table(config, context, base_candidates)
+    spike_exclusion = _e015_spike_exclusion(config, context, base_candidates)
+    contribution = _e015_contribution_tables(base_runs["factor_macro_gate_mcap"], filtered, context["calendar"])
+    d013_overlap = _e015_overlap(filtered, Path("reports/experiments/D013_d009_threshold_minus_0p2/signals.csv"), "d013")
+    e011_overlap = _e015_overlap(filtered, Path("reports/experiments/E011_top4_champion_registration/signals.csv"), "e011")
+    mdd = _e015_mdd_attribution(base_runs["factor_macro_gate_mcap"], filtered, context["calendar"])
+    pass_fail = _e015_pass_fail(base_metrics, cost_summary, topk_stability, spike_exclusion, contribution)
+
+    cost_summary.to_csv(output_dir / "cost_stress_summary.csv", index=False)
+    topk_stability.to_csv(output_dir / "topk_stability.csv", index=False)
+    subperiod_table.to_csv(output_dir / "subperiod_table.csv", index=False)
+    spike_exclusion.to_csv(output_dir / "spike_exclusion.csv", index=False)
+    contribution["year"].to_csv(output_dir / "year_contribution.csv", index=False)
+    contribution["sector"].to_csv(output_dir / "sector_contribution.csv", index=False)
+    contribution["stock"].to_csv(output_dir / "stock_contribution.csv", index=False)
+    contribution["rebalance"].to_csv(output_dir / "rebalance_contribution.csv", index=False)
+    d013_overlap.to_csv(output_dir / "d013_overlap.csv", index=False)
+    e011_overlap.to_csv(output_dir / "e011_overlap.csv", index=False)
+    mdd["summary"].to_csv(output_dir / "mdd_summary.csv", index=False)
+    _write_ticker_safe_csv(mdd["trades"], output_dir / "mdd_trades.csv")
+    pass_fail.to_csv(output_dir / "pass_fail.csv", index=False)
+    _write_e015_mdd_markdown(output_dir, mdd)
+    _write_e015_finding_log(output_dir, topk_stability)
+    _write_e015_report(
+        output_dir,
+        config,
+        pass_fail,
+        cost_summary,
+        topk_stability,
+        subperiod_table,
+        spike_exclusion,
+        contribution,
+        d013_overlap,
+        e011_overlap,
+        mdd,
+    )
+
+
+def _e015_cost_stress(config: dict[str, Any], context: dict[str, Any], filtered: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for scenario in E009_SCENARIO_ORDER:
+        _, metrics, _ = _run_e_layer2_portfolio(
+            panel=context["panel"],
+            calendar=context["calendar"],
+            market_breadth=context["market_breadth"],
+            candidates=filtered,
+            quarterly_log=context["quarterly_log"],
+            costs=_costs_from_config(config["cost_scenarios"][scenario]),
+            segments=context["segments"],
+            candidate_years=context["candidate_years"],
+        )
+        row = _summary_row(scenario, metrics)
+        row.update(config["cost_scenarios"][scenario])
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _e015_topk_stability(config: dict[str, Any], context: dict[str, Any]) -> pd.DataFrame:
+    rows = []
+    for counts in E015_TOPK_STABILITY_GRID:
+        candidates = build_e015_validation_candidates(
+            panel=context["panel"],
+            universe=context["universe"],
+            quarterly_regime=context["quarterly_log"],
+            combined_scores=context["combined_scores"],
+            sector_mapping=context["sector_mapping"],
+            calendar=context["calendar"],
+            top_sector_counts=counts,
+        )
+        filtered = _quarterly_execution_candidates(
+            candidates, context["calendar"], context["quarterly_log"], context["segments"]
+        )
+        _, metrics, _ = _run_e_layer2_portfolio(
+            panel=context["panel"],
+            calendar=context["calendar"],
+            market_breadth=context["market_breadth"],
+            candidates=filtered,
+            quarterly_log=context["quarterly_log"],
+            costs=_costs_from_config(config["cost_scenarios"]["base"]),
+            segments=context["segments"],
+            candidate_years=context["candidate_years"],
+        )
+        row = _summary_row(e015_topk_label(counts), metrics)
+        row["top_k"] = len(counts)
+        row["top_sector_stock_counts"] = "/".join(str(value) for value in counts)
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values("top_k").reset_index(drop=True)
+
+
+def _e015_subperiod_table(config: dict[str, Any], context: dict[str, Any], candidates: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for subperiod in config["subperiods"]:
+        name = str(subperiod["name"])
+        start = pd.Timestamp(subperiod["start"]).normalize()
+        end = pd.Timestamp(subperiod["end"]).normalize()
+        segments = e015_segments_for_trading_window(
+            segments=context["segments"],
+            trading_start=start,
+            trading_end=end,
+        )
+        filtered = _quarterly_execution_candidates(candidates, context["calendar"], context["quarterly_log"], segments)
+        runs, metrics, zero_result = _run_e_layer2_portfolio(
+            panel=context["panel"],
+            calendar=context["calendar"],
+            market_breadth=context["market_breadth"],
+            candidates=filtered,
+            quarterly_log=context["quarterly_log"],
+            costs=_costs_from_config(config["cost_scenarios"]["base"]),
+            segments=segments,
+            candidate_years=_d008_candidate_years(start, end, config["period"]["exclude_calendar_years"]),
+        )
+        rows.append(
+            subperiod_metrics_row(
+                name=name,
+                start=start,
+                end=end,
+                net_result=runs["factor_macro_gate_mcap"],
+                cost_0_result=zero_result,
+                calendar=context["calendar"],
+                positive_years=int(metrics["factor_macro_gate_mcap"]["positive_years"]),
+            )
+        )
+    return pd.DataFrame(rows)
+
+
+def _e015_spike_exclusion(config: dict[str, Any], context: dict[str, Any], candidates: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    base_excluded = [int(year) for year in config["period"]["exclude_calendar_years"]]
+    for years in E015_SPIKE_EXCLUSION_GROUPS:
+        excluded = sorted(set(base_excluded).union(years))
+        scenario_config = dict(config)
+        scenario_config["period"] = dict(config["period"])
+        scenario_config["period"]["exclude_calendar_years"] = excluded
+        segments = _b011_segments(scenario_config)
+        candidate_years = _b011_candidate_years(scenario_config)
+        filtered = _quarterly_execution_candidates(candidates, context["calendar"], context["quarterly_log"], segments)
+        _, metrics, _ = _run_e_layer2_portfolio(
+            panel=context["panel"],
+            calendar=context["calendar"],
+            market_breadth=context["market_breadth"],
+            candidates=filtered,
+            quarterly_log=context["quarterly_log"],
+            costs=_costs_from_config(config["cost_scenarios"]["base"]),
+            segments=segments,
+            candidate_years=candidate_years,
+        )
+        row = _summary_row("+".join(str(year) for year in years), metrics)
+        row["excluded_years"] = "+".join(str(year) for year in years)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _e015_contribution_tables(
+    result: BacktestResult,
+    candidates: pd.DataFrame,
+    calendar: object,
+) -> dict[str, pd.DataFrame]:
+    trades = _b011_trades(result, calendar)
+    if trades.empty or candidates.empty:
+        empty = pd.DataFrame(columns=["group", "net_pnl", "trade_count", "contribution_ratio"])
+        return {"year": empty, "sector": empty, "stock": empty, "rebalance": empty}
+    annotated = trades.merge(
+        candidates.loc[:, ["signal_date", "종목코드", "sector_code", "sector_name"]].drop_duplicates(),
+        on=["signal_date", "종목코드"],
+        how="left",
+        validate="many_to_one",
+    )
+    annotated["net_pnl"] = (
+        pd.to_numeric(annotated["shares"], errors="raise")
+        * (pd.to_numeric(annotated["exit_price"], errors="raise") - pd.to_numeric(annotated["entry_price"], errors="raise"))
+        - pd.to_numeric(annotated["cost_paid"], errors="raise")
+    )
+    annotated["year"] = pd.to_datetime(annotated["entry_date"], errors="raise").dt.year
+    annotated["stock"] = annotated["종목코드"].astype(str).str.zfill(6)
+    annotated["rebalance"] = pd.to_datetime(annotated["signal_date"], errors="raise").dt.strftime("%Y-%m-%d")
+    positive = float(annotated.loc[annotated["net_pnl"].gt(0), "net_pnl"].sum())
+    denominator = positive if positive != 0.0 else float(annotated["net_pnl"].abs().sum())
+    return {
+        "year": _contribution_group(annotated, "year", denominator),
+        "sector": _contribution_group(annotated, "sector_name", denominator),
+        "stock": _contribution_group(annotated, "stock", denominator),
+        "rebalance": _contribution_group(annotated, "rebalance", denominator),
+    }
+
+
+def _e015_overlap(candidates: pd.DataFrame, reference_path: Path, reference_label: str) -> pd.DataFrame:
+    columns = [
+        "quarter",
+        f"{reference_label}_count",
+        "e015_count",
+        "overlap_count",
+        "union_count",
+        "jaccard",
+        f"{reference_label}_tickers",
+        "e015_tickers",
+        "overlap_tickers",
+    ]
+    if candidates.empty or not reference_path.exists():
+        return pd.DataFrame(columns=columns)
+    reference = pd.read_csv(reference_path, dtype={"ticker": "string", "종목코드": "string"})
+    if "ticker" not in reference.columns and "종목코드" in reference.columns:
+        reference["ticker"] = reference["종목코드"]
+    reference["signal_date"] = pd.to_datetime(reference["signal_date"], errors="raise").dt.normalize()
+    current = candidates.loc[:, ["signal_date", "종목코드"]].copy()
+    current["signal_date"] = pd.to_datetime(current["signal_date"], errors="raise").dt.normalize()
+    current["ticker"] = current["종목코드"].astype(str).str.zfill(6)
+    rows = []
+    for signal_date in sorted(set(reference["signal_date"]).union(set(current["signal_date"]))):
+        ref_set = set(reference.loc[reference["signal_date"].eq(signal_date), "ticker"].astype(str).str.zfill(6))
+        cur_set = set(current.loc[current["signal_date"].eq(signal_date), "ticker"].astype(str).str.zfill(6))
+        union = ref_set | cur_set
+        overlap = ref_set & cur_set
+        rows.append(
+            {
+                "quarter": signal_date,
+                f"{reference_label}_count": len(ref_set),
+                "e015_count": len(cur_set),
+                "overlap_count": len(overlap),
+                "union_count": len(union),
+                "jaccard": len(overlap) / len(union) if union else 0.0,
+                f"{reference_label}_tickers": " ".join(sorted(ref_set)),
+                "e015_tickers": " ".join(sorted(cur_set)),
+                "overlap_tickers": " ".join(sorted(overlap)),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _e015_mdd_attribution(
+    result: BacktestResult,
+    candidates: pd.DataFrame,
+    calendar: object,
+) -> dict[str, pd.DataFrame]:
+    summary = pd.DataFrame([e015_drawdown_summary(result)])
+    trades = _b011_trades(result, calendar)
+    if not trades.empty:
+        peak = pd.Timestamp(summary.loc[0, "peak_date"]).normalize()
+        trough = pd.Timestamp(summary.loc[0, "trough_date"]).normalize()
+        trades = trades.loc[
+            pd.to_datetime(trades["entry_date"], errors="raise").dt.normalize().between(peak, trough)
+        ].copy()
+        if not trades.empty and not candidates.empty:
+            trades = trades.merge(
+                candidates.loc[:, ["signal_date", "종목코드", "sector_code", "sector_name"]].drop_duplicates(),
+                on=["signal_date", "종목코드"],
+                how="left",
+                validate="many_to_one",
+            )
+    return {"summary": summary, "trades": trades}
+
+
+def _e015_pass_fail(
+    metrics: dict[str, dict[str, Any]],
+    cost_summary: pd.DataFrame,
+    topk_stability: pd.DataFrame,
+    spike_exclusion: pd.DataFrame,
+    contribution: dict[str, pd.DataFrame],
+) -> pd.DataFrame:
+    headline = metrics["factor_macro_gate_mcap"]
+    three_x = cost_summary.loc[cost_summary["variant"].eq("3x")].iloc[0]
+    spike_all = spike_exclusion.loc[spike_exclusion["excluded_years"].eq("2020+2025+2026")].iloc[0]
+    top1_sector = _top_contribution(contribution["sector"])
+    top1_stock = _top_contribution(contribution["stock"])
+    topk_min_sharpe = float(pd.to_numeric(topk_stability["sharpe"], errors="coerce").min())
+    rows = [
+        ("cumulative_ge_d013", headline["cumulative_net_total_return"], E015_PASS_THRESHOLDS["cumulative_vs_d013"], float(headline["cumulative_net_total_return"]) >= E015_PASS_THRESHOLDS["cumulative_vs_d013"]),
+        ("sharpe_ge_d013", headline["sharpe"], E015_PASS_THRESHOLDS["sharpe_vs_d013"], float(headline["sharpe"]) >= E015_PASS_THRESHOLDS["sharpe_vs_d013"]),
+        ("mdd_ge_minus_45pct", headline["max_drawdown"], E015_PASS_THRESHOLDS["max_drawdown_floor"], float(headline["max_drawdown"]) >= E015_PASS_THRESHOLDS["max_drawdown_floor"]),
+        (
+            "cost_3x_ge_d013_3x",
+            three_x["cumulative_net_total_return"],
+            f"{E015_PASS_THRESHOLDS['d013_3x_cumulative']} or sharpe {E015_PASS_THRESHOLDS['d013_3x_sharpe']}",
+            float(three_x["cumulative_net_total_return"]) >= E015_PASS_THRESHOLDS["d013_3x_cumulative"]
+            or float(three_x["sharpe"]) >= E015_PASS_THRESHOLDS["d013_3x_sharpe"],
+        ),
+        ("spike_excluded_ge_d013", spike_all["cumulative_net_total_return"], E015_PASS_THRESHOLDS["d013_spike_excluded_cumulative"], float(spike_all["cumulative_net_total_return"]) >= E015_PASS_THRESHOLDS["d013_spike_excluded_cumulative"]),
+        ("top1_sector_lt_50pct", top1_sector, E015_PASS_THRESHOLDS["top1_sector_contribution_ceiling"], top1_sector < E015_PASS_THRESHOLDS["top1_sector_contribution_ceiling"]),
+        ("top1_stock_lt_40pct", top1_stock, E015_PASS_THRESHOLDS["top1_stock_contribution_ceiling"], top1_stock < E015_PASS_THRESHOLDS["top1_stock_contribution_ceiling"]),
+        ("topk_all_sharpe_ge_0p40", topk_min_sharpe, E015_PASS_THRESHOLDS["topk_sharpe_floor"], topk_min_sharpe >= E015_PASS_THRESHOLDS["topk_sharpe_floor"]),
+    ]
+    frame = pd.DataFrame(rows, columns=["criterion", "actual", "threshold", "passed"])
+    frame["passed"] = frame["passed"].astype(bool)
+    return frame
+
+
+def _top_contribution(frame: pd.DataFrame) -> float:
+    if frame.empty or "contribution_ratio" not in frame.columns:
+        return 0.0
+    values = pd.to_numeric(frame["contribution_ratio"], errors="coerce").dropna()
+    return 0.0 if values.empty else float(values.max())
+
+
+def _e014_comparison(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    rows = [_summary_row("E014_rs_breadth_top4", metrics)]
+    references = (
+        ("D013", Path("reports/experiments/D013_d009_threshold_minus_0p2/metrics.json")),
+        ("E011", Path("reports/experiments/E011_top4_champion_registration/metrics.json")),
+    )
+    for label, path in references:
+        if not path.exists():
+            continue
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        rows.append(_summary_row(label, loaded))
+    frame = pd.DataFrame(rows)
+    if len(frame) > 1:
+        base = frame.loc[frame["variant"].eq("E014_rs_breadth_top4")].iloc[0]
+        frame["cumulative_diff_vs_e014"] = pd.to_numeric(frame["cumulative_net_total_return"], errors="coerce") - float(
+            base["cumulative_net_total_return"]
+        )
+        frame["sharpe_diff_vs_e014"] = pd.to_numeric(frame["sharpe"], errors="coerce") - float(base["sharpe"])
+        frame["mdd_diff_vs_e014"] = pd.to_numeric(frame["max_drawdown"], errors="coerce") - float(base["max_drawdown"])
+    return frame
+
+
 def _build_e_layer2_context(config: dict[str, Any]) -> dict[str, Any]:
     panel, calendar, universe = _build_b011_inputs(config)
     market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
@@ -3408,6 +3847,23 @@ def _write_e011_report(output_dir: Path, config: dict[str, Any], summary: pd.Dat
     output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _write_e014_report(output_dir: Path, config: dict[str, Any], summary: pd.DataFrame, comparison: pd.DataFrame) -> None:
+    lines = [
+        "# E014 RS+Breadth Top4 Registration Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        "- carrier: RS + Breadth score, Flow excluded, Top 4 sectors, holdings 2/1/1/1",
+        "- macro_gate: D013 10 variables, 5 blocks, 60-month z-score, threshold -0.2",
+        "- timing: signal quarter-end T uses stock, sector, and KOSPI data through T; execution is T+1 or later",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Champion Summary", summary))
+    lines.extend(_b004_dataframe_table("D013/E011 Comparison", comparison))
+    output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def _write_e012_report(
     output_dir: Path,
     config: dict[str, Any],
@@ -3437,6 +3893,71 @@ def _write_e012_report(
     lines.extend(_b004_dataframe_table("Top-K Grid", topk_summary))
     lines.extend(_b004_dataframe_table("Cost Stress", cost_summary))
     lines.extend(["## Robustness Verdict", "", f"- topk_sharpe_ge_0p40_count: {robust_k}", ""])
+    output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_e015_mdd_markdown(output_dir: Path, mdd: dict[str, pd.DataFrame]) -> None:
+    lines = ["# E015 MDD Attribution", ""]
+    lines.extend(_b004_dataframe_table("MDD Summary", mdd["summary"]))
+    lines.extend(_b004_dataframe_table("Trades During MDD", mdd["trades"]))
+    output_dir.joinpath("mdd_attribution.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_e015_finding_log(output_dir: Path, topk_stability: pd.DataFrame) -> None:
+    best = topk_stability.sort_values("sharpe", ascending=False).head(1)
+    lines = [
+        "# E015 Finding Log",
+        "",
+        "E015 is validation-only. Any stronger adjacent result is recorded here as backlog only and is not adopted.",
+        "",
+    ]
+    if not best.empty and str(best.iloc[0]["variant"]) != "top_4":
+        lines.append(
+            f"- Top-K adjacent check: {best.iloc[0]['variant']} had the highest Sharpe "
+            f"({best.iloc[0]['sharpe']}), but E014 remains frozen at Top 4."
+        )
+    else:
+        lines.append("- No adjacent Top-K finding outranked frozen Top 4 on Sharpe.")
+    output_dir.joinpath("finding_log.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_e015_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    pass_fail: pd.DataFrame,
+    cost_summary: pd.DataFrame,
+    topk_stability: pd.DataFrame,
+    subperiod_table: pd.DataFrame,
+    spike_exclusion: pd.DataFrame,
+    contribution: dict[str, pd.DataFrame],
+    d013_overlap: pd.DataFrame,
+    e011_overlap: pd.DataFrame,
+    mdd: dict[str, pd.DataFrame],
+) -> None:
+    verdict = "E014-L2-PROTOTYPE-CHAMPION 동결" if bool(pass_fail["passed"].all()) else "fallback"
+    lines = [
+        "# E015 RS+Breadth Top4 Validation Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        "- carrier: E014 frozen RS + Breadth Top 4, holdings 2/1/1/1",
+        "- validation_only: no new weights, lookbacks, K, allocation, or variables are adopted",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Pass/Fail", pass_fail))
+    lines.extend(["## Verdict", "", f"- {verdict}", ""])
+    lines.extend(_b004_dataframe_table("Cost Stress", cost_summary))
+    lines.extend(_b004_dataframe_table("Top-K Stability", topk_stability))
+    lines.extend(_b004_dataframe_table("Subperiod Table", subperiod_table))
+    lines.extend(_b004_dataframe_table("Spike Exclusion", spike_exclusion))
+    lines.extend(_b004_dataframe_table("Year Contribution", contribution["year"]))
+    lines.extend(_b004_dataframe_table("Sector Contribution", contribution["sector"]))
+    lines.extend(_b004_dataframe_table("Stock Contribution", contribution["stock"].head(20)))
+    lines.extend(_b004_dataframe_table("Rebalance Contribution", contribution["rebalance"].head(20)))
+    lines.extend(_b004_dataframe_table("D013 Overlap", d013_overlap))
+    lines.extend(_b004_dataframe_table("E011 Overlap", e011_overlap))
+    lines.extend(_b004_dataframe_table("MDD Summary", mdd["summary"]))
     output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -16068,6 +16589,70 @@ def _validate_e013_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("E013 subperiods must match the ticket exactly.")
     if config["per_year_analysis"] is not True or config["rolling_3yr_sharpe"] is not True:
         raise ValueError("E013 requires per_year_analysis and rolling_3yr_sharpe enabled.")
+
+
+def _validate_e014_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E014_CONFIG_KEYS:
+        raise ValueError(f"E014 config keys must be exactly {EXPECTED_E014_CONFIG_KEYS}; got {keys}.")
+    e011_like = dict(config)
+    e011_like["experiment_id"] = "E011"
+    _validate_e011_config_shape(e011_like)
+    if tuple(config["variants"]) != ("champion",):
+        raise ValueError("E014 variants must be exactly champion.")
+
+
+def _validate_e015_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_E015_CONFIG_KEYS:
+        raise ValueError(f"E015 config keys must be exactly {EXPECTED_E015_CONFIG_KEYS}; got {keys}.")
+    e012_like = {
+        key: (config["cost_scenarios"] if key == "cost_scenarios" else config[key])
+        for key in EXPECTED_E012_CONFIG_KEYS
+        if key in config or key == "cost_scenarios"
+    }
+    e012_like["experiment_id"] = "E012"
+    e012_like["selection"] = {
+        "score_ablation_top_sector_stock_counts": [2, 1, 1, 1],
+        "top_sector_stock_counts_grid": [[2, 2, 1], [2, 1, 1, 1], [1, 1, 1, 1, 1]],
+        "min_sector_stocks": config["selection"]["min_sector_stocks"],
+    }
+    e012_like["diagnostics"] = {"top_bottom_k": 3}
+    e012_like["variants"] = ["score_ablation", "topk_grid", "cost_stress"]
+    e012_like["output_dir"] = config["output_dir"]
+    ordered = {key: e012_like[key] for key in EXPECTED_E012_CONFIG_KEYS}
+    _validate_e012_config_shape(ordered)
+    if tuple(config["selection"].keys()) != ("top_sectors", "top_sector_stock_counts", "min_sector_stocks"):
+        raise ValueError("E015 selection keys must be top_sectors, top_sector_stock_counts, min_sector_stocks.")
+    if int(config["selection"]["top_sectors"]) != 4:
+        raise ValueError("E015 requires selection.top_sectors: 4.")
+    if tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]) != (2, 1, 1, 1):
+        raise ValueError("E015 requires selection.top_sector_stock_counts: [2, 1, 1, 1].")
+    expected_spikes = [
+        [2020],
+        [2025],
+        [2026],
+        [2020, 2025, 2026],
+    ]
+    if config["spike_exclusions"] != expected_spikes:
+        raise ValueError("E015 spike_exclusions must match the ticket exactly.")
+    if config["validation"] != {
+        "topk_stability_counts": [[2, 2, 1], [2, 1, 1, 1], [1, 1, 1, 1, 1]],
+        "no_exploration": True,
+    }:
+        raise ValueError("E015 validation block must freeze Top-K stability and no_exploration exactly.")
+    expected_subperiods = (
+        ("full", "2010-01-04", "2026-05-04"),
+        ("scheme_a_is", "2015-01-01", "2020-12-31"),
+        ("scheme_a_oos", "2021-01-01", "2026-05-04"),
+        ("scheme_b_is", "2015-01-01", "2019-12-31"),
+        ("scheme_b_oos", "2020-01-01", "2026-05-04"),
+        ("scheme_c_is", "2015-01-01", "2021-12-31"),
+        ("scheme_c_oos", "2022-01-01", "2026-05-04"),
+    )
+    actual_subperiods = tuple((item["name"], str(item["start"]), str(item["end"])) for item in config["subperiods"])
+    if actual_subperiods != expected_subperiods:
+        raise ValueError("E015 subperiods must match the ticket exactly.")
 
 
 def _validate_b001_config_shape(config: dict[str, Any]) -> None:

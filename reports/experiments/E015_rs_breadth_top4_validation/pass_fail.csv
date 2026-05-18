@@ -1,0 +1,9 @@
+criterion,actual,threshold,passed
+cumulative_ge_d013,3.621084739339225,2.54,True
+sharpe_ge_d013,0.6311872415922518,0.53,True
+mdd_ge_minus_45pct,-0.35641869371448887,-0.45,True
+cost_3x_ge_d013_3x,2.992337199537995,2.07 or sharpe 0.47,True
+spike_excluded_ge_d013,1.2864344002129466,0.95,True
+top1_sector_lt_50pct,0.26116182002201543,0.5,True
+top1_stock_lt_40pct,0.16759335722529176,0.4,True
+topk_all_sharpe_ge_0p40,0.549349640382552,0.4,True
