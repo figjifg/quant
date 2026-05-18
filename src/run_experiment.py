@@ -243,6 +243,8 @@ from src.strategies.f006_combined_e014 import (
     build_combined_e014_candidates,
     build_combined_e014_selection_universe,
 )
+from src.strategies.g000_vol_target_d013 import run_g000_d013_vol_target_variants
+from src.strategies.g000_vol_target_e014 import run_g000_e014_vol_target_variants
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -761,6 +763,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id in {"F006", "F007", "F008", "F009", "F010"}:
         _validate_f006_to_f010_config_shape(config)
         run_f006_to_f010_experiment(config, config_path)
+    elif experiment_id == "G000":
+        _validate_g000_config_shape(config)
+        run_g000_experiment(config, config_path)
     elif experiment_id == "B001":
         _validate_b001_config_shape(config)
         run_b001_experiment(config, config_path)
@@ -3414,6 +3419,106 @@ def run_e014_experiment(config: dict[str, Any], config_path: Path) -> None:
     _write_e014_report(output_dir, config, summary, comparison)
 
 
+def run_g000_experiment(config: dict[str, Any], config_path: Path) -> None:
+    carrier = str(config["carrier"])
+    output_root = Path(config["output_dir"])
+    output_root.mkdir(parents=True, exist_ok=True)
+    costs = _costs_from_config(config["costs"])
+    target_vol = float(config["volatility_targeting"]["target_vol"])
+    vol_window = int(config["volatility_targeting"]["window"])
+
+    if carrier == "d013":
+        panel, calendar, universe = _build_b011_inputs(config)
+        market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+        raw_daily_regime = build_macro_regime_daily(
+            pd.Index(calendar.dates),
+            macro_data_dir=config["macro_data_dir"],
+            on_threshold=2,
+            macro_signals=D009_SIGNAL_NAMES,
+        )
+        monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+        factor_monthly_regime = factor_aggregation_composite(
+            monthly_raw_regime,
+            z_score_window_months=int(config["regime"]["z_score_window_months"]),
+            on_threshold=float(config["regime"]["on_threshold"]),
+            blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+        )
+        quarterly_log = quarterly_regime_log(factor_monthly_regime)
+        segments = _b011_segments(config)
+        max_positions = int(config["selection"]["n"])
+        runs, candidates, scalars, baseline = run_g000_d013_vol_target_variants(
+            panel=panel,
+            calendar=calendar,
+            universe=universe,
+            quarterly_regime=quarterly_log,
+            market_breadth=market_breadth,
+            costs=costs,
+            segments=segments,
+            max_positions=max_positions,
+            target_vol=target_vol,
+            vol_window=vol_window,
+        )
+        signals = _c008_signals(candidates["factor_macro_gate_mcap"])
+        subdir = output_root / "D013_vol_target"
+    elif carrier == "e014":
+        context = _build_e_layer2_context(config)
+        panel = context["panel"]
+        calendar = context["calendar"]
+        quarterly_log = context["quarterly_log"]
+        segments = context["segments"]
+        runs, candidates, scalars, baseline = run_g000_e014_vol_target_variants(
+            panel=panel,
+            calendar=calendar,
+            universe=context["universe"],
+            quarterly_regime=quarterly_log,
+            market_breadth=context["market_breadth"],
+            combined_scores=context["combined_scores"],
+            sector_mapping=context["sector_mapping"],
+            costs=costs,
+            segments=segments,
+            target_vol=target_vol,
+            vol_window=vol_window,
+        )
+        signals = _e007_signals(candidates["factor_macro_gate_mcap"])
+        subdir = output_root / "E014_vol_target"
+    else:
+        raise ValueError("G000 carrier must be d013 or e014.")
+
+    subdir.mkdir(parents=True, exist_ok=True)
+    variant_config = dict(config)
+    variant_config["output_dir"] = str(subdir)
+    (subdir / "config.yaml").write_text(
+        yaml.safe_dump(variant_config, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    candidate_years = _b011_candidate_years(config)
+    metrics, zero_result = _g000_metrics(
+        runs=runs,
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates["factor_macro_gate_mcap"],
+        quarterly_regime=quarterly_log,
+        segments=segments,
+        candidate_years=candidate_years,
+        scalars=scalars,
+        baseline=baseline,
+    )
+    _write_json(subdir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], calendar), subdir / "trades.csv")
+    _write_ticker_safe_csv(signals, subdir / "signals.csv")
+    _d001_wide_equity_curve(runs).to_csv(subdir / "equity_curve.csv", index=False)
+    _d009_year_breakdown(runs=runs, calendar=calendar, candidate_years=candidate_years).to_csv(
+        subdir / "quarterly_year_breakdown.csv", index=False
+    )
+    _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, calendar).to_csv(
+        subdir / "subperiod_breakdown.csv", index=False
+    )
+    quarterly_log.to_csv(subdir / "quarterly_regime_log.csv", index=False)
+    scalars.to_csv(subdir / "vol_scalars.csv", index=False)
+    _write_g000_subreport(subdir, carrier, metrics, scalars)
+    _write_g000_parent_outputs(output_root)
+
+
 def run_f002_experiment(config: dict[str, Any], config_path: Path) -> None:
     context = _build_f002_context(config)
     costs = _costs_from_config(config["costs"])
@@ -4611,6 +4716,241 @@ def _run_e_layer2_portfolio(
     zero_result = _e003_zero_cost_result(panel, calendar, candidates, quarterly_log, segments, weighted=True)
     metrics = _e003_variant_metrics(runs, zero_result, calendar, candidate_years)
     return runs, metrics, zero_result
+
+
+def _g000_metrics(
+    *,
+    runs: dict[str, BacktestResult],
+    panel: pd.DataFrame,
+    calendar: object,
+    candidates: pd.DataFrame,
+    quarterly_regime: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidate_years: tuple[int, ...],
+    scalars: pd.DataFrame,
+    baseline: BacktestResult,
+) -> tuple[dict[str, dict[str, Any]], BacktestResult]:
+    metrics: dict[str, dict[str, Any]] = {}
+    for variant in ("factor_macro_gate_mcap", "kospi_buy_and_hold", "cash"):
+        block = dict(compute_metrics(runs[variant].equity_curve, runs[variant].trades, calendar))
+        yearly_returns = _b011_year_returns(runs[variant], calendar, candidate_years)
+        block["cumulative_net_total_return"] = block["total_return"]
+        block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+        block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+        metrics[variant] = block
+
+    zero_result = run_quarterly_sized_mcap_backtest(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates,
+        costs=Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0),
+        segments=segments,
+        rebalance_dates=quarterly_execution_dates(calendar, quarterly_regime, segments),
+    )
+    cost_0 = dict(compute_metrics(zero_result.equity_curve, zero_result.trades, calendar))
+    cost_0["cumulative_net_total_return"] = cost_0["total_return"]
+    metrics["cost_0_factor_macro_gate_mcap"] = cost_0
+
+    baseline_block = dict(compute_metrics(baseline.equity_curve, baseline.trades, calendar))
+    baseline_block["cumulative_net_total_return"] = baseline_block["total_return"]
+    metrics["baseline_carrier"] = baseline_block
+
+    v1 = metrics["factor_macro_gate_mcap"]
+    scalar = pd.to_numeric(scalars["vol_scalar"], errors="coerce").dropna()
+    v1["target_vol"] = float(pd.to_numeric(scalars["target_vol"], errors="coerce").dropna().iloc[0]) if "target_vol" in scalars and not scalars.empty else float("nan")
+    v1["vol_window"] = 60
+    v1["vol_scalar_mean"] = float(scalar.mean()) if not scalar.empty else float("nan")
+    v1["vol_scalar_min"] = float(scalar.min()) if not scalar.empty else float("nan")
+    v1["vol_scalar_p25"] = float(scalar.quantile(0.25)) if not scalar.empty else float("nan")
+    v1["vol_scalar_median"] = float(scalar.median()) if not scalar.empty else float("nan")
+    v1["vol_scalar_lt_1_share"] = float(scalar.lt(1.0).mean()) if not scalar.empty else float("nan")
+    v1["vol_scalar_lt_1_count"] = int(scalar.lt(1.0).sum()) if not scalar.empty else 0
+    v1.update(_g000_drawdown_scalar_diagnostics(runs["factor_macro_gate_mcap"], scalars))
+    return metrics, zero_result
+
+
+def _g000_drawdown_scalar_diagnostics(result: BacktestResult, scalars: pd.DataFrame) -> dict[str, Any]:
+    curve = result.equity_curve.loc[:, ["date", "net_value"]].copy()
+    if curve.empty:
+        return {
+            "mdd_peak_date": "",
+            "mdd_trough_date": "",
+            "mdd_period_min_vol_scalar": float("nan"),
+            "mdd_period_mean_vol_scalar": float("nan"),
+            "mdd_period_scalar_lt_1_share": float("nan"),
+            "mdd_peak_active_vol_scalar": float("nan"),
+            "mdd_trough_active_vol_scalar": float("nan"),
+        }
+    curve["date"] = pd.to_datetime(curve["date"], errors="raise").dt.normalize()
+    net = pd.to_numeric(curve["net_value"], errors="raise")
+    drawdown = net / net.cummax() - 1.0
+    trough_index = int(drawdown.idxmin())
+    peak_index = int(net.loc[:trough_index].idxmax())
+    peak_date = pd.Timestamp(curve.loc[peak_index, "date"]).normalize()
+    trough_date = pd.Timestamp(curve.loc[trough_index, "date"]).normalize()
+    scalar_data = scalars.copy()
+    scalar_data["signal_date"] = pd.to_datetime(scalar_data["signal_date"], errors="raise").dt.normalize()
+    in_period = scalar_data.loc[scalar_data["signal_date"].between(peak_date, trough_date)]
+    scalar = pd.to_numeric(in_period["vol_scalar"], errors="coerce").dropna()
+    peak_active = _g000_active_scalar_on_date(scalar_data, peak_date)
+    trough_active = _g000_active_scalar_on_date(scalar_data, trough_date)
+    return {
+        "mdd_peak_date": peak_date,
+        "mdd_trough_date": trough_date,
+        "mdd_period_min_vol_scalar": float(scalar.min()) if not scalar.empty else float("nan"),
+        "mdd_period_mean_vol_scalar": float(scalar.mean()) if not scalar.empty else float("nan"),
+        "mdd_period_scalar_lt_1_share": float(scalar.lt(1.0).mean()) if not scalar.empty else float("nan"),
+        "mdd_peak_active_vol_scalar": peak_active,
+        "mdd_trough_active_vol_scalar": trough_active,
+    }
+
+
+def _g000_active_scalar_on_date(scalars: pd.DataFrame, date: pd.Timestamp) -> float:
+    history = scalars.loc[scalars["signal_date"].le(pd.Timestamp(date).normalize())].copy()
+    if history.empty:
+        return float("nan")
+    return float(pd.to_numeric(history.sort_values("signal_date")["vol_scalar"], errors="coerce").iloc[-1])
+
+
+def _write_g000_subreport(
+    output_dir: Path,
+    carrier: str,
+    metrics: dict[str, dict[str, Any]],
+    scalars: pd.DataFrame,
+) -> None:
+    block = metrics["factor_macro_gate_mcap"]
+    baseline = metrics["baseline_carrier"]
+    scalar = pd.to_numeric(scalars["vol_scalar"], errors="coerce").dropna()
+    lines = [
+        f"# G000 {carrier.upper()} Volatility Targeting",
+        "",
+        "## Metrics Summary",
+        "",
+        "| run | cumulative_net_total_return | sharpe | max_drawdown |",
+        "| --- | ---: | ---: | ---: |",
+        "| baseline_carrier | "
+        + " | ".join(_format_report_value(baseline[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "| vol_target | "
+        + " | ".join(_format_report_value(block[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "",
+        "## Vol Scalar",
+        "",
+        "| metric | value |",
+        "| --- | ---: |",
+        f"| count | {len(scalar)} |",
+        f"| lt_1_count | {int(scalar.lt(1.0).sum()) if not scalar.empty else 0} |",
+        f"| lt_1_share | {_format_report_value(block['vol_scalar_lt_1_share'])} |",
+        f"| mean | {_format_report_value(block['vol_scalar_mean'])} |",
+        f"| min | {_format_report_value(block['vol_scalar_min'])} |",
+        "",
+        "## Drawdown Scalar Check",
+        "",
+        "| metric | value |",
+        "| --- | ---: |",
+        f"| mdd_peak_date | {block['mdd_peak_date']} |",
+        f"| mdd_trough_date | {block['mdd_trough_date']} |",
+        f"| mdd_period_min_vol_scalar | {_format_report_value(block['mdd_period_min_vol_scalar'])} |",
+        f"| mdd_period_mean_vol_scalar | {_format_report_value(block['mdd_period_mean_vol_scalar'])} |",
+        f"| mdd_period_scalar_lt_1_share | {_format_report_value(block['mdd_period_scalar_lt_1_share'])} |",
+        f"| mdd_peak_active_vol_scalar | {_format_report_value(block['mdd_peak_active_vol_scalar'])} |",
+        f"| mdd_trough_active_vol_scalar | {_format_report_value(block['mdd_trough_active_vol_scalar'])} |",
+        "",
+    ]
+    (output_dir / "report.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def _write_g000_parent_outputs(output_root: Path) -> None:
+    rows = []
+    specs = [
+        ("D013", output_root / "D013_vol_target", Path("reports/experiments/D013_d009_threshold_minus_0p2/metrics.json"), 2.54, 0.53, -0.34),
+        ("E014", output_root / "E014_vol_target", Path("reports/experiments/E014_rs_breadth_top4_registration/metrics.json"), 3.62, 0.63, -0.36),
+    ]
+    for label, directory, reference_path, fallback_return, fallback_sharpe, fallback_mdd in specs:
+        baseline = _variant_metrics_from_json(reference_path, "factor_macro_gate_mcap")
+        if not baseline:
+            baseline = {
+                "cumulative_net_total_return": fallback_return,
+                "sharpe": fallback_sharpe,
+                "max_drawdown": fallback_mdd,
+            }
+        vt = _variant_metrics_from_json(directory / "metrics.json", "factor_macro_gate_mcap")
+        if not vt:
+            continue
+        rows.append(
+            {
+                "carrier": label,
+                "baseline_cumulative_net_total_return": baseline.get("cumulative_net_total_return", baseline.get("total_return")),
+                "vt_cumulative_net_total_return": vt.get("cumulative_net_total_return", vt.get("total_return")),
+                "baseline_sharpe": baseline.get("sharpe"),
+                "vt_sharpe": vt.get("sharpe"),
+                "baseline_max_drawdown": baseline.get("max_drawdown"),
+                "vt_max_drawdown": vt.get("max_drawdown"),
+                "return_delta_pp": _float_or_nan(vt.get("cumulative_net_total_return", vt.get("total_return")))
+                - _float_or_nan(baseline.get("cumulative_net_total_return", baseline.get("total_return"))),
+                "mdd_improvement_pp": _float_or_nan(vt.get("max_drawdown")) - _float_or_nan(baseline.get("max_drawdown")),
+                "vol_scalar_lt_1_share": vt.get("vol_scalar_lt_1_share"),
+                "mdd_period_min_vol_scalar": vt.get("mdd_period_min_vol_scalar"),
+                "mdd_period_mean_vol_scalar": vt.get("mdd_period_mean_vol_scalar"),
+                "mdd_period_scalar_lt_1_share": vt.get("mdd_period_scalar_lt_1_share"),
+                "mdd_peak_active_vol_scalar": vt.get("mdd_peak_active_vol_scalar"),
+                "mdd_trough_active_vol_scalar": vt.get("mdd_trough_active_vol_scalar"),
+                "mdd_peak_date": vt.get("mdd_peak_date"),
+                "mdd_trough_date": vt.get("mdd_trough_date"),
+            }
+        )
+    comparison = pd.DataFrame(rows)
+    if not comparison.empty:
+        comparison.to_csv(output_root / "baseline_comparison.csv", index=False)
+    _write_g000_parent_report(output_root, comparison)
+
+
+def _write_g000_parent_report(output_root: Path, comparison: pd.DataFrame) -> None:
+    lines = [
+        "# G000 Layer 4 Design",
+        "",
+        "## Baseline Comparison",
+        "",
+        "| carrier | baseline_return | vt_return | baseline_sharpe | vt_sharpe | baseline_mdd | vt_mdd | verdict |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    if not comparison.empty:
+        for _, row in comparison.iterrows():
+            mdd_improved = float(row["mdd_improvement_pp"]) >= 0.05
+            return_ok = float(row["return_delta_pp"]) >= -0.50
+            verdict = "effective" if mdd_improved and return_ok else "not_effective"
+            lines.append(
+                "| "
+                + str(row["carrier"])
+                + " | "
+                + " | ".join(
+                    _format_report_value(row[column])
+                    for column in (
+                        "baseline_cumulative_net_total_return",
+                        "vt_cumulative_net_total_return",
+                        "baseline_sharpe",
+                        "vt_sharpe",
+                        "baseline_max_drawdown",
+                        "vt_max_drawdown",
+                    )
+                )
+                + f" | {verdict} |"
+            )
+    lines.extend(["", "## Vol Scalar And MDD", "", "| carrier | lt_1_share | mdd_window | active_peak | active_trough | mdd_min_scalar | mdd_mean_scalar | mdd_lt_1_share |", "| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |"])
+    if not comparison.empty:
+        for _, row in comparison.iterrows():
+            lines.append(
+                f"| {row['carrier']} | {_format_report_value(row['vol_scalar_lt_1_share'])} | "
+                f"{row['mdd_peak_date']} to {row['mdd_trough_date']} | "
+                f"{_format_report_value(row['mdd_peak_active_vol_scalar'])} | "
+                f"{_format_report_value(row['mdd_trough_active_vol_scalar'])} | "
+                f"{_format_report_value(row['mdd_period_min_vol_scalar'])} | "
+                f"{_format_report_value(row['mdd_period_mean_vol_scalar'])} | "
+                f"{_format_report_value(row['mdd_period_scalar_lt_1_share'])} |"
+            )
+    lines.append("")
+    (output_root / "report.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def _write_e012_variant_run(
@@ -18358,6 +18698,115 @@ def _validate_f006_to_f010_config_shape(config: dict[str, Any]) -> None:
             raise ValueError(f"{experiment_id}-B requires diagnostics.top_bottom_k: 1.")
         if tuple(config["variants"]) != ("e014",):
             raise ValueError(f"{experiment_id}-B variants must be exactly e014.")
+
+
+def _validate_g000_config_shape(config: dict[str, Any]) -> None:
+    carrier = str(config.get("carrier"))
+    common_keys = (
+        "experiment_id",
+        "carrier",
+        "panels",
+        "panel_date_filters",
+        "market_breadth_csv",
+        "macro_data_dir",
+        "period",
+        "universe",
+        "strategy",
+        "regime",
+        "selection",
+        "rebalance",
+        "costs",
+        "volatility_targeting",
+        "variants",
+        "output_dir",
+    )
+    e014_expected = (
+        "experiment_id",
+        "carrier",
+        "panels",
+        "panel_date_filters",
+        "market_breadth_csv",
+        "macro_data_dir",
+        "sector_aggregate_csv",
+        "stock_sector_daily_csv",
+        "sector_mapping_csv",
+        "period",
+        "universe",
+        "strategy",
+        "regime",
+        "selection",
+        "rebalance",
+        "costs",
+        "volatility_targeting",
+        "diagnostics",
+        "variants",
+        "output_dir",
+    )
+    expected = common_keys if carrier == "d013" else e014_expected
+    if tuple(config.keys()) != expected:
+        raise ValueError(f"G000 {carrier} config keys must be exactly {expected}; got {tuple(config.keys())}.")
+    if carrier not in {"d013", "e014"}:
+        raise ValueError("G000 carrier must be d013 or e014.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError("G000 period keys must match D013/E014.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError("G000 universe keys must match D013/E014.")
+    if tuple(config["regime"].keys()) != EXPECTED_D013_REGIME_KEYS:
+        raise ValueError("G000 regime keys must match D013.")
+    if tuple(config["rebalance"].keys()) != EXPECTED_C003_REBALANCE_KEYS:
+        raise ValueError("G000 rebalance keys must match quarterly last-trading-day.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError("G000 costs keys must match default cost schema.")
+    if config["experiment_id"] != "G000":
+        raise ValueError("G000 config requires experiment_id: G000.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("G000 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("G000 requires period.exclude_calendar_years: [2016].")
+    if config["regime"]["aggregation"] != "factor_z_score":
+        raise ValueError("G000 requires regime.aggregation: factor_z_score.")
+    if int(config["regime"]["z_score_window_months"]) != 60:
+        raise ValueError("G000 requires regime.z_score_window_months: 60.")
+    if float(config["regime"]["on_threshold"]) != -0.2:
+        raise ValueError("G000 requires D013 regime.on_threshold: -0.2.")
+    if _d001_blocks_from_config(config["regime"]["blocks"]) != _d009_expected_blocks():
+        raise ValueError("G000 factor blocks/signs must match D013/D009 exactly.")
+    if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
+        raise ValueError("G000 requires quarterly last_trading_day rebalance.")
+    if tuple(config["volatility_targeting"].keys()) != ("target_vol", "window", "annualization"):
+        raise ValueError("G000 volatility_targeting keys must be target_vol, window, annualization.")
+    if float(config["volatility_targeting"]["target_vol"]) != 0.20:
+        raise ValueError("G000 target_vol must be 0.20.")
+    if int(config["volatility_targeting"]["window"]) != 60:
+        raise ValueError("G000 volatility window must be 60.")
+    if int(config["volatility_targeting"]["annualization"]) != 252:
+        raise ValueError("G000 annualization must be 252.")
+    if tuple(config["variants"]) != ("vol_target",):
+        raise ValueError("G000 variants must be exactly ['vol_target'].")
+    if carrier == "d013":
+        if tuple(config["strategy"].keys()) != EXPECTED_D001_STRATEGY_KEYS:
+            raise ValueError("G000 D013 strategy keys must match D013.")
+        if int(config["strategy"]["lookback"]) != 5 or int(config["strategy"]["max_positions"]) != 5:
+            raise ValueError("G000 D013 requires lookback 5 and max_positions 5.")
+        if tuple(config["selection"].keys()) != EXPECTED_B011_SELECTION_KEYS:
+            raise ValueError("G000 D013 selection keys must match D013.")
+        if config["selection"]["type"] != "market_cap_top_n" or int(config["selection"]["n"]) != 5:
+            raise ValueError("G000 D013 requires market_cap_top_n n=5.")
+    else:
+        if tuple(config["strategy"].keys()) != (
+            "flow_by_value_window",
+            "flow_by_mcap_window",
+            "short_window",
+            "long_window",
+            "breadth_window",
+        ):
+            raise ValueError("G000 E014 strategy keys must match E014.")
+        if tuple(config["selection"].keys()) != ("top_sectors", "top_sector_stock_counts", "min_sector_stocks"):
+            raise ValueError("G000 E014 selection keys must match E014.")
+        if int(config["selection"]["top_sectors"]) != 4:
+            raise ValueError("G000 E014 requires top_sectors: 4.")
+        if tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]) != (2, 1, 1, 1):
+            raise ValueError("G000 E014 requires top_sector_stock_counts: [2, 1, 1, 1].")
 
 
 def _validate_e015_config_shape(config: dict[str, Any]) -> None:
