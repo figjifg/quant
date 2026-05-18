@@ -10,6 +10,7 @@ from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
 from src.features.market_gate import build_market_gate_features
 from src.features.relative_flow import build_relative_flow_features
+from src.features.sector_breadth_score import build_sector_breadth_scores
 from src.features.sector_combined_score import build_sector_combined_scores
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
@@ -427,5 +428,47 @@ def test_sector_combined_score_at_signal_date_ignores_future_component_rows() ->
     columns = ["signal_date", "sector_code", "flow_score", "rs_score", "combined_score"]
     before_rows = before.loc[before["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
     after_rows = after.loc[after["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_rows, before_rows)
+
+
+def test_sector_breadth_score_at_signal_date_ignores_future_stock_and_kospi_rows() -> None:
+    dates = pd.date_range("2025-01-02", periods=5, freq="B")
+    rows = []
+    for date in dates:
+        for ticker, sector_code, flow, daily_return in (
+            ("000001", "01", 10.0, 0.02),
+            ("000002", "01", -10.0, 0.02),
+            ("000003", "01", 10.0, -0.02),
+            ("000004", "02", -10.0, -0.01),
+            ("000005", "02", -10.0, 0.01),
+            ("000006", "02", 10.0, -0.01),
+        ):
+            rows.append(
+                {
+                    "date": date,
+                    "ticker": ticker,
+                    "sector_code": sector_code,
+                    "sector_name": f"sector_{sector_code}",
+                    "market_cap": 1_000.0,
+                    "foreign_net_buy_amount": flow,
+                    "daily_return": daily_return,
+                }
+            )
+    stock = pd.DataFrame(rows)
+    kospi = pd.DataFrame({"date": dates, "cap_weighted_return": [0.0] * len(dates)})
+    signal_date = pd.Timestamp("2025-01-07")
+
+    before = build_sector_breadth_scores(stock, kospi, signal_dates=[signal_date], window=2)
+    mutated_stock = stock.copy()
+    mutated_kospi = kospi.copy()
+    mutated_stock.loc[pd.to_datetime(mutated_stock["date"]).gt(signal_date), "foreign_net_buy_amount"] = 999_000.0
+    mutated_stock.loc[pd.to_datetime(mutated_stock["date"]).gt(signal_date), "daily_return"] = 999.0
+    mutated_kospi.loc[pd.to_datetime(mutated_kospi["date"]).gt(signal_date), "cap_weighted_return"] = -0.99
+    after = build_sector_breadth_scores(mutated_stock, mutated_kospi, signal_dates=[signal_date], window=2)
+
+    columns = ["signal_date", "sector_code", "sector_breadth_strict", "breadth_score"]
+    before_rows = before.loc[:, columns].sort_values("sector_code").reset_index(drop=True)
+    after_rows = after.loc[:, columns].sort_values("sector_code").reset_index(drop=True)
 
     pd.testing.assert_frame_equal(after_rows, before_rows)

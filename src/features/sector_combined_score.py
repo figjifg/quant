@@ -13,10 +13,15 @@ from src.features.sector_flow_score import (
 
 REQUIRED_FLOW_COLUMNS = ("signal_date", "sector_code", "sector_name", "flow_score")
 REQUIRED_RS_COLUMNS = ("signal_date", "sector_code", "sector_name", "rs_score")
+REQUIRED_BREADTH_COLUMNS = ("signal_date", "sector_code", "sector_name", "breadth_score")
 
 
-def build_sector_combined_scores(flow_scores: pd.DataFrame, rs_scores: pd.DataFrame) -> pd.DataFrame:
-    """Combine pre-timestamped Flow and RS sector scores with a simple mean."""
+def build_sector_combined_scores(
+    flow_scores: pd.DataFrame,
+    rs_scores: pd.DataFrame,
+    breadth_scores: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Combine pre-timestamped sector scores with a simple mean."""
     _require_columns(flow_scores, REQUIRED_FLOW_COLUMNS, "flow_scores")
     _require_columns(rs_scores, REQUIRED_RS_COLUMNS, "rs_scores")
 
@@ -38,11 +43,35 @@ def build_sector_combined_scores(flow_scores: pd.DataFrame, rs_scores: pd.DataFr
         how="inner",
         validate="one_to_one",
     )
-    combined["combined_score"] = combined[["flow_score", "rs_score"]].mean(axis=1, skipna=False)
-    combined["eligible_for_score"] = combined[["flow_score", "rs_score"]].notna().all(axis=1)
+    component_columns = ["flow_score", "rs_score"]
+    if breadth_scores is not None:
+        _require_columns(breadth_scores, REQUIRED_BREADTH_COLUMNS, "breadth_scores")
+        breadth = breadth_scores.loc[:, ["signal_date", "sector_code", "breadth_score"]].copy()
+        breadth["signal_date"] = pd.to_datetime(breadth["signal_date"], errors="raise").dt.normalize()
+        breadth["sector_code"] = breadth["sector_code"].astype("string").str.zfill(2)
+        breadth["breadth_score"] = pd.to_numeric(breadth["breadth_score"], errors="coerce")
+        combined = combined.merge(
+            breadth,
+            on=["signal_date", "sector_code"],
+            how="inner",
+            validate="one_to_one",
+        )
+        component_columns.append("breadth_score")
+    combined["combined_score"] = combined[component_columns].mean(axis=1, skipna=False)
+    combined["eligible_for_score"] = combined[component_columns].notna().all(axis=1)
+    output_columns = [
+        "signal_date",
+        "sector_code",
+        "sector_name",
+        "flow_score",
+        "rs_score",
+    ]
+    if breadth_scores is not None:
+        output_columns.append("breadth_score")
+    output_columns.extend(["combined_score", "eligible_for_score"])
     return combined.loc[
         :,
-        ["signal_date", "sector_code", "sector_name", "flow_score", "rs_score", "combined_score", "eligible_for_score"],
+        output_columns,
     ].sort_values(["signal_date", "sector_code"]).reset_index(drop=True)
 
 
