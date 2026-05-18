@@ -10,6 +10,7 @@ from src.data.universe import build_execution_universe
 from src.features.flow_ratios import build_flow_ratios
 from src.features.market_gate import build_market_gate_features
 from src.features.relative_flow import build_relative_flow_features
+from src.features.sector_combined_score import build_sector_combined_scores
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
@@ -394,3 +395,37 @@ def test_persistence_4_of_5_at_signal_date_ignores_future_daily_flow_rows() -> N
 
     assert not before_row.empty
     pd.testing.assert_frame_equal(after_row, before_row)
+
+
+def test_sector_combined_score_at_signal_date_ignores_future_component_rows() -> None:
+    current_signal_date = pd.Timestamp("2025-03-31")
+    future_signal_date = pd.Timestamp("2025-06-30")
+    flow_scores = pd.DataFrame(
+        {
+            "signal_date": [current_signal_date, current_signal_date, future_signal_date, future_signal_date],
+            "sector_code": ["01", "02", "01", "02"],
+            "sector_name": ["sector_01", "sector_02", "sector_01", "sector_02"],
+            "flow_score": [1.0, -1.0, 0.5, -0.5],
+        }
+    )
+    rs_scores = pd.DataFrame(
+        {
+            "signal_date": [current_signal_date, current_signal_date, future_signal_date, future_signal_date],
+            "sector_code": ["01", "02", "01", "02"],
+            "sector_name": ["sector_01", "sector_02", "sector_01", "sector_02"],
+            "rs_score": [0.5, 1.5, -0.5, 0.5],
+        }
+    )
+
+    before = build_sector_combined_scores(flow_scores, rs_scores)
+    mutated_flow = flow_scores.copy()
+    mutated_rs = rs_scores.copy()
+    mutated_flow.loc[mutated_flow["signal_date"].gt(current_signal_date), "flow_score"] = -999_000.0
+    mutated_rs.loc[mutated_rs["signal_date"].gt(current_signal_date), "rs_score"] = 999_000.0
+    after = build_sector_combined_scores(mutated_flow, mutated_rs)
+
+    columns = ["signal_date", "sector_code", "flow_score", "rs_score", "combined_score"]
+    before_rows = before.loc[before["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
+    after_rows = after.loc[after["signal_date"].eq(current_signal_date), columns].reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_rows, before_rows)
