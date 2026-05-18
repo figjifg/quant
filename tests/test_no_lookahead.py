@@ -15,6 +15,7 @@ from src.features.sector_combined_score import build_sector_combined_scores
 from src.features.stock_foreign_flow_score import build_stock_foreign_flow_scores
 from src.features.stock_institution_flow_score import build_stock_institution_flow_scores
 from src.features.stock_combined_score import build_stock_combined_scores
+from src.features.stress_filter import stress_filter_scalars
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
@@ -236,6 +237,63 @@ def test_strategy_candidates_at_execution_date_unchanged_by_future_panel_mutatio
 
     assert not before.empty
     pd.testing.assert_frame_equal(after, before)
+
+
+def test_stress_filter_at_signal_date_unchanged_by_future_macro_and_kospi_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    dates = pd.date_range("2025-01-01", periods=12, freq="B")
+    aligned = pd.DataFrame(
+        {
+            "signal_date": dates,
+            "vix": [20, 19, 18, 21, 22, 23, 24, 26, 27, 28, 29, 30],
+            "dexkous_usdkrw": [1000, 1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080, 1090, 1100, 1110],
+        }
+    )
+    breadth = pd.DataFrame(
+        {
+            "date": dates,
+            "cap_weighted_return": [0.01, -0.01, 0.02, -0.02, 0.03, -0.03, 0.01, -0.01, 0.02, -0.02, 0.03, -0.03],
+        }
+    )
+
+    def fake_align(signal_dates: object, input_dir: str) -> pd.DataFrame:
+        wanted = pd.to_datetime(pd.Series(signal_dates), errors="raise").dt.normalize()
+        return aligned.loc[aligned["signal_date"].isin(wanted)].reset_index(drop=True)
+
+    monkeypatch.setattr("src.features.stress_filter.align_macro_factors_to_korean_signal_dates", fake_align)
+    before = stress_filter_scalars(
+        dates,
+        macro_data_dir="unused",
+        market_breadth=breadth,
+        z_window=3,
+        usdkrw_yoy_lookback_days=3,
+        kospi_vol_window=3,
+    )
+
+    mutated_aligned = aligned.copy()
+    mutated_aligned.loc[mutated_aligned["signal_date"].gt(dates[8]), ["vix", "dexkous_usdkrw"]] = 9999.0
+    mutated_breadth = breadth.copy()
+    mutated_breadth.loc[pd.to_datetime(mutated_breadth["date"]).gt(dates[8]), "cap_weighted_return"] = 9.0
+
+    def fake_mutated_align(signal_dates: object, input_dir: str) -> pd.DataFrame:
+        wanted = pd.to_datetime(pd.Series(signal_dates), errors="raise").dt.normalize()
+        return mutated_aligned.loc[mutated_aligned["signal_date"].isin(wanted)].reset_index(drop=True)
+
+    monkeypatch.setattr("src.features.stress_filter.align_macro_factors_to_korean_signal_dates", fake_mutated_align)
+    after = stress_filter_scalars(
+        dates,
+        macro_data_dir="unused",
+        market_breadth=mutated_breadth,
+        z_window=3,
+        usdkrw_yoy_lookback_days=3,
+        kospi_vol_window=3,
+    )
+
+    columns = ["VIX_z", "USDKRW_z", "KOSPI_vol_z", "stress_score", "exposure_scalar"]
+    before_row = before.loc[before["signal_date"].eq(dates[8]), columns].reset_index(drop=True)
+    after_row = after.loc[after["signal_date"].eq(dates[8]), columns].reset_index(drop=True)
+    pd.testing.assert_frame_equal(after_row, before_row)
 
 
 def test_combined_flow_1_at_signal_date_unchanged_by_future_panel_mutation(
