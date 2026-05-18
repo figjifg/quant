@@ -14,6 +14,7 @@ from src.features.sector_breadth_score import build_sector_breadth_scores
 from src.features.sector_combined_score import build_sector_combined_scores
 from src.features.stock_foreign_flow_score import build_stock_foreign_flow_scores
 from src.features.stock_institution_flow_score import build_stock_institution_flow_scores
+from src.features.stock_combined_score import build_stock_combined_scores
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
@@ -550,6 +551,76 @@ def test_stock_institution_flow_score_at_signal_date_ignores_future_stock_flow_r
     after = build_stock_institution_flow_scores(mutated, signal_dates=[signal_date], value_window=2, mcap_window=3)
 
     columns = ["signal_date", "ticker", "raw_stock_institution_flow_score", "stock_institution_flow_score"]
+    before_rows = before.loc[:, columns].sort_values("ticker").reset_index(drop=True)
+    after_rows = after.loc[:, columns].sort_values("ticker").reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_rows, before_rows)
+
+
+def test_stock_combined_score_at_signal_date_ignores_future_component_rows() -> None:
+    dates = pd.date_range("2025-01-02", periods=8, freq="B")
+    signal_date = pd.Timestamp("2025-01-09")
+    rows = []
+    for ticker, sector_code, scale in (
+        ("000001", "01", 1.0),
+        ("000002", "01", 2.0),
+        ("000003", "02", 3.0),
+        ("000004", "02", 4.0),
+    ):
+        for day_index, date in enumerate(dates):
+            rows.append(
+                {
+                    "date": date,
+                    "ticker": ticker,
+                    "sector_code": sector_code,
+                    "sector_name": f"sector_{sector_code}",
+                    "market_cap": 1_000.0 + scale,
+                    "traded_value": 100.0 + scale,
+                    "foreign_net_buy_amount": scale * (day_index + 1.0),
+                    "institution_net_buy_amount": scale * (2.0 - day_index / 10.0),
+                    "daily_return": 0.001 * scale * (day_index + 1.0),
+                }
+            )
+    stock = pd.DataFrame(rows)
+    sector = (
+        stock.groupby(["date", "sector_code", "sector_name"], as_index=False)["daily_return"]
+        .mean()
+        .rename(columns={"daily_return": "cap_weighted_return"})
+    )
+
+    before = build_stock_combined_scores(
+        stock,
+        sector,
+        variant="f007",
+        signal_dates=[signal_date],
+        short_window=2,
+        long_window=3,
+        flow_value_window=2,
+        flow_mcap_window=3,
+        liquidity_short_window=2,
+        liquidity_long_window=4,
+        volatility_window=3,
+    )
+    mutated = stock.copy()
+    future_mask = pd.to_datetime(mutated["date"]).gt(signal_date)
+    mutated.loc[future_mask, ["foreign_net_buy_amount", "institution_net_buy_amount"]] = -999_000.0
+    mutated.loc[future_mask, ["traded_value", "market_cap"]] = 1.0
+    mutated.loc[future_mask, "daily_return"] = -0.99
+    after = build_stock_combined_scores(
+        mutated,
+        sector,
+        variant="f007",
+        signal_dates=[signal_date],
+        short_window=2,
+        long_window=3,
+        flow_value_window=2,
+        flow_mcap_window=3,
+        liquidity_short_window=2,
+        liquidity_long_window=4,
+        volatility_window=3,
+    )
+
+    columns = ["signal_date", "ticker", "raw_stock_combined_score", "stock_combined_score"]
     before_rows = before.loc[:, columns].sort_values("ticker").reset_index(drop=True)
     after_rows = after.loc[:, columns].sort_values("ticker").reset_index(drop=True)
 
