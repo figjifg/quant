@@ -1,0 +1,36 @@
+# P002 D013 Execution Simulation
+
+## Metadata
+
+| key | value |
+| --- | --- |
+| carrier | D013 unchanged: 10 variables, 5 blocks, 60-month z-score, threshold -0.2, market-cap top 5 |
+| d013_baseline | cumulative +254%, Sharpe 0.53, MDD -34% |
+| price_data | panel OHLCV only |
+| engine_policy | src/backtest/engine.py unchanged; P002 applies execution timing and price fills in strategy wrapper |
+
+## Execution Summary
+
+| scenario | label | cumulative_net_total_return | sharpe | max_drawdown | trade_count | fallback_event_count | fallback_event_frequency | d013_baseline_cumulative | d013_baseline_sharpe | d013_baseline_max_drawdown | cumulative_vs_d013 | sharpe_vs_d013 | mdd_vs_d013 | pass_threshold | passes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| A_next_day_close | A: next-day close | 2.8530644273132797 | 0.5713251856629309 | -0.33947996773406675 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | 0.31306442731327966 | 0.04132518566293086 | 0.000520032265933279 | 2.03 | True |
+| B_1day_delay | B: 1-day delay | 2.826122008219486 | 0.568487361636884 | -0.33975234248423847 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | 0.28612200821948575 | 0.03848736163688393 | 0.0002476575157615568 | 1.5 | True |
+| C_2day_delay | C: 2-day delay | 3.0868867301556984 | 0.5973210992849247 | -0.3394736332024365 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | 0.5468867301556983 | 0.06732109928492469 | 0.0005263667975635156 | 1.2 | True |
+| D_unfavorable_fill | D: unfavorable fill | 0.8457820369235267 | 0.2476437637423759 | -0.3916157537214138 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | -1.6942179630764733 | -0.2823562362576241 | -0.05161575372141375 | 1.0 | False |
+| E_partial_fill | E: partial fill 80% | 1.8517496222901455 | 0.5409038750848456 | -0.27687755409103054 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | -0.6882503777098545 | 0.010903875084845582 | 0.06312244590896948 | 1.7779999999999998 | True |
+| F_cash_fallback | F: cash fallback | 2.5457702903350135 | 0.5333654677635088 | -0.3392346174957135 | 110 | 0 | 0.0 | 2.54 | 0.53 | -0.34 | 0.005770290335013417 | 0.003365467763508767 | 0.0007653825042865381 | nan | <NA> |
+
+## Verdict Summary
+
+| criterion | value | threshold | passes |
+| --- | --- | --- | --- |
+| all_A_to_E_pre_registered_pass | False | True | False |
+| mean_cumulative_net_total_return | 2.334895852539525 | 1.5 | True |
+| mean_sharpe | 0.509841125529245 | 0.4 | True |
+| worst_mdd_no_more_than_5pp_worse_than_d013 | -0.3916157537214138 | -0.39 | False |
+| overall_verdict | FAIL | PASS | False |
+
+## Cash Fallback
+
+- 발생 건수: 0
+- 발생 빈도: 0.0

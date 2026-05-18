@@ -18,6 +18,7 @@ from src.features.stock_combined_score import build_stock_combined_scores
 from src.features.stress_filter import stress_filter_scalars
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
+from src.strategies.p002_d013_execution import SCENARIOS, p002_shift_candidates
 
 
 @pytest.fixture
@@ -372,6 +373,32 @@ def test_holding_period_count_is_per_calendar_not_per_calendar_days() -> None:
 
     assert exit_date == pd.Timestamp("2025-01-10")
     assert exit_date != entry_date + pd.Timedelta(days=5)
+
+
+def test_p002_execution_scenarios_keep_execution_after_signal_date() -> None:
+    calendar = KRXTradingCalendar(pd.to_datetime(["2025-03-31", "2025-04-01", "2025-04-02", "2025-04-03"]))
+    candidates = pd.DataFrame(
+        [
+            {
+                "signal_date": pd.Timestamp("2025-03-31"),
+                "execution_date": pd.Timestamp("2025-04-01"),
+                "종목코드": "000001",
+                "market_cap": 1_000.0,
+                "rank": 1,
+            }
+        ]
+    )
+    segments = ((pd.Timestamp("2025-03-31"), pd.Timestamp("2025-04-03")),)
+
+    for spec in SCENARIOS.values():
+        shifted = p002_shift_candidates(
+            candidates,
+            calendar,
+            delay_trading_days=int(spec["delay_trading_days"]),
+            segments=segments,
+        )
+        assert not shifted.empty
+        assert shifted["signal_date"].lt(shifted["execution_date"]).all()
 
 
 def test_market_gate_at_execution_date_uses_only_prior_signal_date_flows() -> None:

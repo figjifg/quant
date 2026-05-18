@@ -204,6 +204,10 @@ from src.strategies.e015_validation import (
     topk_label as e015_topk_label,
 )
 from src.strategies.p001_e014_pit import build_p001_e014_pit_candidates
+from src.strategies.p002_d013_execution import (
+    SCENARIOS as P002_SCENARIOS,
+    run_p002_execution_backtest,
+)
 from src.strategies.f002_stock_rs_d013_direct import (
     build_f002_d013_direct_score_universe,
     build_f002_stock_rs_d013_direct_candidates,
@@ -651,6 +655,23 @@ EXPECTED_D010_CONFIG_KEYS = EXPECTED_D006_CONFIG_KEYS
 EXPECTED_D011_CONFIG_KEYS = EXPECTED_D007_CONFIG_KEYS
 EXPECTED_D012_CONFIG_KEYS = EXPECTED_D008_CONFIG_KEYS
 EXPECTED_D013_CONFIG_KEYS = EXPECTED_D001_CONFIG_KEYS
+EXPECTED_P002_CONFIG_KEYS = (
+    "experiment_id",
+    "carrier",
+    "scenario",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "output_dir",
+)
 EXPECTED_D014_CONFIG_KEYS = EXPECTED_D006_CONFIG_KEYS
 EXPECTED_D015_CONFIG_KEYS = EXPECTED_D008_CONFIG_KEYS
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
@@ -753,6 +774,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "P001_E014_PIT":
         _validate_p001_e014_pit_config_shape(config)
         run_p001_e014_pit_experiment(config, config_path)
+    elif experiment_id == "P002":
+        _validate_p002_config_shape(config)
+        run_p002_experiment(config, config_path)
     elif experiment_id == "E015":
         _validate_e015_config_shape(config)
         run_e015_experiment(config, config_path)
@@ -9581,6 +9605,67 @@ def run_d013_experiment(config: dict[str, Any], config_path: Path) -> None:
     )
 
 
+def run_p002_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+    _, candidates = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+
+    scenario = str(config["scenario"])
+    execution = run_p002_execution_backtest(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates["factor_macro_gate_mcap"],
+        quarterly_regime=quarterly_log,
+        costs=costs,
+        segments=segments,
+        scenario=scenario,
+    )
+    candidate_years = _b011_candidate_years(config)
+    metrics = _p002_metrics(execution.result, execution.candidates, execution.fallback_events, calendar, candidate_years)
+    scenario_dir = Path(config["output_dir"]) / scenario
+    scenario_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, scenario_dir / "config.yaml")
+    _write_json(scenario_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(execution.result, calendar), scenario_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(execution.candidates), scenario_dir / "signals.csv")
+    execution.result.equity_curve.to_csv(scenario_dir / "equity_curve.csv", index=False)
+    _write_ticker_safe_csv(execution.fallback_events, scenario_dir / "fallback_events.csv")
+    quarterly_log.to_csv(scenario_dir / "quarterly_regime_log.csv", index=False)
+    _write_p002_scenario_report(scenario_dir, config, metrics)
+
+    output_dir = Path(config["output_dir"])
+    summary = _p002_execution_summary(output_dir)
+    if not summary.empty:
+        summary.to_csv(output_dir / "execution_summary.csv", index=False)
+        _write_p002_report(output_dir, summary)
+
+
 def run_d014_experiment(config: dict[str, Any], config_path: Path) -> None:
     panel, calendar, universe = _build_b011_inputs(config)
     market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
@@ -17094,6 +17179,196 @@ def _write_d013_report(
     (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
+P002_D013_BASELINE_CUMULATIVE = 2.54
+P002_D013_BASELINE_SHARPE = 0.53
+P002_D013_BASELINE_MDD = -0.34
+
+
+def _p002_metrics(
+    result: BacktestResult,
+    candidates: pd.DataFrame,
+    fallback_events: pd.DataFrame,
+    calendar: object,
+    candidate_years: tuple[int, ...],
+) -> dict[str, dict[str, Any]]:
+    block = dict(compute_metrics(result.equity_curve, result.trades, calendar))
+    yearly_returns = _b011_year_returns(result, calendar, candidate_years)
+    block["cumulative_net_total_return"] = block["total_return"]
+    block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+    block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+    block["fallback_event_count"] = int(len(fallback_events))
+    block["candidate_count"] = int(len(candidates))
+    block["fallback_event_frequency"] = int(len(fallback_events)) / int(len(candidates)) if len(candidates) else 0.0
+    return {"factor_macro_gate_mcap": block}
+
+
+def _p002_execution_summary(output_dir: Path) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for scenario, spec in P002_SCENARIOS.items():
+        metrics_path = output_dir / scenario / "metrics.json"
+        if not metrics_path.exists():
+            continue
+        block = json.loads(metrics_path.read_text(encoding="utf-8"))["factor_macro_gate_mcap"]
+        cumulative = float(block["cumulative_net_total_return"])
+        sharpe = float(block["sharpe"])
+        mdd = float(block["max_drawdown"])
+        threshold = _p002_scenario_threshold(scenario)
+        rows.append(
+            {
+                "scenario": scenario,
+                "label": spec["label"],
+                "cumulative_net_total_return": cumulative,
+                "sharpe": sharpe,
+                "max_drawdown": mdd,
+                "trade_count": int(block["trade_count"]),
+                "fallback_event_count": int(block.get("fallback_event_count", 0)),
+                "fallback_event_frequency": float(block.get("fallback_event_frequency", 0.0)),
+                "d013_baseline_cumulative": P002_D013_BASELINE_CUMULATIVE,
+                "d013_baseline_sharpe": P002_D013_BASELINE_SHARPE,
+                "d013_baseline_max_drawdown": P002_D013_BASELINE_MDD,
+                "cumulative_vs_d013": cumulative - P002_D013_BASELINE_CUMULATIVE,
+                "sharpe_vs_d013": sharpe - P002_D013_BASELINE_SHARPE,
+                "mdd_vs_d013": mdd - P002_D013_BASELINE_MDD,
+                "pass_threshold": threshold,
+                "passes": pd.NA if threshold is None else bool(cumulative >= threshold),
+            }
+        )
+    if not rows:
+        return pd.DataFrame()
+    order = {scenario: index for index, scenario in enumerate(P002_SCENARIOS)}
+    return pd.DataFrame(rows).sort_values("scenario", key=lambda series: series.map(order)).reset_index(drop=True)
+
+
+def _p002_scenario_threshold(scenario: str) -> float | None:
+    if scenario == "A_next_day_close":
+        return 2.03
+    if scenario == "B_1day_delay":
+        return 1.50
+    if scenario == "C_2day_delay":
+        return 1.20
+    if scenario == "D_unfavorable_fill":
+        return 1.00
+    if scenario == "E_partial_fill":
+        return P002_D013_BASELINE_CUMULATIVE * 0.70
+    return None
+
+
+def _write_p002_scenario_report(output_dir: Path, config: dict[str, Any], metrics: dict[str, dict[str, Any]]) -> None:
+    scenario = str(config["scenario"])
+    block = metrics["factor_macro_gate_mcap"]
+    lines = [
+        f"# P002 {scenario}",
+        "",
+        "## Metadata",
+        "",
+        "| key | value |",
+        "| --- | --- |",
+        f"| scenario | {P002_SCENARIOS[scenario]['label']} |",
+        "| carrier | D013 unchanged: 10 variables, 5 blocks, 60-month z-score, threshold -0.2, market-cap top 5 |",
+        f"| panels_used | {json.dumps(config['panels'], ensure_ascii=False)} |",
+        "| price_data | panel OHLCV only |",
+        "| calendar_source | derived from panel non-null KRX종가 rows after excluding configured years |",
+        "",
+        "## Metrics",
+        "",
+        "| cumulative | Sharpe | MDD | trades | fallback count | fallback frequency |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| "
+        + " | ".join(
+            _format_report_value(value)
+            for value in (
+                block["cumulative_net_total_return"],
+                block["sharpe"],
+                block["max_drawdown"],
+                block["trade_count"],
+                block["fallback_event_count"],
+                block["fallback_event_frequency"],
+            )
+        )
+        + " |",
+        "",
+    ]
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _write_p002_report(output_dir: Path, summary: pd.DataFrame) -> None:
+    completed = set(summary["scenario"])
+    scenario_pass = summary.loc[summary["scenario"].ne("F_cash_fallback"), "passes"].dropna().astype(bool)
+    mean_cumulative = float(summary["cumulative_net_total_return"].mean()) if not summary.empty else float("nan")
+    mean_sharpe = float(summary["sharpe"].mean()) if not summary.empty else float("nan")
+    worst_mdd = float(summary["max_drawdown"].min()) if not summary.empty else float("nan")
+    overall_pass = bool(
+        completed == set(P002_SCENARIOS)
+        and scenario_pass.all()
+        and mean_cumulative >= 1.50
+        and mean_sharpe >= 0.40
+        and worst_mdd >= P002_D013_BASELINE_MDD - 0.05
+    )
+    verdict = pd.DataFrame(
+        [
+            {
+                "criterion": "all_A_to_E_pre_registered_pass",
+                "value": bool(scenario_pass.all()) if len(scenario_pass) == 5 else False,
+                "threshold": True,
+                "passes": bool(scenario_pass.all()) if len(scenario_pass) == 5 else False,
+            },
+            {
+                "criterion": "mean_cumulative_net_total_return",
+                "value": mean_cumulative,
+                "threshold": 1.50,
+                "passes": bool(mean_cumulative >= 1.50),
+            },
+            {
+                "criterion": "mean_sharpe",
+                "value": mean_sharpe,
+                "threshold": 0.40,
+                "passes": bool(mean_sharpe >= 0.40),
+            },
+            {
+                "criterion": "worst_mdd_no_more_than_5pp_worse_than_d013",
+                "value": worst_mdd,
+                "threshold": P002_D013_BASELINE_MDD - 0.05,
+                "passes": bool(worst_mdd >= P002_D013_BASELINE_MDD - 0.05),
+            },
+            {
+                "criterion": "overall_verdict",
+                "value": "PASS" if overall_pass else "FAIL",
+                "threshold": "PASS",
+                "passes": overall_pass,
+            },
+        ]
+    )
+    verdict.to_csv(output_dir / "verdict_summary.csv", index=False)
+    lines = [
+        "# P002 D013 Execution Simulation",
+        "",
+        "## Metadata",
+        "",
+        "| key | value |",
+        "| --- | --- |",
+        "| carrier | D013 unchanged: 10 variables, 5 blocks, 60-month z-score, threshold -0.2, market-cap top 5 |",
+        "| d013_baseline | cumulative +254%, Sharpe 0.53, MDD -34% |",
+        "| price_data | panel OHLCV only |",
+        "| engine_policy | src/backtest/engine.py unchanged; P002 applies execution timing and price fills in strategy wrapper |",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Execution Summary", summary))
+    lines.extend(_b004_dataframe_table("Verdict Summary", verdict))
+    cash_fallback = summary.loc[summary["scenario"].eq("F_cash_fallback")]
+    if not cash_fallback.empty:
+        row = cash_fallback.iloc[0]
+        lines.extend(
+            [
+                "## Cash Fallback",
+                "",
+                f"- 발생 건수: {int(row['fallback_event_count'])}",
+                f"- 발생 빈도: {_format_report_value(row['fallback_event_frequency'])}",
+                "",
+            ]
+        )
+    (output_dir / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
 def _write_d014_window_report(
     output_dir: Path,
     config: dict[str, Any],
@@ -21554,6 +21829,23 @@ def _validate_d013_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("D013 requires selection market_cap_top_n n=5.")
     if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
         raise ValueError("D013 requires quarterly last_trading_day rebalance.")
+
+
+def _validate_p002_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_P002_CONFIG_KEYS:
+        raise ValueError(f"P002 config keys must be exactly {EXPECTED_P002_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("scenario")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("P002 carrier must be d013.")
+    if config["scenario"] not in P002_SCENARIOS:
+        raise ValueError(f"P002 scenario must be one of {list(P002_SCENARIOS)}.")
 
 
 def _validate_d014_config_shape(config: dict[str, Any]) -> None:

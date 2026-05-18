@@ -1,0 +1,6 @@
+criterion,value,threshold,passes
+all_A_to_E_pre_registered_pass,False,True,False
+mean_cumulative_net_total_return,2.334895852539525,1.5,True
+mean_sharpe,0.509841125529245,0.4,True
+worst_mdd_no_more_than_5pp_worse_than_d013,-0.3916157537214138,-0.39,False
+overall_verdict,FAIL,PASS,False
