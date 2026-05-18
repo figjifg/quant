@@ -272,6 +272,10 @@ from src.strategies.g001_mdd_cooldown_d013 import run_g001_d013_mdd_cooldown_var
 from src.strategies.g001_mdd_cooldown_e014 import run_g001_e014_mdd_cooldown_variants
 from src.strategies.g002_stress_d013 import run_g002_d013_stress_variants
 from src.strategies.g002_stress_e014 import run_g002_e014_stress_variants
+from src.strategies.h001_kr_short_rate_sleeve import (
+    VARIANTS as H001_VARIANTS,
+    apply_kr_short_rate_off_sleeve,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -726,6 +730,25 @@ EXPECTED_P005_CONFIG_KEYS = (
 )
 EXPECTED_D014_CONFIG_KEYS = EXPECTED_D006_CONFIG_KEYS
 EXPECTED_D015_CONFIG_KEYS = EXPECTED_D008_CONFIG_KEYS
+EXPECTED_H001_CONFIG_KEYS = (
+    "experiment_id",
+    "carrier",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "off_sleeve",
+    "variants",
+    "output_dir",
+)
+EXPECTED_H001_OFF_SLEEVE_KEYS = ("type", "source", "rate_column", "compounding", "formula")
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
 EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
 EXPECTED_B011_SELECTION_KEYS = ("type", "n")
@@ -991,6 +1014,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "D015":
         _validate_d015_config_shape(config)
         run_d015_experiment(config, config_path)
+    elif experiment_id == "H001":
+        _validate_h001_config_shape(config)
+        run_h001_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -9661,6 +9687,185 @@ def run_d013_experiment(config: dict[str, Any], config_path: Path) -> None:
         per_year_breakdown,
         verdict,
     )
+
+
+def run_h001_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    d013_runs, candidates = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    baseline = d013_runs["factor_macro_gate_mcap"]
+    sleeve, off_carry = apply_kr_short_rate_off_sleeve(
+        baseline,
+        calendar=calendar,
+        quarterly_regime=quarterly_log,
+        kr_short_rate_csv=config["off_sleeve"]["source"],
+    )
+
+    candidate_years = _b011_candidate_years(config)
+    metrics = {
+        "d013_baseline": _h001_metric_block(baseline, calendar, candidate_years),
+        "d013_kr_short_rate_sleeve": _h001_metric_block(sleeve, calendar, candidate_years),
+    }
+    comparison = _h001_baseline_comparison(metrics, off_carry)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(sleeve, calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), output_dir / "signals.csv")
+    _h001_equity_curve(baseline, sleeve, off_carry).to_csv(output_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    comparison.to_csv(output_dir / "baseline_comparison.csv", index=False)
+    off_carry.to_csv(output_dir / "off_carry_contribution.csv", index=False)
+    _write_h001_report(output_dir, config, metrics, comparison, off_carry)
+
+
+def _h001_metric_block(result: BacktestResult, calendar: object, candidate_years: tuple[int, ...]) -> dict[str, Any]:
+    block = dict(compute_metrics(result.equity_curve, result.trades, calendar))
+    yearly_returns = _b011_year_returns(result, calendar, candidate_years)
+    block["cumulative_net_total_return"] = block["total_return"]
+    block["yearly_net_total_return"] = {str(year): value for year, value in yearly_returns.items()}
+    block["positive_years"] = int(sum(value > 0.0 for value in yearly_returns.values()))
+    return block
+
+
+def _h001_baseline_comparison(metrics: dict[str, dict[str, Any]], off_carry: pd.DataFrame) -> pd.DataFrame:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_kr_short_rate_sleeve"]
+    cumulative_delta = float(sleeve["cumulative_net_total_return"]) - float(baseline["cumulative_net_total_return"])
+    sharpe_delta = float(sleeve["sharpe"]) - float(baseline["sharpe"])
+    mdd_delta = float(sleeve["max_drawdown"]) - float(baseline["max_drawdown"])
+    off_cumulative = float(off_carry["cumulative_off_carry"].iloc[-1]) if not off_carry.empty else 0.0
+    rows = [
+        {
+            "variant": "d013_baseline",
+            "cumulative_net_total_return": baseline["cumulative_net_total_return"],
+            "sharpe": baseline["sharpe"],
+            "max_drawdown": baseline["max_drawdown"],
+            "off_carry_cumulative": 0.0,
+            "cumulative_delta_vs_d013": 0.0,
+            "sharpe_delta_vs_d013": 0.0,
+            "mdd_delta_vs_d013": 0.0,
+        },
+        {
+            "variant": "d013_kr_short_rate_sleeve",
+            "cumulative_net_total_return": sleeve["cumulative_net_total_return"],
+            "sharpe": sleeve["sharpe"],
+            "max_drawdown": sleeve["max_drawdown"],
+            "off_carry_cumulative": off_cumulative,
+            "cumulative_delta_vs_d013": cumulative_delta,
+            "sharpe_delta_vs_d013": sharpe_delta,
+            "mdd_delta_vs_d013": mdd_delta,
+        },
+    ]
+    verdict = {
+        "variant": "verdict",
+        "cumulative_net_total_return": pd.NA,
+        "sharpe": pd.NA,
+        "max_drawdown": pd.NA,
+        "off_carry_cumulative": off_cumulative,
+        "cumulative_delta_vs_d013": cumulative_delta,
+        "sharpe_delta_vs_d013": sharpe_delta,
+        "mdd_delta_vs_d013": mdd_delta,
+        "cumulative_pass": bool(cumulative_delta >= 0.20),
+        "sharpe_pass": bool(float(sleeve["sharpe"]) >= float(baseline["sharpe"])),
+        "mdd_pass": bool(float(sleeve["max_drawdown"]) >= float(baseline["max_drawdown"]) - 0.03),
+    }
+    verdict["pass"] = bool(verdict["cumulative_pass"] and verdict["sharpe_pass"] and verdict["mdd_pass"])
+    rows.append(verdict)
+    return pd.DataFrame(rows)
+
+
+def _h001_equity_curve(
+    baseline: BacktestResult,
+    sleeve: BacktestResult,
+    off_carry: pd.DataFrame,
+) -> pd.DataFrame:
+    data = sleeve.equity_curve.copy()
+    data["d013_baseline_net_value"] = baseline.equity_curve["net_value"].to_numpy()
+    data["d013_kr_short_rate_sleeve_net_value"] = sleeve.equity_curve["net_value"].to_numpy()
+    data["kr_short_rate_sleeve_factor"] = (
+        pd.to_numeric(data["d013_kr_short_rate_sleeve_net_value"], errors="raise")
+        / pd.to_numeric(data["d013_baseline_net_value"], errors="raise")
+    )
+    return data
+
+
+def _write_h001_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    comparison: pd.DataFrame,
+    off_carry: pd.DataFrame,
+) -> None:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_kr_short_rate_sleeve"]
+    verdict = comparison.loc[comparison["variant"].eq("verdict")].iloc[0]
+    pass_fail = "PASS" if bool(verdict["pass"]) else "FAIL"
+    off_cumulative = float(verdict["off_carry_cumulative"])
+    lines = [
+        "# H001 KR Short Rate Baseline Sleeve",
+        "",
+        "## Portfolio Metrics",
+        "",
+        "| variant | cumulative_net_total_return | sharpe | max_drawdown |",
+        "|---|---:|---:|---:|",
+        "| D013 baseline | "
+        + " | ".join(_format_report_value(baseline[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "| D013 + KR carry | "
+        + " | ".join(_format_report_value(sleeve[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "",
+        "## OFF Carry",
+        "",
+        f"- OFF carry cumulative contribution: {_format_report_value(off_cumulative)}",
+        f"- OFF carry quarters: {int(len(off_carry))}",
+        "",
+        "## Verdict",
+        "",
+        f"- Overall: {pass_fail}",
+        f"- Cumulative uplift >= 0.20: {bool(verdict['cumulative_pass'])} ({_format_report_value(verdict['cumulative_delta_vs_d013'])})",
+        f"- Sharpe >= D013: {bool(verdict['sharpe_pass'])} ({_format_report_value(verdict['sharpe_delta_vs_d013'])})",
+        f"- MDD worsening <= 0.03: {bool(verdict['mdd_pass'])} ({_format_report_value(verdict['mdd_delta_vs_d013'])})",
+        "",
+        "## Metadata",
+        "",
+        "- Carrier: D013 top 5 unchanged.",
+        "- OFF sleeve: KR short-rate carry replaces zero-return cash in D013 OFF quarters.",
+        f"- KR short-rate source: {config['off_sleeve']['source']}.",
+        "- Carry formula: `(1 + annual_rate / 12)^3 - 1`, with annual_rate as decimal.",
+        "- D013 strategy and backtest engine were not modified.",
+    ]
+    (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def run_p002_experiment(config: dict[str, Any], config_path: Path) -> None:
@@ -22479,6 +22684,34 @@ def _validate_d013_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("D013 requires selection market_cap_top_n n=5.")
     if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
         raise ValueError("D013 requires quarterly last_trading_day rebalance.")
+
+
+def _validate_h001_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_H001_CONFIG_KEYS:
+        raise ValueError(f"H001 config keys must be exactly {EXPECTED_H001_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("off_sleeve")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("H001 carrier must be d013.")
+    if tuple(config["off_sleeve"].keys()) != EXPECTED_H001_OFF_SLEEVE_KEYS:
+        raise ValueError(f"H001 off_sleeve keys must be exactly {EXPECTED_H001_OFF_SLEEVE_KEYS}.")
+    off_sleeve = config["off_sleeve"]
+    if off_sleeve["type"] != "kr_short_rate_carry":
+        raise ValueError("H001 off_sleeve.type must be kr_short_rate_carry.")
+    if off_sleeve["source"] != "research_input_data/inputs/macro_features/fred_kr_short_rate.csv":
+        raise ValueError("H001 off_sleeve.source must be the registered KR short-rate FRED file.")
+    if off_sleeve["rate_column"] != "IR3TIB01KRM156N":
+        raise ValueError("H001 off_sleeve.rate_column must be IR3TIB01KRM156N.")
+    if off_sleeve["compounding"] != "monthly_3x":
+        raise ValueError("H001 off_sleeve.compounding must be monthly_3x.")
+    if tuple(config["variants"]) != H001_VARIANTS:
+        raise ValueError(f"H001 variants must be exactly {list(H001_VARIANTS)}.")
 
 
 def _validate_p002_config_shape(config: dict[str, Any]) -> None:
