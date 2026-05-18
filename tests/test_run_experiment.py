@@ -258,39 +258,76 @@ output_dir: {output_dir}
 
 def test_run_e004_experiment_cli_writes_required_outputs(tmp_path: Path) -> None:
     panel_path = tmp_path / "synthetic_panel.csv"
-    output_dir = tmp_path / "reports" / "E004_signal_strength_top_quintile"
+    market_breadth_path = tmp_path / "market_breadth.csv"
+    sector_aggregate_path = tmp_path / "sector_aggregate_daily.csv"
+    stock_sector_daily_path = tmp_path / "stock_with_sector_daily.csv"
+    output_dir = tmp_path / "reports" / "E004_flow_score_only"
     config_path = tmp_path / "e004.yaml"
-    _write_synthetic_panel(panel_path)
+    _write_synthetic_panel(panel_path, periods=130)
+    _write_synthetic_market_breadth(market_breadth_path, periods=130)
+    _write_synthetic_sector_aggregate(sector_aggregate_path, periods=130)
+    _write_synthetic_stock_sector_daily(stock_sector_daily_path, periods=130)
     config_path.write_text(
         f"""experiment_id: E004
 panels:
   - {panel_path}
-periods:
-  is:
-    start: 2025-01-30
-    end:   2025-02-14
-  oos:
-    start: 2025-02-17
-    end:   2025-03-19
+panel_date_filters: {{}}
+market_breadth_csv: {market_breadth_path}
+macro_data_dir: research_input_data/inputs/macro_features
+sector_aggregate_csv: {sector_aggregate_path}
+stock_sector_daily_csv: {stock_sector_daily_path}
+period:
+  start: 2025-01-02
+  end:   2025-07-02
+  exclude_calendar_years: [2016]
 universe:
   require_dynamic_top100: true
   min_avg_traded_value_20d: 5_000_000_000
   exclude_estimated_flag_rows: true
 strategy:
-  lookback: 5
-  holding: 20
-  max_positions: 5
-exit:
-  vol_stop_k: null
-  vol_stop_atr_window: 20
-quintile:
-  value: 5
-  min_daily_universe_size: 20
+  flow_by_value_window: 20
+  flow_by_mcap_window: 60
+regime:
+  aggregation: factor_z_score
+  z_score_window_months: 60
+  on_threshold: -0.2
+  blocks:
+    - name: global_risk
+      vars:
+        - {{name: vix_60d_vs_240d, sign: -1}}
+        - {{name: baa10y_spread_level, sign: -1}}
+    - name: usd_fx
+      vars:
+        - {{name: usdkrw_yoy, sign: -1}}
+        - {{name: dxy_yoy, sign: -1}}
+    - name: us_rates
+      vars:
+        - {{name: us_10y_real_level, sign: -1}}
+        - {{name: us_2_10_curve, sign: 1}}
+    - name: inflation
+      vars:
+        - {{name: brent_yoy, sign: -1}}
+        - {{name: us_breakeven_level, sign: -1}}
+    - name: growth
+      vars:
+        - {{name: kr_cli_value, sign: 1}}
+        - {{name: kr_exports_yoy, sign: 1}}
+selection:
+  top_sectors: 3
+  top_sector_stock_counts: [2, 2, 1]
+  min_sector_stocks: 3
+rebalance:
+  frequency: quarterly
+  anchor: last_trading_day
 costs:
   commission_bps: 1.5
   tax_bps_sell:   20.0
   slippage_bps:   5.0
-cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+diagnostics:
+  top_bottom_k: 3
+variants:
+  - diagnostics
+  - portfolio_if_pass
 output_dir: {output_dir}
 """,
         encoding="utf-8",
@@ -304,32 +341,18 @@ output_dir: {output_dir}
 
     expected_files = {
         "config.yaml",
-        "metrics.json",
-        "trades.csv",
-        "signals.csv",
-        "equity_curve.csv",
-        "cost_sensitivity.csv",
+        "comparison_with_e003.csv",
+        "diagnostics_rank_ic.csv",
+        "diagnostics_top_bottom_spread.csv",
+        "quarterly_regime_log.csv",
         "report.md",
-        "quintile_membership_sample.csv",
+        "sector_selection_log.csv",
+        "subperiod_diagnostics.csv",
     }
     assert expected_files == {path.name for path in output_dir.iterdir() if path.is_file()}
 
-    metrics = json.loads((output_dir / "metrics.json").read_text(encoding="utf-8"))
-    assert set(metrics) == {
-        "headline",
-        "cap_only",
-        "bottom_quintile",
-        "middle_quintile",
-        "top_decile",
-        "B0",
-        "B1",
-        "B2",
-        "B3",
-        "diagnostic_estimate_included",
-        "cost_0_headline",
-        "cost_0_cap_only",
-    }
-    assert all(set(metrics[key]) == {"is", "oos", "full"} for key in metrics)
+    rank_ic = pd.read_csv(output_dir / "diagnostics_rank_ic.csv")
+    assert "ALL" in set(rank_ic["signal_date"].astype(str))
 
 
 def test_run_b001_experiment_cli_writes_required_outputs(tmp_path: Path) -> None:
@@ -588,8 +611,8 @@ def test_ticker_safe_csv_writer_preserves_leading_zero_codes(tmp_path: Path) -> 
     assert list(round_tripped["종목코드"]) == ["000020", "000030"]
 
 
-def _write_synthetic_panel(path: Path, *, include_high_low: bool = False) -> None:
-    dates = pd.date_range("2025-01-02", periods=55, freq="B")
+def _write_synthetic_panel(path: Path, *, include_high_low: bool = False, periods: int = 55) -> None:
+    dates = pd.date_range("2025-01-02", periods=periods, freq="B")
     tickers = [f"{index:06d}" for index in range(1, 7)]
     rows = []
     for ticker_index, ticker in enumerate(tickers, start=1):
@@ -631,14 +654,71 @@ def _write_synthetic_market_flow(path: Path) -> None:
     pd.DataFrame(rows).to_csv(path, index=False)
 
 
-def _write_synthetic_market_breadth(path: Path) -> None:
-    dates = pd.date_range("2025-01-02", periods=55, freq="B")
+def _write_synthetic_market_breadth(path: Path, *, periods: int = 55) -> None:
+    dates = pd.date_range("2025-01-02", periods=periods, freq="B")
     pd.DataFrame(
         {
             "date": [date.date().isoformat() for date in dates],
             "cap_weighted_return": [0.001 if index % 2 == 0 else -0.0005 for index, _ in enumerate(dates)],
         }
     ).to_csv(path, index=False)
+
+
+def _write_synthetic_sector_aggregate(path: Path, *, periods: int = 130) -> None:
+    dates = pd.date_range("2025-01-02", periods=periods, freq="B")
+    rows = []
+    sectors = [("01", "IT"), ("02", "Auto"), ("03", "Chem"), ("04", "Steel")]
+    for day_index, date in enumerate(dates, start=1):
+        for sector_index, (code, name) in enumerate(sectors, start=1):
+            rows.append(
+                {
+                    "date": date.date().isoformat(),
+                    "sector_code": code,
+                    "sector_name": name,
+                    "n_stocks": 3,
+                    "sum_market_cap": 3_000_000_000_000.0 + sector_index * 100_000_000_000.0,
+                    "sum_traded_value": 18_000_000_000.0 + sector_index * 100_000_000.0,
+                    "sum_foreign_net_buy_amount": (sector_index - 2) * 100_000_000.0 + day_index * 1_000_000.0,
+                    "sum_foreign_net_buy_shares": 0.0,
+                    "sum_institution_net_buy_amount": 0.0,
+                    "sum_institution_net_buy_shares": 0.0,
+                    "cap_weighted_return": 0.001 * ((sector_index % 2) * 2 - 1),
+                    "top1_market_cap_pct": 0.4,
+                    "top2_market_cap_pct": 0.7,
+                }
+            )
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def _write_synthetic_stock_sector_daily(path: Path, *, periods: int = 130) -> None:
+    dates = pd.date_range("2025-01-02", periods=periods, freq="B")
+    sector_by_ticker = {
+        "000001": ("01", "IT"),
+        "000002": ("01", "IT"),
+        "000003": ("02", "Auto"),
+        "000004": ("02", "Auto"),
+        "000005": ("03", "Chem"),
+        "000006": ("03", "Chem"),
+    }
+    rows = []
+    for date in dates:
+        for ticker_index, (ticker, (sector_code, sector_name)) in enumerate(sector_by_ticker.items(), start=1):
+            rows.append(
+                {
+                    "date": date.date().isoformat(),
+                    "ticker": ticker,
+                    "sector_code": sector_code,
+                    "sector_name": sector_name,
+                    "market_cap": 1_000_000_000_000.0 + ticker_index * 10_000_000_000.0,
+                    "traded_value": 6_000_000_000.0,
+                    "foreign_net_buy_amount": 1_000_000.0,
+                    "foreign_net_buy_shares": 0.0,
+                    "institution_net_buy_amount": 0.0,
+                    "institution_net_buy_shares": 0.0,
+                    "daily_return": 0.001,
+                }
+            )
+    pd.DataFrame(rows).to_csv(path, index=False)
 
 
 def _write_synthetic_sector_mapping(path: Path) -> None:

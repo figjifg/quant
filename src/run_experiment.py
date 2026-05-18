@@ -32,6 +32,15 @@ from src.features.macro_regime import (
     quarterly_regime_log,
 )
 from src.features.regime import regime_gate_on, regime_state_log
+from src.features.sector_flow_score import (
+    build_rank_ic_diagnostics,
+    build_sector_flow_scores,
+    build_sector_forward_returns,
+    build_subperiod_diagnostics,
+    build_top_bottom_spread_diagnostics,
+    diagnostics_pass,
+    quarter_end_dates,
+)
 from src.reporting.metrics import compute_metrics, metrics_is_oos
 from src.reporting.report import write_report
 from src.reporting.subperiod_analyzer import (
@@ -59,15 +68,21 @@ from src.strategies.b007_filter_exploration import (
 from src.strategies.b008_f2_promote import VARIANTS as B008_VARIANTS, run_b008_variants
 from src.strategies.b009_f3_promote import VARIANTS as B009_VARIANTS, run_b009_variants
 from src.strategies.b010_old_data_verification import VARIANTS as B010_VARIANTS, run_b010_variants
-from src.strategies.b011_gate_only_full_timeline import VARIANTS as B011_VARIANTS, run_b011_variants
+from src.strategies.b011_gate_only_full_timeline import (
+    VARIANTS as B011_VARIANTS,
+    build_kospi_buy_and_hold_result,
+    run_b011_variants,
+)
 from src.strategies.c003_monthly_macro_gate import (
     VARIANTS as C003_VARIANTS,
+    _run_segmented_cash,
     monthly_execution_dates,
     run_c003_variants,
     run_monthly_mcap_backtest,
 )
 from src.strategies.c004_quarterly_macro_gate import (
     VARIANTS as C004_VARIANTS,
+    _quarterly_execution_candidates,
     quarterly_execution_dates,
     run_c004_variants,
     run_quarterly_mcap_backtest,
@@ -109,6 +124,10 @@ from src.strategies.d015_subperiod_on_d013 import VARIANTS as D015_VARIANTS, run
 from src.strategies.e003_a_d013_replication import run_e003_a_variants
 from src.strategies.e003_b_count_matched import run_e003_b_variants
 from src.strategies.e003_c_pure_basket import run_e003_c_variants, run_weighted_quarterly_basket_backtest
+from src.strategies.e004_flow_only import (
+    build_e004_flow_top_sector_candidates,
+    build_e004_sector_selection_log,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -164,13 +183,20 @@ EXPECTED_E003_CONFIG_KEYS = (
 EXPECTED_E004_CONFIG_KEYS = (
     "experiment_id",
     "panels",
-    "periods",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "sector_aggregate_csv",
+    "stock_sector_daily_csv",
+    "period",
     "universe",
     "strategy",
-    "exit",
-    "quintile",
+    "regime",
+    "selection",
+    "rebalance",
     "costs",
-    "cost_sensitivity_multipliers",
+    "diagnostics",
+    "variants",
     "output_dir",
 )
 EXPECTED_B001_CONFIG_KEYS = (
@@ -1303,219 +1329,238 @@ def _write_e003_layer2_report(
 
 
 def run_e004_experiment(config: dict[str, Any], config_path: Path) -> None:
-    panel, calendar, features, headline_universe, diagnostic_universe = _build_common_inputs(config)
+    panel, calendar, universe = _build_b011_inputs(config)
+    stock_sector_daily = pd.read_csv(config["stock_sector_daily_csv"], encoding="utf-8-sig", dtype={"ticker": "string"})
+    panel = _e004_panel_with_sector_columns(panel, stock_sector_daily)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    sector_daily = pd.read_csv(config["sector_aggregate_csv"], encoding="utf-8-sig")
+    sector_daily = _e004_filter_sector_daily_to_period(sector_daily, config)
 
-    quintile = config["quintile"]
-    quintile_value = int(quintile["value"])
-    min_daily_universe_size = int(quintile["min_daily_universe_size"])
-    headline_candidates = build_e004_top_quintile_candidates(
-        features,
-        headline_universe,
-        quintile_value=quintile_value,
-        min_daily_universe_size=min_daily_universe_size,
+    sector_dates = quarter_end_dates(sector_daily)
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
     )
-    cap_only_candidates = build_e001_flow_filter_candidates(features, headline_universe)
-    diagnostic_candidates = build_e004_top_quintile_candidates(
-        features,
-        diagnostic_universe,
-        quintile_value=quintile_value,
-        min_daily_universe_size=min_daily_universe_size,
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
     )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    flow_scores = build_sector_flow_scores(
+        sector_daily,
+        signal_dates=sector_dates,
+        value_window=int(config["strategy"]["flow_by_value_window"]),
+        mcap_window=int(config["strategy"]["flow_by_mcap_window"]),
+        min_stocks=int(config["selection"]["min_sector_stocks"]),
+    )
+    forward_returns = build_sector_forward_returns(sector_daily, flow_scores["signal_date"].drop_duplicates())
+    rank_ic = build_rank_ic_diagnostics(flow_scores, forward_returns)
+    spread = build_top_bottom_spread_diagnostics(
+        flow_scores,
+        forward_returns,
+        k=int(config["diagnostics"]["top_bottom_k"]),
+    )
+    subperiod = build_subperiod_diagnostics(rank_ic, spread)
+    passed = diagnostics_pass(rank_ic, spread)
 
-    periods = config["periods"]
-    is_start = periods["is"]["start"]
-    is_end = periods["is"]["end"]
-    oos_start = periods["oos"]["start"]
-    oos_end = periods["oos"]["end"]
-    strategy = config["strategy"]
-    max_positions = int(strategy["max_positions"])
-    holding_cap = int(strategy["holding"])
     costs = _costs_from_config(config["costs"])
+    segments = _b011_segments(config)
+    candidate_years = _b011_candidate_years(config)
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
 
-    runs: dict[str, BacktestResult] = {
-        "headline": run_candidate_backtest(
-            panel,
-            calendar,
-            headline_candidates,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-        "cap_only": run_candidate_backtest(
-            panel,
-            calendar,
-            cap_only_candidates,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-        "bottom_quintile": run_candidate_backtest(
-            panel,
-            calendar,
-            build_e004_top_quintile_candidates(
-                features,
-                headline_universe,
-                quintile_value=1,
-                min_daily_universe_size=min_daily_universe_size,
+    candidates = build_e004_flow_top_sector_candidates(
+        panel=panel,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        flow_scores=flow_scores,
+        calendar=calendar,
+        top_sector_counts=tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]),
+    )
+    selection_log = build_e004_sector_selection_log(candidates, flow_scores)
+
+    rank_ic.to_csv(output_dir / "diagnostics_rank_ic.csv", index=False)
+    spread.to_csv(output_dir / "diagnostics_top_bottom_spread.csv", index=False)
+    subperiod.to_csv(output_dir / "subperiod_diagnostics.csv", index=False)
+    selection_log.to_csv(output_dir / "sector_selection_log.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+
+    comparison = _e004_comparison_frame(None)
+    portfolio_metrics: dict[str, dict[str, Any]] | None = None
+    if passed:
+        filtered_candidates = _quarterly_execution_candidates(candidates, calendar, quarterly_log, segments)
+        runs = {
+            "factor_macro_gate_mcap": run_weighted_quarterly_basket_backtest(
+                panel=panel,
+                calendar=calendar,
+                candidates=filtered_candidates,
+                costs=costs,
+                segments=segments,
+                rebalance_dates=quarterly_execution_dates(calendar, quarterly_log, segments),
             ),
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-        "middle_quintile": run_candidate_backtest(
+            "kospi_buy_and_hold": build_kospi_buy_and_hold_result(market_breadth, calendar=calendar, segments=segments),
+            "cash": _run_segmented_cash(calendar=calendar, segments=segments),
+        }
+        zero_result = _e003_zero_cost_result(
             panel,
             calendar,
-            build_e004_top_quintile_candidates(
-                features,
-                headline_universe,
-                quintile_value=3,
-                min_daily_universe_size=min_daily_universe_size,
-            ),
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-        "top_decile": run_candidate_backtest(
-            panel,
-            calendar,
-            build_e004_top_quintile_candidates(
-                features,
-                headline_universe,
-                quintile_value="top_decile",
-                min_daily_universe_size=min_daily_universe_size,
-            ),
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-        "B0": run_b0_cash(
-            panel,
-            calendar,
-            features,
-            diagnostic_universe,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=5,
-        ),
-        "B1": run_b1_buy_and_hold(
-            panel,
-            calendar,
-            features,
-            diagnostic_universe,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=5,
-        ),
-        "B2": run_b2_universe_5d_rebalance(
-            panel,
-            calendar,
-            features,
-            diagnostic_universe,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=5,
-        ),
-        "B3": run_b3_price_momentum(
-            panel,
-            calendar,
-            features,
-            headline_universe,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=5,
-        ),
-        "diagnostic_estimate_included": run_candidate_backtest(
-            panel,
-            calendar,
-            diagnostic_candidates,
-            costs,
-            is_start,
-            oos_end,
-            max_positions=max_positions,
-            holding=holding_cap,
-        ),
-    }
-    metrics = _metrics_for_runs(runs, is_start, is_end, oos_start, oos_end, calendar)
-    metrics.update(
-        _e003_cost_0_metrics(
-            panel=panel,
-            calendar=calendar,
-            headline_candidates=headline_candidates,
-            cap_only_candidates=cap_only_candidates,
-            is_start=is_start,
-            is_end=is_end,
-            oos_start=oos_start,
-            oos_end=oos_end,
-            max_positions=max_positions,
-            holding_cap=holding_cap,
+            filtered_candidates,
+            quarterly_log,
+            segments,
+            weighted=True,
         )
+        portfolio_metrics = _e003_variant_metrics(runs, zero_result, calendar, candidate_years)
+        portfolio_dir = output_dir / "portfolio"
+        portfolio_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(config_path, portfolio_dir / "config.yaml")
+        _write_json(portfolio_dir / "metrics.json", portfolio_metrics)
+        _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], calendar), portfolio_dir / "trades.csv")
+        _write_ticker_safe_csv(_e004_signals(filtered_candidates), portfolio_dir / "signals.csv")
+        _d001_wide_equity_curve(runs).to_csv(portfolio_dir / "equity_curve.csv", index=False)
+        _d009_year_breakdown(runs=runs, calendar=calendar, candidate_years=candidate_years).to_csv(
+            portfolio_dir / "quarterly_year_breakdown.csv",
+            index=False,
+        )
+        _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, calendar).to_csv(
+            portfolio_dir / "subperiod_breakdown.csv",
+            index=False,
+        )
+        comparison = _e004_comparison_frame(portfolio_metrics)
+    comparison.to_csv(output_dir / "comparison_with_e003.csv", index=False)
+    _write_e004_flow_report(output_dir, config, rank_ic, spread, subperiod, passed, portfolio_metrics, comparison)
+
+
+def _e004_panel_with_sector_columns(panel: pd.DataFrame, stock_sector_daily: pd.DataFrame) -> pd.DataFrame:
+    sector = stock_sector_daily.loc[:, ["date", "ticker", "sector_code", "sector_name"]].copy()
+    sector["날짜"] = pd.to_datetime(sector["date"], errors="raise").dt.normalize()
+    sector["종목코드"] = sector["ticker"].astype("string").str.zfill(6)
+    sector["sector_code"] = sector["sector_code"].astype("string").str.zfill(2)
+    sector["sector_name"] = sector["sector_name"].astype("string")
+    data = panel.copy()
+    data["종목코드"] = data["종목코드"].astype("string").str.zfill(6)
+    return data.merge(
+        sector.loc[:, ["날짜", "종목코드", "sector_code", "sector_name"]],
+        on=["날짜", "종목코드"],
+        how="left",
+        validate="many_to_one",
     )
-    cost_sensitivity = _run_cost_sensitivity(
-        panel=panel,
-        calendar=calendar,
-        candidates=headline_candidates,
-        base_costs=costs,
-        multipliers=config["cost_sensitivity_multipliers"],
-        is_start=is_start,
-        is_end=is_end,
-        oos_start=oos_start,
-        oos_end=oos_end,
-        max_positions=max_positions,
-        holding=holding_cap,
-    )
-    quintile_membership = build_e004_quintile_membership(
-        features,
-        headline_universe,
-        bins=5,
-        min_daily_universe_size=min_daily_universe_size,
-    )
-    _write_outputs(
-        config=config,
-        config_path=config_path,
-        panel=panel,
-        calendar=calendar,
-        headline_candidates=headline_candidates,
-        headline_result=runs["headline"],
-        metrics=metrics,
-        report_metrics={
-            "is": metrics["headline"]["is"],
-            "oos": metrics["headline"]["oos"],
-            "full": metrics["headline"]["full"],
-            "cap_only": metrics["cap_only"],
-            "bottom_quintile": metrics["bottom_quintile"],
-            "middle_quintile": metrics["middle_quintile"],
-            "top_decile": metrics["top_decile"],
-            "cost_0_headline": metrics["cost_0_headline"],
-            "cost_0_cap_only": metrics["cost_0_cap_only"],
-            "diagnostic_estimate_included": metrics["diagnostic_estimate_included"],
-        },
-        baselines={
-            "B0_cash": metrics["B0"],
-            "B1_buy_and_hold": metrics["B1"],
-            "B2_universe_5d_rebalance": metrics["B2"],
-            "B3_price_momentum": metrics["B3"],
-        },
-        cost_sensitivity=cost_sensitivity,
-        quintile_membership=quintile_membership,
-    )
+
+
+def _e004_filter_sector_daily_to_period(sector_daily: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
+    data = sector_daily.copy()
+    data["date"] = pd.to_datetime(data["date"], errors="raise").dt.normalize()
+    start = pd.Timestamp(config["period"]["start"]).normalize()
+    end = pd.Timestamp(config["period"]["end"]).normalize()
+    excluded_years = {int(year) for year in config["period"]["exclude_calendar_years"]}
+    data = data.loc[data["date"].between(start, end)].copy()
+    if excluded_years:
+        data = data.loc[~data["date"].dt.year.isin(excluded_years)].copy()
+    return data
+
+
+def _e004_signals(candidates: pd.DataFrame) -> pd.DataFrame:
+    if candidates.empty:
+        return pd.DataFrame(
+            columns=["date", "ticker", "signal_value", "signal_date", "execution_date", "included_in_trade"]
+        )
+    signals = candidates.loc[:, ["signal_date", "execution_date", "종목코드", "sector_flow_score"]].copy()
+    signals["date"] = signals["signal_date"]
+    signals["ticker"] = signals["종목코드"].astype(str).str.zfill(6)
+    signals["signal_value"] = pd.to_numeric(signals["sector_flow_score"], errors="raise")
+    signals["included_in_trade"] = True
+    return signals.loc[:, ["date", "ticker", "signal_value", "signal_date", "execution_date", "included_in_trade"]]
+
+
+def _e004_comparison_frame(portfolio_metrics: dict[str, dict[str, Any]] | None) -> pd.DataFrame:
+    rows = []
+    e003_path = Path("reports/experiments/E003_layer2_baselines/A_d013_replication/metrics.json")
+    if e003_path.exists():
+        e003 = json.loads(e003_path.read_text(encoding="utf-8"))
+        block = e003["factor_macro_gate_mcap"]
+        rows.append(
+            {
+                "variant": "E003_A_d013_replication",
+                "cumulative_net_total_return": block.get("cumulative_net_total_return"),
+                "sharpe": block.get("sharpe"),
+                "max_drawdown": block.get("max_drawdown"),
+                "trade_count": block.get("trade_count"),
+            }
+        )
+    if portfolio_metrics is not None:
+        block = portfolio_metrics["factor_macro_gate_mcap"]
+        rows.append(
+            {
+                "variant": "E004_flow_top3",
+                "cumulative_net_total_return": block.get("cumulative_net_total_return"),
+                "sharpe": block.get("sharpe"),
+                "max_drawdown": block.get("max_drawdown"),
+                "trade_count": block.get("trade_count"),
+            }
+        )
+    return pd.DataFrame(rows, columns=["variant", "cumulative_net_total_return", "sharpe", "max_drawdown", "trade_count"])
+
+
+def _write_e004_flow_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    rank_ic: pd.DataFrame,
+    spread: pd.DataFrame,
+    subperiod: pd.DataFrame,
+    passed: bool,
+    portfolio_metrics: dict[str, dict[str, Any]] | None,
+    comparison: pd.DataFrame,
+) -> None:
+    rank_summary = rank_ic.loc[rank_ic["signal_date"].astype(str).eq("ALL")].iloc[0]
+    spread_summary = spread.loc[spread["signal_date"].astype(str).eq("ALL")].iloc[0]
+    verdict = "PASS" if passed else "FAIL"
+    lines = [
+        "# E004 Flow Score Only Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        f"- sector_aggregate_csv: {config['sector_aggregate_csv']}",
+        "- score: z-score across sectors of average(flow_by_value_20d, flow_by_mcap_60d)",
+        "- timing: signal quarter-end T uses sector data through T; execution is T+1 or later",
+        "- thin_sector_policy: n_stocks <= 2 excluded from score and Top-K selection",
+        "- macro_gate: D013 10 variables, 5 blocks, 60-month z-score, threshold -0.2",
+        "",
+        "## Diagnostic Verdict",
+        "",
+        f"- verdict: {verdict}",
+        f"- rank_ic_mean: {rank_summary['rank_ic']}",
+        f"- rank_ic_std: {rank_summary.get('rank_ic_std', float('nan'))}",
+        f"- rank_ic_t_stat: {rank_summary.get('rank_ic_t_stat', float('nan'))}",
+        f"- top_bottom_spread_mean: {spread_summary['spread']}",
+        f"- top_bottom_spread_std: {spread_summary.get('spread_std', float('nan'))}",
+        f"- top_bottom_spread_t_stat: {spread_summary.get('spread_t_stat', float('nan'))}",
+        f"- positive_spread_ratio: {spread_summary.get('positive_spread_ratio', float('nan'))}",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Subperiod Diagnostics", subperiod))
+    lines.extend(_b004_dataframe_table("Comparison With E003", comparison))
+    if portfolio_metrics is None:
+        lines.extend(["## Portfolio", "", "Portfolio skipped because the pre-registered diagnostic pass rule was not met.", ""])
+    else:
+        portfolio = pd.DataFrame(
+            [
+                {
+                    "variant": "E004_flow_top3",
+                    "cumulative_net_total_return": portfolio_metrics["factor_macro_gate_mcap"]["cumulative_net_total_return"],
+                    "sharpe": portfolio_metrics["factor_macro_gate_mcap"]["sharpe"],
+                    "max_drawdown": portfolio_metrics["factor_macro_gate_mcap"]["max_drawdown"],
+                    "trade_count": portfolio_metrics["factor_macro_gate_mcap"]["trade_count"],
+                }
+            ]
+        )
+        lines.extend(_b004_dataframe_table("Portfolio Metrics", portfolio))
+    output_dir.joinpath("report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def run_b001_experiment(config: dict[str, Any], config_path: Path) -> None:
@@ -13669,23 +13714,48 @@ def _validate_e004_config_shape(config: dict[str, Any]) -> None:
     keys = tuple(config.keys())
     if keys != EXPECTED_E004_CONFIG_KEYS:
         raise ValueError(f"E004 config keys must be exactly {EXPECTED_E004_CONFIG_KEYS}; got {keys}.")
-    _validate_common_config_shape(config, "E004")
-    if tuple(config["exit"].keys()) != EXPECTED_EXIT_KEYS:
-        raise ValueError(f"exit keys must be exactly {EXPECTED_EXIT_KEYS}.")
-    if tuple(config["quintile"].keys()) != EXPECTED_QUINTILE_KEYS:
-        raise ValueError(f"quintile keys must be exactly {EXPECTED_QUINTILE_KEYS}.")
-    if int(config["strategy"]["holding"]) != 20:
-        raise ValueError("E004 requires strategy.holding: 20.")
-    if int(config["strategy"]["max_positions"]) != 5:
-        raise ValueError("E004 requires strategy.max_positions: 5.")
-    if config["exit"]["vol_stop_k"] is not None:
-        raise ValueError("E004 requires exit.vol_stop_k: null.")
-    if int(config["exit"]["vol_stop_atr_window"]) != 20:
-        raise ValueError("E004 requires exit.vol_stop_atr_window: 20.")
-    if int(config["quintile"]["value"]) != 5:
-        raise ValueError("E004 requires quintile.value: 5.")
-    if int(config["quintile"]["min_daily_universe_size"]) != 20:
-        raise ValueError("E004 requires quintile.min_daily_universe_size: 20.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError(f"E004 period keys must be exactly {EXPECTED_B011_PERIOD_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"E004 universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["strategy"].keys()) != ("flow_by_value_window", "flow_by_mcap_window"):
+        raise ValueError("E004 strategy keys must be flow_by_value_window, flow_by_mcap_window.")
+    if tuple(config["regime"].keys()) != EXPECTED_D013_REGIME_KEYS:
+        raise ValueError(f"E004 regime keys must match D013: {EXPECTED_D013_REGIME_KEYS}.")
+    if tuple(config["selection"].keys()) != ("top_sectors", "top_sector_stock_counts", "min_sector_stocks"):
+        raise ValueError("E004 selection keys must be top_sectors, top_sector_stock_counts, min_sector_stocks.")
+    if tuple(config["diagnostics"].keys()) != ("top_bottom_k",):
+        raise ValueError("E004 diagnostics keys must be exactly top_bottom_k.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"E004 costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("E004 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("E004 requires period.exclude_calendar_years: [2016].")
+    if int(config["strategy"]["flow_by_value_window"]) != 20:
+        raise ValueError("E004 requires strategy.flow_by_value_window: 20.")
+    if int(config["strategy"]["flow_by_mcap_window"]) != 60:
+        raise ValueError("E004 requires strategy.flow_by_mcap_window: 60.")
+    if config["regime"]["aggregation"] != "factor_z_score":
+        raise ValueError("E004 requires regime.aggregation: factor_z_score.")
+    if int(config["regime"]["z_score_window_months"]) != 60:
+        raise ValueError("E004 requires regime.z_score_window_months: 60.")
+    if float(config["regime"]["on_threshold"]) != -0.2:
+        raise ValueError("E004 requires D013 regime.on_threshold: -0.2.")
+    if _d001_blocks_from_config(config["regime"]["blocks"]) != _d009_expected_blocks():
+        raise ValueError("E004 factor blocks/signs must match D013/D009 exactly.")
+    if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
+        raise ValueError("E004 requires quarterly last_trading_day rebalance.")
+    if int(config["selection"]["top_sectors"]) != 3:
+        raise ValueError("E004 requires selection.top_sectors: 3.")
+    if tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]) != (2, 2, 1):
+        raise ValueError("E004 requires selection.top_sector_stock_counts: [2, 2, 1].")
+    if int(config["selection"]["min_sector_stocks"]) != 3:
+        raise ValueError("E004 requires selection.min_sector_stocks: 3.")
+    if int(config["diagnostics"]["top_bottom_k"]) != 3:
+        raise ValueError("E004 requires diagnostics.top_bottom_k: 3.")
+    if tuple(config["variants"]) != ("diagnostics", "portfolio_if_pass"):
+        raise ValueError("E004 variants must be diagnostics, portfolio_if_pass.")
 
 
 def _validate_b001_config_shape(config: dict[str, Any]) -> None:
