@@ -1,0 +1,4 @@
+variant,cumulative_net_total_return,sharpe,max_drawdown,off_fx_cumulative,fx_sleeve_max_drawdown,cumulative_delta_vs_d013,sharpe_delta_vs_d013,mdd_delta_vs_d013,cumulative_pass,sharpe_pass,mdd_pass,fx_drawdown_pass,pass
+d013_baseline,2.5457702903350135,0.5333654677635088,-0.3392346174957135,0.0,0.0,0.0,0.0,0.0,,,,,
+d013_usdkrw_sleeve,2.7271802643580934,0.5544017014515334,-0.3392346174957135,0.0511623594223245,-0.17252455316907733,0.1814099740230799,0.021036233688024653,0.0,,,,,
+verdict,,,,0.0511623594223245,-0.17252455316907733,0.1814099740230799,0.021036233688024653,0.0,True,True,True,False,False

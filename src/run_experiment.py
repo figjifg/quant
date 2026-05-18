@@ -276,6 +276,11 @@ from src.strategies.h001_kr_short_rate_sleeve import (
     VARIANTS as H001_VARIANTS,
     apply_kr_short_rate_off_sleeve,
 )
+from src.strategies.h002_usdkrw_sleeve import (
+    VARIANTS as H002_VARIANTS,
+    apply_usdkrw_off_sleeve,
+    usdkrw_sleeve_drawdown,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -749,6 +754,8 @@ EXPECTED_H001_CONFIG_KEYS = (
     "output_dir",
 )
 EXPECTED_H001_OFF_SLEEVE_KEYS = ("type", "source", "rate_column", "compounding", "formula")
+EXPECTED_H002_CONFIG_KEYS = EXPECTED_H001_CONFIG_KEYS
+EXPECTED_H002_OFF_SLEEVE_KEYS = ("type", "source", "rate_column", "carry_assumption", "formula")
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
 EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
 EXPECTED_B011_SELECTION_KEYS = ("type", "n")
@@ -1017,6 +1024,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "H001":
         _validate_h001_config_shape(config)
         run_h001_experiment(config, config_path)
+    elif experiment_id == "H002":
+        _validate_h002_config_shape(config)
+        run_h002_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -9863,6 +9873,235 @@ def _write_h001_report(
         "- OFF sleeve: KR short-rate carry replaces zero-return cash in D013 OFF quarters.",
         f"- KR short-rate source: {config['off_sleeve']['source']}.",
         "- Carry formula: `(1 + annual_rate / 12)^3 - 1`, with annual_rate as decimal.",
+        "- D013 strategy and backtest engine were not modified.",
+    ]
+    (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run_h002_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    d013_runs, candidates = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    baseline = d013_runs["factor_macro_gate_mcap"]
+    sleeve, off_fx = apply_usdkrw_off_sleeve(
+        baseline,
+        calendar=calendar,
+        quarterly_regime=quarterly_log,
+        usdkrw_csv=config["off_sleeve"]["source"],
+    )
+
+    candidate_years = _b011_candidate_years(config)
+    metrics = {
+        "d013_baseline": _h001_metric_block(baseline, calendar, candidate_years),
+        "d013_usdkrw_sleeve": _h001_metric_block(sleeve, calendar, candidate_years),
+    }
+    comparison = _h002_baseline_comparison(metrics, off_fx)
+    regime_breakdown = _h002_regime_breakdown(off_fx)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(sleeve, calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), output_dir / "signals.csv")
+    _h002_equity_curve(baseline, sleeve).to_csv(output_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    comparison.to_csv(output_dir / "baseline_comparison.csv", index=False)
+    off_fx.to_csv(output_dir / "off_fx_contribution.csv", index=False)
+    regime_breakdown.to_csv(output_dir / "regime_breakdown.csv", index=False)
+    _write_h002_report(output_dir, config, metrics, comparison, off_fx, regime_breakdown)
+
+
+def _h002_baseline_comparison(metrics: dict[str, dict[str, Any]], off_fx: pd.DataFrame) -> pd.DataFrame:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_usdkrw_sleeve"]
+    cumulative_delta = float(sleeve["cumulative_net_total_return"]) - float(baseline["cumulative_net_total_return"])
+    sharpe_delta = float(sleeve["sharpe"]) - float(baseline["sharpe"])
+    mdd_delta = float(sleeve["max_drawdown"]) - float(baseline["max_drawdown"])
+    off_cumulative = float(off_fx["cumulative_off_fx"].iloc[-1]) if not off_fx.empty else 0.0
+    fx_max_drawdown = usdkrw_sleeve_drawdown(off_fx)
+    rows = [
+        {
+            "variant": "d013_baseline",
+            "cumulative_net_total_return": baseline["cumulative_net_total_return"],
+            "sharpe": baseline["sharpe"],
+            "max_drawdown": baseline["max_drawdown"],
+            "off_fx_cumulative": 0.0,
+            "fx_sleeve_max_drawdown": 0.0,
+            "cumulative_delta_vs_d013": 0.0,
+            "sharpe_delta_vs_d013": 0.0,
+            "mdd_delta_vs_d013": 0.0,
+        },
+        {
+            "variant": "d013_usdkrw_sleeve",
+            "cumulative_net_total_return": sleeve["cumulative_net_total_return"],
+            "sharpe": sleeve["sharpe"],
+            "max_drawdown": sleeve["max_drawdown"],
+            "off_fx_cumulative": off_cumulative,
+            "fx_sleeve_max_drawdown": fx_max_drawdown,
+            "cumulative_delta_vs_d013": cumulative_delta,
+            "sharpe_delta_vs_d013": sharpe_delta,
+            "mdd_delta_vs_d013": mdd_delta,
+        },
+    ]
+    verdict = {
+        "variant": "verdict",
+        "cumulative_net_total_return": pd.NA,
+        "sharpe": pd.NA,
+        "max_drawdown": pd.NA,
+        "off_fx_cumulative": off_cumulative,
+        "fx_sleeve_max_drawdown": fx_max_drawdown,
+        "cumulative_delta_vs_d013": cumulative_delta,
+        "sharpe_delta_vs_d013": sharpe_delta,
+        "mdd_delta_vs_d013": mdd_delta,
+        "cumulative_pass": bool(float(sleeve["cumulative_net_total_return"]) > float(baseline["cumulative_net_total_return"])),
+        "sharpe_pass": bool(float(sleeve["sharpe"]) >= 0.53),
+        "mdd_pass": bool(float(sleeve["max_drawdown"]) >= float(baseline["max_drawdown"]) - 0.05),
+        "fx_drawdown_pass": bool(fx_max_drawdown >= -0.05),
+    }
+    verdict["pass"] = bool(
+        verdict["cumulative_pass"] and verdict["sharpe_pass"] and verdict["mdd_pass"] and verdict["fx_drawdown_pass"]
+    )
+    rows.append(verdict)
+    return pd.DataFrame(rows)
+
+
+def _h002_equity_curve(baseline: BacktestResult, sleeve: BacktestResult) -> pd.DataFrame:
+    data = sleeve.equity_curve.copy()
+    data["d013_baseline_net_value"] = baseline.equity_curve["net_value"].to_numpy()
+    data["d013_usdkrw_sleeve_net_value"] = sleeve.equity_curve["net_value"].to_numpy()
+    data["usdkrw_sleeve_factor"] = (
+        pd.to_numeric(data["d013_usdkrw_sleeve_net_value"], errors="raise")
+        / pd.to_numeric(data["d013_baseline_net_value"], errors="raise")
+    )
+    return data
+
+
+def _h002_regime_breakdown(off_fx: pd.DataFrame) -> pd.DataFrame:
+    if off_fx.empty:
+        return pd.DataFrame(
+            columns=[
+                "regime",
+                "quarter_count",
+                "mean_quarter_fx_return",
+                "sum_quarter_fx_return",
+                "compounded_fx_return",
+                "positive_quarter_rate",
+            ]
+        )
+    data = off_fx.copy()
+    data["regime"] = pd.to_numeric(data["quarter_fx_return"], errors="raise").ge(0.0).map(
+        {True: "KRW_weakening", False: "KRW_strengthening"}
+    )
+    rows = []
+    for regime, group in data.groupby("regime", sort=True):
+        returns = pd.to_numeric(group["quarter_fx_return"], errors="raise")
+        rows.append(
+            {
+                "regime": regime,
+                "quarter_count": int(len(group)),
+                "mean_quarter_fx_return": float(returns.mean()),
+                "sum_quarter_fx_return": float(returns.sum()),
+                "compounded_fx_return": float((1.0 + returns).prod() - 1.0),
+                "positive_quarter_rate": float(returns.gt(0.0).mean()),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _write_h002_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    comparison: pd.DataFrame,
+    off_fx: pd.DataFrame,
+    regime_breakdown: pd.DataFrame,
+) -> None:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_usdkrw_sleeve"]
+    verdict = comparison.loc[comparison["variant"].eq("verdict")].iloc[0]
+    pass_fail = "PASS" if bool(verdict["pass"]) else "FAIL"
+    h001_path = Path("reports/experiments/H001_kr_short_rate_sleeve/baseline_comparison.csv")
+    h001_delta = "unavailable"
+    if h001_path.exists():
+        h001 = pd.read_csv(h001_path)
+        h001_verdict = h001.loc[h001["variant"].eq("verdict")]
+        if not h001_verdict.empty:
+            h001_delta = _format_report_value(h001_verdict["cumulative_delta_vs_d013"].iloc[0])
+    weakening = regime_breakdown.loc[regime_breakdown["regime"].eq("KRW_weakening")]
+    weakening_compounded = (
+        _format_report_value(weakening["compounded_fx_return"].iloc[0]) if not weakening.empty else "0.0"
+    )
+    next_recommendation = (
+        "H003/H005 진행 권고: H002는 FX drawdown 기준에서 실패했으므로 H003/H005 defensive sleeve를 우선 검토한다."
+        if not bool(verdict["pass"])
+        else "H003/H005 진행 권고: H002는 후보로 유지하되 H003/H005와 비용 없는 OFF sleeve 대안을 비교한다."
+    )
+    lines = [
+        "# H002 USDKRW Sleeve",
+        "",
+        "## Portfolio Metrics",
+        "",
+        "| variant | cumulative_net_total_return | sharpe | max_drawdown |",
+        "|---|---:|---:|---:|",
+        "| D013 baseline | "
+        + " | ".join(_format_report_value(baseline[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "| D013 + USDKRW | "
+        + " | ".join(_format_report_value(sleeve[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "",
+        "## OFF FX Contribution",
+        "",
+        f"- OFF FX cumulative contribution: {_format_report_value(verdict['off_fx_cumulative'])}",
+        f"- OFF FX quarters: {int(len(off_fx))}",
+        f"- KRW weakening compounded contribution: {weakening_compounded}",
+        f"- FX sleeve max drawdown: {_format_report_value(verdict['fx_sleeve_max_drawdown'])}",
+        f"- H001 KR carry cumulative uplift vs D013: {h001_delta}",
+        "",
+        "## Verdict",
+        "",
+        f"- Overall: {pass_fail}",
+        f"- Cumulative improves vs D013: {bool(verdict['cumulative_pass'])} ({_format_report_value(verdict['cumulative_delta_vs_d013'])})",
+        f"- Sharpe >= 0.53: {bool(verdict['sharpe_pass'])} ({_format_report_value(sleeve['sharpe'])})",
+        f"- MDD worsening <= 0.05: {bool(verdict['mdd_pass'])} ({_format_report_value(verdict['mdd_delta_vs_d013'])})",
+        f"- FX sleeve drawdown >= -0.05: {bool(verdict['fx_drawdown_pass'])} ({_format_report_value(verdict['fx_sleeve_max_drawdown'])})",
+        f"- {next_recommendation}",
+        "",
+        "## Metadata",
+        "",
+        "- Carrier: D013 top 5 unchanged.",
+        "- OFF sleeve: USD cash marked in KRW replaces zero-return cash in D013 OFF quarters.",
+        f"- USDKRW source: {config['off_sleeve']['source']}.",
+        "- USD carry assumption: 0.0.",
+        "- FX formula: `end_usdkrw / start_usdkrw - 1`, aligned from signal_date T to next quarter signal_date T+1Q.",
         "- D013 strategy and backtest engine were not modified.",
     ]
     (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -22712,6 +22951,34 @@ def _validate_h001_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("H001 off_sleeve.compounding must be monthly_3x.")
     if tuple(config["variants"]) != H001_VARIANTS:
         raise ValueError(f"H001 variants must be exactly {list(H001_VARIANTS)}.")
+
+
+def _validate_h002_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_H002_CONFIG_KEYS:
+        raise ValueError(f"H002 config keys must be exactly {EXPECTED_H002_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("off_sleeve")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("H002 carrier must be d013.")
+    if tuple(config["off_sleeve"].keys()) != EXPECTED_H002_OFF_SLEEVE_KEYS:
+        raise ValueError(f"H002 off_sleeve keys must be exactly {EXPECTED_H002_OFF_SLEEVE_KEYS}.")
+    off_sleeve = config["off_sleeve"]
+    if off_sleeve["type"] != "usdkrw_cash":
+        raise ValueError("H002 off_sleeve.type must be usdkrw_cash.")
+    if off_sleeve["source"] != "research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv":
+        raise ValueError("H002 off_sleeve.source must be the registered USDKRW FRED file.")
+    if off_sleeve["rate_column"] != "DEXKOUS":
+        raise ValueError("H002 off_sleeve.rate_column must be DEXKOUS.")
+    if off_sleeve["carry_assumption"] != 0:
+        raise ValueError("H002 off_sleeve.carry_assumption must be 0.")
+    if tuple(config["variants"]) != H002_VARIANTS:
+        raise ValueError(f"H002 variants must be exactly {list(H002_VARIANTS)}.")
 
 
 def _validate_p002_config_shape(config: dict[str, Any]) -> None:

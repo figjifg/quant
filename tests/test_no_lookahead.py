@@ -18,6 +18,7 @@ from src.features.stock_combined_score import build_stock_combined_scores
 from src.features.stress_filter import stress_filter_scalars
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
+from src.strategies.h002_usdkrw_sleeve import load_usdkrw_quarterly_returns
 from src.strategies.p002_d013_execution import SCENARIOS, p002_shift_candidates
 
 
@@ -238,6 +239,22 @@ def test_strategy_candidates_at_execution_date_unchanged_by_future_panel_mutatio
 
     assert not before.empty
     pd.testing.assert_frame_equal(after, before)
+
+
+def test_h002_usdkrw_return_uses_exact_next_quarter_signal_not_later_fx(tmp_path) -> None:
+    path = tmp_path / "usdkrw.csv"
+    path.write_text(
+        "observation_date,DEXKOUS\n"
+        "2024-03-29,1000.0\n"
+        "2024-06-28,1050.0\n"
+        "2024-07-01,1500.0\n",
+        encoding="utf-8",
+    )
+
+    fx = load_usdkrw_quarterly_returns(path, pd.Series(pd.to_datetime(["2024-03-29", "2024-06-28"])))
+
+    assert fx["end_observation_date"].iloc[0] == pd.Timestamp("2024-06-28")
+    assert fx["usdkrw_quarter_return"].iloc[0] == pytest.approx(0.05)
 
 
 def test_stress_filter_at_signal_date_unchanged_by_future_macro_and_kospi_mutation(
