@@ -1,0 +1,2 @@
+variant,cumulative_net_total_return,sharpe,max_drawdown,trade_count,top_k,note
+top_5_frozen,0.34554280768351364,0.07657759416388611,-0.7246351249505394,110,5,F012 validates frozen K=5 only; no exploratory K grid was run

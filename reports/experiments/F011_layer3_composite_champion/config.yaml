@@ -1,0 +1,8 @@
+experiment_id: F011
+source_experiment: F010-A
+source_config: configs/backtests/f010_a.yaml
+output_dir: reports/experiments/F011_layer3_composite_champion
+registration:
+  exact_reproduction_required: true
+  no_new_parameters: true
+  frozen_variant: F010-A D013 direct

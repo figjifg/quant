@@ -1,0 +1,27 @@
+experiment_id: F012
+source_experiment: F011
+source_config: configs/backtests/f011.yaml
+output_dir: reports/experiments/F012_layer3_validation
+cost_scenarios:
+  base:
+    commission_bps: 1.5
+    tax_bps_sell: 20.0
+    slippage_bps: 5.0
+  2x:
+    commission_bps: 3.0
+    tax_bps_sell: 40.0
+    slippage_bps: 10.0
+  3x:
+    commission_bps: 4.5
+    tax_bps_sell: 60.0
+    slippage_bps: 15.0
+spike_exclusions:
+- - 2020
+- - 2025
+- - 2026
+- - 2020
+  - 2025
+  - 2026
+validation:
+  top_k: 5
+  no_exploration: true
