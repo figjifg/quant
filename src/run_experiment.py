@@ -70,6 +70,7 @@ from src.features.stock_rs_score import (
     build_stock_rs_scores,
     build_stock_top_bottom_spread_diagnostics,
 )
+from src.features.stock_foreign_flow_score import build_stock_foreign_flow_scores
 from src.reporting.metrics import compute_metrics, metrics_is_oos
 from src.reporting.report import write_report
 from src.reporting.subperiod_analyzer import (
@@ -206,6 +207,14 @@ from src.strategies.f002_stock_rs_d013_direct import (
 from src.strategies.f002_stock_rs_e014 import (
     build_f002_e014_selection_universe,
     build_f002_stock_rs_e014_candidates,
+)
+from src.strategies.f003_foreign_flow_d013_direct import (
+    build_f003_d013_direct_score_universe,
+    build_f003_foreign_flow_d013_direct_candidates,
+)
+from src.strategies.f003_foreign_flow_e014 import (
+    build_f003_e014_selection_universe,
+    build_f003_foreign_flow_e014_candidates,
 )
 from src.strategies.baselines import (
     run_b0_cash,
@@ -713,6 +722,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "F002":
         _validate_f002_config_shape(config)
         run_f002_experiment(config, config_path)
+    elif experiment_id == "F003":
+        _validate_f003_config_shape(config)
+        run_f003_experiment(config, config_path)
     elif experiment_id == "B001":
         _validate_b001_config_shape(config)
         run_b001_experiment(config, config_path)
@@ -3548,6 +3560,193 @@ def _build_f002_context(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def run_f003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    context = _build_f003_context(config)
+    costs = _costs_from_config(config["costs"])
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    carrier = str(config["carrier"])
+    carrier_dir = output_dir / ("A_d013_direct" if carrier == "d013_direct" else "B_e014")
+    carrier_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, carrier_dir / "config.yaml")
+
+    if carrier == "d013_direct":
+        candidates = build_f003_foreign_flow_d013_direct_candidates(
+            panel=context["panel"],
+            universe=context["universe"],
+            quarterly_regime=context["quarterly_log"],
+            stock_scores=context["stock_scores"],
+            calendar=context["calendar"],
+            top_n=int(config["selection"]["n"]),
+        )
+        diagnostic_scores = build_f003_d013_direct_score_universe(
+            panel=context["panel"],
+            universe=context["universe"],
+            quarterly_regime=context["quarterly_log"],
+            stock_scores=context["stock_scores"],
+        )
+        diagnostic_scores["ticker"] = diagnostic_scores["종목코드"].astype(str).str.zfill(6)
+        score_column = "stock_foreign_flow_score_universe"
+        ic_mode = "universe"
+        spread_k = int(config["diagnostics"]["top_bottom_k"])
+        weighted = False
+        carrier_label = "F003-A D013 direct"
+    elif carrier == "e014":
+        candidates = build_f003_foreign_flow_e014_candidates(
+            panel=context["panel"],
+            universe=context["universe"],
+            quarterly_regime=context["quarterly_log"],
+            combined_scores=context["combined_scores"],
+            stock_scores=context["stock_scores"],
+            calendar=context["calendar"],
+            top_sector_counts=tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]),
+        )
+        diagnostic_scores = build_f003_e014_selection_universe(
+            panel=context["panel"],
+            universe=context["universe"],
+            quarterly_regime=context["quarterly_log"],
+            combined_scores=context["combined_scores"],
+            stock_scores=context["stock_scores"],
+            top_sector_counts=tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]),
+        )
+        diagnostic_scores["ticker"] = diagnostic_scores["종목코드"].astype(str).str.zfill(6)
+        score_column = "stock_foreign_flow_score"
+        ic_mode = "within_sector"
+        spread_k = int(config["diagnostics"]["top_bottom_k"])
+        weighted = True
+        carrier_label = "F003-B E014"
+    else:
+        raise ValueError("F003 carrier must be 'd013_direct' or 'e014'.")
+
+    filtered = _quarterly_execution_candidates(
+        candidates, context["calendar"], context["quarterly_log"], context["segments"]
+    )
+    runs = {
+        "factor_macro_gate_mcap": (
+            run_weighted_quarterly_basket_backtest
+            if weighted
+            else run_quarterly_mcap_backtest
+        )(
+            panel=context["panel"],
+            calendar=context["calendar"],
+            candidates=filtered,
+            costs=costs,
+            segments=context["segments"],
+            rebalance_dates=quarterly_execution_dates(context["calendar"], context["quarterly_log"], context["segments"]),
+        ),
+        "kospi_buy_and_hold": build_kospi_buy_and_hold_result(
+            context["market_breadth"], calendar=context["calendar"], segments=context["segments"]
+        ),
+        "cash": _run_segmented_cash(calendar=context["calendar"], segments=context["segments"]),
+    }
+    zero_result = _e003_zero_cost_result(
+        context["panel"], context["calendar"], filtered, context["quarterly_log"], context["segments"], weighted=weighted
+    )
+    metrics = _e003_variant_metrics(runs, zero_result, context["calendar"], context["candidate_years"])
+    rank_ic = build_stock_rank_ic_diagnostics(
+        diagnostic_scores,
+        context["forward_returns"],
+        score_column=score_column,
+        mode=ic_mode,
+    )
+    spread = build_stock_top_bottom_spread_diagnostics(
+        diagnostic_scores,
+        context["forward_returns"],
+        score_column=score_column,
+        mode=ic_mode,
+        k=spread_k,
+    )
+    diagnostics = _f002_diagnostics_frame(carrier_label, rank_ic, spread)
+
+    _write_json(carrier_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs["factor_macro_gate_mcap"], context["calendar"]), carrier_dir / "trades.csv")
+    _write_ticker_safe_csv(_f002_signals(filtered, score_column=score_column), carrier_dir / "signals.csv")
+    _d001_wide_equity_curve(runs).to_csv(carrier_dir / "equity_curve.csv", index=False)
+    _d009_year_breakdown(runs=runs, calendar=context["calendar"], candidate_years=context["candidate_years"]).to_csv(
+        carrier_dir / "quarterly_year_breakdown.csv", index=False
+    )
+    _c010_subperiod_breakdown(runs["factor_macro_gate_mcap"], zero_result, context["calendar"]).to_csv(
+        carrier_dir / "subperiod_breakdown.csv", index=False
+    )
+    rank_ic.to_csv(carrier_dir / "rank_ic.csv", index=False)
+    spread.to_csv(carrier_dir / "top_bottom_spread.csv", index=False)
+    diagnostics.to_csv(carrier_dir / "diagnostics_summary.csv", index=False)
+    context["quarterly_log"].to_csv(carrier_dir / "quarterly_regime_log.csv", index=False)
+    _write_f003_root_outputs(output_dir, config)
+
+
+def _build_f003_context(config: dict[str, Any]) -> dict[str, Any]:
+    context = _build_f002_context_without_stock_scores(config)
+    context["stock_scores"] = build_stock_foreign_flow_scores(
+        context["stock_daily"],
+        signal_dates=context["signal_dates"],
+        value_window=int(config["strategy"]["flow_by_value_window"]),
+        mcap_window=int(config["strategy"]["flow_by_mcap_window"]),
+        min_sector_stocks=int(config["selection"].get("min_sector_stocks", 2)),
+    )
+    context["forward_returns"] = build_stock_forward_returns(context["stock_daily"], context["signal_dates"])
+    return context
+
+
+def _build_f002_context_without_stock_scores(config: dict[str, Any]) -> dict[str, Any]:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    sector_daily = pd.read_csv(config["sector_aggregate_csv"], encoding="utf-8-sig")
+    sector_daily = _e004_filter_sector_daily_to_period(sector_daily, config)
+    stock_daily = pd.read_csv(config["stock_sector_daily_csv"], encoding="utf-8-sig", dtype={"ticker": "string"})
+    stock_daily = _e004_filter_sector_daily_to_period(stock_daily, config)
+    signal_dates = rs_quarter_end_dates(sector_daily)
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    flow_scores = build_sector_flow_scores(
+        sector_daily,
+        signal_dates=signal_dates,
+        value_window=int(config["strategy"]["flow_by_value_window"]),
+        mcap_window=int(config["strategy"]["flow_by_mcap_window"]),
+        min_stocks=int(config["selection"].get("min_sector_stocks", 3)),
+    )
+    rs_scores = build_sector_rs_scores(
+        sector_daily,
+        market_breadth,
+        signal_dates=signal_dates,
+        short_window=int(config["strategy"]["short_window"]),
+        long_window=int(config["strategy"]["long_window"]),
+        min_stocks=int(config["selection"].get("min_sector_stocks", 3)),
+    )
+    breadth_scores = build_sector_breadth_scores(
+        stock_daily,
+        market_breadth,
+        signal_dates=signal_dates,
+        window=int(config["strategy"]["breadth_window"]),
+        min_stocks=int(config["selection"].get("min_sector_stocks", 3)),
+    )
+    return {
+        "panel": panel,
+        "calendar": calendar,
+        "universe": universe,
+        "market_breadth": market_breadth,
+        "quarterly_log": quarterly_log,
+        "combined_scores": build_sector_combined_scores(flow_scores, rs_scores, breadth_scores),
+        "stock_daily": stock_daily,
+        "sector_daily": sector_daily,
+        "signal_dates": signal_dates,
+        "segments": _b011_segments(config),
+        "candidate_years": _b011_candidate_years(config),
+    }
+
+
 def run_e015_experiment(config: dict[str, Any], config_path: Path) -> None:
     context = _build_e_layer2_context(config)
     output_dir = Path(config["output_dir"])
@@ -4164,6 +4363,113 @@ def _f002_verdict(comparison: pd.DataFrame, diagnostics: pd.DataFrame) -> str:
     if pass_count == 1:
         return "weak"
     return "RS 종목 단위 약함"
+
+
+def _write_f003_root_outputs(output_dir: Path, config: dict[str, Any]) -> None:
+    rows = []
+    diagnostics = []
+    for label, dirname, baseline, f002_variant in (
+        ("F003-A D013 direct", "A_d013_direct", "F001-A D013 direct", "F002-A D013 direct"),
+        ("F003-B E014", "B_e014", "F001-B E014 neutral", "F002-B E014"),
+    ):
+        metrics_path = output_dir / dirname / "metrics.json"
+        diag_path = output_dir / dirname / "diagnostics_summary.csv"
+        if metrics_path.exists():
+            loaded = json.loads(metrics_path.read_text(encoding="utf-8"))
+            row = _summary_row(label, loaded)
+            row["baseline_variant"] = baseline
+            row["f002_variant"] = f002_variant
+            rows.append(row)
+        if diag_path.exists():
+            diagnostics.append(pd.read_csv(diag_path))
+    baseline_path = Path("reports/experiments/F001_layer3_neutral_baseline/baseline_summary.csv")
+    if rows and baseline_path.exists():
+        baselines = pd.read_csv(baseline_path)
+        if "baseline" in baselines.columns:
+            baselines = baselines.rename(
+                columns={
+                    "baseline": "variant",
+                    "cum_net": "cumulative_net_total_return",
+                    "mdd": "max_drawdown",
+                }
+            )
+        by_name = baselines.set_index("variant")
+        for row in rows:
+            baseline_name = row["baseline_variant"]
+            if baseline_name in by_name.index:
+                base = by_name.loc[baseline_name]
+                row["baseline_cumulative_net_total_return"] = base["cumulative_net_total_return"]
+                row["baseline_sharpe"] = base["sharpe"]
+                row["baseline_max_drawdown"] = base["max_drawdown"]
+                row["cumulative_uplift_vs_f001"] = row["cumulative_net_total_return"] - base["cumulative_net_total_return"]
+                row["sharpe_uplift_vs_f001"] = row["sharpe"] - base["sharpe"]
+                row["mdd_uplift_vs_f001"] = row["max_drawdown"] - base["max_drawdown"]
+    f002_path = Path("reports/experiments/F002_stock_rs_only/carrier_comparison.csv")
+    if rows and f002_path.exists():
+        f002 = pd.read_csv(f002_path).set_index("variant")
+        for row in rows:
+            f002_variant = row["f002_variant"]
+            if f002_variant in f002.index:
+                base = f002.loc[f002_variant]
+                row["f002_cumulative_net_total_return"] = base["cumulative_net_total_return"]
+                row["f002_sharpe"] = base["sharpe"]
+                row["f002_max_drawdown"] = base["max_drawdown"]
+                row["cumulative_diff_vs_f002"] = row["cumulative_net_total_return"] - base["cumulative_net_total_return"]
+                row["sharpe_diff_vs_f002"] = row["sharpe"] - base["sharpe"]
+                row["mdd_diff_vs_f002"] = row["max_drawdown"] - base["max_drawdown"]
+    comparison = pd.DataFrame(rows)
+    if not comparison.empty:
+        comparison.to_csv(output_dir / "carrier_comparison.csv", index=False)
+    all_diagnostics = pd.concat(diagnostics, ignore_index=True) if diagnostics else pd.DataFrame()
+    if not all_diagnostics.empty:
+        all_diagnostics.to_csv(output_dir / "ic_diagnostics.csv", index=False)
+    shutil.copyfile(Path(f"configs/backtests/f003_{'a' if config['carrier'] == 'd013_direct' else 'b'}.yaml"), output_dir / "config.yaml")
+    _write_f003_report(output_dir, config, comparison, all_diagnostics)
+
+
+def _write_f003_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    comparison: pd.DataFrame,
+    diagnostics: pd.DataFrame,
+) -> None:
+    lines = [
+        "# F003 Stock Foreign Flow Only Metrics Summary",
+        "",
+        "## Metadata",
+        "",
+        f"- panels: {', '.join(config['panels'])}",
+        "- stock_foreign_flow: mean of 20d foreign net buy / 20d traded value and 60d foreign net buy / market cap",
+        "- zscore: within-sector cross-sectional z-score",
+        "- missing_flow_policy: stock-level foreign flow input NaNs are not imputed; affected stocks are excluded from diagnostics and portfolio candidates",
+        "- timing: signal quarter-end T uses stock flow, traded value, and market cap through T; execution is T+1 or later",
+        "- macro_gate: D013 10 variables, 5 blocks, 60-month z-score, threshold -0.2",
+        "",
+    ]
+    if not diagnostics.empty:
+        lines.extend(_b004_dataframe_table("IC Diagnostics", diagnostics))
+    if not comparison.empty:
+        lines.extend(_b004_dataframe_table("Carrier Comparison", comparison))
+    verdict = _f003_verdict(comparison, diagnostics)
+    lines.extend(["## Verdict", "", f"- {verdict}", ""])
+    output_dir.joinpath("report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _f003_verdict(comparison: pd.DataFrame, diagnostics: pd.DataFrame) -> str:
+    if comparison.empty or diagnostics.empty or len(comparison) < 2 or len(diagnostics) < 2:
+        return "pending - both carriers have not been generated yet"
+    merged = comparison.merge(diagnostics, left_on="variant", right_on="carrier", how="left")
+    passed = (
+        pd.to_numeric(merged["cumulative_uplift_vs_f001"], errors="coerce").gt(0)
+        & pd.to_numeric(merged["sharpe_uplift_vs_f001"], errors="coerce").gt(0)
+        & pd.to_numeric(merged["rank_ic_t_stat"], errors="coerce").ge(2.0)
+    )
+    pass_count = int(passed.sum())
+    if pass_count == 2:
+        return "surprise pass"
+    if pass_count == 1:
+        return "weak"
+    return "stock-level Flow 단독 약함"
 
 
 def _e011_summary(metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
@@ -17009,6 +17315,68 @@ def _validate_f002_config_shape(config: dict[str, Any]) -> None:
             raise ValueError("F002-B requires diagnostics.top_bottom_k: 1.")
         if tuple(config["variants"]) != ("e014",):
             raise ValueError("F002-B variants must be exactly e014.")
+
+
+def _validate_f003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_F002_CONFIG_KEYS:
+        raise ValueError(f"F003 config keys must be exactly {EXPECTED_F002_CONFIG_KEYS}; got {keys}.")
+    if config["carrier"] not in {"d013_direct", "e014"}:
+        raise ValueError("F003 carrier must be d013_direct or e014.")
+    if tuple(config["period"].keys()) != EXPECTED_B011_PERIOD_KEYS:
+        raise ValueError(f"F003 period keys must be exactly {EXPECTED_B011_PERIOD_KEYS}.")
+    if tuple(config["universe"].keys()) != EXPECTED_UNIVERSE_KEYS:
+        raise ValueError(f"F003 universe keys must be exactly {EXPECTED_UNIVERSE_KEYS}.")
+    if tuple(config["strategy"].keys()) != (
+        "flow_by_value_window",
+        "flow_by_mcap_window",
+        "short_window",
+        "long_window",
+        "breadth_window",
+    ):
+        raise ValueError("F003 strategy keys must match Layer 2 score windows.")
+    if int(config["strategy"]["flow_by_value_window"]) != 20 or int(config["strategy"]["flow_by_mcap_window"]) != 60:
+        raise ValueError("F003 requires stock foreign flow windows 20 and 60.")
+    if tuple(config["regime"].keys()) != EXPECTED_D013_REGIME_KEYS:
+        raise ValueError(f"F003 regime keys must match D013: {EXPECTED_D013_REGIME_KEYS}.")
+    if tuple(config["costs"].keys()) != EXPECTED_COST_KEYS:
+        raise ValueError(f"F003 costs keys must be exactly {EXPECTED_COST_KEYS}.")
+    if tuple(config["diagnostics"].keys()) != ("top_bottom_k",):
+        raise ValueError("F003 diagnostics keys must be exactly top_bottom_k.")
+    if config["universe"].get("require_dynamic_top100") is not True:
+        raise ValueError("F003 requires universe.require_dynamic_top100: true.")
+    if tuple(int(year) for year in config["period"]["exclude_calendar_years"]) != (2016,):
+        raise ValueError("F003 requires period.exclude_calendar_years: [2016].")
+    if config["regime"]["aggregation"] != "factor_z_score":
+        raise ValueError("F003 requires regime.aggregation: factor_z_score.")
+    if int(config["regime"]["z_score_window_months"]) != 60:
+        raise ValueError("F003 requires regime.z_score_window_months: 60.")
+    if float(config["regime"]["on_threshold"]) != -0.2:
+        raise ValueError("F003 requires D013 regime.on_threshold: -0.2.")
+    if _d001_blocks_from_config(config["regime"]["blocks"]) != _d009_expected_blocks():
+        raise ValueError("F003 factor blocks/signs must match D013/D009 exactly.")
+    if config["rebalance"]["frequency"] != "quarterly" or config["rebalance"]["anchor"] != "last_trading_day":
+        raise ValueError("F003 requires quarterly last_trading_day rebalance.")
+    if config["carrier"] == "d013_direct":
+        if tuple(config["selection"].keys()) != ("type", "n", "min_sector_stocks"):
+            raise ValueError("F003-A selection keys must be type, n, min_sector_stocks.")
+        if config["selection"]["type"] != "stock_foreign_flow_top_n" or int(config["selection"]["n"]) != 5:
+            raise ValueError("F003-A requires stock_foreign_flow_top_n n=5.")
+        if int(config["diagnostics"]["top_bottom_k"]) != 5:
+            raise ValueError("F003-A requires diagnostics.top_bottom_k: 5.")
+        if tuple(config["variants"]) != ("d013_direct",):
+            raise ValueError("F003-A variants must be exactly d013_direct.")
+    else:
+        if tuple(config["selection"].keys()) != ("top_sectors", "top_sector_stock_counts", "min_sector_stocks"):
+            raise ValueError("F003-B selection keys must be top_sectors, top_sector_stock_counts, min_sector_stocks.")
+        if int(config["selection"]["top_sectors"]) != 4:
+            raise ValueError("F003-B requires selection.top_sectors: 4.")
+        if tuple(int(value) for value in config["selection"]["top_sector_stock_counts"]) != (2, 1, 1, 1):
+            raise ValueError("F003-B requires top_sector_stock_counts: [2, 1, 1, 1].")
+        if int(config["diagnostics"]["top_bottom_k"]) != 1:
+            raise ValueError("F003-B requires diagnostics.top_bottom_k: 1.")
+        if tuple(config["variants"]) != ("e014",):
+            raise ValueError("F003-B variants must be exactly e014.")
 
 
 def _validate_e015_config_shape(config: dict[str, Any]) -> None:

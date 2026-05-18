@@ -12,6 +12,7 @@ from src.features.market_gate import build_market_gate_features
 from src.features.relative_flow import build_relative_flow_features
 from src.features.sector_breadth_score import build_sector_breadth_scores
 from src.features.sector_combined_score import build_sector_combined_scores
+from src.features.stock_foreign_flow_score import build_stock_foreign_flow_scores
 from src.roles.filters import filter_persistence_4_of_5
 from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
 
@@ -470,5 +471,45 @@ def test_sector_breadth_score_at_signal_date_ignores_future_stock_and_kospi_rows
     columns = ["signal_date", "sector_code", "sector_breadth_strict", "breadth_score"]
     before_rows = before.loc[:, columns].sort_values("sector_code").reset_index(drop=True)
     after_rows = after.loc[:, columns].sort_values("sector_code").reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(after_rows, before_rows)
+
+
+def test_stock_foreign_flow_score_at_signal_date_ignores_future_stock_flow_rows() -> None:
+    dates = pd.date_range("2025-01-02", periods=6, freq="B")
+    signal_date = pd.Timestamp("2025-01-07")
+    rows = []
+    for ticker, sector_code, foreign_values in (
+        ("000001", "01", [10.0, 20.0, 30.0, 40.0, -1.0, -1.0]),
+        ("000002", "01", [5.0, 5.0, 5.0, 5.0, 1.0, 1.0]),
+        ("000003", "02", [3.0, 3.0, 3.0, 3.0, 1.0, 1.0]),
+        ("000004", "02", [0.0, 1.0, 0.0, 1.0, 1.0, 1.0]),
+    ):
+        for date, foreign_value in zip(dates, foreign_values, strict=True):
+            rows.append(
+                {
+                    "date": date,
+                    "ticker": ticker,
+                    "sector_code": sector_code,
+                    "sector_name": f"sector_{sector_code}",
+                    "market_cap": 1_000.0,
+                    "traded_value": 100.0,
+                    "foreign_net_buy_amount": foreign_value,
+                    "daily_return": 0.0,
+                }
+            )
+    stock = pd.DataFrame(rows)
+
+    before = build_stock_foreign_flow_scores(stock, signal_dates=[signal_date], value_window=2, mcap_window=3)
+    mutated = stock.copy()
+    future_mask = pd.to_datetime(mutated["date"]).gt(signal_date)
+    mutated.loc[future_mask, "foreign_net_buy_amount"] = 999_000.0
+    mutated.loc[future_mask, "traded_value"] = 1.0
+    mutated.loc[future_mask, "market_cap"] = 1.0
+    after = build_stock_foreign_flow_scores(mutated, signal_dates=[signal_date], value_window=2, mcap_window=3)
+
+    columns = ["signal_date", "ticker", "raw_stock_foreign_flow_score", "stock_foreign_flow_score"]
+    before_rows = before.loc[:, columns].sort_values("ticker").reset_index(drop=True)
+    after_rows = after.loc[:, columns].sort_values("ticker").reset_index(drop=True)
 
     pd.testing.assert_frame_equal(after_rows, before_rows)
