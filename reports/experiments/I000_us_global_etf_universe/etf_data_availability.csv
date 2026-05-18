@@ -1,0 +1,10 @@
+ticker,file,first_date,last_date,row_count,close_non_null_count,all_required_columns_present
+SPY,research_input_data/inputs/global_etf/yf_SPY.csv,2010-01-04,2026-05-18,4118,4118,True
+QQQ,research_input_data/inputs/global_etf/yf_QQQ.csv,2010-01-04,2026-05-18,4118,4118,True
+IWM,research_input_data/inputs/global_etf/yf_IWM.csv,2010-01-04,2026-05-18,4118,4118,True
+SHY,research_input_data/inputs/global_etf/yf_SHY.csv,2010-01-04,2026-05-18,4118,4118,True
+IEF,research_input_data/inputs/global_etf/yf_IEF.csv,2010-01-04,2026-05-18,4118,4118,True
+TLT,research_input_data/inputs/global_etf/yf_TLT.csv,2010-01-04,2026-05-18,4118,4118,True
+GLD,research_input_data/inputs/global_etf/yf_GLD.csv,2010-01-04,2026-05-18,4118,4118,True
+UUP,research_input_data/inputs/global_etf/yf_UUP.csv,2010-01-04,2026-05-18,4118,4118,True
+DBC,research_input_data/inputs/global_etf/yf_DBC.csv,2010-01-04,2026-05-18,4118,4118,True
