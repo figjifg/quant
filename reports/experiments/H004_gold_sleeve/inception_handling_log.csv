@@ -1,0 +1,5 @@
+quarter,signal_date,start_observation_date,start_close,end_signal_date,end_observation_date,end_close,gold_quarter_return,inception_cash_fallback,policy
+2010Q1,2010-03-31,,,2010-06-30,,,0.0,True,cash_return_0_pre_registered
+2010Q2,2010-06-30,,,2010-09-30,,,0.0,True,cash_return_0_pre_registered
+2010Q3,2010-09-30,,,2010-12-30,2010-12-30,10780.0,0.0,True,cash_return_0_pre_registered
+2010Q4,2010-12-30,2010-12-30,10780.0,2011-03-31,2011-03-31,10885.0,0.009740259740259827,False,kodex_132030_close_return

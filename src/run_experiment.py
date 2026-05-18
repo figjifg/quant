@@ -286,6 +286,14 @@ from src.strategies.h003_us_treasury_sleeve import (
     apply_us_treasury_off_sleeve,
     us_treasury_sleeve_drawdown,
 )
+from src.strategies.h004_gold_sleeve import (
+    GOLD_INCEPTION_DATE,
+    GOLD_TICKER,
+    VARIANTS as H004_VARIANTS,
+    apply_gold_off_sleeve,
+    gold_sleeve_drawdown,
+    load_gold_quarterly_returns,
+)
 from src.strategies.h005_defensive_basket import (
     SLEEVE_WEIGHTS as H005_SLEEVE_WEIGHTS,
     VARIANTS as H005_VARIANTS,
@@ -777,6 +785,40 @@ EXPECTED_H003_OFF_SLEEVE_KEYS = (
     "effective_duration",
     "formula",
 )
+EXPECTED_H004_CONFIG_KEYS = (
+    "experiment_id",
+    "carrier",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "off_sleeve",
+    "variants",
+    "verdict",
+    "output_dir",
+)
+EXPECTED_H004_OFF_SLEEVE_KEYS = (
+    "type",
+    "source",
+    "ticker",
+    "currency",
+    "price_column",
+    "inception_date",
+    "pre_inception_fallback",
+    "formula",
+)
+EXPECTED_H004_VERDICT_KEYS = (
+    "d013_baseline_cumulative_threshold",
+    "sharpe_min",
+    "gold_sleeve_max_drawdown_min",
+)
 EXPECTED_H005_CONFIG_KEYS = (
     "experiment_id",
     "carrier",
@@ -1088,6 +1130,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "H003":
         _validate_h003_config_shape(config)
         run_h003_experiment(config, config_path)
+    elif experiment_id == "H004":
+        _validate_h004_config_shape(config)
+        run_h004_experiment(config, config_path)
     elif experiment_id == "H005":
         _validate_h005_config_shape(config)
         run_h005_experiment(config, config_path)
@@ -10441,6 +10486,335 @@ def _write_h003_report(
         "- D013 strategy and backtest engine were not modified.",
     ]
     (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run_h004_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    d013_runs, candidates = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    baseline = d013_runs["factor_macro_gate_mcap"]
+    sleeve, decomposition = apply_gold_off_sleeve(
+        baseline,
+        calendar=calendar,
+        quarterly_regime=quarterly_log,
+        gold_csv=config["off_sleeve"]["source"],
+    )
+
+    candidate_years = _b011_candidate_years(config)
+    metrics = {
+        "d013_baseline": _h001_metric_block(baseline, calendar, candidate_years),
+        "d013_gold_sleeve": _h001_metric_block(sleeve, calendar, candidate_years),
+    }
+    comparison = _h004_baseline_comparison(metrics, decomposition, config["verdict"])
+    regime_breakdown = _h004_regime_breakdown(decomposition)
+    inception_log = _h004_inception_handling_log(
+        config["off_sleeve"]["source"],
+        quarterly_log["signal_date"],
+        final_end_date=baseline.equity_curve["date"].iloc[-1],
+    )
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(sleeve, calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), output_dir / "signals.csv")
+    _h004_equity_curve(baseline, sleeve).to_csv(output_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    comparison.to_csv(output_dir / "baseline_comparison.csv", index=False)
+    decomposition.to_csv(output_dir / "gold_return_decomposition.csv", index=False)
+    inception_log.to_csv(output_dir / "inception_handling_log.csv", index=False)
+    regime_breakdown.to_csv(output_dir / "regime_breakdown.csv", index=False)
+    _write_h004_report(output_dir, config, metrics, comparison, decomposition, regime_breakdown, inception_log)
+
+
+def _h004_baseline_comparison(
+    metrics: dict[str, dict[str, Any]],
+    decomposition: pd.DataFrame,
+    verdict_config: dict[str, Any],
+) -> pd.DataFrame:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_gold_sleeve"]
+    cumulative_delta = float(sleeve["cumulative_net_total_return"]) - float(baseline["cumulative_net_total_return"])
+    sharpe_delta = float(sleeve["sharpe"]) - float(baseline["sharpe"])
+    mdd_delta = float(sleeve["max_drawdown"]) - float(baseline["max_drawdown"])
+    off_cumulative = float(decomposition["cumulative_off_gold"].iloc[-1]) if not decomposition.empty else 0.0
+    sleeve_max_drawdown = gold_sleeve_drawdown(decomposition)
+    rows = [
+        {
+            "variant": "D013",
+            "cumulative_net_total_return": baseline["cumulative_net_total_return"],
+            "sharpe": baseline["sharpe"],
+            "max_drawdown": baseline["max_drawdown"],
+            "sleeve_cumulative": 0.0,
+            "sleeve_max_drawdown": 0.0,
+            "cumulative_delta_vs_d013": 0.0,
+            "sharpe_delta_vs_d013": 0.0,
+            "mdd_delta_vs_d013": 0.0,
+        },
+    ]
+    rows.extend(_h004_prior_sleeve_rows(baseline))
+    rows.append(
+        {
+            "variant": "H004",
+            "cumulative_net_total_return": sleeve["cumulative_net_total_return"],
+            "sharpe": sleeve["sharpe"],
+            "max_drawdown": sleeve["max_drawdown"],
+            "sleeve_cumulative": off_cumulative,
+            "sleeve_max_drawdown": sleeve_max_drawdown,
+            "cumulative_delta_vs_d013": cumulative_delta,
+            "sharpe_delta_vs_d013": sharpe_delta,
+            "mdd_delta_vs_d013": mdd_delta,
+        }
+    )
+    verdict = {
+        "variant": "verdict",
+        "cumulative_net_total_return": pd.NA,
+        "sharpe": pd.NA,
+        "max_drawdown": pd.NA,
+        "sleeve_cumulative": off_cumulative,
+        "sleeve_max_drawdown": sleeve_max_drawdown,
+        "cumulative_delta_vs_d013": cumulative_delta,
+        "sharpe_delta_vs_d013": sharpe_delta,
+        "mdd_delta_vs_d013": mdd_delta,
+        "cumulative_pass": bool(
+            float(sleeve["cumulative_net_total_return"])
+            > float(verdict_config["d013_baseline_cumulative_threshold"])
+        ),
+        "sharpe_pass": bool(float(sleeve["sharpe"]) >= float(verdict_config["sharpe_min"])),
+        "gold_drawdown_pass": bool(sleeve_max_drawdown >= float(verdict_config["gold_sleeve_max_drawdown_min"])),
+    }
+    verdict["pass"] = bool(verdict["cumulative_pass"] and verdict["sharpe_pass"] and verdict["gold_drawdown_pass"])
+    rows.append(verdict)
+    return pd.DataFrame(rows)
+
+
+def _h004_prior_sleeve_rows(baseline: dict[str, Any]) -> list[dict[str, Any]]:
+    specs = [
+        ("H001", Path("reports/experiments/H001_kr_short_rate_sleeve/baseline_comparison.csv"), "d013_kr_short_rate_sleeve", "off_carry_cumulative", None),
+        ("H002", Path("reports/experiments/H002_usdkrw_sleeve/baseline_comparison.csv"), "d013_usdkrw_sleeve", "off_fx_cumulative", "fx_sleeve_max_drawdown"),
+        ("H003", Path("reports/experiments/H003_us_treasury_sleeve/baseline_comparison.csv"), "H003", "sleeve_cumulative", "sleeve_max_drawdown"),
+        ("H005", Path("reports/experiments/H005_defensive_basket/baseline_comparison.csv"), "H005", "sleeve_cumulative", "sleeve_max_drawdown"),
+    ]
+    rows: list[dict[str, Any]] = []
+    for label, path, variant, sleeve_column, drawdown_column in specs:
+        if not path.exists():
+            continue
+        data = pd.read_csv(path)
+        matched = data.loc[data["variant"].eq(variant)]
+        if matched.empty:
+            continue
+        row = matched.iloc[0]
+        rows.append(
+            {
+                "variant": label,
+                "cumulative_net_total_return": row["cumulative_net_total_return"],
+                "sharpe": row["sharpe"],
+                "max_drawdown": row["max_drawdown"],
+                "sleeve_cumulative": row[sleeve_column] if sleeve_column in row else pd.NA,
+                "sleeve_max_drawdown": row[drawdown_column] if drawdown_column and drawdown_column in row else pd.NA,
+                "cumulative_delta_vs_d013": float(row["cumulative_net_total_return"])
+                - float(baseline["cumulative_net_total_return"]),
+                "sharpe_delta_vs_d013": float(row["sharpe"]) - float(baseline["sharpe"]),
+                "mdd_delta_vs_d013": float(row["max_drawdown"]) - float(baseline["max_drawdown"]),
+            }
+        )
+    return rows
+
+
+def _h004_equity_curve(baseline: BacktestResult, sleeve: BacktestResult) -> pd.DataFrame:
+    data = sleeve.equity_curve.copy()
+    data["d013_baseline_net_value"] = baseline.equity_curve["net_value"].to_numpy()
+    data["d013_gold_sleeve_net_value"] = sleeve.equity_curve["net_value"].to_numpy()
+    data["gold_sleeve_factor"] = (
+        pd.to_numeric(data["d013_gold_sleeve_net_value"], errors="raise")
+        / pd.to_numeric(data["d013_baseline_net_value"], errors="raise")
+    )
+    return data
+
+
+def _h004_inception_handling_log(
+    gold_csv: str | Path,
+    signal_dates: pd.Series,
+    *,
+    final_end_date: object,
+) -> pd.DataFrame:
+    returns = load_gold_quarterly_returns(gold_csv, signal_dates, final_end_date=pd.Timestamp(final_end_date))
+    data = returns.loc[pd.to_datetime(returns["signal_date"]).dt.year.eq(2010)].copy()
+    data["quarter"] = pd.to_datetime(data["signal_date"], errors="raise").dt.to_period("Q").astype(str)
+    data["policy"] = data["inception_cash_fallback"].map(
+        {True: "cash_return_0_pre_registered", False: "kodex_132030_close_return"}
+    )
+    return data.loc[
+        :,
+        [
+            "quarter",
+            "signal_date",
+            "start_observation_date",
+            "start_close",
+            "end_signal_date",
+            "end_observation_date",
+            "end_close",
+            "gold_quarter_return",
+            "inception_cash_fallback",
+            "policy",
+        ],
+    ]
+
+
+def _h004_regime_breakdown(decomposition: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "regime",
+        "quarter_count",
+        "mean_gold_quarter_return",
+        "compounded_gold_return",
+        "positive_quarter_rate",
+    ]
+    if decomposition.empty:
+        return pd.DataFrame(columns=columns)
+    data = decomposition.copy()
+    data["year"] = pd.to_datetime(data["signal_date"], errors="raise").dt.year
+    rows = []
+    rows.append(_h004_regime_row("all_off_gold", data))
+    year_2022 = data.loc[data["year"].eq(2022)]
+    if not year_2022.empty:
+        rows.append(_h004_regime_row("calendar_2022", year_2022))
+    data["return_regime"] = pd.to_numeric(data["gold_quarter_return"], errors="raise").ge(0.0).map(
+        {True: "gold_up", False: "gold_down"}
+    )
+    for regime, group in data.groupby("return_regime", sort=True):
+        rows.append(_h004_regime_row(regime, group))
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _h004_regime_row(regime: str, group: pd.DataFrame) -> dict[str, Any]:
+    returns = pd.to_numeric(group["gold_quarter_return"], errors="raise")
+    return {
+        "regime": regime,
+        "quarter_count": int(len(group)),
+        "mean_gold_quarter_return": float(returns.mean()),
+        "compounded_gold_return": float((1.0 + returns).prod() - 1.0),
+        "positive_quarter_rate": float(returns.gt(0.0).mean()),
+    }
+
+
+def _write_h004_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    comparison: pd.DataFrame,
+    decomposition: pd.DataFrame,
+    regime_breakdown: pd.DataFrame,
+    inception_log: pd.DataFrame,
+) -> None:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_gold_sleeve"]
+    verdict = comparison.loc[comparison["variant"].eq("verdict")].iloc[0]
+    pass_fail = "PASS" if bool(verdict["pass"]) else "FAIL"
+    h001 = comparison.loc[comparison["variant"].eq("H001")]
+    h001_return = _format_report_value(h001["cumulative_net_total_return"].iloc[0]) if not h001.empty else "unavailable"
+    h001_sharpe = _format_report_value(h001["sharpe"].iloc[0]) if not h001.empty else "unavailable"
+    h004_minus_h001 = (
+        _format_report_value(float(sleeve["cumulative_net_total_return"]) - float(h001["cumulative_net_total_return"].iloc[0]))
+        if not h001.empty
+        else "unavailable"
+    )
+    year_2022 = regime_breakdown.loc[regime_breakdown["regime"].eq("calendar_2022")]
+    year_2022_return = (
+        _format_report_value(year_2022["compounded_gold_return"].iloc[0]) if not year_2022.empty else "unavailable"
+    )
+    fallback_rows = inception_log.loc[inception_log["inception_cash_fallback"].astype(bool)]
+    fallback_impact = (
+        _format_report_value((1.0 + pd.to_numeric(fallback_rows["gold_quarter_return"], errors="raise")).prod() - 1.0)
+        if not fallback_rows.empty
+        else "0.0"
+    )
+    comparison_rows = comparison.loc[comparison["variant"].isin(["D013", "H001", "H002", "H003", "H004", "H005"])]
+    champion = _h004_champion(comparison_rows)
+    lines = [
+        "# H004 Gold Sleeve",
+        "",
+        "## Portfolio Metrics",
+        "",
+        "| variant | cumulative_net_total_return | sharpe | max_drawdown | sleeve_max_drawdown |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for row in comparison_rows.itertuples(index=False):
+        lines.append(
+            f"| {row.variant} | {_format_report_value(row.cumulative_net_total_return)} | "
+            f"{_format_report_value(row.sharpe)} | {_format_report_value(row.max_drawdown)} | "
+            f"{_format_report_value(row.sleeve_max_drawdown)} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Required Findings",
+            "",
+            f"- D013 + Gold cumulative/Sharpe/MDD: {_format_report_value(sleeve['cumulative_net_total_return'])} / {_format_report_value(sleeve['sharpe'])} / {_format_report_value(sleeve['max_drawdown'])}",
+            f"- H001 KR carry cumulative/Sharpe: {h001_return} / {h001_sharpe}",
+            f"- H004 minus H001 cumulative net return: {h004_minus_h001}",
+            f"- 2010-Q1~Q3 cash fallback rows: {int(len(fallback_rows))}; compounded impact: {fallback_impact}",
+            f"- 2022 gold sleeve compounded impact: {year_2022_return}",
+            f"- Gold sleeve max DD: {_format_report_value(verdict['sleeve_max_drawdown'])}",
+            "",
+            "## Verdict",
+            "",
+            f"- Overall: {pass_fail}",
+            f"- Cumulative > +254% D013 threshold: {bool(verdict['cumulative_pass'])} ({_format_report_value(sleeve['cumulative_net_total_return'])})",
+            f"- Sharpe >= 0.53: {bool(verdict['sharpe_pass'])} ({_format_report_value(sleeve['sharpe'])})",
+            f"- Gold sleeve drawdown >= -0.15: {bool(verdict['gold_drawdown_pass'])} ({_format_report_value(verdict['sleeve_max_drawdown'])})",
+            f"- H-family champion final decision: {champion}",
+            "",
+            "## Metadata",
+            "",
+            "- Carrier: D013 top 5 unchanged.",
+            "- OFF sleeve: KODEX 골드선물(H) 132030 close-to-close KRW return replaces zero-return cash in D013 OFF quarters.",
+            f"- Gold ETF source: {config['off_sleeve']['source']}.",
+            "- Price column: close. USDKRW translation: none.",
+            "- Inception policy: signal dates before 2010-10-01 use pre-registered cash fallback return 0.",
+            "- D013 strategy and backtest engine were not modified.",
+        ]
+    )
+    (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _h004_champion(comparison: pd.DataFrame) -> str:
+    candidates = comparison.loc[comparison["variant"].isin(["H001", "H004", "H005"])].copy()
+    if candidates.empty:
+        return "unavailable"
+    candidates["passes_sleeve_drawdown"] = pd.to_numeric(candidates["sleeve_max_drawdown"], errors="coerce").fillna(0.0).ge(-0.15)
+    candidates["passes_sharpe"] = pd.to_numeric(candidates["sharpe"], errors="coerce").ge(0.53)
+    passed = candidates.loc[candidates["passes_sleeve_drawdown"] & candidates["passes_sharpe"]]
+    ranking = passed if not passed.empty else candidates
+    best = ranking.sort_values(["cumulative_net_total_return", "sharpe"], ascending=False).iloc[0]
+    return str(best["variant"])
 
 
 def run_h005_experiment(config: dict[str, Any], config_path: Path) -> None:
@@ -23641,6 +24015,49 @@ def _validate_h003_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("H003 off_sleeve.effective_duration must be 7.0.")
     if tuple(config["variants"]) != H003_VARIANTS:
         raise ValueError(f"H003 variants must be exactly {list(H003_VARIANTS)}.")
+
+
+def _validate_h004_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_H004_CONFIG_KEYS:
+        raise ValueError(f"H004 config keys must be exactly {EXPECTED_H004_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("off_sleeve")
+    d013_like.pop("verdict")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("H004 carrier must be d013.")
+    if tuple(config["off_sleeve"].keys()) != EXPECTED_H004_OFF_SLEEVE_KEYS:
+        raise ValueError(f"H004 off_sleeve keys must be exactly {EXPECTED_H004_OFF_SLEEVE_KEYS}.")
+    off_sleeve = config["off_sleeve"]
+    if off_sleeve["type"] != "kodex_gold_132030":
+        raise ValueError("H004 off_sleeve.type must be kodex_gold_132030.")
+    if off_sleeve["source"] != "research_input_data/inputs/macro_features/krx_kodex_gold_132030.csv":
+        raise ValueError("H004 off_sleeve.source must be the registered KODEX 132030 file.")
+    if str(off_sleeve["ticker"]) != GOLD_TICKER:
+        raise ValueError(f"H004 ticker must be {GOLD_TICKER}.")
+    if off_sleeve["currency"] != "KRW":
+        raise ValueError("H004 currency must be KRW.")
+    if off_sleeve["price_column"] != "close":
+        raise ValueError("H004 price_column must be close.")
+    if pd.Timestamp(off_sleeve["inception_date"]) != GOLD_INCEPTION_DATE:
+        raise ValueError("H004 inception_date must be 2010-10-01.")
+    if off_sleeve["pre_inception_fallback"] != "cash_return_0":
+        raise ValueError("H004 pre_inception_fallback must be cash_return_0.")
+    if tuple(config["variants"]) != H004_VARIANTS:
+        raise ValueError(f"H004 variants must be exactly {list(H004_VARIANTS)}.")
+    if tuple(config["verdict"].keys()) != EXPECTED_H004_VERDICT_KEYS:
+        raise ValueError(f"H004 verdict keys must be exactly {EXPECTED_H004_VERDICT_KEYS}.")
+    if float(config["verdict"]["d013_baseline_cumulative_threshold"]) != 2.54:
+        raise ValueError("H004 d013_baseline_cumulative_threshold must be 2.54.")
+    if float(config["verdict"]["sharpe_min"]) != 0.53:
+        raise ValueError("H004 sharpe_min must be 0.53.")
+    if float(config["verdict"]["gold_sleeve_max_drawdown_min"]) != -0.15:
+        raise ValueError("H004 gold_sleeve_max_drawdown_min must be -0.15.")
 
 
 def _validate_h005_config_shape(config: dict[str, Any]) -> None:
