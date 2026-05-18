@@ -208,6 +208,17 @@ from src.strategies.p002_d013_execution import (
     SCENARIOS as P002_SCENARIOS,
     run_p002_execution_backtest,
 )
+from src.strategies.p003_d013_cost_capacity import (
+    CAPACITY_SCENARIO_ORDER as P003_CAPACITY_SCENARIO_ORDER,
+    COST_SCENARIO_ORDER as P003_COST_SCENARIO_ORDER,
+    SLIPPAGE_SCENARIO_ORDER as P003_SLIPPAGE_SCENARIO_ORDER,
+    VARIANT as P003_VARIANT,
+    add_capacity_impact,
+    capacity_summary_fields,
+    costs_with_slippage,
+    multiply_costs,
+    run_capacity_backtest,
+)
 from src.strategies.f002_stock_rs_d013_direct import (
     build_f002_d013_direct_score_universe,
     build_f002_stock_rs_d013_direct_candidates,
@@ -672,6 +683,23 @@ EXPECTED_P002_CONFIG_KEYS = (
     "costs",
     "output_dir",
 )
+EXPECTED_P003_CONFIG_KEYS = (
+    "experiment_id",
+    "scenario_group",
+    "panels",
+    "panel_date_filters",
+    "market_breadth_csv",
+    "macro_data_dir",
+    "period",
+    "universe",
+    "strategy",
+    "regime",
+    "selection",
+    "rebalance",
+    "costs",
+    "scenarios",
+    "output_dir",
+)
 EXPECTED_D014_CONFIG_KEYS = EXPECTED_D006_CONFIG_KEYS
 EXPECTED_D015_CONFIG_KEYS = EXPECTED_D008_CONFIG_KEYS
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
@@ -777,6 +805,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "P002":
         _validate_p002_config_shape(config)
         run_p002_experiment(config, config_path)
+    elif experiment_id == "P003":
+        _validate_p003_config_shape(config)
+        run_p003_experiment(config, config_path)
     elif experiment_id == "E015":
         _validate_e015_config_shape(config)
         run_e015_experiment(config, config_path)
@@ -9664,6 +9695,421 @@ def run_p002_experiment(config: dict[str, Any], config_path: Path) -> None:
     if not summary.empty:
         summary.to_csv(output_dir / "execution_summary.csv", index=False)
         _write_p002_report(output_dir, summary)
+
+
+def run_p003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    base_costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+    _, candidates_by_variant = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=base_costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    candidates = candidates_by_variant[P003_VARIANT]
+    candidate_years = _b011_candidate_years(config)
+    output_root = Path(config["output_dir"])
+    output_root.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_root / f"config_{config['scenario_group']}.yaml")
+
+    group = str(config["scenario_group"])
+    if group == "cost_stress":
+        rows = _run_p003_cost_stress(config, panel, calendar, market_breadth, quarterly_log, segments, candidates, candidate_years)
+        group_dir = output_root / "A_cost_stress"
+    elif group == "slippage":
+        rows = _run_p003_slippage(config, panel, calendar, market_breadth, quarterly_log, segments, candidates, candidate_years)
+        group_dir = output_root / "B_slippage"
+    elif group == "capacity":
+        rows = _run_p003_capacity(config, panel, calendar, market_breadth, quarterly_log, segments, candidates, candidate_years)
+        group_dir = output_root / "C_capacity_curve"
+    else:
+        raise ValueError(f"Unsupported P003 scenario_group: {group!r}.")
+
+    if not rows.empty:
+        rows.to_csv(group_dir / "summary.csv", index=False)
+    _write_p003_combined_outputs(output_root)
+
+
+def _run_p003_cost_stress(
+    config: dict[str, Any],
+    panel: pd.DataFrame,
+    calendar: object,
+    market_breadth: pd.DataFrame,
+    quarterly_log: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidates: pd.DataFrame,
+    candidate_years: tuple[int, ...],
+) -> pd.DataFrame:
+    output_dir = Path(config["output_dir"]) / "A_cost_stress"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    base_costs = _costs_from_config(config["costs"])
+    rows = []
+    for scenario in P003_COST_SCENARIO_ORDER:
+        spec = config["scenarios"][scenario]
+        costs = multiply_costs(base_costs, float(spec["multiplier"]))
+        scenario_dir = output_dir / scenario
+        metrics = _write_p003_standard_run(
+            scenario_dir=scenario_dir,
+            config=config,
+            panel=panel,
+            calendar=calendar,
+            market_breadth=market_breadth,
+            quarterly_log=quarterly_log,
+            segments=segments,
+            candidates=candidates,
+            costs=costs,
+            candidate_years=candidate_years,
+        )
+        block = metrics[P003_VARIANT]
+        rows.append(
+            {
+                "group": "A_cost_stress",
+                "scenario": scenario,
+                "aum_krw": pd.NA,
+                "commission_bps": costs.commission_bps,
+                "tax_bps_sell": costs.tax_bps_sell,
+                "slippage_bps": costs.slippage_bps,
+                "cumulative_net_total_return": block["cumulative_net_total_return"],
+                "sharpe": block["sharpe"],
+                "max_drawdown": block["max_drawdown"],
+                "trade_count": block["trade_count"],
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _run_p003_slippage(
+    config: dict[str, Any],
+    panel: pd.DataFrame,
+    calendar: object,
+    market_breadth: pd.DataFrame,
+    quarterly_log: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidates: pd.DataFrame,
+    candidate_years: tuple[int, ...],
+) -> pd.DataFrame:
+    output_dir = Path(config["output_dir"]) / "B_slippage"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    base_costs = _costs_from_config(config["costs"])
+    rows = []
+    for scenario in P003_SLIPPAGE_SCENARIO_ORDER:
+        spec = config["scenarios"][scenario]
+        costs = costs_with_slippage(base_costs, float(spec["slippage_bps"]))
+        scenario_dir = output_dir / scenario
+        metrics = _write_p003_standard_run(
+            scenario_dir=scenario_dir,
+            config=config,
+            panel=panel,
+            calendar=calendar,
+            market_breadth=market_breadth,
+            quarterly_log=quarterly_log,
+            segments=segments,
+            candidates=candidates,
+            costs=costs,
+            candidate_years=candidate_years,
+        )
+        block = metrics[P003_VARIANT]
+        rows.append(
+            {
+                "group": "B_slippage",
+                "scenario": scenario,
+                "aum_krw": pd.NA,
+                "commission_bps": costs.commission_bps,
+                "tax_bps_sell": costs.tax_bps_sell,
+                "slippage_bps": costs.slippage_bps,
+                "cumulative_net_total_return": block["cumulative_net_total_return"],
+                "sharpe": block["sharpe"],
+                "max_drawdown": block["max_drawdown"],
+                "trade_count": block["trade_count"],
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _run_p003_capacity(
+    config: dict[str, Any],
+    panel: pd.DataFrame,
+    calendar: object,
+    market_breadth: pd.DataFrame,
+    quarterly_log: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidates: pd.DataFrame,
+    candidate_years: tuple[int, ...],
+) -> pd.DataFrame:
+    output_dir = Path(config["output_dir"]) / "C_capacity_curve"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    base_costs = _costs_from_config(config["costs"])
+    rebalance_dates = quarterly_execution_dates(calendar, quarterly_log, segments)
+    rows = []
+    for scenario in P003_CAPACITY_SCENARIO_ORDER:
+        spec = config["scenarios"][scenario]
+        aum_krw = float(spec["aum_krw"])
+        impacted = add_capacity_impact(
+            panel=panel,
+            candidates=candidates,
+            aum_krw=aum_krw,
+            max_positions=int(config["selection"]["n"]),
+            impact_constant=float(spec.get("impact_constant", 10.0)),
+            adv_window=int(spec.get("adv_window", 60)),
+        )
+        execution = run_capacity_backtest(
+            panel=panel,
+            calendar=calendar,
+            candidates=impacted,
+            base_costs=base_costs,
+            segments=segments,
+            rebalance_dates=rebalance_dates,
+        )
+        runs = {
+            P003_VARIANT: execution.result,
+            "kospi_buy_and_hold": build_kospi_buy_and_hold_result(market_breadth, calendar=calendar, segments=segments),
+            "cash": _run_segmented_cash(calendar=calendar, segments=segments),
+        }
+        zero_result = run_quarterly_mcap_backtest(
+            panel=panel,
+            calendar=calendar,
+            candidates=candidates,
+            costs=Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0),
+            segments=segments,
+            rebalance_dates=rebalance_dates,
+        )
+        metrics = _e003_variant_metrics(runs, zero_result, calendar, candidate_years)
+        block = metrics[P003_VARIANT]
+        block.update(capacity_summary_fields(execution.candidates, execution.result.trades))
+
+        scenario_dir = output_dir / scenario
+        scenario_dir.mkdir(parents=True, exist_ok=True)
+        scenario_config = _p003_scenario_config(config, scenario, output_dir.name, base_costs)
+        scenario_config["aum_krw"] = aum_krw
+        scenario_config["impact_model"] = {
+            "adv_window": int(spec.get("adv_window", 60)),
+            "impact_bps": "10 * sqrt(participation)",
+        }
+        (scenario_dir / "config.yaml").write_text(
+            yaml.safe_dump(scenario_config, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+        _write_json(scenario_dir / "metrics.json", metrics)
+        _write_ticker_safe_csv(_b011_trades(execution.result, calendar), scenario_dir / "trades.csv")
+        _write_ticker_safe_csv(_c008_signals(execution.candidates), scenario_dir / "signals.csv")
+        _d001_wide_equity_curve(runs).to_csv(scenario_dir / "equity_curve.csv", index=False)
+        quarterly_log.to_csv(scenario_dir / "quarterly_regime_log.csv", index=False)
+
+        fields = capacity_summary_fields(execution.candidates, execution.result.trades)
+        rows.append(
+            {
+                "group": "C_capacity_curve",
+                "scenario": scenario,
+                "aum_krw": aum_krw,
+                "commission_bps": base_costs.commission_bps,
+                "tax_bps_sell": base_costs.tax_bps_sell,
+                "slippage_bps": base_costs.slippage_bps,
+                "cumulative_net_total_return": block["cumulative_net_total_return"],
+                "sharpe": block["sharpe"],
+                "max_drawdown": block["max_drawdown"],
+                "trade_count": block["trade_count"],
+                **fields,
+            }
+        )
+    capacity = pd.DataFrame(rows)
+    capacity.to_csv(Path(config["output_dir"]) / "capacity_curve.csv", index=False)
+    return capacity
+
+
+def _write_p003_standard_run(
+    *,
+    scenario_dir: Path,
+    config: dict[str, Any],
+    panel: pd.DataFrame,
+    calendar: object,
+    market_breadth: pd.DataFrame,
+    quarterly_log: pd.DataFrame,
+    segments: tuple[tuple[object, object], ...],
+    candidates: pd.DataFrame,
+    costs: Costs,
+    candidate_years: tuple[int, ...],
+) -> dict[str, dict[str, Any]]:
+    scenario_dir.mkdir(parents=True, exist_ok=True)
+    rebalance_dates = quarterly_execution_dates(calendar, quarterly_log, segments)
+    runs = {
+        P003_VARIANT: run_quarterly_mcap_backtest(
+            panel=panel,
+            calendar=calendar,
+            candidates=candidates,
+            costs=costs,
+            segments=segments,
+            rebalance_dates=rebalance_dates,
+        ),
+        "kospi_buy_and_hold": build_kospi_buy_and_hold_result(market_breadth, calendar=calendar, segments=segments),
+        "cash": _run_segmented_cash(calendar=calendar, segments=segments),
+    }
+    zero_result = run_quarterly_mcap_backtest(
+        panel=panel,
+        calendar=calendar,
+        candidates=candidates,
+        costs=Costs(commission_bps=0.0, tax_bps_sell=0.0, slippage_bps=0.0),
+        segments=segments,
+        rebalance_dates=rebalance_dates,
+    )
+    metrics = _e003_variant_metrics(runs, zero_result, calendar, candidate_years)
+    _write_json(scenario_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(runs[P003_VARIANT], calendar), scenario_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates), scenario_dir / "signals.csv")
+    _d001_wide_equity_curve(runs).to_csv(scenario_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(scenario_dir / "quarterly_regime_log.csv", index=False)
+    scenario_config = _p003_scenario_config(config, scenario_dir.name, scenario_dir.parent.name, costs)
+    (scenario_dir / "config.yaml").write_text(
+        yaml.safe_dump(scenario_config, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return metrics
+
+
+def _p003_scenario_config(config: dict[str, Any], scenario: str, group: str, costs: Costs) -> dict[str, Any]:
+    scenario_config = dict(config)
+    scenario_config["scenario"] = scenario
+    scenario_config["scenario_output_group"] = group
+    scenario_config["costs"] = {
+        "commission_bps": costs.commission_bps,
+        "tax_bps_sell": costs.tax_bps_sell,
+        "slippage_bps": costs.slippage_bps,
+    }
+    scenario_config.pop("scenarios", None)
+    return scenario_config
+
+
+def _write_p003_combined_outputs(output_root: Path) -> None:
+    frames = []
+    for relative in ("A_cost_stress/summary.csv", "B_slippage/summary.csv", "C_capacity_curve/summary.csv"):
+        path = output_root / relative
+        if path.exists():
+            frames.append(pd.read_csv(path))
+    if not frames:
+        return
+    summary = pd.concat(frames, ignore_index=True)
+    summary.to_csv(output_root / "summary.csv", index=False)
+    capacity_path = output_root / "capacity_curve.csv"
+    capacity = pd.read_csv(capacity_path) if capacity_path.exists() else pd.DataFrame()
+    _write_p003_report(output_root, summary, capacity)
+
+
+def _write_p003_report(output_root: Path, summary: pd.DataFrame, capacity: pd.DataFrame) -> None:
+    cost_5x = _p003_metric(summary, "A_cost_stress", "5x")
+    cost_10x = _p003_metric(summary, "A_cost_stress", "10x")
+    slip_20 = _p003_metric(summary, "B_slippage", "20bps")
+    cap_1e10 = _p003_metric(summary, "C_capacity_curve", "aum_1e10")
+    cap_1e11 = _p003_metric(summary, "C_capacity_curve", "aum_1e11")
+    threshold = (
+        capacity.loc[pd.to_numeric(capacity["cumulative_net_total_return"], errors="coerce").ge(1.0)]
+        if not capacity.empty
+        else pd.DataFrame()
+    )
+    max_aum = pd.NA if threshold.empty else threshold["aum_krw"].max()
+    verdict = pd.DataFrame(
+        [
+            {
+                "criterion": "cost_5x_cumulative_ge_100pct",
+                "value": cost_5x,
+                "threshold": 1.0,
+                "passes": bool(pd.notna(cost_5x) and cost_5x >= 1.0),
+            },
+            {
+                "criterion": "cost_10x_cumulative_ge_0pct",
+                "value": cost_10x,
+                "threshold": 0.0,
+                "passes": bool(pd.notna(cost_10x) and cost_10x >= 0.0),
+            },
+            {
+                "criterion": "slippage_plus_20bps_cumulative_ge_100pct",
+                "value": slip_20,
+                "threshold": 1.0,
+                "passes": bool(pd.notna(slip_20) and slip_20 >= 1.0),
+            },
+            {
+                "criterion": "capacity_10bn_cumulative_ge_150pct",
+                "value": cap_1e10,
+                "threshold": 1.5,
+                "passes": bool(pd.notna(cap_1e10) and cap_1e10 >= 1.5),
+            },
+            {
+                "criterion": "capacity_100bn_cumulative_ge_0pct",
+                "value": cap_1e11,
+                "threshold": 0.0,
+                "passes": bool(pd.notna(cap_1e11) and cap_1e11 >= 0.0),
+            },
+            {
+                "criterion": "capacity_threshold_cumulative_ge_100pct_krw",
+                "value": max_aum,
+                "threshold": "report",
+                "passes": pd.NA,
+            },
+        ]
+    )
+    pass_values = verdict.loc[verdict["passes"].notna(), "passes"].astype(bool)
+    overall_pass = bool(not pass_values.empty and pass_values.all())
+    verdict = pd.concat(
+        [
+            verdict,
+            pd.DataFrame(
+                [
+                    {
+                        "criterion": "overall_verdict",
+                        "value": "PASS" if overall_pass else "FAIL",
+                        "threshold": "PASS",
+                        "passes": overall_pass,
+                    }
+                ]
+            ),
+        ],
+        ignore_index=True,
+    )
+    verdict.to_csv(output_root / "verdict_summary.csv", index=False)
+    lines = [
+        "# P003 D013 Cost / Slippage / Capacity Stress",
+        "",
+        "## Metadata",
+        "",
+        "| key | value |",
+        "| --- | --- |",
+        "| carrier | D013 unchanged: 10 variables, 5 blocks, 60-month z-score, threshold -0.2, market-cap top 5 |",
+        "| timing | signal quarter-end T, execution next KRX open; no additional delay changes |",
+        "| impact_model | impact_bps = 10 * sqrt(participation), added to slippage on buy and sell legs |",
+        "| participation | AUM / 5 divided by ticker 60-trading-day average 거래대금추정 through signal_date |",
+        "",
+    ]
+    lines.extend(_b004_dataframe_table("Summary", summary))
+    if not capacity.empty:
+        lines.extend(_b004_dataframe_table("Capacity Curve", capacity))
+    lines.extend(_b004_dataframe_table("Verdict", verdict))
+    (output_root / "report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _p003_metric(summary: pd.DataFrame, group: str, scenario: str) -> float:
+    row = summary.loc[summary["group"].eq(group) & summary["scenario"].eq(scenario)]
+    if row.empty:
+        return float("nan")
+    return float(row["cumulative_net_total_return"].iloc[0])
 
 
 def run_d014_experiment(config: dict[str, Any], config_path: Path) -> None:
@@ -21846,6 +22292,49 @@ def _validate_p002_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("P002 carrier must be d013.")
     if config["scenario"] not in P002_SCENARIOS:
         raise ValueError(f"P002 scenario must be one of {list(P002_SCENARIOS)}.")
+
+
+def _validate_p003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_P003_CONFIG_KEYS:
+        raise ValueError(f"P003 config keys must be exactly {EXPECTED_P003_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("scenario_group")
+    d013_like.pop("scenarios")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    group = str(config["scenario_group"])
+    scenarios = config["scenarios"]
+    if group == "cost_stress":
+        if tuple(scenarios.keys()) != P003_COST_SCENARIO_ORDER:
+            raise ValueError(f"P003 cost scenarios must be exactly {P003_COST_SCENARIO_ORDER}.")
+        expected = {"base": 1.0, "3x": 3.0, "5x": 5.0, "10x": 10.0}
+        for name, multiplier in expected.items():
+            if float(scenarios[name]["multiplier"]) != multiplier:
+                raise ValueError(f"P003 cost scenario {name} must use multiplier {multiplier}.")
+    elif group == "slippage":
+        if tuple(scenarios.keys()) != P003_SLIPPAGE_SCENARIO_ORDER:
+            raise ValueError(f"P003 slippage scenarios must be exactly {P003_SLIPPAGE_SCENARIO_ORDER}.")
+        expected_slippage = {"base": 5.0, "5bps": 10.0, "10bps": 15.0, "20bps": 25.0}
+        for name, slippage in expected_slippage.items():
+            if float(scenarios[name]["slippage_bps"]) != slippage:
+                raise ValueError(f"P003 slippage scenario {name} must use total slippage_bps {slippage}.")
+    elif group == "capacity":
+        if tuple(scenarios.keys()) != P003_CAPACITY_SCENARIO_ORDER:
+            raise ValueError(f"P003 capacity scenarios must be exactly {P003_CAPACITY_SCENARIO_ORDER}.")
+        expected_aum = (1e8, 5e8, 1e9, 3e9, 5e9, 1e10, 3e10, 5e10, 1e11)
+        observed = tuple(float(scenarios[name]["aum_krw"]) for name in P003_CAPACITY_SCENARIO_ORDER)
+        if observed != expected_aum:
+            raise ValueError("P003 capacity AUM values must match the ticket exactly.")
+        for name in P003_CAPACITY_SCENARIO_ORDER:
+            if float(scenarios[name].get("impact_constant", 10.0)) != 10.0:
+                raise ValueError("P003 capacity impact_constant must be 10.0.")
+            if int(scenarios[name].get("adv_window", 60)) != 60:
+                raise ValueError("P003 capacity adv_window must be 60.")
+    else:
+        raise ValueError("P003 scenario_group must be cost_stress, slippage, or capacity.")
 
 
 def _validate_d014_config_shape(config: dict[str, Any]) -> None:

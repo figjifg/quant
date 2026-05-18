@@ -1,0 +1,8 @@
+criterion,value,threshold,passes
+cost_5x_cumulative_ge_100pct,1.6561033507740772,1.0,True
+cost_10x_cumulative_ge_0pct,0.8447922146219866,0.0,True
+slippage_plus_20bps_cumulative_ge_100pct,2.254954008707709,1.0,True
+capacity_10bn_cumulative_ge_150pct,2.531012737355118,1.5,True
+capacity_100bn_cumulative_ge_0pct,2.4993143539034803,0.0,True
+capacity_threshold_cumulative_ge_100pct_krw,100000000000.0,report,
+overall_verdict,PASS,PASS,True
