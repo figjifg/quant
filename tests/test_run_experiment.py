@@ -146,43 +146,74 @@ output_dir: {output_dir}
 
 def test_run_e003_experiment_cli_writes_required_outputs(tmp_path: Path) -> None:
     panel_path = tmp_path / "synthetic_panel.csv"
-    market_flow_path = tmp_path / "market_flow.csv"
-    output_dir = tmp_path / "reports" / "E003_market_flow_gate"
+    market_breadth_path = tmp_path / "market_breadth.csv"
+    sector_mapping_path = tmp_path / "sector_mapping.csv"
+    output_dir = tmp_path / "reports" / "E003_layer2_baselines"
     config_path = tmp_path / "e003.yaml"
     _write_synthetic_panel(panel_path)
-    _write_synthetic_market_flow(market_flow_path)
+    _write_synthetic_market_breadth(market_breadth_path)
+    _write_synthetic_sector_mapping(sector_mapping_path)
     config_path.write_text(
         f"""experiment_id: E003
 panels:
   - {panel_path}
-market_flow:
-  path: {market_flow_path}
-periods:
-  is:
-    start: 2025-01-30
-    end:   2025-02-14
-  oos:
-    start: 2025-02-17
-    end:   2025-03-19
+panel_date_filters: {{}}
+market_breadth_csv: {market_breadth_path}
+macro_data_dir: research_input_data/inputs/macro_features
+sector_mapping_csv: {sector_mapping_path}
+period:
+  start: 2025-01-02
+  end:   2025-03-19
+  exclude_calendar_years: [2016]
 universe:
   require_dynamic_top100: true
   min_avg_traded_value_20d: 5_000_000_000
   exclude_estimated_flag_rows: true
 strategy:
   lookback: 5
-  holding: 20
   max_positions: 5
-exit:
-  vol_stop_k: null
-  vol_stop_atr_window: 20
-gate:
-  window: 5
-  threshold: 0
+regime:
+  aggregation: factor_z_score
+  z_score_window_months: 60
+  on_threshold: -0.2
+  blocks:
+    - name: global_risk
+      vars:
+        - {{name: vix_60d_vs_240d, sign: -1}}
+        - {{name: baa10y_spread_level, sign: -1}}
+    - name: usd_fx
+      vars:
+        - {{name: usdkrw_yoy, sign: -1}}
+        - {{name: dxy_yoy, sign: -1}}
+    - name: us_rates
+      vars:
+        - {{name: us_10y_real_level, sign: -1}}
+        - {{name: us_2_10_curve, sign: 1}}
+    - name: inflation
+      vars:
+        - {{name: brent_yoy, sign: -1}}
+        - {{name: us_breakeven_level, sign: -1}}
+    - name: growth
+      vars:
+        - {{name: kr_cli_value, sign: 1}}
+        - {{name: kr_exports_yoy, sign: 1}}
+selection:
+  type: market_cap_top_n
+  n: 5
+  count_matched_sector_max_per_sector: 1
+  pure_basket_min_sector_members: 3
+  pure_basket_exclude_sector_codes: ["99"]
+rebalance:
+  frequency: quarterly
+  anchor: last_trading_day
 costs:
   commission_bps: 1.5
   tax_bps_sell:   20.0
   slippage_bps:   5.0
-cost_sensitivity_multipliers: [0.0, 1.0, 2.0, 3.0]
+variants:
+  - A_d013_replication
+  - B_count_matched
+  - C_pure_basket
 output_dir: {output_dir}
 """,
         encoding="utf-8",
@@ -194,34 +225,35 @@ output_dir: {output_dir}
         cwd=Path(__file__).resolve().parents[1],
     )
 
-    expected_files = {
+    expected_top_level_files = {
+        "config.yaml",
+        "comparison_summary.csv",
+        "quarterly_regime_log.csv",
+        "report.md",
+        "sector_holding_overlap.csv",
+    }
+    assert expected_top_level_files == {path.name for path in output_dir.iterdir() if path.is_file()}
+
+    expected_variant_files = {
         "config.yaml",
         "metrics.json",
         "trades.csv",
         "signals.csv",
         "equity_curve.csv",
-        "cost_sensitivity.csv",
-        "report.md",
-        "market_gate_timeseries.csv",
+        "quarterly_year_breakdown.csv",
+        "subperiod_breakdown.csv",
+        "sector_holdings.csv",
     }
-    assert expected_files == {path.name for path in output_dir.iterdir() if path.is_file()}
-
-    metrics = json.loads((output_dir / "metrics.json").read_text(encoding="utf-8"))
-    assert set(metrics) == {
-        "headline",
-        "cap_only",
-        "inverted_gate",
-        "price_gate",
-        "double_gate",
-        "B0",
-        "B1",
-        "B2",
-        "B3",
-        "diagnostic_estimate_included",
-        "cost_0_headline",
-        "cost_0_cap_only",
-    }
-    assert all(set(metrics[key]) == {"is", "oos", "full"} for key in metrics)
+    for variant in ("A_d013_replication", "B_count_matched", "C_pure_basket"):
+        variant_dir = output_dir / variant
+        assert expected_variant_files == {path.name for path in variant_dir.iterdir() if path.is_file()}
+        metrics = json.loads((variant_dir / "metrics.json").read_text(encoding="utf-8"))
+        assert set(metrics) == {
+            "factor_macro_gate_mcap",
+            "kospi_buy_and_hold",
+            "cash",
+            "cost_0_factor_macro_gate_mcap",
+        }
 
 
 def test_run_e004_experiment_cli_writes_required_outputs(tmp_path: Path) -> None:
@@ -594,6 +626,43 @@ def _write_synthetic_market_flow(path: Path) -> None:
                 "kospi_foreign_net": 100.0 if index % 7 != 0 else -500.0,
                 "kospi_institution_net": 50.0,
                 "ignored": index,
+            }
+        )
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def _write_synthetic_market_breadth(path: Path) -> None:
+    dates = pd.date_range("2025-01-02", periods=55, freq="B")
+    pd.DataFrame(
+        {
+            "date": [date.date().isoformat() for date in dates],
+            "cap_weighted_return": [0.001 if index % 2 == 0 else -0.0005 for index, _ in enumerate(dates)],
+        }
+    ).to_csv(path, index=False)
+
+
+def _write_synthetic_sector_mapping(path: Path) -> None:
+    rows = []
+    sectors = [
+        ("01", "IT"),
+        ("02", "Auto"),
+        ("03", "Chem"),
+        ("04", "Steel"),
+        ("05", "Industrial"),
+        ("99", "Other"),
+    ]
+    for index, (code, name) in enumerate(sectors, start=1):
+        ticker = f"{index:06d}"
+        rows.append(
+            {
+                "pdno": f"00000A{ticker}",
+                "ticker": ticker,
+                "prdt_name": ticker,
+                "kis_mcls": name,
+                "ksic": name,
+                "final_sector_code": code,
+                "final_sector_name": name,
+                "mapping_source": "test",
             }
         )
     pd.DataFrame(rows).to_csv(path, index=False)

@@ -3,126 +3,89 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from src.strategies.a001_fixed_holding import build_e001_flow_filter_candidates
-from src.strategies.a003_market_gate import build_e003_market_gated_candidates
+from src.strategies.e003_b_count_matched import build_count_matched_sector_candidates
+from src.strategies.e003_c_pure_basket import build_pure_sector_basket_candidates
 
 
-def _flow_features() -> pd.DataFrame:
+def _panel() -> pd.DataFrame:
     return pd.DataFrame(
-        [
-            {
-                "execution_date": pd.Timestamp("2025-01-07"),
-                "signal_date": pd.Timestamp("2025-01-06"),
-                "종목코드": "000010",
-                "fnv_5": 0.1,
-                "inv_5": 0.2,
-                "combined_flow_5": 0.3,
-            },
-            {
-                "execution_date": pd.Timestamp("2025-01-07"),
-                "signal_date": pd.Timestamp("2025-01-06"),
-                "종목코드": "000020",
-                "fnv_5": 0.2,
-                "inv_5": 0.3,
-                "combined_flow_5": 0.5,
-            },
-            {
-                "execution_date": pd.Timestamp("2025-01-08"),
-                "signal_date": pd.Timestamp("2025-01-07"),
-                "종목코드": "000010",
-                "fnv_5": 0.4,
-                "inv_5": 0.5,
-                "combined_flow_5": 0.7,
-            },
-            {
-                "execution_date": pd.Timestamp("2025-01-09"),
-                "signal_date": pd.Timestamp("2025-01-08"),
-                "종목코드": "000030",
-                "fnv_5": 0.4,
-                "inv_5": -0.1,
-                "combined_flow_5": 0.1,
-            },
-        ]
-    )
-
-
-def _universe(features: pd.DataFrame) -> pd.DataFrame:
-    return features.loc[:, ["execution_date", "signal_date", "종목코드"]].copy()
-
-
-def test_gate_on_days_preserve_e001_candidates_and_order() -> None:
-    features = _flow_features()
-    universe = _universe(features)
-    gate = pd.DataFrame(
         {
-            "signal_date": [pd.Timestamp("2025-01-06"), pd.Timestamp("2025-01-07")],
-            "execution_date": [pd.Timestamp("2025-01-07"), pd.Timestamp("2025-01-08")],
-            "market_gate_on": [True, False],
+            "날짜": [pd.Timestamp("2025-03-31")] * 8,
+            "종목코드": ["000001", "000002", "000003", "000004", "000005", "000006", "000007", "000008"],
+            "KRX종가": [100.0] * 8,
+            "상장주식수": [1000, 900, 800, 700, 600, 500, 400, 300],
         }
     )
 
-    result = build_e003_market_gated_candidates(features, universe, gate, "market_gate_on")
-    expected = build_e001_flow_filter_candidates(features, universe)
-    expected = expected.loc[expected["execution_date"].eq(pd.Timestamp("2025-01-07"))].reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(result, expected)
-
-
-def test_gate_off_execution_date_has_zero_candidates() -> None:
-    features = _flow_features()
-    gate = pd.DataFrame(
+def _universe() -> pd.DataFrame:
+    return pd.DataFrame(
         {
-            "signal_date": [pd.Timestamp("2025-01-06"), pd.Timestamp("2025-01-07")],
-            "execution_date": [pd.Timestamp("2025-01-07"), pd.Timestamp("2025-01-08")],
-            "market_gate_on": [False, False],
+            "signal_date": [pd.Timestamp("2025-03-31")] * 8,
+            "execution_date": [pd.Timestamp("2025-04-01")] * 8,
+            "종목코드": ["000001", "000002", "000003", "000004", "000005", "000006", "000007", "000008"],
         }
     )
 
-    result = build_e003_market_gated_candidates(features, _universe(features), gate, "market_gate_on")
+
+def _quarterly_regime(regime_on: bool = True) -> pd.DataFrame:
+    return pd.DataFrame({"signal_date": [pd.Timestamp("2025-03-31")], "regime_on": [regime_on]})
+
+
+def _mapping() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "ticker": ["000001", "000002", "000003", "000004", "000005", "000006", "000007", "000008"],
+            "final_sector_code": ["01", "01", "02", "03", "03", "03", "99", "04"],
+            "final_sector_name": ["IT", "IT", "Auto", "Chem", "Chem", "Chem", "Other", "Steel"],
+        }
+    )
+
+
+def test_count_matched_takes_at_most_one_name_per_sector_by_market_cap_order() -> None:
+    result = build_count_matched_sector_candidates(_panel(), _universe(), _quarterly_regime(), _mapping(), max_positions=4)
+
+    assert list(result["종목코드"]) == ["000001", "000003", "000004", "000007"]
+    assert list(result["sector_code"]) == ["01", "02", "03", "99"]
+    assert result["sector_code"].is_unique
+
+
+def test_count_matched_gate_off_returns_no_candidates() -> None:
+    result = build_count_matched_sector_candidates(
+        _panel(),
+        _universe(),
+        _quarterly_regime(regime_on=False),
+        _mapping(),
+        max_positions=4,
+    )
 
     assert result.empty
 
 
-def test_nan_or_missing_gate_is_treated_as_off() -> None:
-    features = _flow_features()
-    gate = pd.DataFrame(
-        {
-            "signal_date": [pd.Timestamp("2025-01-06")],
-            "execution_date": [pd.Timestamp("2025-01-07")],
-            "market_gate_on": [pd.NA],
-        }
+def test_pure_basket_excludes_other_and_thin_sectors_then_sector_equal_weights() -> None:
+    result = build_pure_sector_basket_candidates(
+        _panel(),
+        _universe(),
+        _quarterly_regime(),
+        _mapping(),
+        min_sector_members=2,
     )
 
-    result = build_e003_market_gated_candidates(features, _universe(features), gate, "market_gate_on")
+    assert set(result["sector_code"]) == {"01", "03"}
+    sector_weights = result.groupby("sector_code")["target_weight"].sum()
+    assert sector_weights.to_dict() == pytest.approx({"01": 0.5, "03": 0.5})
+    chem = result.loc[result["sector_code"].eq("03")].set_index("종목코드")["target_weight"]
+    assert chem["000004"] > chem["000005"] > chem["000006"]
 
-    assert result.empty
 
-
-def test_gate_column_is_parameterized_for_price_and_double_variants() -> None:
-    features = _flow_features()
-    gate = pd.DataFrame(
-        {
-            "signal_date": [pd.Timestamp("2025-01-06"), pd.Timestamp("2025-01-07")],
-            "execution_date": [pd.Timestamp("2025-01-07"), pd.Timestamp("2025-01-08")],
-            "price_gate_on": [False, True],
-        }
+def test_pure_basket_requires_minimum_sector_members() -> None:
+    result = build_pure_sector_basket_candidates(
+        _panel(),
+        _universe(),
+        _quarterly_regime(),
+        _mapping(),
+        min_sector_members=3,
     )
 
-    result = build_e003_market_gated_candidates(features, _universe(features), gate, "price_gate_on")
-
-    assert list(result["execution_date"].unique()) == [pd.Timestamp("2025-01-08")]
-    assert list(result["종목코드"]) == ["000010"]
-
-
-def test_missing_gate_column_raises() -> None:
-    features = _flow_features()
-    gate = pd.DataFrame(
-        {
-            "signal_date": [pd.Timestamp("2025-01-06")],
-            "execution_date": [pd.Timestamp("2025-01-07")],
-            "market_gate_on": [True],
-        }
-    )
-
-    with pytest.raises(ValueError, match="missing gate column"):
-        build_e003_market_gated_candidates(features, _universe(features), gate, "double_gate_on")
+    assert set(result["sector_code"]) == {"03"}
+    assert result["target_weight"].sum() == pytest.approx(1.0)
