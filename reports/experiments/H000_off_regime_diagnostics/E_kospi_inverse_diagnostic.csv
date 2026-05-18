@@ -1,0 +1,2 @@
+scope,n,mean,median,std,min,max,positive_pct,conclusion
+"OFF quarters simple KOSPI short, no decay",38,-0.02350821927881531,-0.02799899083790902,0.06729154126695502,-0.13142028837391995,0.1365222093456736,0.2894736842105263,not_positive_expected_value

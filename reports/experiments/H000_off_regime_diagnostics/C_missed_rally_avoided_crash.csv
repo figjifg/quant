@@ -1,0 +1,14 @@
+section,rank,quarter,regime,kospi_quarter_return,count,share
+off_top5_positive_missed_rally,1,2023Q1,OFF,0.13142028837391995,,
+off_top5_positive_missed_rally,2,2010Q3,OFF,0.12928503061250107,,
+off_top5_positive_missed_rally,3,2012Q1,OFF,0.1277375494481563,,
+off_top5_positive_missed_rally,4,2010Q4,OFF,0.12327978783545768,,
+off_top5_positive_missed_rally,5,2012Q3,OFF,0.0971507757220651,,
+off_top5_negative_avoided_crash,1,2022Q2,OFF,-0.1365222093456736,,
+off_top5_negative_avoided_crash,2,2011Q3,OFF,-0.12220411663140651,,
+off_top5_negative_avoided_crash,3,2018Q4,OFF,-0.10334114698210584,,
+off_top5_negative_avoided_crash,4,2012Q2,OFF,-0.05946592128053696,,
+off_top5_negative_avoided_crash,5,2022Q1,OFF,-0.05713095705548599,,
+off_kospi_gt_plus_10pct,,,OFF,,4,0.10526315789473684
+off_kospi_lt_minus_10pct,,,OFF,,3,0.07894736842105263
+on_kospi_lt_minus_10pct,,,ON,,1,0.043478260869565216
