@@ -281,6 +281,11 @@ from src.strategies.h002_usdkrw_sleeve import (
     apply_usdkrw_off_sleeve,
     usdkrw_sleeve_drawdown,
 )
+from src.strategies.h003_us_treasury_sleeve import (
+    VARIANTS as H003_VARIANTS,
+    apply_us_treasury_off_sleeve,
+    us_treasury_sleeve_drawdown,
+)
 from src.strategies.baselines import (
     run_b0_cash,
     run_b1_buy_and_hold,
@@ -756,6 +761,16 @@ EXPECTED_H001_CONFIG_KEYS = (
 EXPECTED_H001_OFF_SLEEVE_KEYS = ("type", "source", "rate_column", "compounding", "formula")
 EXPECTED_H002_CONFIG_KEYS = EXPECTED_H001_CONFIG_KEYS
 EXPECTED_H002_OFF_SLEEVE_KEYS = ("type", "source", "rate_column", "carry_assumption", "formula")
+EXPECTED_H003_CONFIG_KEYS = EXPECTED_H001_CONFIG_KEYS
+EXPECTED_H003_OFF_SLEEVE_KEYS = (
+    "type",
+    "yield_source",
+    "yield_column",
+    "fx_source",
+    "fx_column",
+    "effective_duration",
+    "formula",
+)
 EXPECTED_B010_SURVIVAL_KEYS = ("b009_metrics_path",)
 EXPECTED_B011_PERIOD_KEYS = ("start", "end", "exclude_calendar_years")
 EXPECTED_B011_SELECTION_KEYS = ("type", "n")
@@ -1027,6 +1042,9 @@ def main(argv: list[str] | None = None) -> None:
     elif experiment_id == "H002":
         _validate_h002_config_shape(config)
         run_h002_experiment(config, config_path)
+    elif experiment_id == "H003":
+        _validate_h003_config_shape(config)
+        run_h003_experiment(config, config_path)
     else:
         raise ValueError(f"Unsupported experiment_id: {experiment_id!r}.")
 
@@ -10102,6 +10120,278 @@ def _write_h002_report(
         f"- USDKRW source: {config['off_sleeve']['source']}.",
         "- USD carry assumption: 0.0.",
         "- FX formula: `end_usdkrw / start_usdkrw - 1`, aligned from signal_date T to next quarter signal_date T+1Q.",
+        "- D013 strategy and backtest engine were not modified.",
+    ]
+    (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run_h003_experiment(config: dict[str, Any], config_path: Path) -> None:
+    panel, calendar, universe = _build_b011_inputs(config)
+    market_breadth = pd.read_csv(config["market_breadth_csv"], encoding="utf-8-sig")
+    raw_daily_regime = build_macro_regime_daily(
+        pd.Index(calendar.dates),
+        macro_data_dir=config["macro_data_dir"],
+        on_threshold=2,
+        macro_signals=D009_SIGNAL_NAMES,
+    )
+    monthly_raw_regime = monthly_regime_log(raw_daily_regime)
+    factor_monthly_regime = factor_aggregation_composite(
+        monthly_raw_regime,
+        z_score_window_months=int(config["regime"]["z_score_window_months"]),
+        on_threshold=float(config["regime"]["on_threshold"]),
+        blocks=_d001_blocks_from_config(config["regime"]["blocks"]),
+    )
+    quarterly_log = quarterly_regime_log(factor_monthly_regime)
+    segments = _b011_segments(config)
+    costs = _costs_from_config(config["costs"])
+    max_positions = int(config["selection"]["n"])
+
+    d013_runs, candidates = run_d013_variants(
+        panel=panel,
+        calendar=calendar,
+        universe=universe,
+        quarterly_regime=quarterly_log,
+        market_breadth=market_breadth,
+        costs=costs,
+        segments=segments,
+        max_positions=max_positions,
+    )
+    baseline = d013_runs["factor_macro_gate_mcap"]
+    sleeve, decomposition = apply_us_treasury_off_sleeve(
+        baseline,
+        calendar=calendar,
+        quarterly_regime=quarterly_log,
+        dgs10_csv=config["off_sleeve"]["yield_source"],
+        usdkrw_csv=config["off_sleeve"]["fx_source"],
+        effective_duration=float(config["off_sleeve"]["effective_duration"]),
+    )
+
+    candidate_years = _b011_candidate_years(config)
+    metrics = {
+        "d013_baseline": _h001_metric_block(baseline, calendar, candidate_years),
+        "d013_us_treasury_sleeve": _h001_metric_block(sleeve, calendar, candidate_years),
+    }
+    comparison = _h003_baseline_comparison(metrics, decomposition)
+    regime_breakdown = _h003_regime_breakdown(decomposition)
+
+    output_dir = Path(config["output_dir"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(config_path, output_dir / "config.yaml")
+    _write_json(output_dir / "metrics.json", metrics)
+    _write_ticker_safe_csv(_b011_trades(sleeve, calendar), output_dir / "trades.csv")
+    _write_ticker_safe_csv(_c008_signals(candidates["factor_macro_gate_mcap"]), output_dir / "signals.csv")
+    _h003_equity_curve(baseline, sleeve).to_csv(output_dir / "equity_curve.csv", index=False)
+    quarterly_log.to_csv(output_dir / "quarterly_regime_log.csv", index=False)
+    comparison.to_csv(output_dir / "baseline_comparison.csv", index=False)
+    decomposition.to_csv(output_dir / "treasury_return_decomposition.csv", index=False)
+    regime_breakdown.to_csv(output_dir / "regime_breakdown.csv", index=False)
+    _write_h003_report(output_dir, config, metrics, comparison, decomposition, regime_breakdown)
+
+
+def _h003_baseline_comparison(metrics: dict[str, dict[str, Any]], decomposition: pd.DataFrame) -> pd.DataFrame:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_us_treasury_sleeve"]
+    cumulative_delta = float(sleeve["cumulative_net_total_return"]) - float(baseline["cumulative_net_total_return"])
+    sharpe_delta = float(sleeve["sharpe"]) - float(baseline["sharpe"])
+    mdd_delta = float(sleeve["max_drawdown"]) - float(baseline["max_drawdown"])
+    off_cumulative = float(decomposition["cumulative_off_treasury"].iloc[-1]) if not decomposition.empty else 0.0
+    treasury_max_drawdown = us_treasury_sleeve_drawdown(decomposition)
+    rows = [
+        {
+            "variant": "D013",
+            "cumulative_net_total_return": baseline["cumulative_net_total_return"],
+            "sharpe": baseline["sharpe"],
+            "max_drawdown": baseline["max_drawdown"],
+            "sleeve_cumulative": 0.0,
+            "sleeve_max_drawdown": 0.0,
+            "cumulative_delta_vs_d013": 0.0,
+            "sharpe_delta_vs_d013": 0.0,
+            "mdd_delta_vs_d013": 0.0,
+        },
+    ]
+    rows.extend(_h003_prior_sleeve_rows(baseline))
+    rows.append(
+        {
+            "variant": "H003",
+            "cumulative_net_total_return": sleeve["cumulative_net_total_return"],
+            "sharpe": sleeve["sharpe"],
+            "max_drawdown": sleeve["max_drawdown"],
+            "sleeve_cumulative": off_cumulative,
+            "sleeve_max_drawdown": treasury_max_drawdown,
+            "cumulative_delta_vs_d013": cumulative_delta,
+            "sharpe_delta_vs_d013": sharpe_delta,
+            "mdd_delta_vs_d013": mdd_delta,
+        }
+    )
+    verdict = {
+        "variant": "verdict",
+        "cumulative_net_total_return": pd.NA,
+        "sharpe": pd.NA,
+        "max_drawdown": pd.NA,
+        "sleeve_cumulative": off_cumulative,
+        "sleeve_max_drawdown": treasury_max_drawdown,
+        "cumulative_delta_vs_d013": cumulative_delta,
+        "sharpe_delta_vs_d013": sharpe_delta,
+        "mdd_delta_vs_d013": mdd_delta,
+        "cumulative_pass": bool(float(sleeve["cumulative_net_total_return"]) > float(baseline["cumulative_net_total_return"])),
+        "sharpe_pass": bool(float(sleeve["sharpe"]) >= 0.53),
+        "treasury_drawdown_pass": bool(treasury_max_drawdown >= -0.10),
+    }
+    verdict["pass"] = bool(verdict["cumulative_pass"] and verdict["sharpe_pass"] and verdict["treasury_drawdown_pass"])
+    rows.append(verdict)
+    return pd.DataFrame(rows)
+
+
+def _h003_prior_sleeve_rows(baseline: dict[str, Any]) -> list[dict[str, Any]]:
+    specs = [
+        ("H001", Path("reports/experiments/H001_kr_short_rate_sleeve/baseline_comparison.csv"), "d013_kr_short_rate_sleeve", "off_carry_cumulative", None),
+        ("H002", Path("reports/experiments/H002_usdkrw_sleeve/baseline_comparison.csv"), "d013_usdkrw_sleeve", "off_fx_cumulative", "fx_sleeve_max_drawdown"),
+    ]
+    rows: list[dict[str, Any]] = []
+    for label, path, variant, sleeve_column, drawdown_column in specs:
+        if not path.exists():
+            continue
+        data = pd.read_csv(path)
+        matched = data.loc[data["variant"].eq(variant)]
+        if matched.empty:
+            continue
+        row = matched.iloc[0]
+        rows.append(
+            {
+                "variant": label,
+                "cumulative_net_total_return": row["cumulative_net_total_return"],
+                "sharpe": row["sharpe"],
+                "max_drawdown": row["max_drawdown"],
+                "sleeve_cumulative": row[sleeve_column] if sleeve_column in row else pd.NA,
+                "sleeve_max_drawdown": row[drawdown_column] if drawdown_column and drawdown_column in row else pd.NA,
+                "cumulative_delta_vs_d013": float(row["cumulative_net_total_return"])
+                - float(baseline["cumulative_net_total_return"]),
+                "sharpe_delta_vs_d013": float(row["sharpe"]) - float(baseline["sharpe"]),
+                "mdd_delta_vs_d013": float(row["max_drawdown"]) - float(baseline["max_drawdown"]),
+            }
+        )
+    return rows
+
+
+def _h003_equity_curve(baseline: BacktestResult, sleeve: BacktestResult) -> pd.DataFrame:
+    data = sleeve.equity_curve.copy()
+    data["d013_baseline_net_value"] = baseline.equity_curve["net_value"].to_numpy()
+    data["d013_us_treasury_sleeve_net_value"] = sleeve.equity_curve["net_value"].to_numpy()
+    data["us_treasury_sleeve_factor"] = (
+        pd.to_numeric(data["d013_us_treasury_sleeve_net_value"], errors="raise")
+        / pd.to_numeric(data["d013_baseline_net_value"], errors="raise")
+    )
+    return data
+
+
+def _h003_regime_breakdown(decomposition: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "regime",
+        "quarter_count",
+        "mean_quarter_treasury_krw_return",
+        "compounded_treasury_krw_return",
+        "sum_duration_return",
+        "sum_carry_return",
+        "sum_fx_return",
+        "positive_quarter_rate",
+    ]
+    if decomposition.empty:
+        return pd.DataFrame(columns=columns)
+    data = decomposition.copy()
+    data["regime"] = pd.to_numeric(data["yield_change"], errors="raise").ge(0.0).map(
+        {True: "rate_rise", False: "rate_fall"}
+    )
+    rows = [_h003_regime_row(regime, group) for regime, group in data.groupby("regime", sort=True)]
+    year_2022 = data.loc[pd.to_datetime(data["signal_date"], errors="raise").dt.year.eq(2022)]
+    if not year_2022.empty:
+        rows.append(_h003_regime_row("calendar_2022", year_2022))
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _h003_regime_row(regime: str, group: pd.DataFrame) -> dict[str, Any]:
+    returns = pd.to_numeric(group["quarter_treasury_krw_return"], errors="raise")
+    return {
+        "regime": regime,
+        "quarter_count": int(len(group)),
+        "mean_quarter_treasury_krw_return": float(returns.mean()),
+        "compounded_treasury_krw_return": float((1.0 + returns).prod() - 1.0),
+        "sum_duration_return": float(pd.to_numeric(group["duration_return"], errors="raise").sum()),
+        "sum_carry_return": float(pd.to_numeric(group["carry_return"], errors="raise").sum()),
+        "sum_fx_return": float(pd.to_numeric(group["fx_return"], errors="raise").sum()),
+        "positive_quarter_rate": float(returns.gt(0.0).mean()),
+    }
+
+
+def _write_h003_report(
+    output_dir: Path,
+    config: dict[str, Any],
+    metrics: dict[str, dict[str, Any]],
+    comparison: pd.DataFrame,
+    decomposition: pd.DataFrame,
+    regime_breakdown: pd.DataFrame,
+) -> None:
+    baseline = metrics["d013_baseline"]
+    sleeve = metrics["d013_us_treasury_sleeve"]
+    verdict = comparison.loc[comparison["variant"].eq("verdict")].iloc[0]
+    pass_fail = "PASS" if bool(verdict["pass"]) else "FAIL"
+    h001 = comparison.loc[comparison["variant"].eq("H001")]
+    h002 = comparison.loc[comparison["variant"].eq("H002")]
+    year_2022 = regime_breakdown.loc[regime_breakdown["regime"].eq("calendar_2022")]
+    year_2022_return = (
+        _format_report_value(year_2022["compounded_treasury_krw_return"].iloc[0]) if not year_2022.empty else "unavailable"
+    )
+    h001_return = _format_report_value(h001["cumulative_net_total_return"].iloc[0]) if not h001.empty else "unavailable"
+    h003_delta_vs_h001 = (
+        _format_report_value(float(sleeve["cumulative_net_total_return"]) - float(h001["cumulative_net_total_return"].iloc[0]))
+        if not h001.empty
+        else "unavailable"
+    )
+    h002_return = _format_report_value(h002["cumulative_net_total_return"].iloc[0]) if not h002.empty else "unavailable"
+    next_recommendation = (
+        "H005 basket 진행 권고: H003는 단독 PASS이므로 H001 KR carry와 H003 Treasury를 함께 담는 basket sleeve를 검토한다."
+        if bool(verdict["pass"])
+        else "H005 basket 진행 권고: H003는 단독 기준을 통과하지 못했으므로 H001 KR carry 중심 basket에 Treasury를 제한 비중 후보로만 검토한다."
+    )
+    lines = [
+        "# H003 US Treasury Sleeve",
+        "",
+        "## Portfolio Metrics",
+        "",
+        "| variant | cumulative_net_total_return | sharpe | max_drawdown |",
+        "|---|---:|---:|---:|",
+        "| D013 baseline | "
+        + " | ".join(_format_report_value(baseline[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "| D013 + US Treasury | "
+        + " | ".join(_format_report_value(sleeve[column]) for column in ("cumulative_net_total_return", "sharpe", "max_drawdown"))
+        + " |",
+        "",
+        "## Sleeve Comparison",
+        "",
+        f"- H001 KR carry cumulative net return: {h001_return}",
+        f"- H002 USDKRW cumulative net return: {h002_return}",
+        f"- H003 minus H001 cumulative net return: {h003_delta_vs_h001}",
+        f"- Treasury sleeve cumulative contribution: {_format_report_value(verdict['sleeve_cumulative'])}",
+        f"- Treasury sleeve max drawdown: {_format_report_value(verdict['sleeve_max_drawdown'])}",
+        f"- 2022 Treasury sleeve compounded impact: {year_2022_return}",
+        "",
+        "## Verdict",
+        "",
+        f"- Overall: {pass_fail}",
+        f"- Cumulative improves vs D013: {bool(verdict['cumulative_pass'])} ({_format_report_value(verdict['cumulative_delta_vs_d013'])})",
+        f"- Sharpe >= 0.53: {bool(verdict['sharpe_pass'])} ({_format_report_value(sleeve['sharpe'])})",
+        f"- Treasury sleeve drawdown >= -0.10: {bool(verdict['treasury_drawdown_pass'])} ({_format_report_value(verdict['sleeve_max_drawdown'])})",
+        "- H004 Gold 가치: Treasury가 금리 상승기에 손실을 낸다면 H004 Gold는 rate-rise hedge 후보로 가치가 있다.",
+        f"- {next_recommendation}",
+        "",
+        "## Metadata",
+        "",
+        "- Carrier: D013 top 5 unchanged.",
+        "- OFF sleeve: simple US 10Y Treasury return translated to KRW replaces zero-return cash in D013 OFF quarters.",
+        f"- US 10Y yield source: {config['off_sleeve']['yield_source']}.",
+        f"- USDKRW source: {config['off_sleeve']['fx_source']}.",
+        f"- Effective duration: {_format_report_value(config['off_sleeve']['effective_duration'])}.",
+        "- Formula: `-delta_yield_decimal * 7 + start_yield_decimal / 4 + usdkrw_quarter_return`.",
         "- D013 strategy and backtest engine were not modified.",
     ]
     (output_dir / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -22979,6 +23269,38 @@ def _validate_h002_config_shape(config: dict[str, Any]) -> None:
         raise ValueError("H002 off_sleeve.carry_assumption must be 0.")
     if tuple(config["variants"]) != H002_VARIANTS:
         raise ValueError(f"H002 variants must be exactly {list(H002_VARIANTS)}.")
+
+
+def _validate_h003_config_shape(config: dict[str, Any]) -> None:
+    keys = tuple(config.keys())
+    if keys != EXPECTED_H003_CONFIG_KEYS:
+        raise ValueError(f"H003 config keys must be exactly {EXPECTED_H003_CONFIG_KEYS}; got {keys}.")
+    d013_like = dict(config)
+    d013_like.pop("carrier")
+    d013_like.pop("off_sleeve")
+    d013_like["experiment_id"] = "D013"
+    d013_like["variants"] = list(D013_VARIANTS)
+    ordered = {key: d013_like[key] for key in EXPECTED_D013_CONFIG_KEYS}
+    _validate_d013_config_shape(ordered)
+    if config["carrier"] != "d013":
+        raise ValueError("H003 carrier must be d013.")
+    if tuple(config["off_sleeve"].keys()) != EXPECTED_H003_OFF_SLEEVE_KEYS:
+        raise ValueError(f"H003 off_sleeve keys must be exactly {EXPECTED_H003_OFF_SLEEVE_KEYS}.")
+    off_sleeve = config["off_sleeve"]
+    if off_sleeve["type"] != "us_10y_treasury_krw":
+        raise ValueError("H003 off_sleeve.type must be us_10y_treasury_krw.")
+    if off_sleeve["yield_source"] != "research_input_data/inputs/macro_features/fred_dgs10.csv":
+        raise ValueError("H003 off_sleeve.yield_source must be the registered DGS10 FRED file.")
+    if off_sleeve["yield_column"] != "DGS10":
+        raise ValueError("H003 off_sleeve.yield_column must be DGS10.")
+    if off_sleeve["fx_source"] != "research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv":
+        raise ValueError("H003 off_sleeve.fx_source must be the registered USDKRW FRED file.")
+    if off_sleeve["fx_column"] != "DEXKOUS":
+        raise ValueError("H003 off_sleeve.fx_column must be DEXKOUS.")
+    if float(off_sleeve["effective_duration"]) != 7.0:
+        raise ValueError("H003 off_sleeve.effective_duration must be 7.0.")
+    if tuple(config["variants"]) != H003_VARIANTS:
+        raise ValueError(f"H003 variants must be exactly {list(H003_VARIANTS)}.")
 
 
 def _validate_p002_config_shape(config: dict[str, Any]) -> None:
