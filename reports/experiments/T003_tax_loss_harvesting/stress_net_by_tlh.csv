@@ -1,0 +1,16 @@
+scenario,label,stress,metric,value,start_date,end_date,peak_date,trough_date
+T003-A,No TLH,2020_covid_daily_mdd,daily_mdd,-0.16472953900866505,2020-02-01,2020-04-30,2020-02-20,2020-03-19
+T003-A,No TLH,2022_krw_return,calendar_year_return,-0.14753691838288818,2022-01-01,2022-12-31,,
+T003-A,No TLH,2025_spike_exclusion,cagr_excluding_2025_return_days,0.11640107020830848,2010-01-04,2026-05-18,,
+T003-B,Year-end TLH: all loss lots,2020_covid_daily_mdd,daily_mdd,-0.16472944598128147,2020-02-01,2020-04-30,2020-02-20,2020-03-19
+T003-B,Year-end TLH: all loss lots,2022_krw_return,calendar_year_return,-0.14698567889118397,2022-01-01,2022-12-31,,
+T003-B,Year-end TLH: all loss lots,2025_spike_exclusion,cagr_excluding_2025_return_days,0.1164522733568143,2010-01-04,2026-05-18,,
+T003-C,Quarter-end TLH: all loss lots,2020_covid_daily_mdd,daily_mdd,-0.16473046477194675,2020-02-01,2020-04-30,2020-02-20,2020-03-19
+T003-C,Quarter-end TLH: all loss lots,2022_krw_return,calendar_year_return,-0.14746537407280513,2022-01-01,2022-12-31,,
+T003-C,Quarter-end TLH: all loss lots,2025_spike_exclusion,cagr_excluding_2025_return_days,0.11601904511230221,2010-01-04,2026-05-18,,
+T003-D,Year-end TLH: loss <= -5%,2020_covid_daily_mdd,daily_mdd,-0.16472956006486839,2020-02-01,2020-04-30,2020-02-20,2020-03-19
+T003-D,Year-end TLH: loss <= -5%,2022_krw_return,calendar_year_return,-0.14739761201947998,2022-01-01,2022-12-31,,
+T003-D,Year-end TLH: loss <= -5%,2025_spike_exclusion,cagr_excluding_2025_return_days,0.11644694330376648,2010-01-04,2026-05-18,,
+T003-E,Year-end TLH: loss <= -10%,2020_covid_daily_mdd,daily_mdd,-0.16472952027062415,2020-02-01,2020-04-30,2020-02-20,2020-03-19
+T003-E,Year-end TLH: loss <= -10%,2022_krw_return,calendar_year_return,-0.1476304285259219,2022-01-01,2022-12-31,,
+T003-E,Year-end TLH: loss <= -10%,2025_spike_exclusion,cagr_excluding_2025_return_days,0.11645678898277656,2010-01-04,2026-05-18,,

@@ -1,0 +1,32 @@
+experiment: Q006 Quality + Value + Shareholder Yield Composite
+universe: Q001 99 tickers, current S&P 100-like universe excluding MMC
+fundamentals: research_input_data/inputs/us_fundamentals/*_facts.json
+prices: research_input_data/inputs/us_equity_prices/*.csv
+benchmark: research_input_data/inputs/global_etf/yf_SPY.csv
+start_date: 2010-01-01
+end_date: 2026-05-18
+pit_policy:
+  source_timestamp: SEC companyfacts filed
+  conservative_lag_days_after_quarter_end: 35
+  execution_rule: first SPY trading day after available_date
+  market_cap_estimate: latest filed shares as of available_date * stock close on execution/rebalance date
+signal:
+  formula: Score = Quality_Score + Value_Score + SY_Score
+  quality_score: z_roic + z_fcf_margin - z_leverage
+  value_score: z_fcf_yield + z_earnings_yield
+  shareholder_yield_score: z_buyback_yield + z_dividend_yield - z_dilution
+  fcf_yield: (trailing_4q_cfo - trailing_4q_capex) / market_cap_estimate
+  earnings_yield: trailing_4q_net_income / market_cap_estimate
+  buyback_yield: trailing_4q_buybacks / market_cap_estimate
+  dividend_yield: trailing_4q_dividends / market_cap_estimate
+  dilution: max(0, latest_shares - shares_1y_ago) / shares_1y_ago
+portfolio:
+  selection: top_30_qvsy_score
+  weighting: equal_weight
+  rebalance: quarterly
+  currency: USD
+  costs_bps: 0
+limitations:
+  - current survivor universe; not survivorship-free
+  - no factor grid; single pre-registered composite only
+  - missing cash dividend concepts are zero-filled for Q004/Q006

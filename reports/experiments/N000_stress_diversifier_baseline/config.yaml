@@ -1,0 +1,21 @@
+experiment: N000_stress_diversifier_baseline
+status: generated
+candidate: P08_IEF30
+candidate_status: frozen
+mode: stress_response_only
+search: none
+promotion: none
+weights:
+  SPY: 0.29
+  QQQ: 0.21
+  H001: 0.20
+  IEF: 0.30
+pre_2010_proxy:
+  reason: H001 unavailable before 2010
+  weights_rescaled_to_us_core:
+    SPY: 0.3625
+    QQQ: 0.2625
+    IEF: 0.3750
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv

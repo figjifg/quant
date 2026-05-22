@@ -1,0 +1,26 @@
+experiment: J000_em_equity_baseline_diagnostic
+status: generated
+candidate_status: backlog_candidate_library
+mode: buy_hold_baseline_diagnostic
+currency: KRW
+fx_policy: USDKRW linear interpolation on ETF trading dates, then forward-fill
+search: none
+direct_promote_p08_ief30: false
+universe:
+  - VWO
+  - EWY
+  - EWJ
+  - EWZ
+  - MCHI
+stress_windows:
+  dot_com_2000_2002: {start: 2000-01-01, end: 2002-12-31}
+  gfc_2008_2009: {start: 2008-01-01, end: 2009-12-31}
+  covid_2020_02_2020_03: {start: 2020-02-01, end: 2020-03-31}
+  rate_shock_2022: {start: 2022-01-01, end: 2022-12-31}
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  usdk_rw_file: research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv
+prohibited:
+  external_network: true
+  ranking_timing: true
+  parameter_grid: true

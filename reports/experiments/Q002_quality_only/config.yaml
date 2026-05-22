@@ -1,0 +1,24 @@
+experiment: Q002_quality_only
+universe: Q001 99 tickers, current S&P 100-like universe excluding MMC
+fundamentals: research_input_data/inputs/us_fundamentals/*_facts.json
+prices: research_input_data/inputs/us_equity_prices/*.csv
+benchmark: research_input_data/inputs/global_etf/yf_SPY.csv
+start_date: 2010-01-01
+end_date: 2026-05-18
+pit_policy:
+  source_timestamp: SEC companyfacts filed
+  conservative_lag_days_after_quarter_end: 35
+  execution_rule: first SPY trading day after available_date, with missing stock prices excluded
+signal:
+  roic: trailing_4q_operating_income / (latest_equity + latest_long_term_debt)
+  fcf_margin: (trailing_4q_cfo - trailing_4q_capex) / trailing_4q_revenue
+  leverage: latest_long_term_debt / latest_equity
+  composite: z_roic + z_fcf_margin - z_leverage
+portfolio:
+  selection: top_30_quality_score
+  weighting: equal_weight
+  rebalance: quarterly
+  costs_bps: 0
+limitations:
+  - current survivor universe; not survivorship-free
+  - no factor grid; single pre-registered composite only

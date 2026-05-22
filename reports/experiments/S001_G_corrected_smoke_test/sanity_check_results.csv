@@ -1,0 +1,4 @@
+signal,impossible_return_fail_count,duplicate_signal_fail_count,max_exposure_ratio,exposure_fail_count,entry_exit_lineage_bad_count
+r1d_lt_m3_hold1,0,0,0.4,0,0
+r1d_lt_m3_hold3,1,0,0.26000780023400705,0,0
+r1d_lt_m3_hold5,4,0,0.26000780023400705,0,0

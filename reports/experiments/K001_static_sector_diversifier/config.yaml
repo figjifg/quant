@@ -1,0 +1,83 @@
+experiment: K001_static_sector_diversifier
+status: generated
+mode: stress_response_only
+search: none
+promotion: none
+candidate_status: backlog_candidate_library
+base_candidate: P08_IEF30
+rebalance: quarterly
+nav_basis: gross
+tax_model: none
+currency: KRW
+fx_policy: USDKRW linear interpolation on ETF trading dates, then forward-fill
+allowed_sector_sleeves:
+  - XLP
+  - XLU
+  - XLV
+prohibited_sector_sleeves:
+  - XLE
+  - XLF
+  - XLK
+  - XLI
+  - XLY
+  - XLB
+  - XLRE
+  - XLC
+pre_2010_proxy:
+  rule: exclude H001 and sleeves without local observations in the stress window, then rescale remaining registered weights
+baseline:
+  N000:
+    SPY: 0.2900000000
+    QQQ: 0.2100000000
+    H001: 0.2000000000
+    IEF: 0.3000000000
+variants:
+  K001-A:
+    SPY: 0.2755000000
+    QQQ: 0.1995000000
+    H001: 0.1900000000
+    IEF: 0.2850000000
+    XLP: 0.0500000000
+  K001-B:
+    SPY: 0.2610000000
+    QQQ: 0.1890000000
+    H001: 0.1800000000
+    IEF: 0.2700000000
+    XLP: 0.1000000000
+  K001-C:
+    SPY: 0.2755000000
+    QQQ: 0.1995000000
+    H001: 0.1900000000
+    IEF: 0.2850000000
+    XLU: 0.0500000000
+  K001-D:
+    SPY: 0.2610000000
+    QQQ: 0.1890000000
+    H001: 0.1800000000
+    IEF: 0.2700000000
+    XLU: 0.1000000000
+  K001-E:
+    SPY: 0.2755000000
+    QQQ: 0.1995000000
+    H001: 0.1900000000
+    IEF: 0.2850000000
+    XLV: 0.0500000000
+  K001-F:
+    SPY: 0.2610000000
+    QQQ: 0.1890000000
+    H001: 0.1800000000
+    IEF: 0.2700000000
+    XLV: 0.1000000000
+comparators:
+  N001-B: GLD 10%
+  N002-B: cash 10%
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  usdk_rw_file: research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv
+  kr_cash_rate: research_input_data/inputs/macro_features/fred_kr_short_rate.csv
+guardrails:
+  best_sharpe_search: false
+  p08_ief30_modified: false
+  direct_promotion: false
+  role: backlog_candidate_library

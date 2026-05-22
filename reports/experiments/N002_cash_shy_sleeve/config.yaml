@@ -1,0 +1,43 @@
+experiment: N002_cash_shy_sleeve
+status: generated
+mode: stress_response_only
+search: none
+promotion: none
+candidate_status: backlog_candidate_library
+rebalance: quarterly
+nav_basis: gross
+tax_model: none
+baseline: N000_stress_diversifier_baseline
+pre_2010_proxy:
+  rule: exclude H001 and sleeves without local observations in the stress window, then rescale remaining registered weights
+variants:
+  N002-A:
+    SPY: 0.2900000000
+    QQQ: 0.2100000000
+    H001: 0.2000000000
+    SHY: 0.3000000000
+  N002-B:
+    SPY: 0.2610000000
+    QQQ: 0.1890000000
+    H001: 0.1800000000
+    IEF: 0.2700000000
+    cash: 0.1000000000
+  N002-C:
+    SPY: 0.2900000000
+    QQQ: 0.2100000000
+    H001: 0.2000000000
+    IEF: 0.1500000000
+    SHY: 0.1500000000
+hypotheses:
+  - SHY may have lower duration risk than IEF.
+  - Cash/SHY may provide better 2022 rate-shock defense than IEF 30%.
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv
+  kr_cash_rate: research_input_data/inputs/macro_features/fred_kr_short_rate.csv
+  n000_baseline: reports/experiments/N000_stress_diversifier_baseline/stress_windows.csv
+guardrails:
+  best_sharpe_search: false
+  p08_ief30_modified: false
+  direct_promotion: false
+  n_family_role: backlog_candidate_library

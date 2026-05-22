@@ -1,0 +1,17 @@
+experiment: R003_dividend_increase
+event_path: research_input_data/inputs/events/opendart_kospi_disclosures_20180101_20260505.parquet
+panel_paths:
+  - research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+  - research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+kospi_path: research_input_data/inputs/macro_features/krx_market_breadth_kospi_2010_2026.csv
+universe: dynamic_top100_price_matched
+cost_model: gross_only_R005_pending
+network: disabled
+engine_changes: none
+strategy_changes: none
+execution_policy: signal_date_plus_next_krx_trading_day_open
+holding_days: [21, 63, 126]
+subperiods: [2018_2021, 2022_2026]
+event_types: ['dividend']
+collapse_nearby_events: False
+nearby_event_gap_trading_days: 21

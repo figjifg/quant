@@ -1,0 +1,38 @@
+experiment: N001_gold_sleeve
+status: generated
+mode: stress_response_only
+search: none
+promotion: none
+candidate_status: backlog_candidate_library
+rebalance: quarterly
+nav_basis: gross
+tax_model: none
+baseline: N000_stress_diversifier_baseline
+pre_2010_proxy:
+  rule: exclude H001 and sleeves without local observations in the stress window, then rescale remaining registered weights
+variants:
+  N001-A:
+    SPY: 0.2755000000
+    QQQ: 0.1995000000
+    H001: 0.1900000000
+    IEF: 0.2850000000
+    GLD: 0.0500000000
+  N001-B:
+    SPY: 0.2610000000
+    QQQ: 0.1890000000
+    H001: 0.1800000000
+    IEF: 0.2700000000
+    GLD: 0.1000000000
+hypotheses:
+  - GLD may act as a hedge during GFC-like stress.
+  - Historical reference: GLD was positive in 2008, approximately +12.5%.
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv
+  kr_cash_rate: research_input_data/inputs/macro_features/fred_kr_short_rate.csv
+  n000_baseline: reports/experiments/N000_stress_diversifier_baseline/stress_windows.csv
+guardrails:
+  best_sharpe_search: false
+  p08_ief30_modified: false
+  direct_promotion: false
+  n_family_role: backlog_candidate_library

@@ -1,0 +1,6 @@
+dimension,bucket,event_count,pct
+event_type,dividend,5757,1.0
+sector,unknown,5757,1.0
+size_bucket,large,1919,0.3333333333333333
+size_bucket,mid,1919,0.3333333333333333
+size_bucket,small,1919,0.3333333333333333

@@ -1,0 +1,2 @@
+status,reason,download_status
+skipped,"long-history files missing after yfinance attempt: QQQ, SPY, IEF",network/DNS blocked or Yahoo returned empty downloads; QQQ: empty download; SPY: empty download; IEF: empty download; TLT: empty download; GLD: empty download

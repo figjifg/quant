@@ -1,0 +1,35 @@
+{
+  "experiment": "X-ETF000",
+  "x_lab_quarantine": true,
+  "status": "PASS_WITH_SCOPE",
+  "verdict": "PASS_WITH_SCOPE",
+  "data_sufficient_for_x_etf001_004": true,
+  "primary_universe": "13 ETFs excluding MCHI, 2010-01 full coverage",
+  "secondary_robustness": "14 ETFs including MCHI, common-start after MCHI lookback",
+  "universe": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "IEF",
+    "TLT",
+    "SHY",
+    "GLD",
+    "UUP",
+    "DBC",
+    "VWO",
+    "EWY",
+    "EWJ",
+    "EWZ",
+    "MCHI"
+  ],
+  "unavailable_tickers": [],
+  "missing_2010_2026_coverage": [
+    "MCHI"
+  ],
+  "notes": [
+    "Gross-only baseline; T-family taxable assumptions documented but not applied.",
+    "No strategy optimization was run.",
+    "P08_IEF30 comparison is included only when local daily NAV exists.",
+    "MCHI is excluded from the primary universe and retained only for secondary robustness."
+  ]
+}

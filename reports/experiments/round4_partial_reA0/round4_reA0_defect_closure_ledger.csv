@@ -1,0 +1,35 @@
+﻿card,defect_id,severity,round3_status,round4_status,change,evidence
+G5,G5_000001,critical,FAIL,CLOSED,+,C1 adjusted OHLC integrated (1.58M rows)
+G5,G5_000002,critical,FAIL,CLOSED,+,v1.x docstring + adjusted_*_source marker
+G5,G5_000003,high,FAIL,CLOSED,+,v1.x docstring + C1 actual adjusted data
+G5,G5_000004,critical,FAIL,PARTIAL,+,extreme events 175→35 (80% reduction); 35 잔존 = 34 not-in-universe + 32 year-start gap
+G5,G5_000005,critical,FAIL,DEFERRED-S2,=,S2 body parser 미완 (5-9주 estimate)
+G5,G5_000006,high,FAIL,CLOSED,+,C1 adjusted return = cumulative factor 내장
+G5,G5_000007,medium,PARTIAL,CLOSED,+,S3 + S4 cross-confirmed (137/258)
+ID,ID_000001,informational,CLOSED,CLOSED,=,uniqueness (already closed)
+ID,ID_000002,high,PARTIAL,PARTIAL,=,S3 cross-ref 53% + S4 100%; 47% merger/rename 별도
+ID,ID_000003,medium,PARTIAL,CLOSED,+,DART 내 0 reuse + KRX cross-ref
+ID,ID_000004,low,PARTIAL,CLOSED,+,152 ticker name change tracked
+ID,ID_000005,high,PARTIAL,PARTIAL,=,C4 100% coverage 단 fallback 50 = ticker-based
+ID,ID_000006,informational,CLOSED,CLOSED,=,within-DART linkage (already)
+ID,ID_000007,informational,CLOSED,CLOSED,=,top100 lifecycle (already)
+TRAD,TRAD_000001,critical,FAIL,PARTIAL,+,C5 categorical impl; panel_absence naming = misleading (v2.1 fix)
+TRAD,TRAD_000002,critical,FAIL,CLOSED,+,"C5 + S3 (32,378 events, 88.3% direct exchange action)"
+TRAD,TRAD_000003,high,FAIL,PARTIAL,+,C1 60→41 reduce; C3 후 full separate
+TRAD,TRAD_000004,medium,PARTIAL,CLOSED,+,C5 categorical
+TRAD,TRAD_000005,high,FAIL,CLOSED,+,"C5 + C6 (13,448 delisting_transition rows)"
+TRAD,TRAD_000006,informational,CLOSED,CLOSED,=,limit threshold (already)
+TOP,TOP_000001,medium,OPEN,CLOSED,+,universe.py module docstring + 99.78/100 reproducible
+TOP,TOP_000002,informational,CLOSED,CLOSED,=,reverse-engineered rule
+TOP,TOP_000003,informational,CLOSED,PARTIAL,-,"sample 100% → full 99.78/100 (slight drift, 19% dates imperfect)"
+TOP,TOP_000004,low,OPEN,PARTIAL,+,"KRX master 3,154 ticker; per-date all-listed query 별도"
+TOP,TOP_000005,informational,CLOSED,CLOSED,=,survivor universe (already)
+TOP,TOP_000006,high,OPEN,CLOSED,+,C1 adjusted OHLC; trade_value 재계산 은 별도 enhancement
+FLOW,FLOW_000001,low,OPEN,CLOSED,+,C7 + pykrx field doc
+FLOW,FLOW_000002,informational,CLOSED,CLOSED,=,sign convention sample 100%
+FLOW,FLOW_000003,informational,CLOSED,CLOSED,=,unit consistency (already)
+FLOW,FLOW_000004,high,OPEN,PARTIAL,+,"t+1 conservative rule documented, exact vendor lag 미확정"
+FLOW,FLOW_000005,informational,CLOSED,CLOSED,=,missingness
+FLOW,FLOW_000006,medium,OPEN,PARTIAL,+,C5 + C7 separation; panel_absence dominant 확인
+FLOW,FLOW_000007,high,OPEN,PARTIAL,+,"CRITICAL: 95% within ±5% reconciliation, 1 month sample only; full year 미실시"
+FLOW,FLOW_000008,medium,CLOSED,CLOSED,=,F-family warning (already)

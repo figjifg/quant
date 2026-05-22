@@ -1,0 +1,5 @@
+hypothesis,support,evidence
+forced_selling_liquidity_rebound,diagnostic,compare foreign/institution net-sell buckets and intraday rebound buckets
+large_cap_panic_overshoot,diagnostic,compare mcap buckets and market-drop buckets
+individual_stock_microstructure_bounce,diagnostic,compare stock_specific and gap/intraday buckets
+index_program_flow_reversal,unproven,requires explicit program/index flow data not in S000 artifacts

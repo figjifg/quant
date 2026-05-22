@@ -1,0 +1,101 @@
+ticker,cik,download_status,facts_path,entity_name,us_gaap_concept_count,earliest_filing,latest_filing,sector,sic
+AAPL,0000320193,existing,research_input_data/inputs/us_fundamentals/AAPL_facts.json,Apple Inc.,503,2009-07-22,2026-05-01,Electronic Computers,3571
+MSFT,0000789019,existing,research_input_data/inputs/us_fundamentals/MSFT_facts.json,MICROSOFT CORPORATION,544,2009-10-23,2026-04-29,Services-Prepackaged Software,7372
+GOOGL,0001652044,existing,research_input_data/inputs/us_fundamentals/GOOGL_facts.json,Alphabet Inc.,523,2015-10-29,2026-04-30,"Services-Computer Programming, Data Processing, Etc.",7370
+GOOG,0001652044,existing,research_input_data/inputs/us_fundamentals/GOOG_facts.json,Alphabet Inc.,523,2015-10-29,2026-04-30,"Services-Computer Programming, Data Processing, Etc.",7370
+AMZN,0001018724,existing,research_input_data/inputs/us_fundamentals/AMZN_facts.json,"AMAZON.COM, INC.",542,2009-07-24,2026-04-30,Retail-Catalog & Mail-Order Houses,5961
+META,0001326801,existing,research_input_data/inputs/us_fundamentals/META_facts.json,"Meta Platforms, Inc.",456,2012-07-31,2026-04-30,"Services-Computer Programming, Data Processing, Etc.",7370
+NVDA,0001045810,existing,research_input_data/inputs/us_fundamentals/NVDA_facts.json,NVIDIA CORPORATION,625,2009-08-20,2026-05-12,Semiconductors & Related Devices,3674
+BRK-B,0001067983,existing,research_input_data/inputs/us_fundamentals/BRK-B_facts.json,BERKSHIRE HATHAWAY INC,437,2009-11-06,2026-05-04,"Fire, Marine & Casualty Insurance",6331
+TSLA,0001318605,existing,research_input_data/inputs/us_fundamentals/TSLA_facts.json,"Tesla, Inc.",642,2011-08-12,2026-04-23,Motor Vehicles & Passenger Car Bodies,3711
+JPM,0000019617,existing,research_input_data/inputs/us_fundamentals/JPM_facts.json,JPMORGAN CHASE & CO,917,2009-08-10,2026-05-01,National Commercial Banks,6021
+V,0001403161,existing,research_input_data/inputs/us_fundamentals/V_facts.json,VISA INC.,625,2009-07-30,2026-04-29,"Services-Business Services, NEC",7389
+MA,0001141391,existing,research_input_data/inputs/us_fundamentals/MA_facts.json,Mastercard Incorporated,606,2009-07-31,2026-04-30,"Services-Business Services, NEC",7389
+PG,0000080424,existing,research_input_data/inputs/us_fundamentals/PG_facts.json,PROCTER & GAMBLE CO,448,2009-10-29,2026-04-24,"Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",2840
+JNJ,0000200406,existing,research_input_data/inputs/us_fundamentals/JNJ_facts.json,Johnson & Johnson,609,2009-08-04,2026-04-22,Pharmaceutical Preparations,2834
+HD,0000354950,existing,research_input_data/inputs/us_fundamentals/HD_facts.json,"THE HOME DEPOT, INC.",461,2009-09-03,2026-04-07,Retail-Lumber & Other Building Materials Dealers,5211
+UNH,0000731766,existing,research_input_data/inputs/us_fundamentals/UNH_facts.json,UnitedHealth Group Incorporated,573,2009-08-06,2026-05-05,Hospital & Medical Service Plans,6324
+BAC,0000070858,existing,research_input_data/inputs/us_fundamentals/BAC_facts.json,BANK OF AMERICA CORP /DE/,891,2009-08-07,2026-05-01,National Commercial Banks,6021
+XOM,0000034088,existing,research_input_data/inputs/us_fundamentals/XOM_facts.json,Exxon Mobil Corporation,438,2009-08-05,2026-05-04,Petroleum Refining,2911
+CVX,0000093410,existing,research_input_data/inputs/us_fundamentals/CVX_facts.json,Chevron Corp,622,2009-05-07,2026-05-07,Petroleum Refining,2911
+KO,0000021344,existing,research_input_data/inputs/us_fundamentals/KO_facts.json,COCA COLA CO,724,2009-07-30,2026-04-30,Beverages,2080
+PEP,0000077476,existing,research_input_data/inputs/us_fundamentals/PEP_facts.json,"PepsiCo, Inc.",611,2009-10-08,2026-04-16,Beverages,2080
+ABBV,0001551152,existing,research_input_data/inputs/us_fundamentals/ABBV_facts.json,AbbVie Inc.,453,2013-05-08,2026-05-08,Pharmaceutical Preparations,2834
+MRK,0000310158,existing,research_input_data/inputs/us_fundamentals/MRK_facts.json,"Merck & Co., Inc.",774,2009-07-24,2026-05-04,Pharmaceutical Preparations,2834
+PFE,0000078003,existing,research_input_data/inputs/us_fundamentals/PFE_facts.json,Pfizer Inc.,666,2009-08-06,2026-05-05,Pharmaceutical Preparations,2834
+COST,0000909832,existing,research_input_data/inputs/us_fundamentals/COST_facts.json,COSTCO WHOLESALE CORP /NEW,458,2009-12-18,2026-03-11,Retail-Variety Stores,5331
+AVGO,0001730168,existing,research_input_data/inputs/us_fundamentals/AVGO_facts.json,Broadcom Inc.,432,2018-06-14,2026-03-11,Semiconductors & Related Devices,3674
+WMT,0000104169,existing,research_input_data/inputs/us_fundamentals/WMT_facts.json,Walmart Inc.,478,2009-09-09,2026-04-23,Retail-Variety Stores,5331
+LLY,0000059478,existing,research_input_data/inputs/us_fundamentals/LLY_facts.json,ELI LILLY & Co,548,2009-07-31,2026-04-30,Pharmaceutical Preparations,2834
+ORCL,0001341439,existing,research_input_data/inputs/us_fundamentals/ORCL_facts.json,Oracle Corporation,511,2009-09-21,2026-03-11,Services-Prepackaged Software,7372
+ADBE,0000796343,existing,research_input_data/inputs/us_fundamentals/ADBE_facts.json,ADOBE INC.,558,2009-06-26,2026-03-25,Services-Prepackaged Software,7372
+CRM,0001108524,existing,research_input_data/inputs/us_fundamentals/CRM_facts.json,"Salesforce, Inc.",686,2009-08-25,2026-04-16,Services-Prepackaged Software,7372
+NFLX,0001065280,existing,research_input_data/inputs/us_fundamentals/NFLX_facts.json,"Netflix, Inc.",490,2009-07-31,2026-04-17,Services-Video Tape Rental,7841
+CSCO,0000858877,existing,research_input_data/inputs/us_fundamentals/CSCO_facts.json,"CISCO SYSTEMS, INC.",768,2009-11-18,2026-05-19,Computer Communications Equipment,3576
+INTC,0000050863,existing,research_input_data/inputs/us_fundamentals/INTC_facts.json,INTEL CORP,672,2009-08-03,2026-04-24,Semiconductors & Related Devices,3674
+AMD,0000002488,existing,research_input_data/inputs/us_fundamentals/AMD_facts.json,ADVANCED MICRO DEVICES INC,776,2010-08-04,2026-05-06,Semiconductors & Related Devices,3674
+QCOM,0000804328,existing,research_input_data/inputs/us_fundamentals/QCOM_facts.json,QUALCOMM INC/DE,685,2009-07-22,2026-04-29,Radio & Tv Broadcasting & Communications Equipment,3663
+TXN,0000097476,existing,research_input_data/inputs/us_fundamentals/TXN_facts.json,TEXAS INSTRUMENTS INCORPORATED,482,2009-07-29,2026-04-24,Semiconductors & Related Devices,3674
+IBM,0000051143,existing,research_input_data/inputs/us_fundamentals/IBM_facts.json,INTERNATIONAL BUSINESS MACHINES CORP,777,2009-07-28,2026-04-23,Computer & office Equipment,3570
+GE,0000040545,existing,research_input_data/inputs/us_fundamentals/GE_facts.json,GENERAL ELECTRIC COMPANY,941,2009-08-03,2026-04-21,Electronic & Other Electrical Equipment (No Computer Equip),3600
+BA,0000012927,existing,research_input_data/inputs/us_fundamentals/BA_facts.json,THE BOEING COMPANY,742,2009-07-22,2026-04-22,Aircraft,3721
+CAT,0000018230,existing,research_input_data/inputs/us_fundamentals/CAT_facts.json,CATERPILLAR INC,702,2009-08-12,2026-05-06,Construction Machinery & Equip,3531
+DE,0000315189,existing,research_input_data/inputs/us_fundamentals/DE_facts.json,DEERE & CO,662,2009-08-28,2026-02-26,Farm Machinery & Equipment,3523
+RTX,0000101829,existing,research_input_data/inputs/us_fundamentals/RTX_facts.json,RTX CORPORATION,735,2009-07-24,2026-04-21,Aircraft Engines & Engine Parts,3724
+LMT,0000936468,existing,research_input_data/inputs/us_fundamentals/LMT_facts.json,LOCKHEED MARTIN CORPORATION,536,2009-07-22,2026-04-23,Guided Missiles & Space Vehicles & Parts,3760
+GS,0000886982,existing,research_input_data/inputs/us_fundamentals/GS_facts.json,"The Goldman Sachs Group, Inc.",638,2009-08-05,2026-05-01,"Security Brokers, Dealers & Flotation Companies",6211
+MS,0000895421,existing,research_input_data/inputs/us_fundamentals/MS_facts.json,MORGAN STANLEY,914,2009-08-07,2026-05-05,"Security Brokers, Dealers & Flotation Companies",6211
+C,0000831001,existing,research_input_data/inputs/us_fundamentals/C_facts.json,Citigroup Inc,796,2009-11-06,2026-02-20,National Commercial Banks,6021
+WFC,0000072971,existing,research_input_data/inputs/us_fundamentals/WFC_facts.json,WELLS        FARGO & COMPANY/MN,937,2009-08-07,2026-04-29,National Commercial Banks,6021
+AXP,0000004962,existing,research_input_data/inputs/us_fundamentals/AXP_facts.json,AMERICAN EXPRESS CO,665,2009-09-02,2026-04-23,Finance Services,6199
+BLK,0002012383,existing,research_input_data/inputs/us_fundamentals/BLK_facts.json,"BlackRock, Inc.",287,2024-11-06,2026-05-06,"Security Brokers, Dealers & Flotation Companies",6211
+SPGI,0000064040,existing,research_input_data/inputs/us_fundamentals/SPGI_facts.json,S&P Global Inc.,622,2009-07-29,2026-04-28,"Services-Consumer Credit Reporting, Collection Agencies",7320
+BX,0001393818,existing,research_input_data/inputs/us_fundamentals/BX_facts.json,Blackstone Inc.,428,2010-08-06,2026-05-08,Investment Advice,6282
+MMC,,missing_cik,,,,,,unknown,
+PYPL,0001633917,existing,research_input_data/inputs/us_fundamentals/PYPL_facts.json,"PayPal Holdings, Inc.",500,2015-07-29,2026-05-05,"Services-Business Services, NEC",7389
+INTU,0000896878,existing,research_input_data/inputs/us_fundamentals/INTU_facts.json,INTUIT INC.,519,2009-12-04,2026-02-26,Services-Prepackaged Software,7372
+NOW,0001373715,existing,research_input_data/inputs/us_fundamentals/NOW_facts.json,"ServiceNow, Inc.",528,2012-08-10,2026-04-23,Services-Prepackaged Software,7372
+ABT,0000001800,existing,research_input_data/inputs/us_fundamentals/ABT_facts.json,ABBOTT LABORATORIES,476,2009-08-07,2026-04-29,Pharmaceutical Preparations,2834
+TMO,0000097745,existing,research_input_data/inputs/us_fundamentals/TMO_facts.json,THERMO FISHER SCIENTIFIC INC.,674,2009-07-31,2026-05-01,"Measuring & Controlling Devices, NEC",3829
+AMGN,0000318154,existing,research_input_data/inputs/us_fundamentals/AMGN_facts.json,Amgen Inc.,475,2009-08-10,2026-05-01,"Biological Products, (No Diagnostic Substances)",2836
+MDT,0001613103,existing,research_input_data/inputs/us_fundamentals/MDT_facts.json,Medtronic plc,521,2015-02-27,2026-02-24,Electromedical & Electrotherapeutic Apparatus,3845
+BMY,0000014272,existing,research_input_data/inputs/us_fundamentals/BMY_facts.json,Bristol-Myers Squibb Company,838,2009-07-23,2026-04-30,Pharmaceutical Preparations,2834
+GILD,0000882095,existing,research_input_data/inputs/us_fundamentals/GILD_facts.json,"GILEAD SCIENCES, INC.",722,2009-08-05,2026-05-07,"Biological Products, (No Diagnostic Substances)",2836
+CI,0001739940,existing,research_input_data/inputs/us_fundamentals/CI_facts.json,The Cigna Group,409,2019-02-28,2026-04-30,Hospital & Medical Service Plans,6324
+ELV,0001156039,existing,research_input_data/inputs/us_fundamentals/ELV_facts.json,"ELEVANCE HEALTH, INC.",782,2009-07-29,2026-04-22,Hospital & Medical Service Plans,6324
+DHR,0000313616,existing,research_input_data/inputs/us_fundamentals/DHR_facts.json,DANAHER CORP /DE/,620,2009-07-23,2026-04-21,"Industrial Instruments For Measurement, Display, and Control",3823
+SYK,0000310764,existing,research_input_data/inputs/us_fundamentals/SYK_facts.json,STRYKER CORP,594,2009-09-03,2026-05-11,Surgical & Medical Instruments & Apparatus,3841
+ZTS,0001555280,existing,research_input_data/inputs/us_fundamentals/ZTS_facts.json,Zoetis Inc.,534,2013-05-15,2026-05-07,Pharmaceutical Preparations,2834
+ISRG,0001035267,existing,research_input_data/inputs/us_fundamentals/ISRG_facts.json,"Intuitive Surgical, Inc.",577,2009-07-23,2026-04-22,"Orthopedic, Prosthetic & Surgical Appliances & Supplies",3842
+REGN,0000872589,existing,research_input_data/inputs/us_fundamentals/REGN_facts.json,"REGENERON PHARMACEUTICALS, INC.",471,2010-07-28,2026-04-29,Pharmaceutical Preparations,2834
+VRTX,0000875320,existing,research_input_data/inputs/us_fundamentals/VRTX_facts.json,VERTEX PHARMACEUTICALS INC / MA,638,2010-05-03,2026-05-05,Pharmaceutical Preparations,2834
+BIIB,0000875045,existing,research_input_data/inputs/us_fundamentals/BIIB_facts.json,BIOGEN INC.,659,2009-07-17,2026-04-29,"Biological Products, (No Diagnostic Substances)",2836
+MU,0000723125,existing,research_input_data/inputs/us_fundamentals/MU_facts.json,MICRON TECHNOLOGY INC,629,2010-01-12,2026-03-19,Semiconductors & Related Devices,3674
+KLAC,0000319201,existing,research_input_data/inputs/us_fundamentals/KLAC_facts.json,KLA CORPORATION,667,2010-11-24,2026-04-30,Optical Instruments & Lenses,3827
+LRCX,0000707549,existing,research_input_data/inputs/us_fundamentals/LRCX_facts.json,LAM RESEARCH CORPORATION,622,2010-11-03,2026-04-23,"Special Industry Machinery, NEC",3559
+AMAT,0000006951,existing,research_input_data/inputs/us_fundamentals/AMAT_facts.json,APPLIED MATERIALS INC /DE,709,2009-09-01,2026-02-19,Semiconductors & Related Devices,3674
+ASML,0000937966,existing,research_input_data/inputs/us_fundamentals/ASML_facts.json,ASML HOLDING NV,623,2010-02-26,2026-02-25,"Special Industry Machinery, NEC",3559
+NKE,0000320187,existing,research_input_data/inputs/us_fundamentals/NKE_facts.json,"NIKE, Inc.",426,2009-10-08,2026-04-01,Rubber & Plastics Footwear,3021
+SBUX,0000829224,existing,research_input_data/inputs/us_fundamentals/SBUX_facts.json,Starbucks Corporation,557,2009-08-05,2026-04-28,Retail-Eating & Drinking Places,5810
+MCD,0000063908,existing,research_input_data/inputs/us_fundamentals/MCD_facts.json,McDONALD’S CORPORATION,433,2009-08-06,2026-05-07,Retail-Eating  Places,5812
+DIS,0001744489,existing,research_input_data/inputs/us_fundamentals/DIS_facts.json,WALT DISNEY CO/,494,2019-05-08,2026-05-06,Services-Miscellaneous Amusement & Recreation,7990
+T,0000732717,existing,research_input_data/inputs/us_fundamentals/T_facts.json,AT&T INC.,713,2009-08-05,2026-04-27,Telephone Communications (No Radiotelephone),4813
+VZ,0000732712,existing,research_input_data/inputs/us_fundamentals/VZ_facts.json,VERIZON COMMUNICATIONS INC,677,2009-07-30,2026-05-01,Telephone Communications (No Radiotelephone),4813
+CMCSA,0001166691,existing,research_input_data/inputs/us_fundamentals/CMCSA_facts.json,Comcast Corporation,465,2009-08-06,2026-04-24,Cable & Other Pay Television Services,4841
+TMUS,0001283699,existing,research_input_data/inputs/us_fundamentals/TMUS_facts.json,"T-Mobile US, Inc.",721,2010-08-09,2026-04-28,Radiotelephone Communications,4812
+CHTR,0001091667,existing,research_input_data/inputs/us_fundamentals/CHTR_facts.json,"Charter Communications, Inc.",504,2011-05-03,2026-04-24,Cable & Other Pay Television Services,4841
+F,0000037996,existing,research_input_data/inputs/us_fundamentals/F_facts.json,Ford Motor Co,586,2009-08-05,2026-04-30,Motor Vehicles & Passenger Car Bodies,3711
+GM,0001467858,existing,research_input_data/inputs/us_fundamentals/GM_facts.json,GENERAL MOTORS COMPANY,617,2011-08-05,2026-04-28,Motor Vehicles & Passenger Car Bodies,3711
+UPS,0001090727,existing,research_input_data/inputs/us_fundamentals/UPS_facts.json,"United Parcel Service, Inc",580,2009-08-07,2026-05-06,Trucking & Courier Services (No Air),4210
+FDX,0001048911,existing,research_input_data/inputs/us_fundamentals/FDX_facts.json,FedEx Corporation,493,2009-09-18,2026-03-19,Air Courier Services,4513
+UNP,0000100885,existing,research_input_data/inputs/us_fundamentals/UNP_facts.json,UNION PACIFIC CORP,449,2009-07-24,2026-04-23,"Railroads, Line-Haul Operating",4011
+LIN,0001707925,existing,research_input_data/inputs/us_fundamentals/LIN_facts.json,LINDE PLC,469,2017-10-30,2026-05-01,Industrial Inorganic Chemicals,2810
+DOW,0001751788,existing,research_input_data/inputs/us_fundamentals/DOW_facts.json,Dow Inc.,501,2019-05-03,2026-04-24,"Plastic Materials, Synth Resins & Nonvulcan Elastomers",2821
+APD,0000002969,existing,research_input_data/inputs/us_fundamentals/APD_facts.json,"AIR PRODUCTS AND CHEMICALS, INC.",824,2009-07-24,2026-04-30,Industrial Inorganic Chemicals,2810
+FCX,0000831259,existing,research_input_data/inputs/us_fundamentals/FCX_facts.json,Freeport-McMoRan Inc.,766,2009-05-11,2026-05-08,Metal Mining,1000
+NEM,0001164727,existing,research_input_data/inputs/us_fundamentals/NEM_facts.json,NEWMONT CORPORATION,823,2009-04-30,2026-04-23,Gold and Silver Ores,1040
+GOLD,0001591588,existing,research_input_data/inputs/us_fundamentals/GOLD_facts.json,"Gold.com, Inc.",447,2014-03-27,2026-05-11,"Wholesale-Jewelry, Watches, Precious Stones & Metals",5094
+NEE,0000753308,existing,research_input_data/inputs/us_fundamentals/NEE_facts.json,"NEXTERA ENERGY, INC.",455,2009-07-31,2026-04-23,Electric Services,4911
+DUK,0001326160,existing,research_input_data/inputs/us_fundamentals/DUK_facts.json,DUKE ENERGY CORPORATION,911,2009-08-07,2026-05-05,Electric & Other Services Combined,4931
+SO,0000092122,existing,research_input_data/inputs/us_fundamentals/SO_facts.json,The Southern Company,629,2009-08-27,2026-04-30,Electric Services,4911
+AEP,0000004904,existing,research_input_data/inputs/us_fundamentals/AEP_facts.json,AMERICAN ELECTRIC POWER CO INC.,633,2009-08-04,2026-05-05,Electric Services,4911

@@ -1,0 +1,140 @@
+{
+  "experiment": "R003",
+  "status": "GENERATED",
+  "cost_model": "gross_only_R005_pending",
+  "event_rows": 8926,
+  "tradable_event_rows": 5757,
+  "excluded_unmatched_price_rows": 3169,
+  "timing_policy": "date-only OPENDART rows execute next KRX trading day open",
+  "overall": {
+    "21d": {
+      "event_count": 5690,
+      "mean_excess_return": -0.013200569595216913,
+      "median_excess_return": -0.025955539449630194,
+      "hit_rate": 0.3866432337434095,
+      "mean_gross_return": -0.006454108926140485,
+      "mean_kospi_return": 0.006746460669076428,
+      "sharpe_like": -0.08782355700783001
+    },
+    "63d": {
+      "event_count": 5008,
+      "mean_excess_return": -0.0030584977810323285,
+      "median_excess_return": -0.03314670057404934,
+      "hit_rate": 0.4215255591054313,
+      "mean_gross_return": 0.05312346202114348,
+      "mean_kospi_return": 0.05618195980217581,
+      "sharpe_like": -0.01053066052345883
+    },
+    "126d": {
+      "event_count": 4839,
+      "mean_excess_return": -0.05590679003456386,
+      "median_excess_return": -0.09780405397643899,
+      "hit_rate": 0.3358131845422608,
+      "mean_gross_return": 0.07230881496758641,
+      "mean_kospi_return": 0.1282156050021503,
+      "sharpe_like": -0.1370535492325763
+    }
+  },
+  "subperiod": {
+    "21d": {
+      "2018_2021": {
+        "event_count": 2064,
+        "mean_excess_return": -0.009173098524760616,
+        "median_excess_return": -0.022158299911769486,
+        "hit_rate": 0.40261627906976744,
+        "mean_gross_return": -0.02835325160732926,
+        "mean_kospi_return": -0.019180153082568645,
+        "sharpe_like": -0.0707681645354321
+      },
+      "2022_2026": {
+        "event_count": 3626,
+        "mean_excess_return": -0.015493095874704448,
+        "median_excess_return": -0.02806862984520414,
+        "hit_rate": 0.37755102040816324,
+        "mean_gross_return": 0.00601137107771325,
+        "mean_kospi_return": 0.0215044669524177,
+        "sharpe_like": -0.09630724469057372
+      }
+    },
+    "63d": {
+      "2018_2021": {
+        "event_count": 2052,
+        "mean_excess_return": 0.02491608957272328,
+        "median_excess_return": -0.013620249427720443,
+        "hit_rate": 0.4615009746588694,
+        "mean_gross_return": 0.046712291754705405,
+        "mean_kospi_return": 0.021796202181982118,
+        "sharpe_like": 0.07498624514283776
+      },
+      "2022_2026": {
+        "event_count": 2956,
+        "mean_excess_return": -0.02247793392782073,
+        "median_excess_return": -0.04564757937428665,
+        "hit_rate": 0.39377537212449254,
+        "mean_gross_return": 0.057573976698657325,
+        "mean_kospi_return": 0.08005191062647805,
+        "sharpe_like": -0.08790987079685285
+      }
+    },
+    "126d": {
+      "2018_2021": {
+        "event_count": 2033,
+        "mean_excess_return": -0.011577920735756581,
+        "median_excess_return": -0.07363415299706366,
+        "hit_rate": 0.3620265617314314,
+        "mean_gross_return": 0.04884958546704901,
+        "mean_kospi_return": 0.0604275062028056,
+        "sharpe_like": -0.025920282707916242
+      },
+      "2022_2026": {
+        "event_count": 2806,
+        "mean_excess_return": -0.08802389312953007,
+        "median_excess_return": -0.1158469988690638,
+        "hit_rate": 0.31682109764789734,
+        "mean_gross_return": 0.0893054698409266,
+        "mean_kospi_return": 0.1773293629704567,
+        "sharpe_like": -0.2352463262703687
+      }
+    }
+  },
+  "by_event_type": {
+    "21d": {
+      "dividend": {
+        "event_count": 5690,
+        "mean_excess_return": -0.013200569595216913,
+        "median_excess_return": -0.025955539449630194,
+        "hit_rate": 0.3866432337434095,
+        "mean_gross_return": -0.006454108926140485,
+        "mean_kospi_return": 0.006746460669076428,
+        "sharpe_like": -0.08782355700783001
+      }
+    },
+    "63d": {
+      "dividend": {
+        "event_count": 5008,
+        "mean_excess_return": -0.0030584977810323285,
+        "median_excess_return": -0.03314670057404934,
+        "hit_rate": 0.4215255591054313,
+        "mean_gross_return": 0.05312346202114348,
+        "mean_kospi_return": 0.05618195980217581,
+        "sharpe_like": -0.01053066052345883
+      }
+    },
+    "126d": {
+      "dividend": {
+        "event_count": 4839,
+        "mean_excess_return": -0.05590679003456386,
+        "median_excess_return": -0.09780405397643899,
+        "hit_rate": 0.3358131845422608,
+        "mean_gross_return": 0.07230881496758641,
+        "mean_kospi_return": 0.1282156050021503,
+        "sharpe_like": -0.1370535492325763
+      }
+    }
+  },
+  "verdict": {
+    "21d": "FAIL",
+    "63d": "FAIL",
+    "126d": "FAIL"
+  }
+}

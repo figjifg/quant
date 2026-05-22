@@ -1,0 +1,61 @@
+{
+  "verdict": "PASS",
+  "pass_rule": "top trades/dates and crisis exclusions keep r1d_lt_m3 net positive",
+  "exclusions": [
+    {
+      "scenario": "exclude_2020",
+      "count": 1388,
+      "mean": 0.07577283562695034,
+      "median": 0.04466533239573755,
+      "hit_rate": 0.6484149855907781,
+      "sharpe_like": 2.1266805486359157
+    },
+    {
+      "scenario": "exclude_2018_2020",
+      "count": 927,
+      "mean": 0.08715727688975752,
+      "median": 0.0515179856115107,
+      "hit_rate": 0.6601941747572816,
+      "sharpe_like": 2.279989700054303
+    },
+    {
+      "scenario": "exclude_top_1pct_trades",
+      "count": 1605,
+      "mean": 0.0645632867242766,
+      "median": 0.047442088091354,
+      "hit_rate": 0.6629283489096574,
+      "sharpe_like": 2.708309138722784
+    },
+    {
+      "scenario": "exclude_top_5pct_trades",
+      "count": 1540,
+      "mean": 0.039261003744691776,
+      "median": 0.041044872762969045,
+      "hit_rate": 0.6487012987012987,
+      "sharpe_like": 1.986174000827969
+    }
+  ],
+  "bootstrap": [
+    {
+      "bootstrap": "trade_level",
+      "mean": 0.10016527582786788,
+      "ci_p05": 0.07774704972485193,
+      "ci_p50": 0.0988603760260053,
+      "ci_p95": 0.12557135544418835
+    },
+    {
+      "bootstrap": "date_cluster",
+      "mean": 0.10016527582786788,
+      "ci_p05": 0.07077760489607336,
+      "ci_p50": 0.09805488174878353,
+      "ci_p95": 0.13550293153244555
+    },
+    {
+      "bootstrap": "stock_cluster",
+      "mean": 0.10016527582786788,
+      "ci_p05": 0.07151626956866115,
+      "ci_p50": 0.09778285636681147,
+      "ci_p95": 0.13314266698515392
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "verdict": "PASS",
+  "scenarios": [
+    {
+      "scenario": "conservative_s000_gain_tax_22pct",
+      "gain_tax": 0.22,
+      "sell_tax": 0.0,
+      "commission": 0.0025,
+      "slippage": 0.0005,
+      "count": 1622,
+      "mean": 0.10016527582786788,
+      "median": 0.04967322698109927,
+      "hit_rate": 0.6664611590628853,
+      "sharpe_like": 1.6671850600740685
+    },
+    {
+      "scenario": "ordinary_domestic_listed_small_shareholder",
+      "gain_tax": 0.0,
+      "sell_tax": 0.0018,
+      "commission": 0.00015,
+      "slippage": 0.0005,
+      "count": 1622,
+      "mean": 0.1460331046521185,
+      "median": 0.06827593202705036,
+      "hit_rate": 0.6787916152897657,
+      "sharpe_like": 1.9200537192837335
+    },
+    {
+      "scenario": "large_shareholder_special_case",
+      "gain_tax": 0.22,
+      "sell_tax": 0.0018,
+      "commission": 0.00015,
+      "slippage": 0.0005,
+      "count": 1622,
+      "mean": 0.1030652758278679,
+      "median": 0.052573226981099286,
+      "hit_rate": 0.6750924784217016,
+      "sharpe_like": 1.7154536505037836
+    }
+  ]
+}

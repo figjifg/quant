@@ -1,0 +1,2 @@
+check,i005_cagr,t000_cagr,cagr_diff,i005_sharpe,t000_sharpe,sharpe_diff,i005_capital_gains_tax_krw,t000_b_capital_gains_tax_krw,finding
+T000-A vs I005 Scenario A,0.12013723889446215,0.12013723889446215,0.0,1.1129777777333945,1.1129777777333945,0.0,30538904.917541765,30683128.51103971,T000-A is sourced from I005 daily NAV; FIFO/HIFO lot scenarios are separate audit extensions.

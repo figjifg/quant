@@ -1,0 +1,190 @@
+experiment: Q008_portfolio_combination
+baseline: P08_IEF30
+baseline_weights:
+  SPY: 0.29
+  QQQ: 0.21
+  H001: 0.20
+  IEF: 0.30
+cost_framework: T-family Scenario B / Korean resident V1
+candidate_count: 30
+candidates:
+  - candidate: Q008-A-SCHD-10
+    method: Method A
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;QQQ:0.21;SCHD:0.10;SPY:0.19
+  - candidate: Q008-A-SCHD-20
+    method: Method A
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;QQQ:0.21;SCHD:0.20;SPY:0.09
+  - candidate: Q008-A-COWZ-10
+    method: Method A
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: COWZ:0.10;H001:0.20;IEF:0.30;QQQ:0.21;SPY:0.19
+  - candidate: Q008-A-COWZ-20
+    method: Method A
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: COWZ:0.20;H001:0.20;IEF:0.30;QQQ:0.21;SPY:0.09
+  - candidate: Q008-A-MTUM-10
+    method: Method A
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;MTUM:0.10;QQQ:0.21;SPY:0.19
+  - candidate: Q008-A-MTUM-20
+    method: Method A
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;MTUM:0.20;QQQ:0.21;SPY:0.09
+  - candidate: Q008-A-Q002-10
+    method: Method A
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q002:0.10;QQQ:0.21;SPY:0.19
+  - candidate: Q008-A-Q002-20
+    method: Method A
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;Q002:0.20;QQQ:0.21;SPY:0.09
+  - candidate: Q008-A-Q006-10
+    method: Method A
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q006:0.10;QQQ:0.21;SPY:0.19
+  - candidate: Q008-A-Q006-20
+    method: Method A
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;Q006:0.20;QQQ:0.21;SPY:0.09
+  - candidate: Q008-B-SCHD-10
+    method: Method B
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;QQQ:0.17;SCHD:0.10;SPY:0.23
+  - candidate: Q008-B-SCHD-20
+    method: Method B
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;QQQ:0.13;SCHD:0.20;SPY:0.17
+  - candidate: Q008-B-COWZ-10
+    method: Method B
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: COWZ:0.10;H001:0.20;IEF:0.30;QQQ:0.17;SPY:0.23
+  - candidate: Q008-B-COWZ-20
+    method: Method B
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: COWZ:0.20;H001:0.20;IEF:0.30;QQQ:0.13;SPY:0.17
+  - candidate: Q008-B-MTUM-10
+    method: Method B
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;MTUM:0.10;QQQ:0.17;SPY:0.23
+  - candidate: Q008-B-MTUM-20
+    method: Method B
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;MTUM:0.20;QQQ:0.13;SPY:0.17
+  - candidate: Q008-B-Q002-10
+    method: Method B
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q002:0.10;QQQ:0.17;SPY:0.23
+  - candidate: Q008-B-Q002-20
+    method: Method B
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;Q002:0.20;QQQ:0.13;SPY:0.17
+  - candidate: Q008-B-Q006-10
+    method: Method B
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q006:0.10;QQQ:0.17;SPY:0.23
+  - candidate: Q008-B-Q006-20
+    method: Method B
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.2
+    weights: H001:0.20;IEF:0.30;Q006:0.20;QQQ:0.13;SPY:0.17
+  - candidate: Q008-C-SCHD-10
+    method: Method C
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;QQQ:0.11;SCHD:0.10;SPY:0.29
+  - candidate: Q008-C-SCHD-15
+    method: Method C
+    sleeve: SCHD
+    sleeve_type: etf_proxy
+    q_weight: 0.15
+    weights: H001:0.20;IEF:0.30;QQQ:0.06;SCHD:0.15;SPY:0.29
+  - candidate: Q008-C-COWZ-10
+    method: Method C
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: COWZ:0.10;H001:0.20;IEF:0.30;QQQ:0.11;SPY:0.29
+  - candidate: Q008-C-COWZ-15
+    method: Method C
+    sleeve: COWZ
+    sleeve_type: etf_proxy
+    q_weight: 0.15
+    weights: COWZ:0.15;H001:0.20;IEF:0.30;QQQ:0.06;SPY:0.29
+  - candidate: Q008-C-MTUM-10
+    method: Method C
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;MTUM:0.10;QQQ:0.11;SPY:0.29
+  - candidate: Q008-C-MTUM-15
+    method: Method C
+    sleeve: MTUM
+    sleeve_type: etf_proxy
+    q_weight: 0.15
+    weights: H001:0.20;IEF:0.30;MTUM:0.15;QQQ:0.06;SPY:0.29
+  - candidate: Q008-C-Q002-10
+    method: Method C
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q002:0.10;QQQ:0.11;SPY:0.29
+  - candidate: Q008-C-Q002-15
+    method: Method C
+    sleeve: Q002
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.15
+    weights: H001:0.20;IEF:0.30;Q002:0.15;QQQ:0.06;SPY:0.29
+  - candidate: Q008-C-Q006-10
+    method: Method C
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.1
+    weights: H001:0.20;IEF:0.30;Q006:0.10;QQQ:0.11;SPY:0.29
+  - candidate: Q008-C-Q006-15
+    method: Method C
+    sleeve: Q006
+    sleeve_type: direct_q_diagnostic
+    q_weight: 0.15
+    weights: H001:0.20;IEF:0.30;Q006:0.15;QQQ:0.06;SPY:0.29

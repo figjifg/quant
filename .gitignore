@@ -31,3 +31,29 @@ Thumbs.db
 .codex/
 *.codex-session
 .claude/settings.local.json
+
+# Round 4 acquired data — large vendor data, regenerable from API keys
+data/acquired/
+data/processed/
+
+# User portfolio operations / NAV history — private financial data
+paper_trading/operations/nav_history/
+paper_trading/operations/tax_ledger/
+paper_trading/operations/rebalance_reports/
+
+# Large CSV / parquet result files (chatbots can't process; only .md / spec is shared)
+# Keep small audit / metric CSV; exclude big signal / nav / sanity dumps
+reports/experiments/**/signals.csv
+reports/experiments/**/daily_nav.csv
+reports/experiments/**/daily_nav_by_*.csv
+reports/experiments/**/drift_paths.csv
+reports/experiments/**/mdd_drawdown_paths.csv
+reports/experiments/**/sanity_diagnostics.csv
+reports/experiments/**/stage4_sanity_diagnostics.csv
+reports/experiments/**/equity_curve.csv
+reports/experiments/**/trades.csv
+reports/experiments/**/sector_aggregate_daily_*.csv
+reports/experiments/**/stock_with_sector_daily_*.csv
+
+# Any file > 50MB (defensive — should already be covered above)
+# Use git lfs separately if a large file actually needs sharing.

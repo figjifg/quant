@@ -1,0 +1,51 @@
+experiment: K002_one_shot_sector_momentum
+status: generated
+candidate_status: backlog_candidate_library
+base_candidate: P08_IEF30
+direct_promote_p08_ief30: false
+mode: one_shot_sector_momentum
+search: none
+nav_basis: gross
+tax_model: none
+currency: KRW
+fx_policy: USDKRW linear interpolation on ETF trading dates, then forward-fill
+rule:
+  universe: [XLE, XLF, XLK, XLV, XLP, XLU, XLI, XLY, XLB, XLRE, XLC]
+  lookback_trading_days: 252
+  ranking: 12_month_return_krw
+  top_k: 3
+  top_k_weight: equal
+  rebalance: quarter_end_plus_1_trading_day
+  partial_inception: rank only sectors with valid 252 trading day history
+  warmup: SPY held until first valid signal
+  reversal: false
+  risk_filter: false
+variants:
+  K002-A:
+    QQQ: 0.2100000000
+    H001: 0.2000000000
+    IEF: 0.3000000000
+    SectorRotation: 0.2900000000
+  K002-B:
+    H001: 0.2000000000
+    IEF: 0.3000000000
+    SectorRotation: 0.5000000000
+  K002-C:
+    SectorRotation: 1.0000000000
+comparators:
+  - P08_IEF30
+  - SPY_100
+  - QQQ_100
+  - K001-B
+  - N002-B
+prohibited:
+  lookback_grid: true
+  top_k_grid: true
+  weighting_optimization: true
+  sector_risk_filter: true
+  external_network: true
+  engine_modification: true
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  usdk_rw_file: research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv

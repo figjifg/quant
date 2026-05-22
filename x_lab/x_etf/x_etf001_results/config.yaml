@@ -1,0 +1,207 @@
+experiment: X-ETF001
+status: pre_registered_scan
+currency: KRW_total_return_primary
+evaluation_start: 2011-01-03
+evaluation_end: 2026-05-18
+primary_universe:
+  - SPY
+  - QQQ
+  - IWM
+  - IEF
+  - TLT
+  - SHY
+  - GLD
+  - UUP
+  - DBC
+  - VWO
+  - EWY
+  - EWJ
+  - EWZ
+secondary_universe:
+  - SPY
+  - QQQ
+  - IWM
+  - IEF
+  - TLT
+  - SHY
+  - GLD
+  - UUP
+  - DBC
+  - VWO
+  - EWY
+  - EWJ
+  - EWZ
+  - MCHI
+secondary_common_start: 2012-03-30
+cost_layers:
+  gross: no_cost_no_tax
+  after_cost: round_trip_30bps_on_turnover
+  after_tax: hifo_22pct_annual_2_5m_exemption
+random_control:
+  trials: 1000
+  seed: 20260520
+benchmarks:
+  p08_proxy_sharpe: 1.0356430284318556
+  p08_full_sharpe: 1.1252904325830617
+  equal_weight_13_after_cost_sharpe: 0.8547975351800791
+variants:
+  - variant_id: XETF001_V01
+    signal: ret_3m
+    portfolio: top1_ew
+    rebalance: monthly
+  - variant_id: XETF001_V02
+    signal: ret_3m
+    portfolio: top1_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V03
+    signal: ret_3m
+    portfolio: top2_ew
+    rebalance: monthly
+  - variant_id: XETF001_V04
+    signal: ret_3m
+    portfolio: top2_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V05
+    signal: ret_3m
+    portfolio: top3_ew
+    rebalance: monthly
+  - variant_id: XETF001_V06
+    signal: ret_3m
+    portfolio: top3_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V07
+    signal: ret_3m
+    portfolio: positive_top3_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V08
+    signal: ret_3m
+    portfolio: positive_top3_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V09
+    signal: ret_3m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V10
+    signal: ret_3m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V11
+    signal: ret_6m
+    portfolio: top1_ew
+    rebalance: monthly
+  - variant_id: XETF001_V12
+    signal: ret_6m
+    portfolio: top1_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V13
+    signal: ret_6m
+    portfolio: top2_ew
+    rebalance: monthly
+  - variant_id: XETF001_V14
+    signal: ret_6m
+    portfolio: top2_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V15
+    signal: ret_6m
+    portfolio: top3_ew
+    rebalance: monthly
+  - variant_id: XETF001_V16
+    signal: ret_6m
+    portfolio: top3_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V17
+    signal: ret_6m
+    portfolio: positive_top3_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V18
+    signal: ret_6m
+    portfolio: positive_top3_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V19
+    signal: ret_6m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V20
+    signal: ret_6m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V21
+    signal: ret_12m
+    portfolio: top1_ew
+    rebalance: monthly
+  - variant_id: XETF001_V22
+    signal: ret_12m
+    portfolio: top1_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V23
+    signal: ret_12m
+    portfolio: top2_ew
+    rebalance: monthly
+  - variant_id: XETF001_V24
+    signal: ret_12m
+    portfolio: top2_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V25
+    signal: ret_12m
+    portfolio: top3_ew
+    rebalance: monthly
+  - variant_id: XETF001_V26
+    signal: ret_12m
+    portfolio: top3_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V27
+    signal: ret_12m
+    portfolio: positive_top3_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V28
+    signal: ret_12m
+    portfolio: positive_top3_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V29
+    signal: ret_12m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V30
+    signal: ret_12m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V31
+    signal: ret_12m_skip_1m
+    portfolio: top1_ew
+    rebalance: monthly
+  - variant_id: XETF001_V32
+    signal: ret_12m_skip_1m
+    portfolio: top1_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V33
+    signal: ret_12m_skip_1m
+    portfolio: top2_ew
+    rebalance: monthly
+  - variant_id: XETF001_V34
+    signal: ret_12m_skip_1m
+    portfolio: top2_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V35
+    signal: ret_12m_skip_1m
+    portfolio: top3_ew
+    rebalance: monthly
+  - variant_id: XETF001_V36
+    signal: ret_12m_skip_1m
+    portfolio: top3_ew
+    rebalance: quarterly
+  - variant_id: XETF001_V37
+    signal: ret_12m_skip_1m
+    portfolio: positive_top3_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V38
+    signal: ret_12m_skip_1m
+    portfolio: positive_top3_shy_fallback
+    rebalance: quarterly
+  - variant_id: XETF001_V39
+    signal: ret_12m_skip_1m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: monthly
+  - variant_id: XETF001_V40
+    signal: ret_12m_skip_1m
+    portfolio: all_positive_ew_shy_fallback
+    rebalance: quarterly

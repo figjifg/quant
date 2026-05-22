@@ -1,0 +1,15 @@
+experiment: Q006_6_factor_etf_proxy_benchmark
+currency: USD for standalone and direct Q comparison; P08 preview uses existing H001 NAV plus USD ETF/Q curves as gross diagnostic
+factor_etfs: ['QUAL', 'COWZ', 'SCHD', 'VLUE', 'MTUM']
+core_etfs: ['SPY', 'QQQ', 'IEF']
+etf_start_dates: {'SPY': '2010-01-04', 'QQQ': '2010-01-04', 'IEF': '2010-01-04', 'QUAL': '2013-07-18', 'COWZ': '2016-12-22', 'SCHD': '2011-10-20', 'VLUE': '2013-04-18', 'MTUM': '2013-04-18'}
+p08_ief30_baseline_weights:
+  SPY: 0.29
+  QQQ: 0.21
+  H001: 0.20
+  IEF: 0.30
+replacement_rule: subtract 10pct from SPY and add 10pct factor ETF or direct Q sleeve
+limitations:
+  - COWZ starts after 2014, so all-factor-ETF common window starts at the latest ETF inception
+  - direct Q-family remains survivor-universe diagnostic and production X
+  - P08 preview is gross allocation math, not a strategy/engine modification

@@ -1,0 +1,31 @@
+event_date,event_time,session,ticker,name,event_type,title,is_correction,is_cancellation
+2018-01-02,20:18,after_close,249420,일동제약,cash_dividend,[기재정정]현금ㆍ현물배당결정,True,False
+2018-01-02,20:18,after_close,000230,일동홀딩스,cash_dividend,[기재정정]현금ㆍ현물배당결정(자회사의 주요경영사항),True,False
+2018-01-04,20:18,after_close,004310,현대약품,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-05,20:18,after_close,003000,부광약품,cash_dividend,[기재정정]현금ㆍ현물배당결정,True,False
+2018-01-15,20:18,after_close,006890,태경케미컬,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-22,20:18,after_close,026960,동서,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,006400,삼성SDI,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,011070,LG이노텍,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,032640,LG유플러스,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,034220,LG디스플레이,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,051900,LG생활건강,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,058730,다스코,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,066570,LG전자,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,108670,LX하우시스,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-23,20:18,after_close,003550,LG,cash_dividend,현금ㆍ현물배당결정(자회사의 주요경영사항),False,False
+2018-01-23,20:18,after_close,003550,LG,cash_dividend,현금ㆍ현물배당결정(자회사의 주요경영사항),False,False
+2018-01-24,20:18,after_close,005490,POSCO홀딩스,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-24,20:18,after_close,012510,더존비즈온,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-24,20:18,after_close,161000,애경케미칼,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-24,20:18,after_close,006840,AK홀딩스,cash_dividend,현금ㆍ현물배당결정(자회사의 주요경영사항),False,False
+2018-01-25,20:18,after_close,000270,기아,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,000660,SK하이닉스,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,004000,롯데정밀화학,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,004370,농심,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,005380,현대자동차,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,008770,호텔신라,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,012750,에스원,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,016360,삼성증권,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,029780,삼성카드,cash_dividend,현금ㆍ현물배당결정,False,False
+2018-01-25,20:18,after_close,034590,인천도시가스,cash_dividend,현금ㆍ현물배당결정,False,False

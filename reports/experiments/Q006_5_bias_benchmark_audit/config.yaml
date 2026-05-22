@@ -1,0 +1,13 @@
+experiment: Q006_5_bias_benchmark_audit
+random_seed: 20260520
+random_runs: 1000
+source_results:
+  q002: reports/experiments/Q002_quality_only
+  q006: reports/experiments/Q006_qvsy_composite
+  universe: reports/experiments/Q001_universe_construction/universe_list.csv
+  prices: research_input_data/inputs/us_equity_prices/*.csv
+  benchmark: research_input_data/inputs/global_etf/yf_SPY.csv
+limitations:
+  - survivor universe audit only; not survivorship-free
+  - SPY sector breakdown is approximated only by survivor universe and market-cap-top30 proxies
+  - Q-family remains research diagnostic, production X

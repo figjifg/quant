@@ -1,0 +1,85 @@
+variant_id,portfolio_mode,gate,status,failed,detail
+XKR001_V01,long_short,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-1.029544061352503
+XKR001_V01,long_short,2_no_random_difference,CLOSE,True,random_percentile=0.1
+XKR001_V01,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.40185063722847114
+XKR001_V01,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V01,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=-1.029544061352503
+XKR001_V01,long_short,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=3
+XKR001_V01,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-1.113832561258578
+XKR001_V01,long_only,1_after_cost_sharpe_lt_1,PASS,False,after_cost_sharpe=1.1188995385512082
+XKR001_V01,long_only,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V01,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.49363907822913966
+XKR001_V01,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V01,long_only,5_long_only_fallback_weak,PASS,False,long_only_sharpe=1.1188995385512082
+XKR001_V01,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V01,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=0.6055400821401321
+XKR001_V02,long_short,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-0.5984632187541318
+XKR001_V02,long_short,2_no_random_difference,CLOSE,True,random_percentile=0.0
+XKR001_V02,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.40219698342790716
+XKR001_V02,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V02,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=-0.5984632187541318
+XKR001_V02,long_short,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=3
+XKR001_V02,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.7325831368568969
+XKR001_V02,long_only,1_after_cost_sharpe_lt_1,PASS,False,after_cost_sharpe=1.4970334652397386
+XKR001_V02,long_only,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V02,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.5369940372573201
+XKR001_V02,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V02,long_only,5_long_only_fallback_weak,PASS,False,long_only_sharpe=1.4970334652397386
+XKR001_V02,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V02,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=0.8170057351881156
+XKR001_V03,long_short,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=0.44912505162054406
+XKR001_V03,long_short,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V03,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.06134279567648024
+XKR001_V03,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V03,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=0.44912505162054406
+XKR001_V03,long_short,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V03,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=0.1143244984188977
+XKR001_V03,long_only,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-0.024254585023717648
+XKR001_V03,long_only,2_no_random_difference,CLOSE,True,random_percentile=60.8
+XKR001_V03,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.126430063344949
+XKR001_V03,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V03,long_only,5_long_only_fallback_weak,CLOSE,True,long_only_sharpe=-0.024254585023717648
+XKR001_V03,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V03,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.16482932180192159
+XKR001_V04,long_short,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=0.18483247521009538
+XKR001_V04,long_short,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V04,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.056829203171001624
+XKR001_V04,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V04,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=0.18483247521009538
+XKR001_V04,long_short,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V04,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.13023026638070725
+XKR001_V04,long_only,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-0.4402986639557272
+XKR001_V04,long_only,2_no_random_difference,CLOSE,True,random_percentile=0.0
+XKR001_V04,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.15612494021701134
+XKR001_V04,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V04,long_only,5_long_only_fallback_weak,CLOSE,True,long_only_sharpe=-0.4402986639557272
+XKR001_V04,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V04,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.583128676442972
+XKR001_V05,long_short,1_after_cost_sharpe_lt_1,PASS,False,after_cost_sharpe=1.0324936930309139
+XKR001_V05,long_short,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V05,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.06110048063223661
+XKR001_V05,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V05,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=1.0324936930309139
+XKR001_V05,long_short,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V05,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=0.4816720733342924
+XKR001_V05,long_only,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-0.195316122221742
+XKR001_V05,long_only,2_no_random_difference,CLOSE,True,random_percentile=21.6
+XKR001_V05,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.14142580062644178
+XKR001_V05,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V05,long_only,5_long_only_fallback_weak,CLOSE,True,long_only_sharpe=-0.195316122221742
+XKR001_V05,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V05,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.3655796986267292
+XKR001_V06,long_short,1_after_cost_sharpe_lt_1,PASS,False,after_cost_sharpe=1.0450383481848096
+XKR001_V06,long_short,2_no_random_difference,PASS,False,random_percentile=100.0
+XKR001_V06,long_short,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.06569036701582102
+XKR001_V06,long_short,4_short_borrow_feasibility,CLOSE,True,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V06,long_short,5_long_only_fallback_weak,PASS,False,long_only_sharpe=1.0450383481848096
+XKR001_V06,long_short,6_two_subperiod_fail,PASS,False,subperiod_fail_count=1
+XKR001_V06,long_short,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=0.4587597049323265
+XKR001_V06,long_only,1_after_cost_sharpe_lt_1,CLOSE,True,after_cost_sharpe=-0.5357635189721108
+XKR001_V06,long_only,2_no_random_difference,CLOSE,True,random_percentile=0.0
+XKR001_V06,long_only,3_top10_pair_dominance,PASS,False,top10_abs_contribution_share=0.16899408959401258
+XKR001_V06,long_only,4_short_borrow_feasibility,PASS,False,Korean single-stock short borrow feasibility unresolved; long-short remains diagnostic
+XKR001_V06,long_only,5_long_only_fallback_weak,CLOSE,True,long_only_sharpe=-0.5357635189721108
+XKR001_V06,long_only,6_two_subperiod_fail,CLOSE,True,subperiod_fail_count=2
+XKR001_V06,long_only,7_turnover_tax_slippage_kills,CLOSE,True,after_tax_sharpe=-0.6847376236788417

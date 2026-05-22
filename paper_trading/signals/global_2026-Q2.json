@@ -1,0 +1,174 @@
+{
+  "as_of_date": "2026-05-18",
+  "candidate_status_note": "P08_IEF30 is an I004 formal candidate, not a production deployment.",
+  "cash_deployment_status": "not_authorized_paper_only",
+  "component_marks": {
+    "H001": {
+      "date": "2026-05-04",
+      "net_value_krw_nav": 4.571886489071015,
+      "source": "reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv"
+    },
+    "IEF": {
+      "close_krw_estimate": 138168.0653034973,
+      "close_usd": 93.58000183105467,
+      "date": "2026-05-18",
+      "source": "research_input_data/inputs/global_etf/yf_IEF.csv"
+    },
+    "QQQ": {
+      "close_krw_estimate": 1044794.4733093262,
+      "close_usd": 707.6300048828125,
+      "date": "2026-05-18",
+      "source": "research_input_data/inputs/global_etf/yf_QQQ.csv"
+    },
+    "SPY": {
+      "close_krw_estimate": 1092233.4616186523,
+      "close_usd": 739.760009765625,
+      "date": "2026-05-18",
+      "source": "research_input_data/inputs/global_etf/yf_SPY.csv"
+    }
+  },
+  "portfolios": {
+    "H001": {
+      "H001": 1.0
+    },
+    "IEF": {
+      "IEF": 1.0
+    },
+    "P07": {
+      "H001": 0.3,
+      "IEF": 0.2,
+      "QQQ": 0.5
+    },
+    "P07_IEF30": {
+      "H001": 0.3,
+      "IEF": 0.3,
+      "QQQ": 0.4
+    },
+    "P08": {
+      "H001": 0.2,
+      "IEF": 0.1,
+      "QQQ": 0.3,
+      "SPY": 0.4
+    },
+    "P08_IEF30": {
+      "H001": 0.2,
+      "IEF": 0.3,
+      "QQQ": 0.21,
+      "SPY": 0.29
+    },
+    "QQQ_100": {
+      "QQQ": 1.0
+    },
+    "QQQ_SPY_50_50": {
+      "QQQ": 0.5,
+      "SPY": 0.5
+    },
+    "SPY_100": {
+      "SPY": 1.0
+    }
+  },
+  "tax_and_vehicle_best_practice": {
+    "default_taxable_lot_assumption": "HIFO plus KRW 2.5M annual capital-gains exemption",
+    "live_before_tax_professional_check": "not_allowed",
+    "rebalance_frequency": "quarterly",
+    "tax_loss_harvesting": "paper diagnostic only; small measured effect in T003",
+    "vehicle_information": {
+      "IRP": {
+        "description": "IRP shadow, Korean-listed proxy exposure, tax credit and withdrawal tax assumptions from T004",
+        "live_status": "requires tax-professional confirmation"
+      },
+      "ISA": {
+        "description": "Brokerage ISA shadow, Korean-listed proxy exposure, separate-tax simplification from T004",
+        "live_status": "requires tax-professional confirmation"
+      },
+      "V1": {
+        "description": "Overseas-listed ETF direct taxable account",
+        "tax_assumption": "HIFO + KRW 2.5M annual exemption + 22% capital gains tax"
+      },
+      "V2": {
+        "description": "Korean-listed US ETF taxable proxy",
+        "tax_assumption": "15.4% domestic ETF dividend-income style simplification"
+      },
+      "pension": {
+        "description": "Pension savings shadow, withdrawal tax reflected, lock-up assumed",
+        "live_status": "requires tax-professional confirmation"
+      }
+    }
+  },
+  "tracking_versions": {
+    "Gross_P08_IEF30": {
+      "role": "research_reference",
+      "weights": {
+        "H001": 0.2,
+        "IEF": 0.3,
+        "QQQ": 0.21,
+        "SPY": 0.29
+      }
+    },
+    "MIX1_practical_shadow": {
+      "mix": {
+        "ISA": 0.3,
+        "V1": 0.5,
+        "pension": 0.2
+      },
+      "role": "simple practical shadow"
+    },
+    "V1_taxable_P08_IEF30": {
+      "role": "taxable direct overseas ETF shadow",
+      "weights": {
+        "H001": 0.2,
+        "IEF": 0.3,
+        "QQQ": 0.21,
+        "SPY": 0.29
+      }
+    },
+    "V4_pension_only_shadow": {
+      "role": "pension-only shadow with withdrawal tax and lock-up assumption",
+      "weights": {
+        "H001": 0.2,
+        "IEF": 0.3,
+        "QQQ": 0.21,
+        "SPY": 0.29
+      }
+    }
+  },
+  "defensive_shadow_candidates": {
+    "N002-B": {
+      "role": "N-family defensive cash shadow; paper only, live not authorized",
+      "tracking_purpose": "4-quarter forward tracking to test stress-period superiority",
+      "weights": {
+        "CASH": 0.1,
+        "H001": 0.18,
+        "IEF": 0.27,
+        "QQQ": 0.189,
+        "SPY": 0.261
+      }
+    },
+    "N001-B": {
+      "role": "N-family defensive GLD shadow; paper only, live not authorized",
+      "tracking_purpose": "4-quarter forward tracking to test stress-period superiority",
+      "weights": {
+        "GLD": 0.1,
+        "H001": 0.18,
+        "IEF": 0.27,
+        "QQQ": 0.189,
+        "SPY": 0.261
+      }
+    }
+  },
+  "quarter": "2026-Q2",
+  "rebalance_frequency": "quarterly",
+  "status": "paper_tracking_only",
+  "trading_guide": {
+    "actual_cash_deployment": "do_not_trade",
+    "decision_gate": "Review only after at least 4 quarters of paper NAV agreement.",
+    "method": "Track KRW NAV from target weights and component marks at each quarter point.",
+    "mode": "paper_only_nav_tracking"
+  },
+  "usdk_rw": {
+    "date": "2026-04-24",
+    "note": "Latest local USDKRW observation on or before as_of_date; no network refresh was used.",
+    "source": "research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv",
+    "value": 1476.47
+  }
+}

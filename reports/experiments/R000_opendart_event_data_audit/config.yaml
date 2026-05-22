@@ -1,0 +1,67 @@
+experiment: R000_opendart_event_data_audit
+input_path: research_input_data/inputs/events/opendart_kospi_disclosures_20180101_20260505.parquet
+output_dir: reports/experiments/R000_opendart_event_data_audit
+network: disabled
+strategy_changes: none
+engine_changes: none
+row_count: 450190
+columns:
+  - rcept_no
+  - rcept_dt
+  - rcept_date
+  - corp_cls
+  - corp_code
+  - stock_code
+  - corp_name
+  - report_nm
+  - flr_nm
+  - rm
+  - pblntf_ty_query
+  - query_bgn_de
+  - query_end_de
+  - dart_url
+  - flag_capital_raise
+  - flag_cb_bw
+  - flag_capital_reduction
+  - flag_audit_issue
+  - flag_trading_halt
+  - flag_litigation
+  - flag_large_holder
+  - flag_treasury_stock
+  - flag_merger_split
+  - flag_earnings
+  - flag_contract
+  - flag_event_risk
+dtypes:
+  rcept_no: object
+  rcept_dt: object
+  rcept_date: object
+  corp_cls: object
+  corp_code: object
+  stock_code: object
+  corp_name: object
+  report_nm: object
+  flr_nm: object
+  rm: object
+  pblntf_ty_query: object
+  query_bgn_de: object
+  query_end_de: object
+  dart_url: object
+  flag_capital_raise: bool
+  flag_cb_bw: bool
+  flag_capital_reduction: bool
+  flag_audit_issue: bool
+  flag_trading_halt: bool
+  flag_litigation: bool
+  flag_large_holder: bool
+  flag_treasury_stock: bool
+  flag_merger_split: bool
+  flag_earnings: bool
+  flag_contract: bool
+  flag_event_risk: bool
+title_column: report_nm
+ticker_column: stock_code
+name_column: corp_name
+date_column: rcept_dt
+time_column: rcept_dt
+target_event_count: 22988

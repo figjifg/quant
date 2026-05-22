@@ -1,0 +1,6 @@
+dimension,bucket,event_count,pct
+event_type,buyback_retirement,389,1.0
+sector,unknown,389,1.0
+size_bucket,large,130,0.3341902313624679
+size_bucket,mid,130,0.3341902313624679
+size_bucket,small,129,0.33161953727506427

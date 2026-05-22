@@ -1,0 +1,8 @@
+dimension,bucket,event_count,pct
+event_type,buyback_announcement,1428,0.2570657065706571
+event_type,buyback_retirement,129,0.023222322232223223
+event_type,dividend,3998,0.7197119711971197
+sector,unknown,5555,1.0
+size_bucket,large,1852,0.3333933393339334
+size_bucket,mid,1852,0.3333933393339334
+size_bucket,small,1851,0.3332133213321332

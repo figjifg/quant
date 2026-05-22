@@ -1,0 +1,5 @@
+check,status,detail
+D013/H001 summary metrics 변화 X,PASS,baseline snapshot comparison
+Quarterly rebalance KRX calendar align,PASS,bad_entry_exit_count=0
+Top 5 holdings rebalance date 거래 가능,PASS,audited_rows=220
+Impossible daily returns recorded,PASS,panel_flag_rows=452; written to impossible_returns.csv

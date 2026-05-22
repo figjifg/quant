@@ -1,0 +1,140 @@
+{
+  "experiment": "R001",
+  "status": "GENERATED",
+  "cost_model": "gross_only_R005_pending",
+  "event_rows": 3406,
+  "tradable_event_rows": 1999,
+  "excluded_unmatched_price_rows": 1407,
+  "timing_policy": "date-only OPENDART rows execute next KRX trading day open",
+  "overall": {
+    "21d": {
+      "event_count": 1951,
+      "mean_excess_return": 0.0010313307053897846,
+      "median_excess_return": -0.01428783151513291,
+      "hit_rate": 0.43311122501281396,
+      "mean_gross_return": 0.03101365181406116,
+      "mean_kospi_return": 0.029982321108671377,
+      "sharpe_like": 0.007128991826106599
+    },
+    "63d": {
+      "event_count": 1837,
+      "mean_excess_return": -0.019441811985751813,
+      "median_excess_return": -0.045923468989003347,
+      "hit_rate": 0.38922155688622756,
+      "mean_gross_return": 0.06699344384845776,
+      "mean_kospi_return": 0.08643525583420958,
+      "sharpe_like": -0.07111198319621524
+    },
+    "126d": {
+      "event_count": 1713,
+      "mean_excess_return": -0.06346304789328161,
+      "median_excess_return": -0.10239709620207837,
+      "hit_rate": 0.3508464681844717,
+      "mean_gross_return": 0.11904294384337961,
+      "mean_kospi_return": 0.18250599173666124,
+      "sharpe_like": -0.12518625526351387
+    }
+  },
+  "subperiod": {
+    "21d": {
+      "2018_2021": {
+        "event_count": 829,
+        "mean_excess_return": 0.013379011450383997,
+        "median_excess_return": -0.00656005423505257,
+        "hit_rate": 0.4632086851628468,
+        "mean_gross_return": 0.04170698383531604,
+        "mean_kospi_return": 0.02832797238493204,
+        "sharpe_like": 0.09131421994123688
+      },
+      "2022_2026": {
+        "event_count": 1122,
+        "mean_excess_return": -0.008091866565198627,
+        "median_excess_return": -0.022047833169695663,
+        "hit_rate": 0.410873440285205,
+        "mean_gross_return": 0.02311278528498781,
+        "mean_kospi_return": 0.03120465185018644,
+        "sharpe_like": -0.056719081981247324
+      }
+    },
+    "63d": {
+      "2018_2021": {
+        "event_count": 804,
+        "mean_excess_return": 0.014004408292156474,
+        "median_excess_return": -0.027588610075548803,
+        "hit_rate": 0.43034825870646765,
+        "mean_gross_return": 0.09491234486224298,
+        "mean_kospi_return": 0.08090793657008649,
+        "sharpe_like": 0.04814113349447317
+      },
+      "2022_2026": {
+        "event_count": 1033,
+        "mean_excess_return": -0.045473526509893406,
+        "median_excess_return": -0.062040252687768915,
+        "hit_rate": 0.35721200387221685,
+        "mean_gross_return": 0.045263728054572655,
+        "mean_kospi_return": 0.09073725456446607,
+        "sharpe_like": -0.17756864366996963
+      }
+    },
+    "126d": {
+      "2018_2021": {
+        "event_count": 778,
+        "mean_excess_return": 0.011978722986670676,
+        "median_excess_return": -0.047830533862362634,
+        "hit_rate": 0.41131105398457585,
+        "mean_gross_return": 0.1610040245077127,
+        "mean_kospi_return": 0.14902530152104204,
+        "sharpe_like": 0.02088720623012807
+      },
+      "2022_2026": {
+        "event_count": 935,
+        "mean_excess_return": -0.1262370561762793,
+        "median_excess_return": -0.13526435689450422,
+        "hit_rate": 0.30053475935828877,
+        "mean_gross_return": 0.08412773447776341,
+        "mean_kospi_return": 0.21036479065404273,
+        "sharpe_like": -0.29054753409222056
+      }
+    }
+  },
+  "by_event_type": {
+    "21d": {
+      "buyback_announcement": {
+        "event_count": 1951,
+        "mean_excess_return": 0.0010313307053897846,
+        "median_excess_return": -0.01428783151513291,
+        "hit_rate": 0.43311122501281396,
+        "mean_gross_return": 0.03101365181406116,
+        "mean_kospi_return": 0.029982321108671377,
+        "sharpe_like": 0.007128991826106599
+      }
+    },
+    "63d": {
+      "buyback_announcement": {
+        "event_count": 1837,
+        "mean_excess_return": -0.019441811985751813,
+        "median_excess_return": -0.045923468989003347,
+        "hit_rate": 0.38922155688622756,
+        "mean_gross_return": 0.06699344384845776,
+        "mean_kospi_return": 0.08643525583420958,
+        "sharpe_like": -0.07111198319621524
+      }
+    },
+    "126d": {
+      "buyback_announcement": {
+        "event_count": 1713,
+        "mean_excess_return": -0.06346304789328161,
+        "median_excess_return": -0.10239709620207837,
+        "hit_rate": 0.3508464681844717,
+        "mean_gross_return": 0.11904294384337961,
+        "mean_kospi_return": 0.18250599173666124,
+        "sharpe_like": -0.12518625526351387
+      }
+    }
+  },
+  "verdict": {
+    "21d": "WEAK",
+    "63d": "FAIL",
+    "126d": "FAIL"
+  }
+}

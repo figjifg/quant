@@ -1,0 +1,188 @@
+experiment: X-ETF900
+status: pre_registered_final_defensive_etf_challenge
+currency: KRW_total_return_primary
+evaluation_start: 2011-01-03
+evaluation_end: 2026-05-18
+variant_count: 24
+cost_layers:
+  gross: no_cost_no_tax
+  after_cost: round_trip_30bps_on_turnover
+  after_tax: hifo_22pct_annual_2_5m_exemption
+random_control:
+  trials: 1000
+  seed: 20260520
+benchmarks:
+  p08_proxy_sharpe: 1.0356430284318556
+  p08_ief30_full_sharpe: 1.1252904325830617
+  ew13_after_cost_sharpe: 0.8547975351800791
+  n001_b_sharpe: 1.1844259803351835
+  n002_b_sharpe: 1.1659795630586864
+variants:
+  - variant_id: XETF900_V01
+    module: A
+    signal: ret_6m
+    rebalance: monthly
+    portfolio: risk_top2_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V02
+    module: A
+    signal: ret_6m
+    rebalance: monthly
+    portfolio: risk_top3_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V03
+    module: A
+    signal: ret_6m
+    rebalance: quarterly
+    portfolio: risk_top2_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V04
+    module: A
+    signal: ret_6m
+    rebalance: quarterly
+    portfolio: risk_top3_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V05
+    module: A
+    signal: ret_12m_skip_1m
+    rebalance: monthly
+    portfolio: risk_top2_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V06
+    module: A
+    signal: ret_12m_skip_1m
+    rebalance: monthly
+    portfolio: risk_top3_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V07
+    module: A
+    signal: ret_12m_skip_1m
+    rebalance: quarterly
+    portfolio: risk_top2_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V08
+    module: A
+    signal: ret_12m_skip_1m
+    rebalance: quarterly
+    portfolio: risk_top3_def_top2
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V09
+    module: B
+    signal: ret_6m
+    rebalance: monthly
+    portfolio: def_sleeve_top1
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V10
+    module: B
+    signal: ret_6m
+    rebalance: monthly
+    portfolio: def_sleeve_top2_ew
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V11
+    module: B
+    signal: ret_6m
+    rebalance: quarterly
+    portfolio: def_sleeve_top1
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V12
+    module: B
+    signal: ret_6m
+    rebalance: quarterly
+    portfolio: def_sleeve_top2_ew
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V13
+    module: B
+    signal: ret_12m_skip_1m
+    rebalance: monthly
+    portfolio: def_sleeve_top1
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V14
+    module: B
+    signal: ret_12m_skip_1m
+    rebalance: monthly
+    portfolio: def_sleeve_top2_ew
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V15
+    module: B
+    signal: ret_12m_skip_1m
+    rebalance: quarterly
+    portfolio: def_sleeve_top1
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V16
+    module: B
+    signal: ret_12m_skip_1m
+    rebalance: quarterly
+    portfolio: def_sleeve_top2_ew
+    method: 
+    lookback: 0
+  - variant_id: XETF900_V17
+    module: C
+    signal: vol_budget
+    rebalance: monthly
+    portfolio: risk_budget
+    method: inverse_vol
+    lookback: 126
+  - variant_id: XETF900_V18
+    module: C
+    signal: vol_budget
+    rebalance: quarterly
+    portfolio: risk_budget
+    method: inverse_vol
+    lookback: 126
+  - variant_id: XETF900_V19
+    module: C
+    signal: vol_budget
+    rebalance: monthly
+    portfolio: risk_budget
+    method: inverse_vol
+    lookback: 252
+  - variant_id: XETF900_V20
+    module: C
+    signal: vol_budget
+    rebalance: quarterly
+    portfolio: risk_budget
+    method: inverse_vol
+    lookback: 252
+  - variant_id: XETF900_V21
+    module: C
+    signal: vol_budget
+    rebalance: monthly
+    portfolio: risk_budget
+    method: erc
+    lookback: 126
+  - variant_id: XETF900_V22
+    module: C
+    signal: vol_budget
+    rebalance: quarterly
+    portfolio: risk_budget
+    method: erc
+    lookback: 126
+  - variant_id: XETF900_V23
+    module: C
+    signal: vol_budget
+    rebalance: monthly
+    portfolio: risk_budget
+    method: erc
+    lookback: 252
+  - variant_id: XETF900_V24
+    module: C
+    signal: vol_budget
+    rebalance: quarterly
+    portfolio: risk_budget
+    method: erc
+    lookback: 252

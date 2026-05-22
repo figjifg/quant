@@ -1,0 +1,9 @@
+event_type,count,pct,correction_count,cancellation_count,missing_time_count
+cash_dividend,9701,0.42200278406124936,465,0,0
+buyback_acquisition,7892,0.34330955281016184,1777,0,0
+buyback_disposal,4129,0.17961545153993388,1010,0,0
+buyback_retirement,695,0.030233165129632852,124,0,0
+value_up_plan,563,0.02449103880285366,14,0,0
+quarterly_dividend,4,0.00017400382808421786,1,0,0
+shareholder_return_policy,3,0.0001305028710631634,0,0,0
+interim_dividend,1,4.3500957021054466e-05,0,0,0

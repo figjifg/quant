@@ -1,0 +1,15 @@
+ticker,source_file,start_date,end_date,row_count,duplicate_date_rows,missing_close_rows,missing_business_days_between_start_end,adjusted_price_assumption,status
+SPY,research_input_data/inputs/global_etf/yf_SPY_long.csv,1993-01-29,2026-05-18,8382,0,0,305,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+QQQ,research_input_data/inputs/global_etf/yf_QQQ_long.csv,1999-03-10,2026-05-18,6840,0,0,254,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+IWM,research_input_data/inputs/global_etf/yf_IWM.csv,2010-01-04,2026-05-18,4118,0,0,153,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+IEF,research_input_data/inputs/global_etf/yf_IEF_long.csv,2002-07-30,2026-05-18,5989,0,0,221,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+TLT,research_input_data/inputs/global_etf/yf_TLT_long.csv,2002-07-30,2026-05-18,5989,0,0,221,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+SHY,research_input_data/inputs/global_etf/yf_SHY.csv,2010-01-04,2026-05-18,4118,0,0,153,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+GLD,research_input_data/inputs/global_etf/yf_GLD_long.csv,2004-11-18,2026-05-18,5407,0,0,201,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+UUP,research_input_data/inputs/global_etf/yf_UUP.csv,2010-01-04,2026-05-18,4118,0,0,153,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+DBC,research_input_data/inputs/global_etf/yf_DBC.csv,2010-01-04,2026-05-18,4118,0,0,153,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+VWO,research_input_data/inputs/global_etf/yf_em_VWO.csv,2005-03-10,2026-05-18,5331,0,0,197,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+EWY,research_input_data/inputs/global_etf/yf_em_EWY.csv,2000-05-12,2026-05-18,6542,0,0,245,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+EWJ,research_input_data/inputs/global_etf/yf_em_EWJ.csv,1996-03-18,2026-05-18,7591,0,0,280,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+EWZ,research_input_data/inputs/global_etf/yf_em_EWZ.csv,2000-07-14,2026-05-18,6499,0,0,243,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available
+MCHI,research_input_data/inputs/global_etf/yf_em_MCHI.csv,2011-03-31,2026-05-18,3805,0,0,143,Yahoo Finance local Close treated as adjusted (auto_adjust=True assumption),available

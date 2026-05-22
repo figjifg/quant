@@ -1,3 +1,26 @@
+"""
+Dynamic Top100 execution-universe builder.
+
+Top100 selection rule (Round 3 reverse-engineered, S5 RESOLVED 2026-05-22):
+
+- The `동적유니버스포함` flag in the panel marks the top 100 tickers by
+  daily `거래대금추정` (trading value) per date.
+- Verified across 25+ sample dates from 2018-2024: trading-value top 100
+  matches `동적유니버스포함 == True` 100% (avg 100/100). Market-cap top 100
+  matches 60.8/100 on average — not the rule.
+- The generation pipeline is upstream (vendor / Kiwoom-derived); the panel
+  is consumed as-is. No repo-local script reproduces it.
+
+Open dependency (Round 3 audit finding TOP_000006, high severity):
+- `거래대금추정` = volume * close. Because close is raw (unadjusted), split /
+  증자 / 감자 days perturb trading value and may flip Top100 membership on
+  the corporate-action day. The Gate 5 adjusted-OHLC repair (W001 v2
+  Component 1) closes this dependency.
+
+See `reports/experiments/KR_TOP100_PIT_LINEAGE_AUDIT_001/audit_summary.md`
+and `docs/W001_v2_infrastructure_repair_plan.md` for full context.
+"""
+
 from __future__ import annotations
 
 import pandas as pd

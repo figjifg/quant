@@ -1,0 +1,7 @@
+r002_label_category,event_rows,tradable_rows,sample_titles,sample_rcept_no,interpretation
+true_retirement_title,571,389,주식소각결정 | 주식소각결정(자회사의 주요경영사항) | 주식소각결정(자회사의 주요경영사항)(SK인천석유화학 전환상환우선주의 상환 및 소각) | 주식소각결정(자회사의 주요경영사항)(메리츠증권) | [첨부추가]주식소각결정,20180212800641 | 20180220800446 | 20180223800632 | 20180321800280 | 20180323802039,"title contains retirement wording, but legal retirement amount/intensity is not parsed"
+trust_contract_termination,0,0,,,mixed title bucket; R002 must be interpreted carefully
+disposal,0,0,,,mixed title bucket; R002 must be interpreted carefully
+cancellation_or_withdrawal,0,0,,,mixed title bucket; R002 must be interpreted carefully
+mixed_retirement_related_title,0,0,,,mixed title bucket; R002 must be interpreted carefully
+other_title_bucket,0,0,,,mixed title bucket; R002 must be interpreted carefully

@@ -1,0 +1,63 @@
+experiment: X-KR001 Korean Pair / Residual Mean Reversion
+status: pre_registered_final_timeboxed_x_lab_experiment
+panels:
+- research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv
+- research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv
+sector_mapping: data/processed/stock_sector_mapping_pit_daily.csv
+w001_modules_required:
+- src/utils/korean_calendar.py
+- src/utils/corporate_action.py
+- src/utils/tradability.py
+- src/utils/sleeve_nav_simulator.py
+- src/utils/random_placebo_engine.py
+- src/utils/backtest_sanity_checks.py
+variants:
+- variant_id: XKR001_V01
+  family: pair_residual
+  hold_days: 5
+  description: Same-sector pair residual z-score, 5d hold
+- variant_id: XKR001_V02
+  family: pair_residual
+  hold_days: 10
+  description: Same-sector pair residual z-score, 10d hold
+- variant_id: XKR001_V03
+  family: market_beta_residual
+  hold_days: 5
+  description: Market beta residual z-score, 5d hold
+- variant_id: XKR001_V04
+  family: market_beta_residual
+  hold_days: 10
+  description: Market beta residual z-score, 10d hold
+- variant_id: XKR001_V05
+  family: sector_beta_residual
+  hold_days: 5
+  description: Sector beta residual z-score, 5d hold
+- variant_id: XKR001_V06
+  family: sector_beta_residual
+  hold_days: 10
+  description: Sector beta residual z-score, 10d hold
+pair_count: 50
+rolling_window: 60
+entry_z: 2.0
+stop_z: 3.0
+top_signals_per_day: 10
+cost:
+  turnover_cost_rate_per_leg: 0.0015
+  capital_gains_tax_diagnostic_rate: 0.22
+  annual_exemption_krw: 2500000.0
+  domestic_small_shareholder_tax_alternative: 0.0
+random_trials: 1000
+random_seed: 20260520
+a0_audit_items:
+- data_lineage
+- point_in_time_availability
+- survivorship_safety
+- corporate_action_handling
+- calendar_tradability
+- daily_nav
+- no_implicit_leverage
+- benchmark_alignment
+- random_placebo_control
+- concentration_top_contributor
+- cost_tax_turnover
+- capacity_execution

@@ -1,0 +1,5 @@
+{
+  "verdict": "PASS_BYTE_IDENTICAL",
+  "policy_byte_identical_or_similar": "P08 live unchanged",
+  "policy_materially_changed": "D013/H001 validation reopen only"
+}

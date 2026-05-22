@@ -1,0 +1,22 @@
+{
+  "as_of_date": "2026-05-18",
+  "drift_pp": {
+    "H001": 1.9794696428743985,
+    "IEF": -3.6673189450741828,
+    "QQQ": 1.5969818150599306,
+    "SPY": 0.09086748713985626
+  },
+  "h001_regime_state": "paper_check_required_from_D013_macro_gate",
+  "portfolio": "P08_IEF30",
+  "portfolio_rolling_mdd": -0.012759104636195229,
+  "real_yield_2022_like_rate_shock_proxy_pp": -0.16999999999999993,
+  "tax_professional_check_required_before_live": true,
+  "thresholds": {
+    "component_drift_pp": 10.0,
+    "portfolio_mdd": -0.15,
+    "real_yield_change_pp": 1.0,
+    "us_equity_drawdown": -0.2
+  },
+  "triggered_alerts": [],
+  "us_equity_drawdown_vs_52w_high": -0.011240725151547948
+}

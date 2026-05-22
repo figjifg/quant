@@ -1,0 +1,48 @@
+{
+  "experiment": "S001_G_corrected_smoke_test",
+  "family_verdict": "S-family permanently CLOSED",
+  "signals": [
+    {
+      "signal": "r1d_lt_m3_hold1",
+      "trade_count": 957,
+      "gross_mean": 0.0040710293466851765,
+      "net_mean": -0.0007289706533148268,
+      "sharpe": -0.14653534527000406,
+      "hit_rate": 0.4535005224660397,
+      "placebo_trade_count": 1135,
+      "placebo_gross_mean": 0.0012394925673383456,
+      "placebo_net_mean": -0.003560507432661655,
+      "placebo_sharpe": -1.587144476946958,
+      "placebo_hit_rate": 0.4079295154185022,
+      "verdict": "NULL_WEAK_CLOSE_S_FAMILY"
+    },
+    {
+      "signal": "r1d_lt_m3_hold3",
+      "trade_count": 677,
+      "gross_mean": 0.01231938074078405,
+      "net_mean": 0.00751938074078404,
+      "sharpe": 0.46589585819996443,
+      "hit_rate": 0.4431314623338257,
+      "placebo_trade_count": 1021,
+      "placebo_gross_mean": 0.005268169725066965,
+      "placebo_net_mean": 0.0004681697250669625,
+      "placebo_sharpe": 0.06901371401850047,
+      "placebo_hit_rate": 0.4534769833496572,
+      "verdict": "NULL_WEAK_CLOSE_S_FAMILY"
+    },
+    {
+      "signal": "r1d_lt_m3_hold5",
+      "trade_count": 598,
+      "gross_mean": 0.03057115170550243,
+      "net_mean": 0.025771151705502416,
+      "sharpe": 0.8964013528869119,
+      "hit_rate": 0.4916387959866221,
+      "placebo_trade_count": 998,
+      "placebo_gross_mean": 0.00752271454545286,
+      "placebo_net_mean": 0.0027227145454528576,
+      "placebo_sharpe": 0.24176255611466757,
+      "placebo_hit_rate": 0.47194388777555113,
+      "verdict": "NULL_WEAK_CLOSE_S_FAMILY"
+    }
+  ]
+}

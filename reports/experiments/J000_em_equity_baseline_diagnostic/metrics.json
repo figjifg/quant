@@ -1,0 +1,301 @@
+{
+  "experiment": "J000_em_equity_baseline_diagnostic",
+  "status": "generated",
+  "role": "backlog_candidate_library",
+  "universe": [
+    "VWO",
+    "EWY",
+    "EWJ",
+    "EWZ",
+    "MCHI"
+  ],
+  "metrics_by_etf": [
+    {
+      "ticker": "VWO",
+      "start_date": "2005-03-10",
+      "end_date": "2026-05-18",
+      "trading_days": 5331,
+      "cagr": 0.08860695094394977,
+      "sharpe": 0.4627714347255926,
+      "annualized_volatility": 0.25149936672386647,
+      "max_drawdown": -0.5017299407343381,
+      "spy_correlation": 0.7922894065336105,
+      "spy_relative_cagr_pp": -4.14990787509959,
+      "spy_relative_mdd_pp": -20.55644102721963
+    },
+    {
+      "ticker": "EWY",
+      "start_date": "2000-05-12",
+      "end_date": "2026-05-18",
+      "trading_days": 6542,
+      "cagr": 0.11410389159873291,
+      "sharpe": 0.5092805272693575,
+      "annualized_volatility": 0.30072707185402137,
+      "max_drawdown": -0.5717220289077878,
+      "spy_correlation": 0.5898408023966785,
+      "spy_relative_cagr_pp": 1.7764122615144595,
+      "spy_relative_mdd_pp": -11.761374560927019
+    },
+    {
+      "ticker": "EWJ",
+      "start_date": "1996-03-18",
+      "end_date": "2026-05-18",
+      "trading_days": 7591,
+      "cagr": 0.05073924718376421,
+      "sharpe": 0.3240968048444501,
+      "annualized_volatility": 0.24498928663215624,
+      "max_drawdown": -0.5666534361317533,
+      "spy_correlation": 0.7040610858782411,
+      "spy_relative_cagr_pp": -7.545127482288261,
+      "spy_relative_mdd_pp": -10.302845387109294
+    },
+    {
+      "ticker": "EWZ",
+      "start_date": "2000-07-14",
+      "end_date": "2026-05-18",
+      "trading_days": 6499,
+      "cagr": 0.07710537051100363,
+      "sharpe": 0.3866220779906403,
+      "annualized_volatility": 0.36598953288053176,
+      "max_drawdown": -0.7383085355387409,
+      "spy_correlation": 0.5928939613637854,
+      "spy_relative_cagr_pp": -1.738206186591018,
+      "spy_relative_mdd_pp": -28.42002522402233
+    },
+    {
+      "ticker": "MCHI",
+      "start_date": "2011-03-31",
+      "end_date": "2026-05-18",
+      "trading_days": 3805,
+      "cagr": 0.046295436745926066,
+      "sharpe": 0.305024245495882,
+      "annualized_volatility": 0.2523657258535555,
+      "max_drawdown": -0.5283051537575008,
+      "spy_correlation": 0.5150629858639468,
+      "spy_relative_cagr_pp": -11.675553983958075,
+      "spy_relative_mdd_pp": -23.213962329535896
+    }
+  ],
+  "stress_by_etf": [
+    {
+      "stress_window": "dot_com_2000_2002",
+      "ticker": "VWO",
+      "start_date": "",
+      "end_date": "",
+      "trading_days": 0,
+      "total_return": null,
+      "max_drawdown": null,
+      "sharpe": null,
+      "status": "unavailable"
+    },
+    {
+      "stress_window": "dot_com_2000_2002",
+      "ticker": "EWY",
+      "start_date": "2000-05-12",
+      "end_date": "2002-12-31",
+      "trading_days": 661,
+      "total_return": 0.0005418251211000147,
+      "max_drawdown": -0.42716055310699574,
+      "sharpe": 0.225200943556352,
+      "status": "measured"
+    },
+    {
+      "stress_window": "dot_com_2000_2002",
+      "ticker": "EWJ",
+      "start_date": "2000-01-03",
+      "end_date": "2002-12-31",
+      "trading_days": 752,
+      "total_return": -0.5092095438311603,
+      "max_drawdown": -0.5270418150481712,
+      "sharpe": -0.7568733126486441,
+      "status": "measured"
+    },
+    {
+      "stress_window": "dot_com_2000_2002",
+      "ticker": "EWZ",
+      "start_date": "2000-07-14",
+      "end_date": "2002-12-31",
+      "trading_days": 618,
+      "total_return": -0.5093002013947957,
+      "max_drawdown": -0.7039741493664873,
+      "sharpe": -0.42309676385281914,
+      "status": "measured"
+    },
+    {
+      "stress_window": "dot_com_2000_2002",
+      "ticker": "MCHI",
+      "start_date": "",
+      "end_date": "",
+      "trading_days": 0,
+      "total_return": null,
+      "max_drawdown": null,
+      "sharpe": null,
+      "status": "unavailable"
+    },
+    {
+      "stress_window": "gfc_2008_2009",
+      "ticker": "VWO",
+      "start_date": "2008-01-02",
+      "end_date": "2009-12-31",
+      "trading_days": 505,
+      "total_return": 0.04439391836327333,
+      "max_drawdown": -0.5017299407343381,
+      "sharpe": 0.2980544558461029,
+      "status": "measured"
+    },
+    {
+      "stress_window": "gfc_2008_2009",
+      "ticker": "EWY",
+      "start_date": "2008-01-02",
+      "end_date": "2009-12-31",
+      "trading_days": 505,
+      "total_return": -0.02842485117513993,
+      "max_drawdown": -0.5430912147687255,
+      "sharpe": 0.2061582673496373,
+      "status": "measured"
+    },
+    {
+      "stress_window": "gfc_2008_2009",
+      "ticker": "EWJ",
+      "start_date": "2008-01-02",
+      "end_date": "2009-12-31",
+      "trading_days": 505,
+      "total_return": -0.059883043910319955,
+      "max_drawdown": -0.2666351289496871,
+      "sharpe": 0.11069846068851252,
+      "status": "measured"
+    },
+    {
+      "stress_window": "gfc_2008_2009",
+      "ticker": "EWZ",
+      "start_date": "2008-01-02",
+      "end_date": "2009-12-31",
+      "trading_days": 505,
+      "total_return": 0.2559417486328406,
+      "max_drawdown": -0.6148393337423776,
+      "sharpe": 0.49211502111339833,
+      "status": "measured"
+    },
+    {
+      "stress_window": "gfc_2008_2009",
+      "ticker": "MCHI",
+      "start_date": "",
+      "end_date": "",
+      "trading_days": 0,
+      "total_return": null,
+      "max_drawdown": null,
+      "sharpe": null,
+      "status": "unavailable"
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "ticker": "VWO",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "trading_days": 41,
+      "total_return": -0.18952513680074723,
+      "max_drawdown": -0.2676412912977535,
+      "sharpe": -1.7088292739086377,
+      "status": "measured"
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "ticker": "EWY",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "trading_days": 41,
+      "total_return": -0.1828748754846765,
+      "max_drawdown": -0.3421661179613419,
+      "sharpe": -1.1359397740440078,
+      "status": "measured"
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "ticker": "EWJ",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "trading_days": 41,
+      "total_return": -0.1340942875193728,
+      "max_drawdown": -0.2523895325569605,
+      "sharpe": -1.6921676857608738,
+      "status": "measured"
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "ticker": "EWZ",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "trading_days": 41,
+      "total_return": -0.4590227051123903,
+      "max_drawdown": -0.506047822527774,
+      "sharpe": -2.4240344127932025,
+      "status": "measured"
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "ticker": "MCHI",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "trading_days": 41,
+      "total_return": -0.042057821805276174,
+      "max_drawdown": -0.17181080585351816,
+      "sharpe": -0.08808838899167312,
+      "status": "measured"
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "ticker": "VWO",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "trading_days": 251,
+      "total_return": -0.13852602599642894,
+      "max_drawdown": -0.15954733098632945,
+      "sharpe": -0.5134626956321022,
+      "status": "measured"
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "ticker": "EWY",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "trading_days": 251,
+      "total_return": -0.22341070298220556,
+      "max_drawdown": -0.284120443571346,
+      "sharpe": -0.8440612409572604,
+      "status": "measured"
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "ticker": "EWJ",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "trading_days": 251,
+      "total_return": -0.13063531742833456,
+      "max_drawdown": -0.16526545036882823,
+      "sharpe": -0.5518324063722259,
+      "status": "measured"
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "ticker": "EWZ",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "trading_days": 251,
+      "total_return": 0.21640520587967638,
+      "max_drawdown": -0.2683036336635142,
+      "sharpe": 0.66464038001009,
+      "status": "measured"
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "ticker": "MCHI",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "trading_days": 251,
+      "total_return": -0.18290876655497834,
+      "max_drawdown": -0.3413666334931875,
+      "sharpe": -0.2903091964912065,
+      "status": "measured"
+    }
+  ]
+}

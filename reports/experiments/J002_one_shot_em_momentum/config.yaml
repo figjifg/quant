@@ -1,0 +1,51 @@
+experiment: J002_one_shot_em_momentum
+status: generated
+candidate_status: backlog_candidate_library
+base_candidate: P08_IEF30
+direct_promote_p08_ief30: false
+mode: one_shot_em_momentum
+search: none
+nav_basis: gross
+tax_model: none
+currency: KRW
+fx_policy: USDKRW linear interpolation on ETF trading dates, then forward-fill
+rule:
+  universe: [VWO, EWY, EWJ, EWZ, MCHI]
+  lookback_trading_days: 252
+  ranking: 12_month_return_krw
+  top_k: 2
+  top_k_weight: equal
+  rebalance: quarter_end_plus_1_trading_day
+  partial_inception: rank only ETFs with valid 252 trading day history
+variants:
+  J002-A:
+    QQQ: 0.2100000000
+    H001: 0.2000000000
+    IEF: 0.3000000000
+    EMMomentum: 0.2900000000
+  J002-B:
+    H001: 0.2000000000
+    IEF: 0.3000000000
+    EMMomentum: 0.5000000000
+  J002-C:
+    EMMomentum: 1.0000000000
+comparators:
+  - P08_IEF30
+  - SPY_100
+  - QQQ_100
+  - K001-B
+  - N001-B
+  - N002-B
+notes:
+  - H001 plus EWY/MCHI/VWO momentum may create Korea/EM double exposure.
+prohibited:
+  lookback_grid: true
+  top_k_grid: true
+  weighting_optimization: true
+  additional_em_etfs: true
+  external_network: true
+  engine_modification: true
+sources:
+  etf_dir: research_input_data/inputs/global_etf
+  usdk_rw_file: research_input_data/inputs/macro_features/fred_dexkous_usdkrw.csv
+  h001_equity_curve: reports/experiments/H001_kr_short_rate_sleeve/equity_curve.csv

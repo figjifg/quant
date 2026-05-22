@@ -1,0 +1,6 @@
+dimension,bucket,event_count,pct
+event_type,buyback_announcement,1999,1.0
+sector,unknown,1999,1.0
+size_bucket,large,667,0.33366683341670833
+size_bucket,mid,666,0.33316658329164583
+size_bucket,small,666,0.33316658329164583

@@ -1,0 +1,82 @@
+{
+  "experiment": "N000_stress_diversifier_baseline",
+  "candidate": "P08_IEF30",
+  "candidate_status": "frozen",
+  "purpose": "stress response measurement only",
+  "guardrails": {
+    "best_sharpe_search": false,
+    "p08_ief30_modified": false,
+    "direct_promotion": false,
+    "n_family_role": "backlog_candidate_library"
+  },
+  "stress_windows": [
+    {
+      "stress_window": "dot_com_proxy_2002_07_2003_12",
+      "measurement_type": "proxy",
+      "portfolio_series": "p08_ief30_pre2010_us_core_proxy",
+      "weights": "SPY:0.3625;QQQ:0.2625;IEF:0.3750",
+      "start_date": "2002-07-30",
+      "end_date": "2003-12-31",
+      "n_observations": 360,
+      "total_return": 0.2798274908556464,
+      "cagr": 0.18962092958967847,
+      "gross_sharpe": 1.2883873831887764,
+      "annualized_volatility": 0.14187627536882177,
+      "daily_max_drawdown": -0.11394245684063353,
+      "mdd_peak_date": "2002-08-22",
+      "mdd_trough_date": "2002-10-09",
+      "mdd_recovery_date": "2002-11-05"
+    },
+    {
+      "stress_window": "gfc_proxy_2008_2009",
+      "measurement_type": "proxy",
+      "portfolio_series": "p08_ief30_pre2010_us_core_proxy",
+      "weights": "SPY:0.3625;QQQ:0.2625;IEF:0.3750",
+      "start_date": "2008-01-02",
+      "end_date": "2009-12-31",
+      "n_observations": 505,
+      "total_return": -0.033801480843922316,
+      "cagr": -0.01708079674493035,
+      "gross_sharpe": 0.00022252447999783967,
+      "annualized_volatility": 0.18587480387516356,
+      "daily_max_drawdown": -0.3126571229831321,
+      "mdd_peak_date": "2008-05-15",
+      "mdd_trough_date": "2009-03-09",
+      "mdd_recovery_date": null
+    },
+    {
+      "stress_window": "covid_2020_02_2020_03",
+      "measurement_type": "exact",
+      "portfolio_series": "p08_ief30_exact",
+      "weights": "SPY:0.2900;QQQ:0.2100;H001:0.2000;IEF:0.3000",
+      "start_date": "2020-02-03",
+      "end_date": "2020-03-31",
+      "n_observations": 42,
+      "total_return": -0.09037879452287578,
+      "cagr": -0.45501706544495757,
+      "gross_sharpe": -1.5972882240378008,
+      "annualized_volatility": 0.3232813552881886,
+      "daily_max_drawdown": -0.19976845914706354,
+      "mdd_peak_date": "2020-02-17",
+      "mdd_trough_date": "2020-03-23",
+      "mdd_recovery_date": null
+    },
+    {
+      "stress_window": "rate_shock_2022",
+      "measurement_type": "exact",
+      "portfolio_series": "p08_ief30_exact",
+      "weights": "SPY:0.2900;QQQ:0.2100;H001:0.2000;IEF:0.3000",
+      "start_date": "2022-01-03",
+      "end_date": "2022-12-30",
+      "n_observations": 260,
+      "total_return": -0.1836134839585798,
+      "cagr": -0.18556095596150646,
+      "gross_sharpe": -1.2758959189355743,
+      "annualized_volatility": 0.14575678367513553,
+      "daily_max_drawdown": -0.21090117790013307,
+      "mdd_peak_date": "2022-01-03",
+      "mdd_trough_date": "2022-10-14",
+      "mdd_recovery_date": null
+    }
+  ]
+}
