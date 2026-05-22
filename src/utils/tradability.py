@@ -94,13 +94,23 @@ def mark_tradable_rows(panel: pd.DataFrame, policy: TradabilityPolicy | None = N
 # are reserved here for the W001 v2 implementation but cannot be set yet.
 TRADABLE_STATES = (
     "executable",
-    "panel_absence",
+    "not_in_dynamic_universe",  # renamed from `panel_absence` in W001 v2.1
     "data_missing",
     "limit_lock_candidate",
     "true_suspension",          # set when suspension_events is supplied (W001 v2)
     "delisting_transition",     # set when suspension_events is supplied (W001 v2)
     "corporate_action_day",     # requires S2 event log; unset until W001 v2 wires C3
 )
+
+# W001 v2.1: `panel_absence` was misleading because it can be confused with
+# exchange non-tradability. The semantically correct name is
+# `not_in_dynamic_universe` (the ticker is listed and tradable on KRX but
+# simply not in the dynamic top-100 universe for that date). Code that still
+# reads the old name must be updated, but the deprecated alias below keeps
+# downstream lookups from crashing while we migrate.
+_DEPRECATED_TRADABLE_STATE_ALIASES = {
+    "panel_absence": "not_in_dynamic_universe",
+}
 
 
 def tradable_state(
@@ -126,8 +136,12 @@ def tradable_state(
     4. `limit_lock_candidate` — open/prev_close move >= limit_threshold.
        **Still overlaps with corporate_action_day** until S2 event log lands
        (Round 3 finding: 146 of 147 extreme-return events were flagged here).
-    5. `panel_absence` — `동적유니버스포함 == False`, the dominant cause in
-       the W001 v1 panel (~82% of rows).
+    5. `not_in_dynamic_universe` — `동적유니버스포함 == False`, the dominant
+       cause in the W001 v1 panel (~82% of rows). **This is NOT a
+       non-tradability signal** — the ticker is listed and tradable on KRX
+       but simply not in the dynamic top-100 universe for this date.
+       Renamed from `panel_absence` in W001 v2.1 (Referee Round 4.1 lock)
+       because the old name could be confused with exchange-status non-tradability.
     6. `executable` — none of the above.
 
     Reserved enum value:
@@ -222,9 +236,9 @@ def tradable_state(
 
     # data_missing only applies inside the dynamic universe; rows that are
     # zero or NaN because the ticker was outside the universe should be
-    # classified as panel_absence, not as a missing-data defect.
+    # classified as not_in_dynamic_universe, not as a missing-data defect.
     state = state.mask(data_missing & in_universe, "data_missing")
-    state = state.mask(~in_universe, "panel_absence")
+    state = state.mask(~in_universe, "not_in_dynamic_universe")
     return state
 
 

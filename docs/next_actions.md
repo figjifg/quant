@@ -23,6 +23,25 @@ Round 4 본 phase = **definition only**. 작성 완료:
 
 **Active strategy TEST = 0. Performance test authorized = 0.**
 
+### Round 4.1 W001 v2.1 Residual Closure Sprint (2026-05-22 Referee 승인 후)
+
+6 tasks 모두 완료, 10 required outputs 작성.
+
+| Task | Result |
+|---|---|
+| 1 Tradability naming | ✅ `panel_absence` → `not_in_dynamic_universe` (code + tests) |
+| 2 KRX suspension cross-ref | ✅ S3 vs pykrx volume=0 = **99.4% match** (= direct exchange equivalent) |
+| 3 Flow full-year stratified | ✅ 90.7% foreign / 94.4% institution within ±5%, sign 100% |
+| 4 Top100 tie-break audit | ✅ 894 mismatch records ledger (54% boundary, 46% off-boundary) |
+| 5 G5 residual 35 case file | ✅ 1 strategy-relevant case (선도전기 2026-04-29) |
+| 6 Permanent ID hardening | ✅ 50 fallback case ledger + 4 stability tests |
+
+Defect closure: Round 4 23 CLOSED → Round 4.1 **25 CLOSED** (+2: TRAD_000001 + FLOW_000007-eqv).
+
+5 카드 모두 PARTIAL PASS 유지 (No FAIL, No REGRESSION, No FULL PASS).
+
+S2 phase entry criteria: ✅ 모두 충족 (G5 stable + tradability resolved + flow not blocking).
+
 ### Partial Re-A0 결과 (2026-05-22 Referee Option B 승인 후)
 
 **Infrastructure Gate = PARTIAL CLOSED** (5/5 카드 PARTIAL PASS, no FAIL, no REGRESSION).

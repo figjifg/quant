@@ -87,7 +87,7 @@ def test_tradable_state_partial_categorical() -> None:
     from existing panel data alone.
 
     Cause priority (first match wins): data_missing > limit_lock_candidate
-    > panel_absence > executable. Causes that need external sources
+    > not_in_dynamic_universe > executable. Causes that need external sources
     (true_suspension, delisting_transition, corporate_action_day) are
     reserved in TRADABLE_STATES but never assigned in v1.x.
     """
@@ -112,7 +112,7 @@ def test_tradable_state_partial_categorical() -> None:
         "limit_lock_candidate",  # 2026-01-05 30% gap (raw close jump, may include corp action)
         "data_missing",          # 2026-01-06 trading value = 0
         "data_missing",          # 2026-01-07 OHLC missing
-        "panel_absence",         # 2026-01-08 not in dynamic universe
+        "not_in_dynamic_universe",  # 2026-01-08 not in dynamic universe
     ]
     # Reserved causes are in the enum but never set by v1.x
     assert "true_suspension" in TRADABLE_STATES

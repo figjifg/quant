@@ -1,0 +1,77 @@
+KRX 로그인 시도...
+  로그인 ID: j020503
+KRX 로그인 완료.
+  로그인 시간: 2026-05-22 22:25:20
+  만료 시간: 2026-05-22 23:25:20
+Total sample pairs: 1350
+By year × bucket:
+flow_bucket  100억-1000억  10억-100억  1억-10억  <1억  >1000억
+year                                                  
+2018                 30        30      30   30      30
+2019                 30        30      30   30      30
+2020                 30        30      30   30      30
+2021                 30        30      30   30      30
+2022                 30        30      30   30      30
+2023                 30        30      30   30      30
+2024                 30        30      30   30      30
+2025                 30        30      30   30      30
+2026                 30        30      30   30      30
+
+Acquiring KRX official flow for 1350 pairs...
+Batches: 1256
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+  [200/1256] 18s elapsed
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+  [300/1256] 24s elapsed
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+  [400/1256] 31s elapsed
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+  [500/1256] 39s elapsed
+  [600/1256] 48s elapsed
+  [700/1256] 56s elapsed
+  [800/1256] 64s elapsed
+  [900/1256] 73s elapsed
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+Error occurred in get_market_trading_value_and_volume_on_ticker_by_date: Expecting value: line 1 column 1 (char 0)
+  [1000/1256] 82s elapsed
+  [1100/1256] 90s elapsed
+  [1200/1256] 100s elapsed
+
+Reconciled pairs: 1334
+
+Overall metrics:
+  Foreign sign match: 99.55%
+  Institution sign match: 99.78%
+  Foreign within ±5%: 90.70%
+  Institution within ±5%: 94.38%
+
+By year:
+      foreign_within_5pct  institution_within_5pct
+year                                              
+2018                0.952                    0.959
+2019                0.933                    0.946
+2020                0.873                    0.947
+2021                0.910                    0.931
+2022                0.918                    0.939
+2023                0.900                    0.933
+2024                0.947                    0.960
+2025                0.892                    0.939
+2026                0.838                    0.939
+
+By flow_bucket:
+             foreign_within_5pct  institution_within_5pct
+flow_bucket                                              
+100억-1000억                 0.944                    0.941
+10억-100억                   0.914                    0.959
+1억-10억                     0.886                    0.939
+<1억                        0.846                    0.917
+>1000억                     0.944                    0.962

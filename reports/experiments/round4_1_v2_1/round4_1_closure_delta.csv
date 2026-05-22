@@ -1,0 +1,12 @@
+﻿defect_id,severity,round4_status,round4_1_status,change,evidence
+TRAD_000001,critical,PARTIAL,CLOSED,closed,Task 1 rename panel_absence → not_in_dynamic_universe + Task 2 KRX volume=0 vs S3 99.4% cross-reference
+TRAD_000002,critical,CLOSED,CLOSED,reconfirmed,Task 2 KRX direct equivalence 99.4% confirmed (88.3% → 99.4%)
+FLOW_000007,high,PARTIAL,CLOSED-equivalent,closed,"Task 3 full-year stratified reconciliation: foreign 90.7% / institution 94.4% within ±5%, sign 100%; estimated = vendor recomputed confirmed"
+FLOW_000004,high,PARTIAL,PARTIAL,unchanged,"Conservative t+1 rule documented, vendor exact lag 미확보"
+FLOW_000006,medium,PARTIAL,PARTIAL,meaning clarified,not_in_dynamic_universe rename 후 의미 명확화
+TOP_000003,informational,PARTIAL,PARTIAL,ledger expanded,Task 4: 894 mismatch records full ledger; vendor exact rule unknown
+TOP_000004,low,PARTIAL,PARTIAL,reconfirmed,Panel ~563 candidates confirmed; per-date all-listed 별도
+ID_000002,high,PARTIAL,PARTIAL,unchanged,47% merger/rename 별도 source 필요 (변경 없음)
+ID_000005,high,PARTIAL,PARTIAL-CLOSED-equivalent,hardened,Task 6: 50 fallback IDs case ledger + 4 stability tests
+G5_000004,critical,PARTIAL,PARTIAL,case file added,Task 5: 1 strategy-relevant residual case file (007610 선도전기 2026-04-29)
+G5_000005,critical,DEFERRED-S2,DEFERRED-S2,unchanged,S2 parser 미진행 (Referee 명시)
