@@ -77,3 +77,37 @@ Awaiting Referee verdict on:
 - Whether to revise any of the locked design contracts
 
 Executor will not auto-progress.
+
+---
+
+## Final Close Note (2026-05-23 Referee verdict)
+
+**Referee accepted the bundle. Phase closed.**
+
+- Decision: Option (a) — Declare `C2-C3-DESIGN-FINALIZATION` complete.
+- No design revision required.
+- No future phase candidate approved automatically.
+- No strategy testing reopened.
+- No C2/C3 implementation or parser wiring approved.
+
+Accepted artifacts:
+- Bundle: `reports/experiments/C2_C3_design_finalization/` (9 outputs)
+- Commit: `720b34c` on origin/main
+- Design contracts (all 8 locked):
+  1. 10 input states + priority order
+  2. event_source_state rules across 14 event types
+  3. `not_available` must surface explicitly, not be treated as zero
+  4. correction-unlinked rows go to audit queue, never into events
+  5. `corporate_action_day` remains unpopulated until all gates pass
+  6. parser output acceptance gates defined (6 gates)
+  7. future phase dependency graph defined
+  8. no auto-progression rule preserved
+
+Final state (post-verdict):
+- C2-C3-DESIGN-FINALIZATION: **CLOSED**
+- S2 OPENDART Body Parser Phase: CLOSED AS PARTIAL
+- D3a / D3b / D3c: PARTIAL / PARTIAL / CLOSED
+- C2/C3 integration: NOT APPROVED
+- Strategy / Performance / Production / paper / P08 / live: UNCHANGED / CLOSED
+
+**No active next phase is approved. Executor will not perform any additional design, parser, strategy, or implementation work unless the user requests a new Referee decision.**
