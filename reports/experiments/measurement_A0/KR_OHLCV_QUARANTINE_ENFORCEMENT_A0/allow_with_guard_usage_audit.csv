@@ -1,0 +1,67 @@
+column_name,n_callsites,n_pass,n_guarded,n_missing_guard,n_invalid_row_leak,n_ambiguous,n_not_applicable,any_callsite_outside_audit,overall_status,remediation
+Change,8,0,0,2,0,0,6,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+KRX종가,196,11,115,15,10,0,45,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+cap_weighted_return,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+category,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+corp_code_dart,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+corp_name,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+corp_name_dart,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+daily_return,100,0,5,5,27,0,63,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+first_snapshot,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_audit_issue,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_capital_raise,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_capital_reduction,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_cb_bw,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_contract,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_earnings,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_event_risk,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_large_holder,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_litigation,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_merger_split,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_trading_halt,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+flag_treasury_stock,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+foreign_net_buy_amount,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+foreign_net_buy_shares,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+institution_net_buy_amount,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+institution_net_buy_shares,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+kospi_foreign_net,9,0,1,2,1,0,5,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+kospi_individual_net,4,0,0,0,0,0,4,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+kospi_institution_net,8,0,1,2,1,0,4,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+kospi_trade_volume,2,0,0,0,0,0,2,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+krx_foreign,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+krx_institution,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+krx_last_snapshot,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+large_foreign_net,2,0,0,0,0,0,2,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+large_institution_net,2,0,0,0,0,0,2,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+last_snapshot,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+lstg_abol_dt,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+lstg_stqt,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+markets,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+name,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+name_krx,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+panel_foreign,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+panel_institution,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+program_basis,2,0,0,0,0,0,2,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+snapshot_count,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+stock_code,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+sum_foreign_net_buy_amount,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+sum_foreign_net_buy_shares,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+sum_institution_net_buy_amount,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+sum_institution_net_buy_shares,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+ticker,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+tradable_state,10,2,0,0,0,0,8,True,AMBIGUOUS,manual review
+거래대금추정,49,4,8,6,5,0,26,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+거래량,11,0,0,1,0,0,10,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+고가,20,3,1,3,0,0,13,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+기관순매매량,8,1,0,1,0,0,6,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+기관순매수금액추정,18,3,2,4,0,0,9,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+동적유니버스포함,30,5,4,7,0,0,14,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+상장주식수,8,0,0,3,1,0,4,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+시가,90,3,47,13,5,0,22,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+시가총액추정,31,0,4,14,1,0,12,True,DEFECT_LEAK,block call sites + add invalid-row guard per `invalid_ohlcv_row_contract.md`
+외국인순매매량,10,1,1,2,0,0,6,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+외국인순매수금액추정,20,3,3,5,0,0,9,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+저가,18,3,1,3,0,0,11,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+종가,89,9,45,2,0,0,33,True,DEFECT_MISSING_GUARD,add documented guard within ±5 lines or annotate upstream quarantine
+종목명,0,0,0,0,0,0,0,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
+키움거래대금순위,3,0,0,0,0,0,3,False,AUDIT_ONLY_NO_DOWNSTREAM,no downstream consumers; column metadata stays ALLOW_WITH_GUARD
