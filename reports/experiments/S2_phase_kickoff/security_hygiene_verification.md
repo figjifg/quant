@@ -54,7 +54,8 @@ During pre-D1 environment exploration, the executor attempted `set -a; source re
 - **External exposure**: none (conversation context is not externally exposed per user's confirmation)
 - **Git/file exposure**: none (`.env` never committed; no logs persisted to disk)
 - **Affected key**: `KRX_AUTH_KEY` only (not the OPENDART key)
-- **Rotation**: user determined not required (no external leak)
+- **Rotation**: user explicitly accepted the risk on 2026-05-23 (verbatim: "키가 외부로 유출된 것만 아니라면 괜찮아"). No rotation performed.
+- **Referee recommendation**: rotate KRX_AUTH_KEY before any future KRX-key-dependent acquisition / reconciliation work (this user-accepted risk only covers continuation of work that does not depend on the KRX key, e.g., D2 OPENDART schema mapping).
 - **Root cause**: BOM + CRLF in `.env` file (Windows-edited)
 - **Future mitigation**:
   - Executor now uses BOM/CRLF-safe Python parser (D1 script) instead of bash `source`
