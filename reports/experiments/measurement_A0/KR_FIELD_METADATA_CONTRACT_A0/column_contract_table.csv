@@ -1,0 +1,373 @@
+dataset_id,column_name,source,unit,raw_or_adjusted,timestamp_semantics,pit_status,identifier_key,upstream_dependency,notes
+equity_panel_kiwoom_2010_2016,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+equity_panel_kiwoom_2010_2016,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+equity_panel_kiwoom_2010_2016,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+equity_panel_kiwoom_2010_2016,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+equity_panel_kiwoom_2010_2016,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+equity_panel_kiwoom_2010_2016,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+equity_panel_kiwoom_2010_2016,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+equity_panel_kiwoom_2010_2016,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+equity_panel_kiwoom_2010_2016,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+equity_panel_kiwoom_2010_2016,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+equity_panel_kiwoom_2010_2016,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+equity_panel_kiwoom_2010_2016,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+equity_panel_kiwoom_2010_2016,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+equity_panel_kiwoom_2010_2016,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+equity_panel_kiwoom_2010_2016,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+equity_panel_kiwoom_2010_2016,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+equity_panel_kiwoom_2010_2016,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+equity_panel_kiwoom_2010_2016,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+equity_panel_kiwoom_2010_2016,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+equity_panel_kiwoom_2010_2016,통합거래량반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata; all False in pre-NXT files
+equity_panel_kiwoom_2010_2016,통합종가반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+equity_panel_kiwoom_2010_2016,통합종가제외여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+equity_panel_kiwoom_2010_2016,가격범위후보정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT post-correction flag
+equity_panel_kiwoom_2010_2016,KRX종가,krx_official_or_synth,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,종가,native in 2010-2016/2025-2026; synthesised from 종가 (pre-NXT) in 2017-2024/2018-2024 — krx_close_source flag required
+equity_panel_kiwoom_2010_2016,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+equity_panel_dynamic_top100_2017_2024,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+equity_panel_dynamic_top100_2017_2024,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+equity_panel_dynamic_top100_2017_2024,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+equity_panel_dynamic_top100_2017_2024,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+equity_panel_dynamic_top100_2017_2024,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+equity_panel_dynamic_top100_2017_2024,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+equity_panel_dynamic_top100_2017_2024,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+equity_panel_dynamic_top100_2017_2024,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+equity_panel_dynamic_top100_2017_2024,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+equity_panel_dynamic_top100_2017_2024,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+equity_panel_dynamic_top100_2017_2024,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+equity_panel_dynamic_top100_2017_2024,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+equity_panel_dynamic_top100_2017_2024,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+equity_panel_dynamic_top100_2017_2024,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+equity_panel_dynamic_top100_2017_2024,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+equity_panel_dynamic_top100_2017_2024,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+equity_panel_dynamic_top100_2017_2024,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+equity_panel_dynamic_top100_2017_2024,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+equity_panel_dynamic_top100_2017_2024,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+equity_panel_dynamic_top100_2017_2024,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+equity_panel_dynamic_top100_2018_2024,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+equity_panel_dynamic_top100_2018_2024,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+equity_panel_dynamic_top100_2018_2024,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+equity_panel_dynamic_top100_2018_2024,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+equity_panel_dynamic_top100_2018_2024,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+equity_panel_dynamic_top100_2018_2024,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+equity_panel_dynamic_top100_2018_2024,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+equity_panel_dynamic_top100_2018_2024,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+equity_panel_dynamic_top100_2018_2024,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+equity_panel_dynamic_top100_2018_2024,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+equity_panel_dynamic_top100_2018_2024,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+equity_panel_dynamic_top100_2018_2024,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+equity_panel_dynamic_top100_2018_2024,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+equity_panel_dynamic_top100_2018_2024,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+equity_panel_dynamic_top100_2018_2024,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+equity_panel_dynamic_top100_2018_2024,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+equity_panel_dynamic_top100_2018_2024,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+equity_panel_dynamic_top100_2018_2024,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+equity_panel_dynamic_top100_2018_2024,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+equity_panel_dynamic_top100_2018_2024,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+equity_panel_krx_2025_2026,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+equity_panel_krx_2025_2026,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+equity_panel_krx_2025_2026,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+equity_panel_krx_2025_2026,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+equity_panel_krx_2025_2026,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+equity_panel_krx_2025_2026,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+equity_panel_krx_2025_2026,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+equity_panel_krx_2025_2026,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+equity_panel_krx_2025_2026,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+equity_panel_krx_2025_2026,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+equity_panel_krx_2025_2026,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+equity_panel_krx_2025_2026,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+equity_panel_krx_2025_2026,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+equity_panel_krx_2025_2026,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+equity_panel_krx_2025_2026,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+equity_panel_krx_2025_2026,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+equity_panel_krx_2025_2026,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+equity_panel_krx_2025_2026,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+equity_panel_krx_2025_2026,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+equity_panel_krx_2025_2026,통합거래량반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata; all False in pre-NXT files
+equity_panel_krx_2025_2026,통합종가반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+equity_panel_krx_2025_2026,통합종가제외여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+equity_panel_krx_2025_2026,가격범위후보정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT post-correction flag
+equity_panel_krx_2025_2026,KRX종가,krx_official_or_synth,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,종가,native in 2010-2016/2025-2026; synthesised from 종가 (pre-NXT) in 2017-2024/2018-2024 — krx_close_source flag required
+equity_panel_krx_2025_2026,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+equity_panel_krx_2025_2026,키움거래대금순위,vendor_kiwoom_estimation,rank_int,raw,T_trade_day,available_with_lookahead_risk,n/a,거래대금추정,Kiwoom in-house liquidity rank; selection rule undocumented
+market_flow_kiwoom_2010_2017,date,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+market_flow_kiwoom_2010_2017,program_total_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,program trading total net (million KRW)
+market_flow_kiwoom_2010_2017,program_arb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,arbitrage net
+market_flow_kiwoom_2010_2017,program_nonarb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,non-arbitrage net
+market_flow_kiwoom_2010_2017,program_kospi200,vendor_kiwoom_or_krx,index_pt,raw,T_trade_day,available_PIT,n/a,n/a,KOSPI200 close (referenced by program flow)
+market_flow_kiwoom_2010_2017,program_basis,vendor_kiwoom_or_krx,index_pt_or_pct,raw,T_trade_day,available_with_lookahead_risk,n/a,n/a,futures basis; unit ambiguous
+market_flow_kiwoom_2010_2017,kospi_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,KOSPI foreign net; unit ambiguous (mil KRW vs count) — see KR_OHLCV_UNIT_INVARIANT_A0 plausibility check
+market_flow_kiwoom_2010_2017,kospi_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,institution net; same unit ambiguity
+market_flow_kiwoom_2010_2017,kospi_individual_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,individual net; same unit ambiguity
+market_flow_kiwoom_2010_2017,kospi_trade_volume,vendor_kiwoom_or_krx,shares_or_count,raw,T_trade_day,available_PIT,n/a,n/a,trade volume; unit ambiguous
+market_flow_kiwoom_2010_2017,large_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap foreign net
+market_flow_kiwoom_2010_2017,large_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap institution net
+market_flow_kiwoom_2018_2026_integrated,date,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+market_flow_kiwoom_2018_2026_integrated,kospi_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,KOSPI foreign net; unit ambiguous (mil KRW vs count) — see KR_OHLCV_UNIT_INVARIANT_A0 plausibility check
+market_flow_kiwoom_2018_2026_integrated,kospi_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,institution net; same unit ambiguity
+market_flow_kiwoom_2018_2026_integrated,kospi_individual_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,individual net; same unit ambiguity
+market_flow_kiwoom_2018_2026_integrated,kospi_trade_volume,vendor_kiwoom_or_krx,shares_or_count,raw,T_trade_day,available_PIT,n/a,n/a,trade volume; unit ambiguous
+market_flow_kiwoom_2018_2026_integrated,large_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap foreign net
+market_flow_kiwoom_2018_2026_integrated,large_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap institution net
+market_flow_kiwoom_2018_2026_integrated,program_total_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,program trading total net (million KRW)
+market_flow_kiwoom_2018_2026_integrated,program_arb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,arbitrage net
+market_flow_kiwoom_2018_2026_integrated,program_nonarb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,non-arbitrage net
+market_flow_kiwoom_2018_2026_integrated,program_kospi200,vendor_kiwoom_or_krx,index_pt,raw,T_trade_day,available_PIT,n/a,n/a,KOSPI200 close (referenced by program flow)
+market_flow_kiwoom_2018_2026_integrated,program_basis,vendor_kiwoom_or_krx,index_pt_or_pct,raw,T_trade_day,available_with_lookahead_risk,n/a,n/a,futures basis; unit ambiguous
+market_flow_kiwoom_2025_2026_krx,date,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+market_flow_kiwoom_2025_2026_krx,program_total_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,program trading total net (million KRW)
+market_flow_kiwoom_2025_2026_krx,program_arb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,arbitrage net
+market_flow_kiwoom_2025_2026_krx,program_nonarb_net_mil,vendor_kiwoom_or_krx,KRW_mil,raw,T_trade_day,available_PIT,n/a,n/a,non-arbitrage net
+market_flow_kiwoom_2025_2026_krx,program_kospi200,vendor_kiwoom_or_krx,index_pt,raw,T_trade_day,available_PIT,n/a,n/a,KOSPI200 close (referenced by program flow)
+market_flow_kiwoom_2025_2026_krx,program_basis,vendor_kiwoom_or_krx,index_pt_or_pct,raw,T_trade_day,available_with_lookahead_risk,n/a,n/a,futures basis; unit ambiguous
+market_flow_kiwoom_2025_2026_krx,kospi_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,KOSPI foreign net; unit ambiguous (mil KRW vs count) — see KR_OHLCV_UNIT_INVARIANT_A0 plausibility check
+market_flow_kiwoom_2025_2026_krx,kospi_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,institution net; same unit ambiguity
+market_flow_kiwoom_2025_2026_krx,kospi_individual_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,individual net; same unit ambiguity
+market_flow_kiwoom_2025_2026_krx,kospi_trade_volume,vendor_kiwoom_or_krx,shares_or_count,raw,T_trade_day,available_PIT,n/a,n/a,trade volume; unit ambiguous
+market_flow_kiwoom_2025_2026_krx,large_foreign_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap foreign net
+market_flow_kiwoom_2025_2026_krx,large_institution_net,vendor_kiwoom_estimation,KRW_mil_or_count,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,large-cap institution net
+opendart_kospi_disclosures_20180101_20260505,rcept_no,opendart_api,14digit_string,raw,event_time,available_PIT,rcept_no_key,n/a,DART receipt number; primary identifier
+opendart_kospi_disclosures_20180101_20260505,rcept_dt,opendart_api,YYYYMMDD_string,raw,event_time,available_PIT,n/a,n/a,receipt date string
+opendart_kospi_disclosures_20180101_20260505,rcept_date,opendart_api,ISO_date,raw,event_time,available_PIT,date_key,rcept_dt,ISO normalisation of rcept_dt
+opendart_kospi_disclosures_20180101_20260505,corp_cls,opendart_api,enum_YKEN,raw,snapshot,available_PIT,n/a,n/a,Y=KOSPI K=KOSDAQ E=KONEX N=etc
+opendart_kospi_disclosures_20180101_20260505,corp_code,opendart_api,8digit_string,raw,snapshot,available_PIT,corp_code_key,n/a,DART corporate code (not KRX ticker)
+opendart_kospi_disclosures_20180101_20260505,stock_code,opendart_api,krx_ticker_6digit_or_null,raw,snapshot,available_with_lookahead_risk,ticker_key,corp_code,"KRX ticker; can be null for unlisted; corp_code→stock_code mapping is current-snapshot, not historical PIT"
+opendart_kospi_disclosures_20180101_20260505,corp_name,opendart_api,string,raw,snapshot,available_with_lookahead_risk,n/a,corp_code,current corporate name; rename history not preserved
+opendart_kospi_disclosures_20180101_20260505,report_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,free-text disclosure title
+opendart_kospi_disclosures_20180101_20260505,flr_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,filer name
+opendart_kospi_disclosures_20180101_20260505,rm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,remark field
+opendart_kospi_disclosures_20180101_20260505,pblntf_ty_query,derived_query_param,string,derived,snapshot,n/a,n/a,n/a,the pblntf_ty query parameter used at fetch time
+opendart_kospi_disclosures_20180101_20260505,query_bgn_de,derived_query_param,YYYYMMDD_string,derived,snapshot,n/a,n/a,n/a,fetch query start
+opendart_kospi_disclosures_20180101_20260505,query_end_de,derived_query_param,YYYYMMDD_string,derived,snapshot,n/a,n/a,n/a,fetch query end
+opendart_kospi_disclosures_20180101_20260505,dart_url,derived,url,derived,event_time,available_PIT,n/a,rcept_no,constructed DART viewer URL
+opendart_kospi_disclosures_20180101_20260505,flag_capital_raise,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex over report_nm; NOT authoritative — S2 body parse required
+opendart_kospi_disclosures_20180101_20260505,flag_cb_bw,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_capital_reduction,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_audit_issue,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_trading_halt,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_litigation,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_large_holder,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_treasury_stock,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_merger_split,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_earnings,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_contract,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex; not authoritative
+opendart_kospi_disclosures_20180101_20260505,flag_event_risk,derived_regex,bool,derived,event_time,available_with_lookahead_risk,n/a,report_nm,regex composite; not authoritative
+w001_v2_panel_with_adjusted_ohlc_2018_2026,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+w001_v2_panel_with_adjusted_ohlc_2018_2026,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+w001_v2_panel_with_adjusted_ohlc_2018_2026,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+w001_v2_panel_with_adjusted_ohlc_2018_2026,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+w001_v2_panel_with_adjusted_ohlc_2018_2026,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+w001_v2_panel_with_adjusted_ohlc_2018_2026,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+w001_v2_panel_with_adjusted_ohlc_2018_2026,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+w001_v2_panel_with_adjusted_ohlc_2018_2026,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+w001_v2_panel_with_adjusted_ohlc_2018_2026,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+w001_v2_panel_with_adjusted_ohlc_2018_2026,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+w001_v2_panel_with_adjusted_ohlc_2018_2026,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합거래량반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata; all False in pre-NXT files
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합종가반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합종가제외여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+w001_v2_panel_with_adjusted_ohlc_2018_2026,가격범위후보정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT post-correction flag
+w001_v2_panel_with_adjusted_ohlc_2018_2026,KRX종가,krx_official_or_synth,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,종가,native in 2010-2016/2025-2026; synthesised from 종가 (pre-NXT) in 2017-2024/2018-2024 — krx_close_source flag required
+w001_v2_panel_with_adjusted_ohlc_2018_2026,키움거래대금순위,vendor_kiwoom_estimation,rank_int,raw,T_trade_day,available_with_lookahead_risk,n/a,거래대금추정,Kiwoom in-house liquidity rank; selection rule undocumented
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_open,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_high,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_low,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_close,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_volume,pykrx_adjusted_join,shares,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_return_pct,pykrx_adjusted_join,ratio_decimal,adjusted,T_trade_day,available_PIT,n/a,adj_close,derived; not strategy-ready
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adjusted_source,derived,string,derived,snapshot,available_PIT,n/a,n/a,vendor_pykrx | missing
+w001_v2_panel_with_tradable_state,날짜,vendor_kiwoom_or_krx,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+w001_v2_panel_with_tradable_state,종목코드,vendor_kiwoom_or_krx,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX 6-digit code
+w001_v2_panel_with_tradable_state,종목명,vendor_kiwoom_or_krx,string,raw,snapshot,available_with_lookahead_risk,n/a,n/a,name as of panel build snapshot; rename history not preserved → lookahead risk on cross-time joins
+w001_v2_panel_with_tradable_state,시가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted open; corporate-action split makes pre-action history artifactual
+w001_v2_panel_with_tradable_state,고가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted high
+w001_v2_panel_with_tradable_state,저가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted low
+w001_v2_panel_with_tradable_state,종가,vendor_kiwoom_or_krx,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted close; same as KRX종가 by definition in pre-NXT period
+w001_v2_panel_with_tradable_state,거래량,vendor_kiwoom_or_krx,shares,raw_unadjusted,T_trade_day,available_PIT,n/a,n/a,RAW unadjusted shares; split-day artifactual
+w001_v2_panel_with_tradable_state,Change,vendor_kiwoom_or_krx,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,종가,vendor-derived 1-day return from raw close; corporate-action distorted; not suitable as performance metric
+w001_v2_panel_with_tradable_state,기관순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,"institution net shares; available T+0 after close, must shift +1 for execution"
+w001_v2_panel_with_tradable_state,외국인순매매량,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,foreign net shares; same T+0-after-close timing
+w001_v2_panel_with_tradable_state,기관순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,Kiwoom estimation (per FLOW_000007 finding: 95% within 5% of official KRX); 100% flagged via 수급금액추정여부
+w001_v2_panel_with_tradable_state,외국인순매수금액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,same estimation rule
+w001_v2_panel_with_tradable_state,거래대금추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,거래량",vendor approximation = close × volume; 100% flagged via 거래대금추정여부
+w001_v2_panel_with_tradable_state,시가총액추정,vendor_kiwoom_estimation,KRW,raw,T_trade_day,available_PIT,n/a,"종가,상장주식수",vendor approximation = close × shares_outstanding; flagged via 시가총액추정여부
+w001_v2_panel_with_tradable_state,상장주식수,vendor_kiwoom_or_krx,shares,raw,snapshot,available_with_lookahead_risk,n/a,n/a,shares-outstanding snapshot; corporate-action transitions not delineated within row history → PIT risk on capital events
+w001_v2_panel_with_tradable_state,수급금액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: 100% True per FLOW_000007
+w001_v2_panel_with_tradable_state,거래대금추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × volume estimation rather than KRX trading_value
+w001_v2_panel_with_tradable_state,시가총액추정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,flag: indicates close × shares_outstanding estimation
+w001_v2_panel_with_tradable_state,동적유니버스포함,vendor_kiwoom_or_krx,bool,raw,snapshot,available_with_lookahead_risk,n/a,n/a,vendor universe flag; selection rule NOT documented → cannot certify survivorship safety from this field alone
+w001_v2_panel_with_tradable_state,통합거래량반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata; all False in pre-NXT files
+w001_v2_panel_with_tradable_state,통합종가반영여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+w001_v2_panel_with_tradable_state,통합종가제외여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT integrated-market metadata
+w001_v2_panel_with_tradable_state,가격범위후보정여부,vendor_kiwoom_or_krx,bool,raw,snapshot,available_PIT,n/a,n/a,NXT post-correction flag
+w001_v2_panel_with_tradable_state,KRX종가,krx_official_or_synth,KRW,raw_unadjusted,T_trade_day,available_PIT,n/a,종가,native in 2010-2016/2025-2026; synthesised from 종가 (pre-NXT) in 2017-2024/2018-2024 — krx_close_source flag required
+w001_v2_panel_with_tradable_state,키움거래대금순위,vendor_kiwoom_estimation,rank_int,raw,T_trade_day,available_with_lookahead_risk,n/a,거래대금추정,Kiwoom in-house liquidity rank; selection rule undocumented
+w001_v2_panel_with_tradable_state,adj_open,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_tradable_state,adj_high,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_tradable_state,adj_low,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_tradable_state,adj_close,pykrx_adjusted_join,KRW,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_tradable_state,adj_volume,pykrx_adjusted_join,shares,adjusted,T_trade_day,available_PIT,n/a,"종목코드,날짜",S1 join
+w001_v2_panel_with_tradable_state,adj_return_pct,pykrx_adjusted_join,ratio_decimal,adjusted,T_trade_day,available_PIT,n/a,adj_close,derived; not strategy-ready
+w001_v2_panel_with_tradable_state,adjusted_source,derived,string,derived,snapshot,available_PIT,n/a,n/a,vendor_pykrx | missing
+w001_v2_panel_with_tradable_state,tradable_state,derived_w001_v2,enum_string,derived,T_trade_day,available_with_lookahead_risk,n/a,"거래량,거래대금추정,KRX종가,s3_status_events",v1.x derivation; panel_absence != officially_delisted (TRAD_000001 critical defect); v2 wiring uses S3 status events
+w001_v2_permanent_id_master,ticker,krx_official,krx_ticker_6digit,raw,snapshot,available_with_lookahead_risk,ticker_key,n/a,KRX 6-digit; reused across delisting → new listing
+w001_v2_permanent_id_master,permanent_id,derived_w001_v2,string,derived,snapshot,available_PIT,permanent_id_key,"corp_code_dart,ticker","derived ID; DART corp_code primary, ticker fallback"
+w001_v2_permanent_id_master,permanent_id_source,derived_w001_v2,string,derived,snapshot,available_PIT,n/a,permanent_id,dart_corp_code | krx_ticker_fallback
+w001_v2_permanent_id_master,corp_code_dart,opendart_api,8digit_string_or_null,raw,snapshot,available_with_lookahead_risk,corp_code_key,n/a,DART corp code; null if no DART match
+w001_v2_permanent_id_master,corp_name_dart,opendart_api,string_or_null,raw,snapshot,available_with_lookahead_risk,n/a,corp_code_dart,DART name
+w001_v2_permanent_id_master,name_krx,krx_official,string,raw,snapshot,available_with_lookahead_risk,n/a,ticker,KRX latest name
+w001_v2_permanent_id_master,krx_first_snapshot,derived_w001_v2,YYYYMMDD_int,derived,snapshot,available_PIT,n/a,ticker,earliest KRX snapshot containing ticker
+w001_v2_permanent_id_master,krx_last_snapshot,derived_w001_v2,YYYYMMDD_int,derived,snapshot,available_with_lookahead_risk,n/a,ticker,latest KRX snapshot containing ticker; reveals future delisting if read naively
+w001_v2_permanent_id_master,krx_markets,krx_official,enum_string,raw,snapshot,available_PIT,n/a,ticker,KOSPI | KOSDAQ | KONEX
+w001_v2_listing_status_events,ticker,opendart_api_mapped,krx_ticker_6digit,raw,event_time,available_PIT,ticker_key,n/a,mapped from corp_code
+w001_v2_listing_status_events,rcept_dt,opendart_api,ISO_date,raw,event_time,available_PIT,date_key,n/a,disclosure date
+w001_v2_listing_status_events,report_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,report title
+w001_v2_listing_status_events,category,derived_w001_v2,enum_string,derived,event_time,available_with_lookahead_risk,n/a,report_nm,suspension|resumption|delisting|managed|surveillance|none; derived from report_nm patterns
+w001_v2_listing_status_events,rcept_no,opendart_api,14digit_string,raw,event_time,available_PIT,rcept_no_key,n/a,DART receipt
+w001_v2_listing_status_terminal,ticker,derived_w001_v2,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+w001_v2_listing_status_terminal,terminal_status,derived_w001_v2,enum_string,derived,snapshot,available_PIT,n/a,listing_status_events,delisted | suspended_last_known | none
+w001_v2_listing_status_terminal,terminal_date,derived_w001_v2,ISO_date,derived,snapshot,available_PIT,n/a,listing_status_events,date of terminal event
+s1_adjusted_ohlc_all_tickers_2018_2026,date,pykrx_official,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_open,pykrx_adjusted,KRW,adjusted,T_trade_day,available_PIT,n/a,n/a,pykrx get_market_ohlcv(adjusted=True); cumulative factor embedded
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_high,pykrx_adjusted,KRW,adjusted,T_trade_day,available_PIT,n/a,n/a,adjusted high
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_low,pykrx_adjusted,KRW,adjusted,T_trade_day,available_PIT,n/a,n/a,adjusted low
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_close,pykrx_adjusted,KRW,adjusted,T_trade_day,available_PIT,n/a,n/a,adjusted close
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_volume,pykrx_adjusted,shares,adjusted,T_trade_day,available_PIT,n/a,n/a,adjusted volume
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_return_pct,pykrx_adjusted,ratio_decimal,adjusted,T_trade_day,available_PIT,n/a,adj_close,1-day return from adjusted close; cannot be used as performance metric in this phase
+s1_adjusted_ohlc_all_tickers_2018_2026,종목코드,pykrx_official,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+s3_krx_status_events_2018_2026,corp_code,opendart_api,string,raw,snapshot,available_PIT,corp_code_key,n/a,DART corp_code
+s3_krx_status_events_2018_2026,corp_name,opendart_api,string,raw,snapshot,available_with_lookahead_risk,n/a,corp_code,current name
+s3_krx_status_events_2018_2026,stock_code,opendart_api,krx_ticker_or_null_float,raw,snapshot,available_with_lookahead_risk,ticker_key,corp_code,stored as float in raw CSV → null becomes NaN; type cast required
+s3_krx_status_events_2018_2026,corp_cls,opendart_api,enum_YKEN,raw,snapshot,available_PIT,n/a,n/a,Y/K/E/N
+s3_krx_status_events_2018_2026,report_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,report title
+s3_krx_status_events_2018_2026,rcept_no,opendart_api,14digit_string,raw,event_time,available_PIT,rcept_no_key,n/a,DART receipt
+s3_krx_status_events_2018_2026,flr_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,filer
+s3_krx_status_events_2018_2026,rcept_dt,opendart_api,ISO_date,raw,event_time,available_PIT,date_key,n/a,disclosure date
+s3_krx_status_events_2018_2026,rm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,remark
+s3_krx_status_events_2018_2026,stock_code_str,derived,krx_ticker_6digit_str,derived,snapshot,available_PIT,ticker_key,stock_code,string cast of stock_code
+s3_dart_pblntfty_I_all_2018_2026,corp_code,opendart_api,string,raw,snapshot,available_PIT,corp_code_key,n/a,DART corp_code
+s3_dart_pblntfty_I_all_2018_2026,corp_name,opendart_api,string,raw,snapshot,available_with_lookahead_risk,n/a,corp_code,current name
+s3_dart_pblntfty_I_all_2018_2026,stock_code,opendart_api,krx_ticker_or_null_float,raw,snapshot,available_with_lookahead_risk,ticker_key,corp_code,stored as float in raw CSV → null becomes NaN; type cast required
+s3_dart_pblntfty_I_all_2018_2026,corp_cls,opendart_api,enum_YKEN,raw,snapshot,available_PIT,n/a,n/a,Y/K/E/N
+s3_dart_pblntfty_I_all_2018_2026,report_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,report title
+s3_dart_pblntfty_I_all_2018_2026,rcept_no,opendart_api,14digit_string,raw,event_time,available_PIT,rcept_no_key,n/a,DART receipt
+s3_dart_pblntfty_I_all_2018_2026,flr_nm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,filer
+s3_dart_pblntfty_I_all_2018_2026,rcept_dt,opendart_api,ISO_date,raw,event_time,available_PIT,date_key,n/a,disclosure date
+s3_dart_pblntfty_I_all_2018_2026,rm,opendart_api,string,raw,event_time,available_PIT,n/a,n/a,remark
+s4_krx_ever_listed_table,ticker,pykrx_official,krx_ticker_6digit,raw,snapshot,available_with_lookahead_risk,ticker_key,n/a,KRX ticker
+s4_krx_ever_listed_table,first_snapshot,derived,YYYYMMDD_int,derived,snapshot,available_with_lookahead_risk,n/a,snapshot_date,earliest sample snapshot — NOT actual listing date; 5-snapshot sample only
+s4_krx_ever_listed_table,last_snapshot,derived,YYYYMMDD_int,derived,snapshot,available_with_lookahead_risk,n/a,snapshot_date,latest sample snapshot — NOT actual delisting date
+s4_krx_ever_listed_table,snapshot_count,derived,int,derived,snapshot,available_with_lookahead_risk,n/a,n/a,count across 5 samples
+s4_krx_ever_listed_table,markets,derived,enum_string,derived,snapshot,available_with_lookahead_risk,n/a,market,set of markets across snapshots
+s4_krx_ever_listed_table,name,pykrx_official,string,raw,snapshot,available_with_lookahead_risk,n/a,ticker,latest sample name
+s4_krx_listed_companies_master,snapshot_date,pykrx_official,YYYYMMDD_int,raw,snapshot,available_PIT,snapshot_key,n/a,pykrx get_market_ticker_list date
+s4_krx_listed_companies_master,ticker,pykrx_official,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+s4_krx_listed_companies_master,market,pykrx_official,enum_string,raw,snapshot,available_PIT,n/a,n/a,KOSPI | KOSDAQ
+s4_krx_listed_companies_master,name,pykrx_official,string,raw,snapshot,available_PIT,n/a,ticker,name at snapshot
+s6_reconciliation_sample_2024_01,ticker,pykrx_official,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+s6_reconciliation_sample_2024_01,date,pykrx_official,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+s6_reconciliation_sample_2024_01,krx_foreign,pykrx_official,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,KRX official foreign net buy amount
+s6_reconciliation_sample_2024_01,panel_foreign,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매수금액추정,panel estimation
+s6_reconciliation_sample_2024_01,krx_institution,pykrx_official,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,n/a,KRX official institution net
+s6_reconciliation_sample_2024_01,panel_institution,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매수금액추정,panel estimation
+s6_reconciliation_sample_2024_01,foreign_diff_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,"krx_foreign,panel_foreign",reconciliation gap
+s6_reconciliation_sample_2024_01,institution_diff_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,"krx_institution,panel_institution",reconciliation gap
+krx_pit_sector_classifications,date,krx_official,ISO_date,raw,snapshot,available_PIT,date_key,n/a,classification snapshot date
+krx_pit_sector_classifications,market,krx_official,string,raw,snapshot,available_PIT,n/a,n/a,KOSPI | KOSDAQ
+krx_pit_sector_classifications,종목코드,krx_official,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+krx_pit_sector_classifications,종목명,krx_official,string,raw,snapshot,available_with_lookahead_risk,n/a,종목코드,KRX name at snapshot
+krx_pit_sector_classifications,업종명,krx_official,string,raw,snapshot,available_PIT,n/a,종목코드,KRX 업종명
+sector_aggregate_daily,date,derived,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+sector_aggregate_daily,sector_code,kis_or_krx,string,raw,snapshot,available_PIT,sector_key,n/a,sector code
+sector_aggregate_daily,sector_name,kis_or_krx,string,raw,snapshot,available_PIT,n/a,sector_code,sector name
+sector_aggregate_daily,n_stocks,derived,int,derived,T_trade_day,available_PIT,n/a,n/a,count of stocks in sector that day
+sector_aggregate_daily,sum_market_cap,derived,KRW,derived,T_trade_day,available_PIT,n/a,시가총액추정,sum of est market cap
+sector_aggregate_daily,sum_traded_value,derived,KRW,derived,T_trade_day,available_PIT,n/a,거래대금추정,sum of est trading value
+sector_aggregate_daily,sum_foreign_net_buy_amount,derived,KRW,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매수금액추정,sum of vendor estimation
+sector_aggregate_daily,sum_foreign_net_buy_shares,derived,shares,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,sum of foreign net shares
+sector_aggregate_daily,sum_institution_net_buy_amount,derived,KRW,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매수금액추정,sum of institution net
+sector_aggregate_daily,sum_institution_net_buy_shares,derived,shares,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,sum
+sector_aggregate_daily,cap_weighted_return,derived,ratio_decimal,derived,T_trade_day,available_with_lookahead_risk,n/a,"Change,시가총액추정",cap-weighted Change; vendor Change is raw → distorted on split days
+sector_aggregate_daily,top1_market_cap_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,시가총액추정,concentration metric
+sector_aggregate_daily,top2_market_cap_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,시가총액추정,concentration metric
+sector_aggregate_daily_pit,date,derived,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+sector_aggregate_daily_pit,sector_code,kis_or_krx,string,raw,snapshot,available_PIT,sector_key,n/a,sector code
+sector_aggregate_daily_pit,sector_name,kis_or_krx,string,raw,snapshot,available_PIT,n/a,sector_code,sector name
+sector_aggregate_daily_pit,n_stocks,derived,int,derived,T_trade_day,available_PIT,n/a,n/a,count of stocks in sector that day
+sector_aggregate_daily_pit,sum_market_cap,derived,KRW,derived,T_trade_day,available_PIT,n/a,시가총액추정,sum of est market cap
+sector_aggregate_daily_pit,sum_traded_value,derived,KRW,derived,T_trade_day,available_PIT,n/a,거래대금추정,sum of est trading value
+sector_aggregate_daily_pit,sum_foreign_net_buy_amount,derived,KRW,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매수금액추정,sum of vendor estimation
+sector_aggregate_daily_pit,sum_foreign_net_buy_shares,derived,shares,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,sum of foreign net shares
+sector_aggregate_daily_pit,sum_institution_net_buy_amount,derived,KRW,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매수금액추정,sum of institution net
+sector_aggregate_daily_pit,sum_institution_net_buy_shares,derived,shares,derived,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,sum
+sector_aggregate_daily_pit,cap_weighted_return,derived,ratio_decimal,derived,T_trade_day,available_with_lookahead_risk,n/a,"Change,시가총액추정",cap-weighted Change; vendor Change is raw → distorted on split days
+sector_aggregate_daily_pit,top1_market_cap_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,시가총액추정,concentration metric
+sector_aggregate_daily_pit,top2_market_cap_pct,derived,ratio_decimal,derived,T_trade_day,available_PIT,n/a,시가총액추정,concentration metric
+stock_sector_mapping_20260518,pdno,kis_api,12digit_string,raw,snapshot,available_PIT,n/a,n/a,KIS pdno (full code)
+stock_sector_mapping_20260518,ticker,kis_api,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,pdno,KRX 6-digit slice
+stock_sector_mapping_20260518,prdt_name,kis_api,string,raw,snapshot,available_PIT,n/a,ticker,KIS product name
+stock_sector_mapping_20260518,kis_mcls,kis_api,string,raw,snapshot,available_PIT,n/a,ticker,KIS mid-classification
+stock_sector_mapping_20260518,ksic,kis_api,string,raw,snapshot,available_PIT,n/a,ticker,KSIC code
+stock_sector_mapping_20260518,final_sector_code,derived,string,derived,snapshot,available_PIT,n/a,"kis_mcls,ksic",post-mapping sector
+stock_sector_mapping_20260518,final_sector_name,derived,string,derived,snapshot,available_PIT,n/a,final_sector_code,post-mapping sector name
+stock_sector_mapping_20260518,mapping_source,derived,string,derived,snapshot,available_PIT,n/a,n/a,kis_mcls | ksic | manual
+stock_sector_mapping_pit_daily,date,kis_or_krx,ISO_date,raw,snapshot,available_PIT,date_key,n/a,snapshot date
+stock_sector_mapping_pit_daily,ticker,kis_api,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,pdno,KRX 6-digit slice
+stock_sector_mapping_pit_daily,final_sector_code,derived,string,derived,snapshot,available_PIT,n/a,"kis_mcls,ksic",post-mapping sector
+stock_sector_mapping_pit_daily,final_sector_name,derived,string,derived,snapshot,available_PIT,n/a,final_sector_code,post-mapping sector name
+stock_sector_mapping_pit_daily,classification_date,derived,ISO_date,derived,snapshot,available_PIT,n/a,n/a,date the classification became effective
+stock_sector_mapping_pit_daily,krx_industry_name,krx_official,string,raw,snapshot,available_PIT,n/a,ticker,KRX 업종명
+sector_membership_kis_snapshot_20260518,pdno,kis_api,12digit_string,raw,snapshot,available_PIT,n/a,n/a,KIS pdno
+sector_membership_kis_snapshot_20260518,prdt_name,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,product name
+sector_membership_kis_snapshot_20260518,mket_id_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,KIS market id
+sector_membership_kis_snapshot_20260518,scty_grp_id_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,security group id
+sector_membership_kis_snapshot_20260518,idx_bztp_lcls_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,KIS industry large class code
+sector_membership_kis_snapshot_20260518,idx_bztp_lcls_cd_name,kis_api,string,raw,snapshot,available_PIT,n/a,idx_bztp_lcls_cd,large class name
+sector_membership_kis_snapshot_20260518,idx_bztp_mcls_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,mid class code
+sector_membership_kis_snapshot_20260518,idx_bztp_mcls_cd_name,kis_api,string,raw,snapshot,available_PIT,n/a,idx_bztp_mcls_cd,mid class name
+sector_membership_kis_snapshot_20260518,idx_bztp_scls_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,small class code
+sector_membership_kis_snapshot_20260518,idx_bztp_scls_cd_name,kis_api,string,raw,snapshot,available_PIT,n/a,idx_bztp_scls_cd,small class name
+sector_membership_kis_snapshot_20260518,std_idst_clsf_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,KSIC code
+sector_membership_kis_snapshot_20260518,std_idst_clsf_cd_name,kis_api,string,raw,snapshot,available_PIT,n/a,std_idst_clsf_cd,KSIC name
+sector_membership_kis_snapshot_20260518,lstg_abol_dt,kis_api,YYYYMMDD_string_or_null,raw,event_time,available_with_lookahead_risk,n/a,pdno,listing abolition date; null if still listed; latest snapshot only → PIT risk if read as historical truth
+sector_membership_kis_snapshot_20260518,lstg_cptl_amt,kis_api,KRW,raw,snapshot,available_PIT,n/a,pdno,listed capital amount
+sector_membership_kis_snapshot_20260518,lstg_rqsr_issu_istt_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,issuer code
+sector_membership_kis_snapshot_20260518,lstg_rqsr_item_cd,kis_api,string,raw,snapshot,available_PIT,n/a,pdno,item code
+sector_membership_kis_snapshot_20260518,lstg_stqt,kis_api,shares,raw,snapshot,available_with_lookahead_risk,n/a,pdno,listed share quantity; current snapshot only
+sector_membership_kis_snapshot_20260518,fetch_status,derived,string,derived,snapshot,available_PIT,n/a,n/a,OK | ERROR
+sector_membership_kis_snapshot_20260518,fetch_timestamp,derived,ISO_datetime,derived,snapshot,available_PIT,n/a,n/a,fetch wallclock time
+sector_membership_kis_snapshot_20260518,http_status_code,derived,int,derived,snapshot,available_PIT,n/a,n/a,HTTP status
+sector_membership_kis_snapshot_20260518,error_message,derived,string,derived,snapshot,available_PIT,n/a,n/a,error string
+stock_with_sector_daily,date,derived,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+stock_with_sector_daily,ticker,derived,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+stock_with_sector_daily,sector_code,derived,string,derived,snapshot,available_PIT,n/a,ticker,sector code at row date
+stock_with_sector_daily,sector_name,derived,string,derived,snapshot,available_PIT,n/a,sector_code,sector name
+stock_with_sector_daily,market_cap,derived,KRW,derived,T_trade_day,available_PIT,n/a,시가총액추정,alias of 시가총액추정 in panel
+stock_with_sector_daily,traded_value,derived,KRW,derived,T_trade_day,available_PIT,n/a,거래대금추정,alias of 거래대금추정 in panel
+stock_with_sector_daily,foreign_net_buy_amount,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매수금액추정,alias of panel column
+stock_with_sector_daily,foreign_net_buy_shares,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,alias
+stock_with_sector_daily,institution_net_buy_amount,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매수금액추정,alias
+stock_with_sector_daily,institution_net_buy_shares,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,alias
+stock_with_sector_daily,daily_return,derived,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,Change,alias of vendor Change column; raw-unadjusted distortion on split days
+stock_with_sector_daily_pit,date,derived,ISO_date,raw,T_trade_day,available_PIT,date_key,n/a,trade date
+stock_with_sector_daily_pit,ticker,derived,krx_ticker_6digit,raw,snapshot,available_PIT,ticker_key,n/a,KRX ticker
+stock_with_sector_daily_pit,sector_code,derived,string,derived,snapshot,available_PIT,n/a,ticker,sector code at row date
+stock_with_sector_daily_pit,sector_name,derived,string,derived,snapshot,available_PIT,n/a,sector_code,sector name
+stock_with_sector_daily_pit,classification_date,derived,ISO_date,derived,snapshot,available_PIT,n/a,ticker,effective date of classification used (PIT variant only)
+stock_with_sector_daily_pit,업종명,krx_official,string,raw,snapshot,available_PIT,n/a,ticker,KRX 업종명 (PIT variant only)
+stock_with_sector_daily_pit,market_cap,derived,KRW,derived,T_trade_day,available_PIT,n/a,시가총액추정,alias of 시가총액추정 in panel
+stock_with_sector_daily_pit,traded_value,derived,KRW,derived,T_trade_day,available_PIT,n/a,거래대금추정,alias of 거래대금추정 in panel
+stock_with_sector_daily_pit,foreign_net_buy_amount,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매수금액추정,alias of panel column
+stock_with_sector_daily_pit,foreign_net_buy_shares,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,외국인순매매량,alias
+stock_with_sector_daily_pit,institution_net_buy_amount,vendor_kiwoom_estimation,KRW,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매수금액추정,alias
+stock_with_sector_daily_pit,institution_net_buy_shares,vendor_kiwoom_estimation,shares,raw,T_trade_day_post_close,available_with_lookahead_risk,n/a,기관순매매량,alias
+stock_with_sector_daily_pit,daily_return,derived,ratio_decimal,raw_unadjusted,T_trade_day,available_with_lookahead_risk,n/a,Change,alias of vendor Change column; raw-unadjusted distortion on split days

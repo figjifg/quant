@@ -6,10 +6,41 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — Bull New Hypothesis Intake / Measurement-layer A0 (Referee verdict 2026-05-23)
 
-_없음_. 모든 active phase 가 2026-05-23 Referee verdict 로 종료. 다음 phase 진입은
-사용자/Referee 의 별도 명시적 결정 필요.
+5개 카드 = **measurement-layer A0 / backlog only**. Strategy-ready 아님. Strategy
+testing / performance / production / paper / P08 / live / shadow = UNCHANGED.
+
+| Phase id | Verdict | Priority | Scope |
+|---|---|---|---|
+| `KR-FIELD-METADATA-CONTRACT-A0-001` | A0 AUDIT | **P0** | repo-resident dataset / column contract audit only |
+| `KR-CALENDAR-PANEL-ALIGN-A0-001` | A0 AUDIT | **P0** | KRX calendar ↔ stock-date panel alignment audit only |
+| `KR-OHLCV-UNIT-INVARIANT-A0-001` | A0 DIAGNOSTIC | P1 | raw OHLCV invariant audit only (no return/jump/momentum/reversal/perf) |
+| `KR-LISTED-UNIVERSE-COVERAGE-BACKLOG-001` | DATA BACKLOG | P2 | official source 등록만 (A0 시작은 source 획득 후) |
+| `KR-EXECUTABLE-STATUS-BACKLOG-001` | DATA BACKLOG | P2 | official source 등록만 (A0 시작은 source 획득 후) |
+
+Execution sequence:
+1. P0 parallel: FIELD-METADATA-CONTRACT + CALENDAR-PANEL-ALIGN
+2. P0 완료 후: OHLCV-UNIT-INVARIANT (P1)
+3. P2 두 카드는 source register 만 (no A0 yet)
+
+Allowed outputs only: defect ledger / missing-source list / field allowlist|denylist /
+quarantine rule / reconciliation report / dataset-column contract table / calendar
+alignment defect table / raw OHLCV invariant defect table.
+
+Hard prohibitions (Referee-lock):
+- No return backtest / NAV / CAGR / Sharpe / hit rate / alpha / excess return / MDD
+- No post-event drift / migration return / turnover return / resume return / reversal
+  return / flow-return / raw jump alpha / price-only mean reversion
+- No generic value / quality / momentum / RS ranking
+- No DART body alpha test / no overhang filter alpha test / no flow strategy testing
+- No executable assumption from panel presence
+- No survivorship-safe claim without official listed universe
+- No field usage without metadata contract
+- No production / paper / P08 / live readiness / shadow connection
+- No card may be described as strategy-ready
+
+Output 경로: `reports/experiments/measurement_A0/{KR_FIELD_METADATA_CONTRACT_A0,KR_CALENDAR_PANEL_ALIGN_A0,KR_OHLCV_UNIT_INVARIANT_A0,KR_LISTED_UNIVERSE_COVERAGE_BACKLOG,KR_EXECUTABLE_STATUS_BACKLOG}/`
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 

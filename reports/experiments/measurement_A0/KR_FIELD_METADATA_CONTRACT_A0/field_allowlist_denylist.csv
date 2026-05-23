@@ -1,0 +1,373 @@
+dataset_id,column_name,decision,reason,source,pit_status,raw_or_adjusted
+equity_panel_kiwoom_2010_2016,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+equity_panel_kiwoom_2010_2016,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_kiwoom_2010_2016,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_kiwoom_2010_2016,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_kiwoom_2010_2016,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,통합거래량반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,통합종가반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,통합종가제외여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,가격범위후보정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_kiwoom_2010_2016,KRX종가,ALLOW_WITH_GUARD,synthesised value; synthesis rule must be documented at use site,krx_official_or_synth,available_PIT,raw_unadjusted
+equity_panel_kiwoom_2010_2016,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+equity_panel_dynamic_top100_2017_2024,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2017_2024,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2017_2024,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+equity_panel_dynamic_top100_2018_2024,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_dynamic_top100_2018_2024,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_dynamic_top100_2018_2024,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+equity_panel_krx_2025_2026,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_krx_2025_2026,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+equity_panel_krx_2025_2026,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,통합거래량반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,통합종가반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,통합종가제외여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,가격범위후보정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+equity_panel_krx_2025_2026,KRX종가,ALLOW_WITH_GUARD,synthesised value; synthesis rule must be documented at use site,krx_official_or_synth,available_PIT,raw_unadjusted
+equity_panel_krx_2025_2026,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+equity_panel_krx_2025_2026,키움거래대금순위,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,program_total_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,program_arb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,program_nonarb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,program_kospi200,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,program_basis,ALLOW_WITH_GUARD,unit ambiguous (index_pt_or_pct) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,kospi_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,kospi_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,kospi_individual_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,kospi_trade_volume,ALLOW_WITH_GUARD,unit ambiguous (shares_or_count) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2010_2017,large_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2010_2017,large_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,kospi_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,kospi_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,kospi_individual_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,kospi_trade_volume,ALLOW_WITH_GUARD,unit ambiguous (shares_or_count) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,large_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,large_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2018_2026_integrated,program_total_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,program_arb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,program_nonarb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,program_kospi200,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2018_2026_integrated,program_basis,ALLOW_WITH_GUARD,unit ambiguous (index_pt_or_pct) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,program_total_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,program_arb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,program_nonarb_net_mil,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,program_kospi200,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,program_basis,ALLOW_WITH_GUARD,unit ambiguous (index_pt_or_pct) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,kospi_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,kospi_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,kospi_individual_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,kospi_trade_volume,ALLOW_WITH_GUARD,unit ambiguous (shares_or_count) — call site must annotate via plausibility check,vendor_kiwoom_or_krx,available_PIT,raw
+market_flow_kiwoom_2025_2026_krx,large_foreign_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+market_flow_kiwoom_2025_2026_krx,large_institution_net,ALLOW_WITH_GUARD,unit ambiguous (KRW_mil_or_count) — call site must annotate via plausibility check,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+opendart_kospi_disclosures_20180101_20260505,rcept_no,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,rcept_dt,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,rcept_date,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,corp_cls,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,corp_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,stock_code,ALLOW_WITH_GUARD,unit ambiguous (krx_ticker_6digit_or_null) — call site must annotate via plausibility check,opendart_api,available_with_lookahead_risk,raw
+opendart_kospi_disclosures_20180101_20260505,corp_name,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,opendart_api,available_with_lookahead_risk,raw
+opendart_kospi_disclosures_20180101_20260505,report_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,flr_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,rm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+opendart_kospi_disclosures_20180101_20260505,pblntf_ty_query,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_query_param,n/a,derived
+opendart_kospi_disclosures_20180101_20260505,query_bgn_de,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_query_param,n/a,derived
+opendart_kospi_disclosures_20180101_20260505,query_end_de,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_query_param,n/a,derived
+opendart_kospi_disclosures_20180101_20260505,dart_url,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+opendart_kospi_disclosures_20180101_20260505,flag_capital_raise,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_cb_bw,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_capital_reduction,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_audit_issue,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_trading_halt,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_litigation,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_large_holder,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_treasury_stock,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_merger_split,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_earnings,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_contract,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+opendart_kospi_disclosures_20180101_20260505,flag_event_risk,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_regex,available_with_lookahead_risk,derived
+w001_v2_panel_with_adjusted_ohlc_2018_2026,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합거래량반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합종가반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,통합종가제외여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,가격범위후보정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,KRX종가,ALLOW_WITH_GUARD,synthesised value; synthesis rule must be documented at use site,krx_official_or_synth,available_PIT,raw_unadjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,키움거래대금순위,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_open,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_high,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_low,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_close,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_volume,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adj_return_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_adjusted_ohlc_2018_2026,adjusted_source,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+w001_v2_panel_with_tradable_state,날짜,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,시가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,고가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,저가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,종가,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,거래량,ALLOW_WITH_GUARD,RAW unadjusted price/volume; use only with corporate-action handling — see KR_OHLCV_UNIT_INVARIANT_A0 / W001 v2 adjusted overlay,vendor_kiwoom_or_krx,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,Change,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw_unadjusted
+w001_v2_panel_with_tradable_state,기관순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,외국인순매매량,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,기관순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,외국인순매수금액추정,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,거래대금추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+w001_v2_panel_with_tradable_state,시가총액추정,ALLOW_WITH_GUARD,vendor estimation; reconciliation gap acceptable (FLOW_000007 closure) but flag required at usage,vendor_kiwoom_estimation,available_PIT,raw
+w001_v2_panel_with_tradable_state,상장주식수,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,수급금액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,거래대금추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,시가총액추정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,동적유니버스포함,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_or_krx,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,통합거래량반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,통합종가반영여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,통합종가제외여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,가격범위후보정여부,ALLOW,metadata complete; usage permitted within phase-allowed scope,vendor_kiwoom_or_krx,available_PIT,raw
+w001_v2_panel_with_tradable_state,KRX종가,ALLOW_WITH_GUARD,synthesised value; synthesis rule must be documented at use site,krx_official_or_synth,available_PIT,raw_unadjusted
+w001_v2_panel_with_tradable_state,키움거래대금순위,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+w001_v2_panel_with_tradable_state,adj_open,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adj_high,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adj_low,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adj_close,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adj_volume,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adj_return_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted_join,available_PIT,adjusted
+w001_v2_panel_with_tradable_state,adjusted_source,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+w001_v2_panel_with_tradable_state,tradable_state,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_w001_v2,available_with_lookahead_risk,derived
+w001_v2_permanent_id_master,ticker,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,krx_official,available_with_lookahead_risk,raw
+w001_v2_permanent_id_master,permanent_id,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,derived
+w001_v2_permanent_id_master,permanent_id_source,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,derived
+w001_v2_permanent_id_master,corp_code_dart,ALLOW_WITH_GUARD,unit ambiguous (8digit_string_or_null) — call site must annotate via plausibility check,opendart_api,available_with_lookahead_risk,raw
+w001_v2_permanent_id_master,corp_name_dart,ALLOW_WITH_GUARD,unit ambiguous (string_or_null) — call site must annotate via plausibility check,opendart_api,available_with_lookahead_risk,raw
+w001_v2_permanent_id_master,name_krx,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,krx_official,available_with_lookahead_risk,raw
+w001_v2_permanent_id_master,krx_first_snapshot,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,derived
+w001_v2_permanent_id_master,krx_last_snapshot,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_w001_v2,available_with_lookahead_risk,derived
+w001_v2_permanent_id_master,krx_markets,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+w001_v2_listing_status_events,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api_mapped,available_PIT,raw
+w001_v2_listing_status_events,rcept_dt,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+w001_v2_listing_status_events,report_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+w001_v2_listing_status_events,category,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived_w001_v2,available_with_lookahead_risk,derived
+w001_v2_listing_status_events,rcept_no,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+w001_v2_listing_status_terminal,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,raw
+w001_v2_listing_status_terminal,terminal_status,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,derived
+w001_v2_listing_status_terminal,terminal_date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived_w001_v2,available_PIT,derived
+s1_adjusted_ohlc_all_tickers_2018_2026,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_open,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_high,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_low,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_close,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_volume,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,adj_return_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_adjusted,available_PIT,adjusted
+s1_adjusted_ohlc_all_tickers_2018_2026,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s3_krx_status_events_2018_2026,corp_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,corp_name,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,opendart_api,available_with_lookahead_risk,raw
+s3_krx_status_events_2018_2026,stock_code,ALLOW_WITH_GUARD,unit ambiguous (krx_ticker_or_null_float) — call site must annotate via plausibility check,opendart_api,available_with_lookahead_risk,raw
+s3_krx_status_events_2018_2026,corp_cls,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,report_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,rcept_no,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,flr_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,rcept_dt,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,rm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_krx_status_events_2018_2026,stock_code_str,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+s3_dart_pblntfty_I_all_2018_2026,corp_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,corp_name,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,opendart_api,available_with_lookahead_risk,raw
+s3_dart_pblntfty_I_all_2018_2026,stock_code,ALLOW_WITH_GUARD,unit ambiguous (krx_ticker_or_null_float) — call site must annotate via plausibility check,opendart_api,available_with_lookahead_risk,raw
+s3_dart_pblntfty_I_all_2018_2026,corp_cls,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,report_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,rcept_no,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,flr_nm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,rcept_dt,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s3_dart_pblntfty_I_all_2018_2026,rm,ALLOW,metadata complete; usage permitted within phase-allowed scope,opendart_api,available_PIT,raw
+s4_krx_ever_listed_table,ticker,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,pykrx_official,available_with_lookahead_risk,raw
+s4_krx_ever_listed_table,first_snapshot,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+s4_krx_ever_listed_table,last_snapshot,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+s4_krx_ever_listed_table,snapshot_count,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+s4_krx_ever_listed_table,markets,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+s4_krx_ever_listed_table,name,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,pykrx_official,available_with_lookahead_risk,raw
+s4_krx_listed_companies_master,snapshot_date,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s4_krx_listed_companies_master,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s4_krx_listed_companies_master,market,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s4_krx_listed_companies_master,name,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s6_reconciliation_sample_2024_01,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s6_reconciliation_sample_2024_01,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,pykrx_official,available_PIT,raw
+s6_reconciliation_sample_2024_01,krx_foreign,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,pykrx_official,available_with_lookahead_risk,raw
+s6_reconciliation_sample_2024_01,panel_foreign,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+s6_reconciliation_sample_2024_01,krx_institution,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,pykrx_official,available_with_lookahead_risk,raw
+s6_reconciliation_sample_2024_01,panel_institution,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+s6_reconciliation_sample_2024_01,foreign_diff_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+s6_reconciliation_sample_2024_01,institution_diff_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+krx_pit_sector_classifications,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+krx_pit_sector_classifications,market,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+krx_pit_sector_classifications,종목코드,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+krx_pit_sector_classifications,종목명,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,krx_official,available_with_lookahead_risk,raw
+krx_pit_sector_classifications,업종명,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+sector_aggregate_daily,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+sector_aggregate_daily,sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_or_krx,available_PIT,raw
+sector_aggregate_daily,sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_or_krx,available_PIT,raw
+sector_aggregate_daily,n_stocks,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily,sum_market_cap,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily,sum_traded_value,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily,sum_foreign_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily,sum_foreign_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily,sum_institution_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily,sum_institution_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily,cap_weighted_return,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily,top1_market_cap_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily,top2_market_cap_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily_pit,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+sector_aggregate_daily_pit,sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_or_krx,available_PIT,raw
+sector_aggregate_daily_pit,sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_or_krx,available_PIT,raw
+sector_aggregate_daily_pit,n_stocks,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily_pit,sum_market_cap,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily_pit,sum_traded_value,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily_pit,sum_foreign_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily_pit,sum_foreign_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily_pit,sum_institution_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily_pit,sum_institution_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily_pit,cap_weighted_return,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,derived
+sector_aggregate_daily_pit,top1_market_cap_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_aggregate_daily_pit,top2_market_cap_pct,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_20260518,pdno,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_20260518,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_20260518,prdt_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_20260518,kis_mcls,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_20260518,ksic,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_20260518,final_sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_20260518,final_sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_20260518,mapping_source,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_pit_daily,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_or_krx,available_PIT,raw
+stock_sector_mapping_pit_daily,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+stock_sector_mapping_pit_daily,final_sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_pit_daily,final_sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_pit_daily,classification_date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_sector_mapping_pit_daily,krx_industry_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+sector_membership_kis_snapshot_20260518,pdno,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,prdt_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,mket_id_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,scty_grp_id_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_lcls_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_lcls_cd_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_mcls_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_mcls_cd_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_scls_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,idx_bztp_scls_cd_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,std_idst_clsf_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,std_idst_clsf_cd_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,lstg_abol_dt,ALLOW_WITH_GUARD,unit ambiguous (YYYYMMDD_string_or_null) — call site must annotate via plausibility check,kis_api,available_with_lookahead_risk,raw
+sector_membership_kis_snapshot_20260518,lstg_cptl_amt,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,lstg_rqsr_issu_istt_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,lstg_rqsr_item_cd,ALLOW,metadata complete; usage permitted within phase-allowed scope,kis_api,available_PIT,raw
+sector_membership_kis_snapshot_20260518,lstg_stqt,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,kis_api,available_with_lookahead_risk,raw
+sector_membership_kis_snapshot_20260518,fetch_status,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_membership_kis_snapshot_20260518,fetch_timestamp,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_membership_kis_snapshot_20260518,http_status_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+sector_membership_kis_snapshot_20260518,error_message,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+stock_with_sector_daily,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+stock_with_sector_daily,sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily,sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily,market_cap,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily,traded_value,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily,foreign_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily,foreign_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily,institution_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily,institution_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily,daily_return,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,raw_unadjusted
+stock_with_sector_daily_pit,date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+stock_with_sector_daily_pit,ticker,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,raw
+stock_with_sector_daily_pit,sector_code,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily_pit,sector_name,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily_pit,classification_date,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily_pit,업종명,ALLOW,metadata complete; usage permitted within phase-allowed scope,krx_official,available_PIT,raw
+stock_with_sector_daily_pit,market_cap,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily_pit,traded_value,ALLOW,metadata complete; usage permitted within phase-allowed scope,derived,available_PIT,derived
+stock_with_sector_daily_pit,foreign_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily_pit,foreign_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily_pit,institution_net_buy_amount,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily_pit,institution_net_buy_shares,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,vendor_kiwoom_estimation,available_with_lookahead_risk,raw
+stock_with_sector_daily_pit,daily_return,ALLOW_WITH_GUARD,PIT lookahead risk — must shift/lag at use site,derived,available_with_lookahead_risk,raw_unadjusted

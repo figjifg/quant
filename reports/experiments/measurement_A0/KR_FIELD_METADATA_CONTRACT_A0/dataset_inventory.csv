@@ -1,0 +1,33 @@
+dataset_id,path,role,scope,rowcount,n_columns,notes
+equity_panel_kiwoom_2010_2016,research_input_data/inputs/equity_panels/kiwoom_dynamic_top100_2010_2016_panel.csv,equity_panel,KR_in_scope,1093386,25,Kiwoom vendor flow estimation + price; pre-NXT (integrated-market flags all False); 25 cols
+equity_panel_dynamic_top100_2017_2024,research_input_data/inputs/equity_panels/dynamic_top100_2017_2024_panel.csv,equity_panel,KR_in_scope,1087741,20,20 cols; pre-NXT; KRX종가 column not native (synthesised from 종가)
+equity_panel_dynamic_top100_2018_2024,research_input_data/inputs/equity_panels/dynamic_top100_2018_2024_panel.csv,equity_panel,KR_in_scope,969208,20,20 cols; pre-NXT; overlap with 2017_2024
+equity_panel_krx_2025_2026,research_input_data/inputs/equity_panels/dynamic_top100_2025_2026_krx_panel.csv,equity_panel,KR_in_scope,172543,26,26 cols; post-NXT integrated-market flags present; native KRX종가
+market_flow_kiwoom_2010_2017,research_input_data/inputs/market_flow/kiwoom_market_flow_2010_2017_krx_trading_days.csv,market_flow,KR_in_scope,1976,12,
+market_flow_kiwoom_2018_2026_integrated,research_input_data/inputs/market_flow/kiwoom_market_flow_2018_2026_integrated.csv,market_flow,KR_in_scope,2045,12,
+market_flow_kiwoom_2025_2026_krx,research_input_data/inputs/market_flow/kiwoom_market_flow_2025_2026_krx.csv,market_flow,KR_in_scope,325,12,
+opendart_kospi_disclosures_20180101_20260505,research_input_data/inputs/events/opendart_kospi_disclosures_20180101_20260505.parquet,event,KR_in_scope,450190,26,"OPENDART list.json metadata only (no body parse); 26 cols; flags derived from report_nm patterns (regex-based, not authoritative)"
+w001_v2_panel_with_adjusted_ohlc_2018_2026,data/processed/w001_v2/panel_with_adjusted_ohlc_2018_2026.csv,derived_panel,KR_in_scope_processed,1141751,33,Panel + pykrx adjusted OHLC join; adj_* columns added
+w001_v2_panel_with_tradable_state,data/processed/w001_v2/panel_with_tradable_state.csv,derived_panel,KR_in_scope_processed,1141751,34,Above + tradable_state column
+w001_v2_permanent_id_master,data/processed/w001_v2/permanent_id_master.csv,universe_lifecycle,KR_in_scope_processed,833,9,
+w001_v2_listing_status_events,data/processed/w001_v2/listing_status_events.csv,universe_lifecycle,KR_in_scope_processed,10769,5,
+w001_v2_listing_status_terminal,data/processed/w001_v2/listing_status_terminal.csv,universe_lifecycle,KR_in_scope_processed,1854,3,
+s1_adjusted_ohlc_all_tickers_2018_2026,data/acquired/round4/s1_adjusted_ohlc/adjusted_ohlc_all_tickers_2018_2026.csv,derived_panel,KR_in_scope_processed,1578220,8,pykrx get_market_ohlcv(adjusted=True) per-ticker concatenated
+s3_krx_status_events_2018_2026,data/acquired/round4/s3_krx_status/krx_status_events_2018_2026.csv,universe_lifecycle,KR_in_scope_processed,10774,10,OPENDART pblntfty=I filtered to status-relevant report names
+s3_dart_pblntfty_I_all_2018_2026,data/acquired/round4/s3_krx_status/dart_pblntfty_I_all_2018_2026.csv,event,KR_in_scope_processed,425294,9,Raw 425k OPENDART pblntfty=I (거래소공시) records
+s4_krx_ever_listed_table,data/acquired/round4/s4_listed_companies/krx_ever_listed_table.csv,universe_lifecycle,KR_in_scope_processed,3154,6,5-snapshot sample union; NOT full daily listed universe
+s4_krx_listed_companies_master,data/acquired/round4/s4_listed_companies/krx_listed_companies_master.csv,universe_lifecycle,KR_in_scope_processed,22305,4,
+s6_reconciliation_sample_2024_01,data/acquired/round4/s6_flow_reconciliation/s6_reconciliation_sample_2024_01.csv,reconciliation_sample,KR_in_scope_processed,440,8,20 ticker × 22 day sample only; NOT full reconciliation
+krx_pit_sector_classifications,data/processed/krx_pit_sector_classifications.csv,sector,KR_in_scope_processed,148600,5,
+sector_aggregate_daily,data/processed/sector_aggregate_daily.csv,sector,KR_in_scope_processed,48071,13,
+sector_aggregate_daily_pit,data/processed/sector_aggregate_daily_pit.csv,sector,KR_in_scope_processed,50808,13,
+stock_sector_mapping_20260518,data/processed/stock_sector_mapping_20260518.csv,sector,KR_in_scope_processed,923,8,
+stock_sector_mapping_pit_daily,data/processed/stock_sector_mapping_pit_daily.csv,sector,KR_in_scope_processed,393436,6,
+sector_membership_kis_snapshot_20260518,data/processed/sector_membership_kis_snapshot_20260518.csv,sector,KR_in_scope_processed,923,21,
+stock_with_sector_daily,data/processed/stock_with_sector_daily.csv,derived_panel,KR_in_scope_processed,402198,11,
+stock_with_sector_daily_pit,data/processed/stock_with_sector_daily_pit.csv,derived_panel,KR_in_scope_processed,402198,13,
+out_of_scope:us_equity_prices,research_input_data/inputs/us_equity_prices/,non_KR,out_of_scope,n/a,n/a,non-Korean — not column-contracted in this A0
+out_of_scope:us_fundamentals,research_input_data/inputs/us_fundamentals/,non_KR,out_of_scope,n/a,n/a,non-Korean — not column-contracted in this A0
+out_of_scope:global_etf,research_input_data/inputs/global_etf/,non_KR,out_of_scope,n/a,n/a,non-Korean — not column-contracted in this A0
+out_of_scope:macro_features,research_input_data/inputs/macro_features/,non_KR,out_of_scope,n/a,n/a,non-Korean — not column-contracted in this A0
+out_of_scope:futures,research_input_data/inputs/futures/,non_KR,out_of_scope,n/a,n/a,non-Korean — not column-contracted in this A0
