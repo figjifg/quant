@@ -1,0 +1,11 @@
+wave,event_type,n_total,n_ok,n_attachment_only,mean_confidence,max_confidence,manual_review_rate
+D3a,treasury_acquire,5,5,0,0.267,0.667,100.0%
+D3a,treasury_acquire_result,5,5,0,0.0,0.0,100.0%
+D3a,treasury_cancel,5,5,0,0.453,0.567,100.0%
+D3a,treasury_dispose,5,5,0,0.427,1.0,100.0%
+D3a,treasury_dispose_result,6,6,0,0.0,0.0,100.0%
+D3a,treasury_trust_create,5,5,0,0.047,0.233,100.0%
+D3a,treasury_trust_terminate,5,5,0,0.14,0.233,100.0%
+D3b,bw_issue,5,3,0,0.1,0.5,100.0%
+D3b,cb_issue,6,5,0,0.25,0.5,100.0%
+D3b,conversion_request,6,6,0,0.083,0.5,100.0%
