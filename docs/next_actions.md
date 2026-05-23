@@ -6,64 +6,42 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (Referee verdict 2026-05-23)
+## Active
 
-**Scope**: Measurement-layer A0 only. Verify invalid OHLCV rows are excluded or
-explicitly guarded in all downstream code paths. **Audit-only — no patches** (separate
-Referee approval required for any patch phase; documentation-only clarification allowed).
-
-**Reason**: P1 finding (58,649 OHLC ordering violations + 53,556 nonpos rows, all
-matching OHL=0 / `close>0` vendor non-trading-row signature). Referee lock requires
-quarantine; before any future diagnostic can safely use OHLCV, enforcement must be
-audited.
-
-**6 allowed task groups**:
-1. Build invalid-row contract (signatures: OHL=0/close>0, nonpos, ordering, neg volume,
-   neg trading value, missing adjusted) — separate vendor non-trading-row convention
-   from true missing data; no suspension/halt inference.
-2. Scan downstream code paths (src/, research/, backtest/, scripts/, reports build
-   scripts) for raw + adjusted OHLCV / volume / trading value / Change / tradable_state
-   / dynamic universe reads.
-3. Verify quarantine enforcement (exclude / mask / explicit flag before downstream use)
-   — signal construction / event ledger / execution sim / t+1 mapping / tradability
-   logic / universe construction / future diagnostic. Audit-only — no perf diagnostic.
-4. Field guard audit (cross-check ALLOW_WITH_GUARD fields from P0-1; if used without
-   guard, record defect).
-5. Defect classification (PASS / GUARDED / MISSING_GUARD / INVALID_ROW_LEAK /
-   AMBIGUOUS / NOT_APPLICABLE) — record defects first, no silent fixes.
-6. Patch recommendation only (documentation; no implementation unless Referee approves
-   a separate patch phase).
-
-**Required outputs (8)**:
-- `quarantine_enforcement_referee_lock.md`
-- `invalid_ohlcv_row_contract.md`
-- `downstream_ohlcv_usage_inventory.csv`
-- `allow_with_guard_usage_audit.csv`
-- `quarantine_enforcement_summary.md`
-- `invalid_row_leak_defect_ledger.csv`
-- `required_patch_register.md`
-- `downstream_blockers_after_quarantine_a0.md`
-
-**Pass criteria**:
-- All downstream OHLCV consumers inventoried.
-- Invalid-row signatures explicitly defined.
-- Every invalid-row use is guarded / blocked / recorded as a defect.
-- Every ALLOW_WITH_GUARD use has documented guard or a defect.
-- No invalid OHLCV row silently treated as a valid price observation.
-- No invalid OHLCV row interpreted as halt/suspension evidence without official source.
-- No performance metric generated.
-
-**Kill / fail gates**:
-- Any downstream path uses invalid OHLCV without guard.
-- Any code treats OHL=0/close>0 rows as valid price observations.
-- Any code infers halt/suspension/executable status from invalid OHLCV alone.
-- Any ALLOW_WITH_GUARD field used without documented guard.
-- Any return / alpha / NAV / Sharpe / CAGR / MDD / strategy metric produced.
-- Any strategy testing started.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_ENFORCEMENT_A0/`
+_없음_. 2026-05-23 Referee verdict 로 KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 종료
+(CLOSED AS DEFECT-FOUND). 다음 phase 진입은 사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 — CLOSED AS DEFECT-FOUND (2026-05-23)
+
+Referee final verdict 2026-05-23: **CLOSED AS DEFECT-FOUND — 143 defects recorded; no
+patches applied.**
+
+- Status: **CLOSED AS DEFECT-FOUND** (not PASS — presence of 51 LEAK + 92 MISSING_GUARD
+  prevents clean pass).
+- Initial pass commit accepted: `06a2dfa`
+- 8 deliverables ACCEPTED.
+- 143 defects ACCEPTED (51 high + 92 medium); preserved in ledger with additional
+  `current_runtime_risk` + `reopen_blocker=true` annotation columns (additive only —
+  original severity / classification unchanged).
+- `required_patch_register.md` = documentation-only source of truth for any future
+  patch phase.
+- Static-scan limit accepted (does not verify runtime mask propagation).
+- Closed-strategy callsites remain in ledger as reopen blockers (not removed, not
+  suppressed, not reclassified).
+
+3 new candidate phases enumerated (none active, none auto-start):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-OHLCV-QUARANTINE-PATCH-PHASE` | Implement guard patches for the 143 findings. **Recommended next if user chooses to continue.** |
+| `KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0` | Verify invalid-row masks propagate through actual runtime data flows. |
+| `KR-CLOSED-STRATEGY-CODEPATH-QUARANTINE-A0` | Audit closed-strategy code paths against accidental reactivation with invalid OHLCV usage. |
+
+(Older measurement-layer A0 candidates remain: `KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0`,
+`KR-LISTED-UNIVERSE-COVERAGE-A0`, `KR-EXECUTABLE-STATUS-COVERAGE-A0`. All require fresh
+Referee verdict.)
 
 ### Measurement-layer A0 initial pass — CLOSED AS PARTIAL / DEFECT-FOUND (2026-05-23)
 
@@ -175,7 +153,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) |
 
 ## Git Status
 

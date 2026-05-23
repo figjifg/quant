@@ -349,7 +349,8 @@ def write_defect_ledger(callsites: list[Callsite]) -> None:
         w = csv.writer(f)
         w.writerow(["defect_id", "severity", "defect_class", "file_path", "file_category",
                     "line_number", "column_name", "classification", "detail",
-                    "recommended_action"])
+                    "recommended_action",
+                    "current_runtime_risk", "reopen_blocker"])
         defect_id = 1
         for c in callsites:
             if c.classification in ("INVALID_ROW_LEAK", "MISSING_GUARD"):
@@ -360,9 +361,22 @@ def write_defect_ledger(callsites: list[Callsite]) -> None:
                     if c.classification == "INVALID_ROW_LEAK"
                     else "Add documented guard within ±5 lines OR confirm upstream quarantine is preserved"
                 )
+                # Runtime-risk annotation (Referee 2026-05-23 close verdict):
+                # Closed-strategy callsites remain in ledger as reopen blockers.
+                # Infrastructure callsites can be exercised by any future strategy reopen.
+                if c.file_category in ("strategies", "features", "backtest", "ops", "roles", "paper_trading"):
+                    runtime_risk = "inactive_closed_strategy_path"
+                elif c.file_category in ("data", "utils", "entry_point", "scripts"):
+                    runtime_risk = "inactive_infrastructure_path"
+                elif c.file_category in ("research", "configs"):
+                    runtime_risk = "inactive_research_path"
+                else:
+                    runtime_risk = "inactive_other"
+                reopen_blocker = "true"  # all 143 defects block any safe strategy reopen
                 w.writerow([f"QENF_{defect_id:05d}", severity, c.classification,
                             c.file_path, c.file_category, c.line_number, c.column_name,
-                            c.classification, detail, action])
+                            c.classification, detail, action,
+                            runtime_risk, reopen_blocker])
                 defect_id += 1
 
 
