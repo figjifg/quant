@@ -90,9 +90,9 @@ Rationale:
 
 ## Section 4 — Prerequisites Pending User Action
 
-1. **OPENDART API key** 환경 변수 (`OPENDART_API_KEY`) 셋업 필요.
-   - 현재 repo `.env` 파일 부재 (확인됨). 사용자가 이전 S2 feasibility test 시 직접 사용.
-   - D1 시작 전 50-disclosure dry run 으로 endpoint + key 검증 필요.
+1. **OPENDART API key** confirmed available in local environment or untracked local `.env`
+   (`research_input_data/.env`, gitignored); **not git-tracked and not pushed** (Referee security lock).
+   - D1 dry run uses this key via BOM/CRLF-safe parser; key value is never printed (length-only log).
 
 2. Codex 환경에 위 key 노출 방법 확정 (보안 review 후).
 

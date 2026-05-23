@@ -101,7 +101,8 @@ D3a/b/c 병렬 가능. Critical path ≈ 4-7 weeks. Total 6-10 weeks.
 
 ### Prerequisites (Pending User Action)
 
-1. **OPENDART API key** 환경 변수 `OPENDART_API_KEY` 셋업 필요 (현재 `.env` 부재).
+1. **OPENDART API key** confirmed available in local environment or untracked local `.env`
+   (`research_input_data/.env`, gitignored); **not git-tracked and not pushed**.
 2. D1 시작 전 50-disclosure dry run 으로 endpoint + key 검증.
 3. (선택) Referee 가 executor HOW decisions 에 대해 accept / narrow / re-order / hold 중 선택.
 

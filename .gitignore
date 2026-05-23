@@ -1,3 +1,13 @@
+# Secrets / credentials — defense-in-depth (Referee Round 4.1 S2 prerequisite)
+.env
+.env.*
+*.env
+secrets/
+credentials.json
+*.pem
+*_api_key*
+*api_key*.json
+
 # Read-only research inputs (large, mirrored elsewhere)
 research_input_data/
 

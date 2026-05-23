@@ -146,7 +146,8 @@ reports/experiments/S2_phase_parser_A0/   # D6 final output
 
 ## Prerequisites (사용자 action 필요)
 
-1. **OPENDART API key**: `OPENDART_API_KEY` 환경 변수 셋업 (`.env` 또는 셸 환경).
+1. **OPENDART API key**: confirmed available in local environment or untracked local `.env`
+   (`research_input_data/.env`, gitignored); **not git-tracked and not pushed** (Referee security lock).
 2. Codex 환경에서 위 key 사용 가능 확인.
 3. 최초 D1 시작 전 small-scale dry run (50 rcept_no) 으로 endpoint + key 검증.
 
