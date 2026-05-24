@@ -6,65 +6,48 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-OHLCV-QUARANTINE-PATCH-PHASE (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Patch phase only. Measurement-layer infrastructure repair. Implement guards
-for the 143 findings from KR-OHLCV-QUARANTINE-ENFORCEMENT-A0. **No strategy testing.
-No performance diagnostics. No production / paper / P08 / live readiness / shadow.**
-
-**Reason**: Enforcement A0 closed as DEFECT-FOUND (51 LEAK + 92 MISSING_GUARD = 143
-preserved defects). Next logical infrastructure step is to patch the guard gaps.
-
-**Primary source-of-truth (read-only inputs)**:
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_ENFORCEMENT_A0/`
-  - `invalid_row_leak_defect_ledger.csv` (143 rows, with `current_runtime_risk` +
-    `reopen_blocker=true` annotations)
-  - `required_patch_register.md` (10 patch families, documentation-only)
-  - `invalid_ohlcv_row_contract.md` (S1–S6 signatures)
-  - `downstream_ohlcv_usage_inventory.csv` (963 callsites)
-
-**Allowed work groups (8)**:
-1. Build shared guard utilities — `src/utils/ohlcv_quarantine.py`:
-   `invalid_ohlcv_mask`, `apply_ohlcv_quarantine`, `assert_no_invalid_ohlcv`,
-   `require_guarded_field_use`. Fail closed on missing required columns.
-2. Patch INVALID_ROW_LEAK findings (51 high).
-3. Patch MISSING_GUARD findings (92 medium).
-4. ALLOW_WITH_GUARD enforcement.
-5. Closed-strategy paths remain as reopen blockers (`patched_inactive_path` or
-   `still_reopen_blocker`; never deleted).
-6. Re-run static scan + before/after comparison.
-7. Unit tests for the guard module.
-8. Documentation (patch delta ledger; do NOT rewrite old defect ledger).
-
-**Patch status taxonomy** (every defect must receive one):
-`patched` / `patched_inactive_path` / `upstream_guarded` / `still_reopen_blocker` /
-`audit_only_no_patch_needed` / `not_patched_requires_future_work` /
-`false_positive_static_scan`. False-positive and audit-only require evidence.
-
-**Required outputs (9)**:
-- `patch_phase_referee_lock.md`
-- `guard_utility_design.md`
-- `defect_patch_plan.csv`
-- `patched_defect_delta.csv`
-- `static_rescan_summary.md`
-- `remaining_reopen_blockers.csv`
-- `allow_with_guard_patch_audit.csv`
-- `test_coverage_summary.md`
-- `patch_phase_final_summary.md`
-
-**Required code artifacts**:
-- `src/utils/ohlcv_quarantine.py` (or equivalent shared module)
-- tests for the new guard module
-- minimal call-site patches to reduce or block the 143 defects
-- no broad refactor unless required for guard insertion
-
-**Important boundary**: Patch phase only — **NOT** runtime mask propagation verification.
-If propagation needs validation, recorded as future phase
-`KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0` (NOT auto-started).
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/`
+_없음_. 2026-05-24 Referee verdict 로 KR-OHLCV-QUARANTINE-PATCH-PHASE 종료
+(CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED). 다음 phase 진입은
+사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-OHLCV-QUARANTINE-PATCH-PHASE — CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS PATCHED-PARTIAL — 42 patched, 37
+upstream_guarded, 44 still_reopen_blocker, 19 audit_only_no_patch_needed, 1
+future_work; runtime propagation not verified.**
+
+- Status: **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** (not clean pass —
+  45 residual blockers remain visible).
+- Initial pass commit accepted: `2fd9e4e`
+- 9 deliverables ACCEPTED.
+- Guard module + 19 passing tests ACCEPTED.
+- 6 code patch files ACCEPTED (`src/data/equity_panel.py`, `market_flow.py`,
+  `universe.py`, `sector_aggregator.py`, `backtest/engine.py`,
+  `features/stock_rs_score.py`).
+- Patch status distribution (143 defects): 42 patched / 37 upstream_guarded / 44
+  still_reopen_blocker / 19 audit_only_no_patch_needed / 1 not_patched_requires_future_work.
+- 45 residual blockers preserved (44 still_reopen_blocker + 1 future_work) — visible,
+  not deleted, not suppressed, not downgraded; block any future strategy reopen.
+- Static rescan +3 accepted as local-window scanner limitation; informational only.
+- `defect_patch_plan.csv` is authoritative per-defect patch-status record.
+- Runtime mask propagation **NOT verified** by this phase.
+- Original KR_OHLCV_QUARANTINE_ENFORCEMENT_A0 defect ledger preserved unchanged.
+
+3 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0` | Verify masks propagate through actual runtime data flows. **Recommended next if user chooses to continue.** |
+| `KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE` | Address the 44 still_reopen_blocker + 1 future_work rows. |
+| `KR-CLOSED-STRATEGY-CODEPATH-QUARANTINE-A0` | Audit closed-strategy paths against accidental reactivation. |
+
+(Older candidates remain: `KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0`,
+`KR-LISTED-UNIVERSE-COVERAGE-A0`, `KR-EXECUTABLE-STATUS-COVERAGE-A0`.
+All require fresh Referee verdict.)
 
 ### KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 — CLOSED AS DEFECT-FOUND (2026-05-23)
 
@@ -206,7 +189,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) |
 
 ## Git Status
 
