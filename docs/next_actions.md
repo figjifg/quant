@@ -6,41 +6,55 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Measurement-layer source acquisition + reconciliation only. Acquire or
-reconstruct an authoritative KRX trading calendar. Reconcile against the repo's current
-working calendar. **No strategy testing. No performance diagnostics. No execution
-simulation. No production / paper / P08 / live / shadow.**
-
-**Reason**: Calendar source remained UNRESOLVED through prior measurement-layer A0
-phases. T+1 mapping was only verified relative to a union working calendar, not an
-authoritative KRX calendar.
-
-**Primary source-of-truth (read-only inputs)**:
-- `reports/experiments/measurement_A0/KR_CALENDAR_PANEL_ALIGN_A0/calendar_panel_alignment_summary.md`
-- `reports/experiments/measurement_A0/KR_CALENDAR_PANEL_ALIGN_A0/krx_calendar_source_check.md`
-- `reports/experiments/measurement_A0/KR_CALENDAR_PANEL_ALIGN_A0/t_plus_1_mapping_reproducibility.md`
-
-**8 allowed task groups**: candidate source enumeration / acquire authoritative calendar /
-reconciliation table / re-evaluate t+1 mapping / anomaly ledger / calendar usage
-contract / update execution-sim gate status / security & data handling.
-
-**Required outputs (11)**: `calendar_source_referee_lock.md` /
-`official_krx_calendar_source_report.md` / `acquired_calendar_inventory.csv` /
-`calendar_reconciliation_summary.md` / `calendar_reconciliation_ledger.csv` /
-`t_plus_1_official_mapping_check.md` / `t_plus_1_mapping_delta.csv` /
-`calendar_anomaly_ledger.csv` / `calendar_usage_contract.md` /
-`execution_simulation_gate_status.md` / `calendar_source_final_summary.md`.
-
-**Execution-simulation gate**: may update **only** within
-`CLOSED` / `PARTIAL` / `CALENDAR_SOURCE_ACQUIRED_BUT_NOT_FULLY_RECONCILED` /
-`CALENDAR_SOURCE_RECONCILED_BUT_EXECUTION_STILL_CLOSED` / `READY_FOR_NEXT_A0_REVIEW`.
-Do NOT mark execution simulation as open. Do NOT mark strategy testing as open.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_KRX_CALENDAR_SOURCE_ACQUISITION_A0/`
+_없음_. 2026-05-24 Referee verdict 로 KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 종료
+(CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED). 다음 phase 진입은
+사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 — CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS CALENDAR-SOURCE-RECONCILED — composite
+2010-2026 KRX calendar acquired; 4,021/4,021 t+1 mappings match prior union calendar;
+12 official-only vendor-cutoff dates; execution simulation still closed.**
+
+- Status: **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED**.
+- Initial pass commit accepted: `d27a851`
+- 11 deliverables ACCEPTED.
+- Composite source ACCEPTED with L1/L2 provenance:
+  - L1: pykrx 005930 OHLCV (2014-03-03 → 2026-05-22, 3,000 dates, authoritative).
+  - L2: market_flow_2010_2017_krx_trading_days.csv (2010-01-04 → 2014-03-02, 1,034
+    dates, secondary reference per Referee-permitted).
+  - Total: 4,034 dates 2010-01-04 → 2026-05-22.
+- Reconciliation: 4,022 matched / 0 repo-only / 12 official-only (all 2026-05-07 →
+  2026-05-22 vendor-cutoff dates).
+- T+1 mapping: 4,021/4,021 match (100%); 0 mismatches.
+- Execution-simulation gate: `CALENDAR_SOURCE_RECONCILED_BUT_EXECUTION_STILL_CLOSED`.
+- Calendar source no longer the main blocker. Other blockers remain
+  (listed-universe / executable-status / residual ops).
+- Calendar storage: `data/acquired/krx_calendar/krx_official_calendar_2010_2026.csv`
+  (gitignored; reproducible via build script).
+- No credential committed.
+
+Limitations:
+- Composite, not a single direct official KRX holiday endpoint.
+- pre-2014 layer uses existing KRX-tagged market_flow source as secondary reference.
+- pykrx 005930 may undercount rare dates (no material mismatch found).
+- Date-level only; no intraday halt / shortened session / executable-status metadata.
+- This phase does NOT certify execution readiness / survivorship safety / tradability.
+
+4 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-LISTED-UNIVERSE-COVERAGE-A0` | Acquire / validate official listed-universe / lifecycle coverage. **Referee-recommended next** for cleanest path toward safe future backtesting. |
+| `KR-EXECUTABLE-STATUS-COVERAGE-A0` | Acquire / validate official executable-status / halt / limit-lock source. Natural next if priority = execution feasibility. |
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | Patch the 4 remaining ops blockers (touches ops/paper/live-related code). |
+| `KR-CLOSED-STRATEGY-CODEPATH-QUARANTINE-A0` | Optional follow-up before any strategy reopen. Lower priority while strategy testing closed. |
+
+Strategy testing remains **premature**.
 
 ### KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE — CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED (2026-05-24)
 
@@ -286,7 +300,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) |
 
 ## Git Status
 
