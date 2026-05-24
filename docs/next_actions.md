@@ -6,51 +6,49 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Measurement-layer infrastructure audit only. Verify that `valid_ohlcv_mask`
-and invalid OHLCV guards propagate through **actual runtime data flows**. **No strategy
-testing. No performance diagnostics. No production / paper / P08 / live / shadow.**
-
-**Reason**: Patch phase installed static guards. Runtime mask propagation was explicitly
-NOT verified. Static scan cannot prove masks survive actual data loading, transformation,
-universe building, feature construction, or backtest entry.
-
-**Primary source-of-truth (read-only inputs)**:
-- `src/utils/ohlcv_quarantine.py`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/defect_patch_plan.csv`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/remaining_reopen_blockers.csv`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/static_rescan_summary.md`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_ENFORCEMENT_A0/invalid_ohlcv_row_contract.md`
-
-**8 allowed task groups**:
-1. Runtime pipeline inventory.
-2. Mask propagation test design.
-3. Synthetic invalid-row tests.
-4. Real-data spot checks (using known invalid rows from prior audit).
-5. Backtest entry fail-closed check.
-6. Universe path check.
-7. Feature path check.
-8. Remaining blocker review (classify runtime status; do not delete/downgrade).
-
-**Required outputs (9)**:
-- `runtime_mask_referee_lock.md`
-- `runtime_pipeline_inventory.csv`
-- `synthetic_invalid_row_test_report.md`
-- `real_invalid_row_spot_check.md`
-- `backtest_entry_fail_closed_check.md`
-- `universe_path_mask_propagation_check.md`
-- `feature_path_guard_check.md`
-- `residual_blocker_runtime_status.csv`
-- `runtime_mask_propagation_summary.md`
-
-**Important boundary**: Runtime verification, NOT strategy validation. Passing this phase
-does NOT reopen any strategy. Does NOT make P08 / paper / production / live eligible.
-Only confirms OHLCV quarantine guards propagate through tested runtime paths.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_OHLCV_RUNTIME_MASK_PROPAGATION_A0/`
+_없음_. 2026-05-24 Referee verdict 로 KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 종료
+(CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED). 다음
+phase 진입은 사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 — CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS — 10/10
+synthetic tests passed; 11,425 real invalid rows detected and filtered; backtest /
+universe fail-closed gates verified; 45 residual blockers preserved; no strategy
+testing.**
+
+- Status: **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED**
+  (not full-market / not strategy / not production-readiness pass).
+- Initial pass commit accepted: `0d2b4aa`
+- 9 deliverables ACCEPTED.
+- 10/10 synthetic invalid-row runtime tests passed.
+- Real spot check on kiwoom_2010_2016 (1,093,386 rows): **11,425** invalid rows
+  detected = exact match with prior P1 OHLCV invariant audit nonpositive finding.
+- Backtest entry: `run_candidate_backtest` raises `OhlcvQuarantineError` without mask.
+- Universe builder: rejects panel without mask; filters invalid rows when present.
+- Feature path: `stock_rs_score.py` records `require_guarded_field_use("daily_return", ...)`;
+  other feature builders remain `upstream_guarded` under patch-phase decision.
+- 45 residual blockers classified by runtime_status (none deleted, none downgraded;
+  all retain `reopen_blocker=true`).
+- Runtime verification = tested paths only. Does not certify all possible future
+  strategy paths. Does not remove residual blockers. Does not reopen any strategy.
+- No new source-code patches in this verification phase.
+
+5 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE` | Address the 45 remaining residual blockers. **Most natural next if priority = reducing blockers before strategy work.** |
+| `KR-CLOSED-STRATEGY-CODEPATH-QUARANTINE-A0` | Audit closed strategy paths directly before any strategy reopen. |
+| `KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0` | Acquire / reconcile authoritative KRX calendar. **Most natural next if priority = execution-simulation readiness.** |
+| `KR-LISTED-UNIVERSE-COVERAGE-A0` | After official listed-universe / lifecycle source is acquired. Currently DATA BACKLOG. |
+| `KR-EXECUTABLE-STATUS-COVERAGE-A0` | After official executable-status source is acquired. Currently DATA BACKLOG. |
+
+Strategy testing remains **premature**.
 
 ### KR-OHLCV-QUARANTINE-PATCH-PHASE — CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED (2026-05-24)
 
@@ -227,7 +225,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) |
 
 ## Git Status
 
