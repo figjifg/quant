@@ -5,6 +5,8 @@ from typing import Sequence
 
 import pandas as pd
 
+from src.utils.ohlcv_quarantine import apply_ohlcv_quarantine
+
 
 REQUIRED_COLUMNS = (
     "날짜",
@@ -67,7 +69,13 @@ def load_equity_panel(paths: Sequence[str | Path]) -> pd.DataFrame:
     source_dtype = pd.CategoricalDtype(categories=KRX_CLOSE_SOURCE_VALUES)
     panel["krx_close_source"] = panel["krx_close_source"].astype(source_dtype)
 
-    return panel.sort_values(["종목코드", "날짜"]).reset_index(drop=True)
+    panel = panel.sort_values(["종목코드", "날짜"]).reset_index(drop=True)
+
+    # Per `KR_OHLCV_QUARANTINE_PATCH_PHASE`: emit valid_ohlcv_mask + reason codes so
+    # downstream code can filter invalid rows (S1-S6 signatures). Annotation mode
+    # preserves row count; downstream consumers must apply the mask.
+    panel = apply_ohlcv_quarantine(panel, mode="annotate")
+    return panel
 
 
 def _read_panel(path: Path) -> pd.DataFrame:

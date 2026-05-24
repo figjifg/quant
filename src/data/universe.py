@@ -26,6 +26,10 @@ from __future__ import annotations
 import pandas as pd
 
 from src.backtest.calendar import KRXTradingCalendar
+from src.utils.ohlcv_quarantine import (
+    ANNOTATION_VALID_MASK_COL,
+    require_guarded_field_use,
+)
 
 
 MIN_AVG_TRADED_VALUE_20D = 5_000_000_000
@@ -69,6 +73,22 @@ def build_execution_universe(
     sorted_panel["날짜"] = pd.to_datetime(sorted_panel["날짜"], errors="raise").astype("datetime64[ns]")
     sorted_panel["종목코드"] = sorted_panel["종목코드"].astype("string")
     sorted_panel = sorted_panel.sort_values(list(KEY_COLUMNS)).reset_index(drop=True)
+
+    # Guard: rows that the loader marked invalid (S1-S6) are excluded from the
+    # universe calculation. Without the mask we fail closed so the universe
+    # cannot silently include OHL=0/close>0 rows. The vendor universe flag
+    # 동적유니버스포함 itself remains ALLOW_WITH_GUARD per P0-1.
+    if ANNOTATION_VALID_MASK_COL not in sorted_panel.columns:
+        raise ValueError(
+            f"panel missing `{ANNOTATION_VALID_MASK_COL}` from loader; "
+            "use src.data.equity_panel.load_equity_panel which annotates it"
+        )
+    sorted_panel = sorted_panel.loc[sorted_panel[ANNOTATION_VALID_MASK_COL]].copy()
+    require_guarded_field_use(
+        "동적유니버스포함",
+        "src/data/universe.py:build_execution_universe; vendor universe selection "
+        "rule undocumented — flag does NOT certify survivorship",
+    )
 
     universe_frames = [
         _universe_for_ticker(

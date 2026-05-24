@@ -8,6 +8,8 @@ from typing import Any
 import pandas as pd
 import yaml
 
+from src.utils.ohlcv_quarantine import apply_ohlcv_quarantine
+
 
 DEFAULT_CONFIG = Path("configs/backtests/d013.yaml")
 DEFAULT_MAPPING = Path("data/processed/stock_sector_mapping_20260518.csv")
@@ -144,6 +146,12 @@ def _read_panel(path: Path) -> pd.DataFrame:
     missing = sorted(set(PANEL_COLUMNS) - set(raw.columns))
     if missing:
         raise ValueError(f"{path} is missing required columns for E002: {missing}")
+
+    # Quarantine invalid OHLCV rows (S1-S6 from invalid_ohlcv_row_contract.md)
+    # before they enter sector aggregation. Aggregator computes cap-weighted
+    # returns from vendor `Change`; without this filter, OHL=0/close>0 rows
+    # would propagate artifactual returns into the sector summary.
+    raw = apply_ohlcv_quarantine(raw, mode="filter")
 
     frame = raw.loc[:, list(PANEL_COLUMNS)].rename(columns=PANEL_COLUMNS)
     frame["date"] = pd.to_datetime(frame["date"], errors="raise")

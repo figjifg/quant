@@ -5,10 +5,14 @@ from pathlib import Path
 import pandas as pd
 
 from src.backtest.calendar import KRXTradingCalendar
+from src.utils.ohlcv_quarantine import require_guarded_field_use
 
 
 REQUIRED_COLUMNS = ("date", "kospi_foreign_net", "kospi_institution_net")
 NUMERIC_COLUMNS = ("kospi_foreign_net", "kospi_institution_net")
+# Unit-ambiguous columns (see P0-1 KR_FIELD_METADATA_CONTRACT_A0 / unit_ambiguous defect).
+# Any consumer of these MUST annotate the conversion factor at the call site.
+ALLOW_WITH_GUARD_COLUMNS = ("kospi_foreign_net", "kospi_institution_net")
 
 
 def load_market_flow(path: Path | str, calendar: KRXTradingCalendar) -> pd.DataFrame:
@@ -46,6 +50,14 @@ def load_market_flow(path: Path | str, calendar: KRXTradingCalendar) -> pd.DataF
             "downstream gate treats these dates as gate-off."
         )
         result = result.loc[~nan_mask].copy()
+
+    for column in ALLOW_WITH_GUARD_COLUMNS:
+        require_guarded_field_use(
+            column,
+            f"src/data/market_flow.py:load_market_flow path={path!s}; "
+            "unit=KRW_mil_or_count (P0-1 unit_ambiguous defect); "
+            "downstream callsite MUST annotate the conversion factor",
+        )
 
     return result.sort_values("date").set_index("date")
 

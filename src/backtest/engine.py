@@ -6,6 +6,10 @@ import pandas as pd
 
 from src.backtest.calendar import KRXTradingCalendar
 from src.backtest.costs import Costs, buy_cost, sell_cost
+from src.utils.ohlcv_quarantine import (
+    ANNOTATION_VALID_MASK_COL,
+    OhlcvQuarantineError,
+)
 
 
 TRADE_COLUMNS = (
@@ -127,6 +131,18 @@ def run_candidate_backtest(
         raise ValueError("max_positions must be positive.")
     if holding <= 0:
         raise ValueError("holding must be positive.")
+
+    # Hard gate: backtest engine must receive a quarantine-annotated panel.
+    # Per KR-OHLCV-QUARANTINE-PATCH-PHASE, the panel loader emits
+    # ANNOTATION_VALID_MASK_COL; if it is absent the engine fails closed rather
+    # than silently consuming OHL=0/close>0 rows. This phase is audit-only —
+    # strategies remain CLOSED so this guard is dormant in practice.
+    if ANNOTATION_VALID_MASK_COL not in panel.columns:
+        raise OhlcvQuarantineError(
+            "run_candidate_backtest received a panel without "
+            f"`{ANNOTATION_VALID_MASK_COL}`; load via "
+            "src.data.equity_panel.load_equity_panel which annotates it"
+        )
 
     _validate_candidate_inputs(panel, candidates)
     atr_lookup = _ATRLookup(atr_features, vol_stop_atr_window) if vol_stop_k is not None else None

@@ -5,6 +5,8 @@ from collections.abc import Sequence
 
 import pandas as pd
 
+from src.utils.ohlcv_quarantine import require_guarded_field_use
+
 
 REQUIRED_STOCK_COLUMNS = ("date", "ticker", "sector_code", "sector_name", "daily_return")
 REQUIRED_SECTOR_COLUMNS = ("date", "sector_code", "sector_name", "cap_weighted_return")
@@ -22,6 +24,14 @@ def build_stock_rs_scores(
     """Compute sector-relative stock RS scores with signal-date data only."""
     _require_columns(stock_daily, REQUIRED_STOCK_COLUMNS, "stock_daily")
     _require_columns(sector_daily, REQUIRED_SECTOR_COLUMNS, "sector_daily")
+    # ALLOW_WITH_GUARD: `daily_return` is vendor `Change` (raw-unadjusted).
+    # Upstream guard = src/data/sector_aggregator.py applies apply_ohlcv_quarantine
+    # (mode="filter") before daily_return propagates here.
+    require_guarded_field_use(
+        "daily_return",
+        "src/features/stock_rs_score.py:build_stock_rs_scores; "
+        "upstream guard via src/data/sector_aggregator.py",
+    )
     if short_window <= 0 or long_window <= 0:
         raise ValueError("short_window and long_window must be positive.")
     if min_sector_stocks <= 0:
