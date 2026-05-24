@@ -6,11 +6,46 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — KR-LISTED-UNIVERSE-COVERAGE-A0 (Referee verdict 2026-05-24)
 
-_없음_. 2026-05-24 Referee verdict 로 KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 종료
-(CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED). 다음 phase 진입은
-사용자/Referee 의 별도 명시적 결정 필요.
+**Scope**: Measurement-layer listed-universe / lifecycle coverage A0 only. Acquire,
+validate, or reconcile official / best-available listed-universe + lifecycle coverage
+for Korean equities. Focus on survivorship, delisting, merger, rename, relisting,
+ticker reuse, permanent ID coverage. **No strategy testing. No performance diagnostics.
+No execution simulation. No production / paper / P08 / live / shadow.**
+
+**Reason**: Calendar source ambiguity reduced. Next hard blocker for safe future
+backtesting is survivorship / listed-universe validity. Current repo panel alone cannot
+certify survivorship safety.
+
+**Primary source-of-truth (read-only)**:
+- `reports/experiments/measurement_A0/KR_LISTED_UNIVERSE_COVERAGE_BACKLOG/source_requirement_register.md`
+- `data/processed/w001_v2/permanent_id_master.csv`
+- `data/processed/w001_v2/listing_status_events.csv`
+- `data/processed/w001_v2/listing_status_terminal.csv`
+- `data/acquired/round4/s4_listed_companies/`
+- `reports/experiments/round4_partial_reA0/permanent_id_fallback_validation.md`
+- `reports/experiments/round4_1_v2_1/permanent_id_fallback_hardening.md`
+- `reports/experiments/measurement_A0/KR_KRX_CALENDAR_SOURCE_ACQUISITION_A0/calendar_usage_contract.md`
+
+**9 allowed task groups**: source inventory / official source validation / lifecycle
+coverage table / reconcile against repo panels / survivorship safety audit / date
+coverage audit / permanent_id coverage update / defect ledger / gate status update.
+
+**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`OFFICIAL_SOURCE_ACQUIRED_BUT_NOT_FULLY_RECONCILED` /
+`LISTED_UNIVERSE_RECONCILED_BUT_STRATEGY_STILL_CLOSED` / `READY_FOR_NEXT_A0_REVIEW`.
+Do NOT mark strategy testing or execution simulation open. Do NOT mark universe
+survivorship-safe unless evidence supports.
+
+**Required outputs (12)**: `listed_universe_referee_lock.md` / `source_inventory.md` /
+`official_listed_universe_source_report.md` / `listed_lifecycle_coverage_table.csv` /
+`panel_vs_official_reconciliation_summary.md` / `panel_vs_official_reconciliation_ledger.csv` /
+`permanent_id_coverage_update.md` / `delisted_merged_renamed_coverage.md` /
+`survivorship_safety_assessment.md` / `listed_universe_defect_ledger.csv` /
+`listed_universe_gate_status.md` / `listed_universe_final_summary.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/KR_LISTED_UNIVERSE_COVERAGE_A0/`
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 
