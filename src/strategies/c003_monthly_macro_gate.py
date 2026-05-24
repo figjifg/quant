@@ -8,6 +8,7 @@ from src.backtest.engine import BacktestResult, EQUITY_COLUMNS, TRADE_COLUMNS
 from src.roles.exits import exit_on_gate_off
 from src.strategies.b004_regime_gate import build_gate_only_equal_weight_candidates
 from src.strategies.b011_gate_only_full_timeline import build_kospi_buy_and_hold_result
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 VARIANTS = ("macro_gate_mcap", "kospi_buy_and_hold", "cash")
@@ -25,6 +26,8 @@ def run_c003_variants(
     max_positions: int,
 ) -> tuple[dict[str, BacktestResult], dict[str, pd.DataFrame]]:
     """Run C003's monthly macro-gated top-mcap strategy and comparators."""
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    assert_panel_has_valid_mask(panel, context="src/strategies/c003_monthly_macro_gate.py:run_c003_variants")
     gate = _monthly_gate_series(monthly_regime)
     candidates = build_gate_only_equal_weight_candidates(
         panel,

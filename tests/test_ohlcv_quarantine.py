@@ -8,6 +8,7 @@ from src.utils.ohlcv_quarantine import (
     OhlcvQuarantineError,
     apply_ohlcv_quarantine,
     assert_no_invalid_ohlcv,
+    assert_panel_has_valid_mask,
     clear_guard_ack_log,
     get_guard_ack_log,
     invalid_ohlcv_mask,
@@ -248,3 +249,23 @@ def test_nan_price_fails_closed_via_s2():
     df = _make_panel(rows)
     df.loc[0, "종가"] = float("nan")
     assert bool(invalid_ohlcv_mask(df).iloc[0])
+
+
+def test_assert_panel_has_valid_mask_raises_when_absent():
+    df = _make_panel([_clean_row()])
+    with pytest.raises(OhlcvQuarantineError) as exc:
+        assert_panel_has_valid_mask(df, context="test_residual_phase")
+    assert "test_residual_phase" in str(exc.value)
+    assert ANNOTATION_VALID_MASK_COL in str(exc.value)
+
+
+def test_assert_panel_has_valid_mask_passes_when_present():
+    df = _make_panel([_clean_row()])
+    df_annotated = apply_ohlcv_quarantine(df, mode="annotate")
+    assert_panel_has_valid_mask(df_annotated, context="test_residual_phase")
+    # Should not raise
+
+
+def test_assert_panel_has_valid_mask_rejects_non_dataframe():
+    with pytest.raises(TypeError):
+        assert_panel_has_valid_mask([1, 2, 3], context="ctx")  # type: ignore[arg-type]

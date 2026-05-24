@@ -10,6 +10,7 @@ from src.strategies.b004_regime_gate import build_gate_only_equal_weight_candida
 from src.strategies.b011_gate_only_full_timeline import build_kospi_buy_and_hold_result
 from src.strategies.c003_monthly_macro_gate import _empty_candidates, _run_segmented_cash, _segment_dates
 from src.strategies.c004_quarterly_macro_gate import _quarterly_execution_candidates, quarterly_execution_dates
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 VARIANTS = ("factor_macro_sized_mcap", "kospi_buy_and_hold", "cash")
@@ -27,6 +28,8 @@ def run_d004_variants(
     max_positions: int,
 ) -> tuple[dict[str, BacktestResult], dict[str, pd.DataFrame]]:
     """Run D004's D001 carrier with continuous composite-magnitude sizing."""
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    assert_panel_has_valid_mask(panel, context="src/strategies/d004_position_sizing.py:run_d004_variants")
     sized_regime = _quarterly_sized_regime(quarterly_regime)
     gate = pd.Series(
         sized_regime["exposure_scalar"].gt(0.0).to_numpy(dtype=bool),

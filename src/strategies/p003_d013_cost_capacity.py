@@ -10,6 +10,7 @@ from src.backtest.calendar import KRXTradingCalendar
 from src.backtest.costs import Costs, buy_cost, sell_cost
 from src.backtest.engine import BacktestResult, EQUITY_COLUMNS, TRADE_COLUMNS
 from src.strategies.c003_monthly_macro_gate import _PriceLookup, _segment_dates
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 VARIANT = "factor_macro_gate_mcap"
@@ -139,6 +140,8 @@ def run_capacity_backtest(
     rebalance_dates: set[pd.Timestamp],
     initial_cash: float = 1.0,
 ) -> CapacityResult:
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    assert_panel_has_valid_mask(panel, context="src/strategies/p003_d013_cost_capacity.py:run_capacity_backtest")
     prices = _PriceLookup(panel)
     period_dates = _segment_dates(calendar, segments)
     execution_dates = {pd.Timestamp(date).normalize() for date in candidates["execution_date"].unique()}

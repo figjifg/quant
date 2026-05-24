@@ -303,6 +303,28 @@ def assert_no_invalid_ohlcv(
     )
 
 
+def assert_panel_has_valid_mask(df: pd.DataFrame, *, context: str) -> None:
+    """Lightweight hard gate: panel must carry the loader-emitted valid_ohlcv_mask.
+
+    Use at the entry of any function that consumes a Korean equity panel for value
+    derivation. Distinct from `assert_no_invalid_ohlcv`, which also asserts that no
+    invalid row remains; this function only asserts the annotation column is present.
+
+    Per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE, this is the canonical fail-closed
+    helper for closed-strategy guard hardening: closed strategies remain closed, but
+    if they were ever reactivated this raises immediately when the loader-side
+    annotation is missing.
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a pandas DataFrame")
+    if ANNOTATION_VALID_MASK_COL not in df.columns:
+        raise OhlcvQuarantineError(
+            f"assert_panel_has_valid_mask failed at {context!r}: panel missing "
+            f"`{ANNOTATION_VALID_MASK_COL}`; load via "
+            "src.data.equity_panel.load_equity_panel which annotates it"
+        )
+
+
 def require_guarded_field_use(field_name: str, context: str) -> None:
     """Annotate that the caller is using an ALLOW_WITH_GUARD field and has applied a guard.
 

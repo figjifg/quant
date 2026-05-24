@@ -13,6 +13,7 @@ from src.backtest.engine import (
     run_candidate_backtest,
 )
 from src.roles.rankings import rank_by_recent_return_5
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 BASELINE_NAMES = ("B0_cash", "B1_buy_and_hold", "B2_universe_5d_rebalance", "B3_price_momentum")
@@ -33,6 +34,8 @@ def run_baseline(
     initial_cash: float = 1.0,
 ) -> BacktestResult:
     """Run one E001 baseline by name."""
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    assert_panel_has_valid_mask(panel, context=f"src/strategies/baselines.py:run_baseline[{name}]")
     runners: dict[str, Callable[..., BacktestResult]] = {
         "B0_cash": run_b0_cash,
         "B1_buy_and_hold": run_b1_buy_and_hold,

@@ -9,6 +9,7 @@ from src.backtest.calendar import KRXTradingCalendar
 from src.backtest.costs import Costs, buy_cost, sell_cost
 from src.backtest.engine import BacktestResult, EQUITY_COLUMNS, TRADE_COLUMNS
 from src.strategies.c003_monthly_macro_gate import _segment_dates
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 SCENARIOS: dict[str, dict[str, Any]] = {
@@ -180,6 +181,10 @@ def run_p002_execution_backtest(
     scenario: str,
     initial_cash: float = 1.0,
 ) -> P002ExecutionResult:
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    # This strategy remains CLOSED under Research Freeze v2; the assert ensures any
+    # accidental reactivation fails closed without a quarantine-annotated panel.
+    assert_panel_has_valid_mask(panel, context="src/strategies/p002_d013_execution.py:run_p002_execution_backtest")
     if scenario not in SCENARIOS:
         raise ValueError(f"Unsupported P002 scenario: {scenario!r}.")
     spec = SCENARIOS[scenario]

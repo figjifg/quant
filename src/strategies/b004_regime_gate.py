@@ -8,6 +8,7 @@ from src.backtest.engine import BacktestResult, run_candidate_backtest
 from src.features.regime import regime_gate_on
 from src.roles.exits import exit_on_gate_off, exit_signal_reversal
 from src.strategies.b002_signal_reversal import build_b002_candidates
+from src.utils.ohlcv_quarantine import assert_panel_has_valid_mask
 
 
 VARIANTS = ("signal_plus_gate", "signal_only", "gate_only_equal_weight", "cash")
@@ -68,6 +69,8 @@ def run_b004_variants(
     max_positions: int,
 ) -> tuple[dict[str, BacktestResult], dict[str, pd.DataFrame], pd.DataFrame]:
     """Run B004's four pre-registered variants."""
+    # Closed-strategy guard hardening per KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE.
+    assert_panel_has_valid_mask(panel, context="src/strategies/b004_regime_gate.py:run_b004_variants")
     gate = regime_gate_on(kospi_proxy)
     gate_dates = {pd.Timestamp(date).normalize() for date, on in gate.items() if bool(on)}
     gate_off_flips = _gate_off_flip_dates(gate)
