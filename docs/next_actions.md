@@ -6,52 +6,46 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Measurement-layer infrastructure patch phase only. Patch or explicitly
-hard-block the 45 residual blockers left after `KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0`.
-**No strategy testing. No performance diagnostics. No production / paper / P08 / live
-readiness / shadow.**
-
-**Reason**: Runtime checks confirmed main guard paths work; 45 residual blockers remain
-(40 closed-strategy + 4 closed-ops + 1 future_work). They still prevent safe strategy
-reopen. Next task = reduce or hard-block them.
-
-**Primary source-of-truth (read-only)**:
-- `reports/experiments/measurement_A0/KR_OHLCV_RUNTIME_MASK_PROPAGATION_A0/residual_blocker_runtime_status.csv`
-- `reports/experiments/measurement_A0/KR_OHLCV_RUNTIME_MASK_PROPAGATION_A0/runtime_mask_propagation_summary.md`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/remaining_reopen_blockers.csv`
-- `reports/experiments/measurement_A0/KR_OHLCV_QUARANTINE_PATCH_PHASE/defect_patch_plan.csv`
-- `src/utils/ohlcv_quarantine.py`
-
-**9 allowed task groups**: residual blocker inventory / closed-strategy hardening /
-closed-ops hardening (production-locked) / engine-internal documentation / ad-hoc
-script handling / future_work item resolution / targeted rescan / runtime smoke checks
-/ preserve reopen blocker logic.
-
-**Patch status taxonomy** (one per blocker): `patched` / `upstream_guarded` /
-`still_reopen_blocker` / `audit_only_no_patch_needed` /
-`not_patched_requires_future_work` / `false_positive_static_scan`.
-
-**Required outputs (9)**:
-- `residual_patch_referee_lock.md`
-- `residual_blocker_inventory.csv`
-- `residual_patch_plan.csv`
-- `patched_residual_delta.csv`
-- `residual_static_rescan_summary.md`
-- `residual_runtime_smoke_check.md`
-- `remaining_residual_blockers.csv`
-- `future_work_item_resolution.md`
-- `residual_patch_final_summary.md`
-
-**Hard rules**: Minimal patches only. No broad refactor. No strategy implementation. No
-performance code. Existing guard utilities may be reused. Closed strategy files must
-remain closed. Ops files must remain production-locked. Do NOT delete or downgrade any
-blocker.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_OHLCV_RESIDUAL_BLOCKER_PATCH_PHASE/`
+_없음_. 2026-05-24 Referee verdict 로 KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE 종료
+(CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED). 다음 phase 진입은
+사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE — CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS RESIDUAL-BLOCKERS-REDUCED — 40 patched,
+1 false_positive_static_scan, 4 ops blockers preserved; 6/6 closed-strategy entry guards
+smoke-tested; no strategy testing.**
+
+- Status: **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** (not clean
+  full pass — 4 ops blockers preserved per production lock).
+- Initial pass commit accepted: `3942904`
+- 9 deliverables ACCEPTED.
+- Code patches accepted:
+  - `src/utils/ohlcv_quarantine.py` helper `assert_panel_has_valid_mask` (lightweight
+    fail-closed gate).
+  - `tests/test_ohlcv_quarantine.py` 22/22 passing.
+  - 6 closed-strategy entry functions patched (baselines / b004 / c003 / d004 / p002 /
+    p003); 6/6 smoke pass.
+- Patch status (45 total): 40 patched / 4 still_reopen_blocker (ops) / 1
+  false_positive_static_scan.
+- Closed strategies remain CLOSED. Ops / paper / live remain LOCKED.
+- Original `KR_OHLCV_QUARANTINE_ENFORCEMENT_A0` defect ledger preserved unchanged.
+
+5 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | Patch the remaining 4 `src/ops/nav_update.py` blockers. Touches ops/paper/live-related code paths — requires explicit Referee approval. |
+| `KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0` | Acquire authoritative KRX calendar. **Referee-recommended next direction if priority = execution-simulation readiness.** |
+| `KR-LISTED-UNIVERSE-COVERAGE-A0` | After official listed-universe / lifecycle source acquired. DATA BACKLOG. |
+| `KR-EXECUTABLE-STATUS-COVERAGE-A0` | After official executable-status source acquired. DATA BACKLOG. |
+| `KR-CLOSED-STRATEGY-CODEPATH-QUARANTINE-A0` | Optional follow-up before any strategy reopen. Lower priority now (entry guards added + smoke-tested). |
+
+Strategy testing remains **premature**.
 
 ### KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 — CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED (2026-05-24)
 
@@ -264,7 +258,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) |
 
 ## Git Status
 
