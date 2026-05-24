@@ -1,0 +1,6 @@
+defect_id,severity,defect_class,detail,recommended_handling
+EDL_00001,high,effective_date_unextracted_majority,111/113 samples (98.2%) could not produce an extracted effective date via simple regex on document body or title,depends on S2 OPENDART Body Parser PARTIAL closure; future phase needed to reopen S2 or staff manual review queue
+EDL_00002,high,rcept_dt_default_forbidden,this phase confirms that rcept_dt ≠ effective_date in many samples; no default fallback allowed,any future execution simulator must mark `effective_date_unknown` rows as fail-closed
+EDL_00003,medium,body_download_failures,0 samples had document.xml download failures; 2 samples had unparseable ZIPs,future phase: investigate rate-limit or auth-related failures; retry queue
+EDL_00004,high,correction_linkage_partial,correction (`[기재정정]`) handling relies on the S2 corp_code+base_form+series_marker linkage that remains CLOSED AS PARTIAL,design rules documented in `correction_cancellation_effective_date_check.md`; implementation deferred to S2 reopen
+EDL_00005,medium,html_inline_unparsed,some DART documents are HTML-inline (안내공시 form); simple regex catches some but not all date fields,future phase: HTML-inline parser (currently part of S2 D3b which is PARTIAL)
