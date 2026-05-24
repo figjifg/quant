@@ -6,11 +6,58 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (Referee verdict 2026-05-25, initial pass complete, awaiting Referee close)
 
-_없음_. 2026-05-25 Referee verdict 로 KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 종료
-(CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION
-STILL CLOSED). 다음 phase 진입은 사용자/Referee 의 별도 명시적 결정 필요.
+**Initial pass status (2026-05-25)**:
+- 195 stratified samples reviewed (within 150-200 Referee minima).
+- bs4-driven body inspection; 188 html_inline / 7 unparseable.
+- Effective-date extraction rate **56.4%** (110 / 195) — up from prior simple-regex
+  1.8% (2 / 113).
+- 30 (label × category × format) tuples in label inventory; 12 distinct labels
+  observed.
+- Parser feasibility verdict: **parser_feasible_html_inline** (overall) — driven by
+  suspension 92.5% / resumption 90.2% / delisting 3.8% / managed 28.6%.
+- Gate state: **MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN** (per Referee enum). Conditions
+  support a future S2-HTML-INLINE-PARSER-REOPEN-PHASE verdict (NOT automatic).
+- 5 effective-date defect classifications updated; `rcept_dt_default_forbidden`
+  closed (lock permanent); `body_download_failures` closed (0/195); `html_inline_unparsed`
+  → `parser_required`; `effective_date_unextracted_majority` → `partial`; correction
+  linkage still open (S2 dependency).
+- 12 outputs at `reports/experiments/measurement_A0/KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/`.
+- Code: `src/audit/measurement_a0/p_manual_effective_date_audit.py`.
+- Data cache (gitignored): `data/acquired/round5_manual_audit_samples/`.
+
+**Scope**: Measurement-layer manual audit only. Manually inspect sampled OPENDART/KRX
+exchange-status disclosures to determine whether effective status dates can be
+identified from the actual disclosure content. **No full parser build. No S2 parser
+reopen. No strategy testing. No performance diagnostics. No execution simulation. No
+production / paper / P08 / live / shadow.**
+
+**Reason**: Prior simple-regex audit reached 1.8% extraction. Before reopening S2
+parser engineering, need manual evidence on whether effective dates ARE present in
+body, which labels/structures contain them, whether title-only hints reliable,
+whether correction/cancellation links manually.
+
+**Primary source-of-truth (read-only)**:
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_sample_audit.csv`
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_defect_ledger.csv`
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/dart_body_sample_check.md`
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_linkage_rule_design.md`
+- `data/acquired/round5_effective_date_samples/`, `round5_dart_pre2018/`, `round4/s3_krx_status/`
+
+**10 allowed task groups**: sample construction / manual document inspection /
+effective-date field classification / rcept_dt relation / correction manual review /
+label inventory / parser feasibility assessment / reviewer reliability tracking /
+defect & blocker update / gate status update.
+
+**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`MANUAL_AUDIT_COMPLETED_BUT_NOT_GENERALIZED` / `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`
+/ `MANUAL_AUDIT_SUPPORTS_MANUAL_ONLY_PATH` / `READY_FOR_NEXT_A0_REVIEW`.
+Do NOT mark execution sim / strategy testing open. Do NOT mark card strategy-ready.
+
+**Required outputs (12)**: see `manual_audit_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/`
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 

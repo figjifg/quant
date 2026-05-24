@@ -1,0 +1,6 @@
+blocker_id,blocker_name,prior_status,updated_status,evidence,recommended_handling
+EDL_BLK_01,effective_date_unextracted_majority,open,partial,manual audit of 195 samples; extraction rate per parser_feasibility_assessment.md,see parser_feasibility_assessment.md verdict
+EDL_BLK_02,html_inline_unparsed,open,parser_required,bs4-based body inspection across 188 HTML-inline samples,per parser_feasibility_assessment.md; either S2-HTML-INLINE-PARSER-REOPEN or manual-only path
+EDL_BLK_03,correction_linkage_partial,open,still_open,manual reviewer cannot reliably identify original report without S2 corp_code+base_form+series_marker join,S2 reopen required for correction linkage; manual queue otherwise
+EDL_BLK_04,rcept_dt_default_forbidden,open,closed,manual audit confirms rcept_dt and effective_date frequently differ. rcept_dt_default lock remains permanent.,no further work needed; lock stays in place
+EDL_BLK_05,body_download_failures,open,closed,0 download failures out of 195,current OPENDART retry pause sufficient; monitor
