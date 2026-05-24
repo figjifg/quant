@@ -6,40 +6,56 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Measurement-layer limit-lock source acquisition + reconciliation audit only.
-Acquire / validate / reconcile official / best-available upper-limit / lower-limit
-status data for Korean equities. **No strategy testing. No performance diagnostics. No
-execution simulation. No production / paper / P08 / live / shadow.**
-
-**Reason**: Executable-status A0 closed PARTIAL with the official limit-lock log as a
-known gap. W001 v2 has only 41 OHLCV-derived `limit_lock_candidate` rows (proxy-only).
-Korean execution feasibility requires 상한가 / 하한가 handling.
-
-**Primary source-of-truth (read-only)**:
-- `KR_EXECUTABLE_STATUS_COVERAGE_A0/executable_status_defect_ledger.csv`
-- `KR_EXECUTABLE_STATUS_COVERAGE_A0/ohlcv_status_overlap_audit.md`
-- `KR_EXECUTABLE_STATUS_COVERAGE_A0/executable_status_taxonomy.md`
-- `data/processed/w001_v2/panel_with_tradable_state.csv`
-- `KR_OHLCV_QUARANTINE_ENFORCEMENT_A0/invalid_ohlcv_row_contract.md`
-- `KR_KRX_CALENDAR_SOURCE_ACQUISITION_A0/calendar_usage_contract.md`
-
-**9 allowed task groups**: source inventory / official acquisition / taxonomy / W001
-v2 reconciliation / conservative execution rule design / OHLCV overlap / coverage
-table / defect ledger / gate status update.
-
-**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
-`OFFICIAL_SOURCE_ACQUIRED_BUT_NOT_FULLY_RECONCILED` /
-`LIMIT_LOCK_SOURCE_RECONCILED_BUT_EXECUTION_STILL_CLOSED` / `READY_FOR_NEXT_A0_REVIEW`.
-Do NOT mark execution simulation open. Do NOT mark strategy testing open. Do NOT mark
-any card strategy-ready.
-
-**Required outputs (12)**: see `limit_lock_referee_lock.md`.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_EXECUTABLE_STATUS_LIMIT_LOCK_SOURCE_A0/`
+_없음_. 2026-05-24 Referee verdict 로 KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 종료
+(CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED).
+다음 phase 진입은 사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 — CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL
+COVERAGE / EXECUTION STILL CLOSED — official KRX limit-lock log not acquired;
+rule-derived proxy found 336 close-at-limit candidates; W001 v2 limit_lock_candidate
+under-counted; conservative execution rule design documented; execution simulation
+remains closed.**
+
+- Status: **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED**.
+- Initial pass commit accepted: `8d0003b`
+- 12 deliverables ACCEPTED.
+- Source: rule-derived proxy from KRX historical price-limit rule (±15% pre-2015-06-15
+  / ±30% post). Official KRX limit-lock log NOT in repo.
+- 1,141,751 panel rows scanned; **325 upper + 11 lower = 336 rule-derived candidates**.
+- W001 v2 limit_lock_candidate set (41 rows) is **UNDER-COUNTED**: only 2 matched
+  rule; 39 W001-only-no-rule-support; 334 rule-only.
+- OHLCV overlap: 123 panel_absence / 63 true_suspension / 19 delisting_transition /
+  1 data_missing / 2 limit_lock_candidate. Quarantine + executable-status OUTRANK
+  limit candidate label.
+- Conservative execution rule design (asymmetric upper/lower fail-closed) documented;
+  design-only.
+- 9 defects: official_source_unavailable / W001 under-counted / no direction in W001 /
+  close-at-limit vs locked indistinguishable / CA prev_close adjustment / IPO day-1 /
+  VI not captured / W001 candidate no rule support / panel_absence overlap.
+- Gate state: **PARTIAL**.
+
+Accepted limitations: official log missing; KRX 단일가매매 endpoint not acquired;
+rule-derived close-at-limit ≠ locked; CA distorts prev_close calculation; first-listing
+day rule differs; VI / circuit breaker not captured; W001 v2 proxy lacks direction.
+
+6 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0` | Extend S3 executable-status coverage pre-2018. **Referee-recommended next** for practical backtest-readiness path. |
+| `KR-EXECUTABLE-STATUS-LIMIT-LOCK-OFFICIAL-SOURCE-A0` | Attempt direct KRX/KOSCOM official limit-lock or single-price-session source acquisition. |
+| `KR-LIMIT-LOCK-CORPORATE-ACTION-ADJUSTMENT-A0` | Audit CA effects on prev-close limit calculations. |
+| `KR-INTRADAY-HALT-SOURCE-BACKLOG` | Intraday halt / VI / circuit-breaker source (likely external/commercial). |
+| `KR-LISTED-UNIVERSE-DAILY-LIFECYCLE-REFINEMENT-A0` | Monthly → daily lifecycle; merger linkage; rename; code reuse. |
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | Patch the 4 remaining ops blockers (touches ops/paper/live). |
+
+Strategy testing remains **premature**. Backtesting remains premature.
 
 ### KR-EXECUTABLE-STATUS-COVERAGE-A0 — CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED (2026-05-24)
 
@@ -417,7 +433,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) |
 
 ## Git Status
 
