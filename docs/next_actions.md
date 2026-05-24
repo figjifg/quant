@@ -6,46 +6,57 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-EXECUTABLE-STATUS-COVERAGE-A0 (Referee verdict 2026-05-24)
+## Active
 
-**Scope**: Measurement-layer executable-status source acquisition + coverage audit
-only. Acquire / validate / reconcile official / best-available executable-status data.
-Focus on whether a stock was actually tradable on a given date. **No strategy testing.
-No performance diagnostics. No execution simulation. No production / paper / P08 /
-live / shadow.**
-
-**Reason**: Calendar source reconciled; listed-universe acquired (survivorship
-PARTIAL). Next blocker for execution-simulation readiness = executable-status
-coverage. Panel presence / volume>0 / tradable_state / dynamic_universe alone cannot
-prove executable status.
-
-**Primary source-of-truth (read-only)**:
-- `reports/experiments/measurement_A0/KR_EXECUTABLE_STATUS_BACKLOG/source_requirement_register.md`
-- `data/processed/w001_v2/panel_with_tradable_state.csv`
-- `data/processed/w001_v2/listing_status_events.csv`
-- `data/processed/w001_v2/listing_status_terminal.csv`
-- `data/acquired/round4/s3_krx_status/`
-- `reports/experiments/round4_partial_reA0/tradable_state_v2_validation.md`
-- `reports/experiments/round4_1_v2_1/krx_suspension_direct_reconciliation.md`
-- `reports/experiments/measurement_A0/KR_KRX_CALENDAR_SOURCE_ACQUISITION_A0/calendar_usage_contract.md`
-- `reports/experiments/measurement_A0/KR_LISTED_UNIVERSE_COVERAGE_A0/listed_lifecycle_coverage_table.csv`
-
-**9 allowed task groups**: source inventory / candidate official source acquisition /
-executable-status taxonomy / W001 tradable_state reconciliation / listed-universe
-lifecycle reconciliation / OHLCV quarantine overlap / coverage table / defect ledger /
-gate status update.
-
-**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
-`OFFICIAL_SOURCE_ACQUIRED_BUT_NOT_FULLY_RECONCILED` /
-`EXECUTABLE_STATUS_RECONCILED_BUT_EXECUTION_STILL_CLOSED` / `READY_FOR_NEXT_A0_REVIEW`.
-Do NOT mark execution simulation open. Do NOT mark strategy testing open. Do NOT mark
-any card strategy-ready.
-
-**Required outputs (12)**: see `executable_status_referee_lock.md` in output dir.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_EXECUTABLE_STATUS_COVERAGE_A0/`
+_없음_. 2026-05-24 Referee verdict 로 KR-EXECUTABLE-STATUS-COVERAGE-A0 종료
+(CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL
+CLOSED). 다음 phase 진입은 사용자/Referee 의 별도 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-EXECUTABLE-STATUS-COVERAGE-A0 — CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED (2026-05-24)
+
+Referee final verdict 2026-05-24: **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED /
+PARTIAL COVERAGE / EXECUTION STILL CLOSED — S3 KRX status events reconciled; 10,774
+events, 1,855 tickers, 2018+ coverage; intraday halt, official limit-lock, and pre-2018
+status coverage missing; execution simulation remains closed.**
+
+- Status: **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION
+  STILL CLOSED**.
+- Initial pass commit accepted: `712d45b`
+- 12 deliverables ACCEPTED.
+- Primary source: S3 KRX status events (OPENDART pblntfty=I 거래소공시 filtered);
+  10,774 events / 1,855 tickers / 2018-01-01 → 2026-05-06.
+- Reconciliation (S3 vs W001 v2 tradable_state):
+  - matched_status: 63
+  - official_status_but_panel_absent: 9,551 (selection-bias artefact, not true
+    disagreement)
+  - requires_manual_review: 762
+  - proxy_only: 304
+  - official_resumption_but_repo_other: 94
+- Lifecycle cross-check: 1,723 with-terminal / 132 not-in-lifecycle.
+- OHLCV overlap: 41 limit_lock_candidate rows remain candidate-only.
+- 4 defects: intraday_halt_source_missing / pre_2018_status_coverage_gap /
+  no_tradable_state_label_for_managed_alert_liquidation / limit_lock_proxy_only.
+- Gate state: **PARTIAL**.
+- Execution simulation remains CLOSED. Strategy testing remains CLOSED.
+
+Accepted limitations: semi-official OPENDART (not direct KRX feed); 2018+ only;
+intraday halts NOT covered; official limit-lock log NOT covered; managed/alert/
+liquidation labels lack W001 tradable_state equivalents; effective status dates may
+differ from rcept_date (DART body parsing PARTIAL).
+
+5 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0` | Extend executable-status coverage pre-2018 |
+| `KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0` | Acquire official upper/lower-limit lock source |
+| `KR-INTRADAY-HALT-SOURCE-BACKLOG` | KRX/KOSCOM intraday halt source (likely commercial) |
+| `KR-LISTED-UNIVERSE-DAILY-LIFECYCLE-REFINEMENT-A0` | Monthly → daily lifecycle; merger linkage; rename; code reuse |
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | Patch the 4 remaining ops blockers (touches ops/paper/live) |
+
+Strategy testing remains **premature**. Backtesting remains premature.
 
 ### KR-LISTED-UNIVERSE-COVERAGE-A0 — CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE (2026-05-24)
 
@@ -379,7 +390,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) |
 
 ## Git Status
 
