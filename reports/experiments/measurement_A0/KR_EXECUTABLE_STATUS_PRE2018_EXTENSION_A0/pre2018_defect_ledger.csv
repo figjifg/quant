@@ -1,0 +1,6 @@
+defect_id,severity,defect_class,detail,recommended_handling
+PRE_00002,low,events_missing_stock_code,7 pre-2018 events have no `stock_code` populated (corp-only disclosures),exclude from per-ticker reconciliation; preserve in raw archive
+PRE_00003,medium,report_nm_other_requires_manual_review,events categorised as `other` (not matching the 7 status regex patterns) require manual review before status assignment,S2 body parser closure (PARTIAL) limits automated triage; manual review queue
+PRE_00004,high,effective_date_unknown,"rcept_dt is filing date, not status effective date; DART body parsing PARTIAL (S2 phase closed)",any future execution-simulation use must adjust for effective date; cannot be done in this phase
+PRE_00005,high,intraday_halt_still_missing_pre2018,intraday halts not captured by OPENDART daily disclosures; same gap as 2018+ scope,future phase: intraday halt source acquisition (commercial / KRX direct)
+PRE_00006,medium,pre2018_other_pool_requires_manual_review,"293679 pre-2018 OPENDART pblntfty=I rows did not match the 7 status regex patterns; categorised as other. Contain general disclosures (earnings, contracts, etc.); need manual review to confirm none are mis-classified status events.",preserve in raw archive; sample-audit per quarter to confirm regex coverage
