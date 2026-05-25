@@ -14,7 +14,9 @@ Phase: KR-STATUS-MANUAL-REVIEW-WORKLIST-VIEWS-A0
 | NO candidate / body confirmation rerun | PASS |
 | NO downstream wiring / C2 / C3 / event-log / executable-status table | PASS |
 | NO strategy / performance / execution / backtest / production / paper / live / P08 / shadow | PASS |
-| NO outcome columns (validated/approved/effective_date_final/parsed/safe/executable/authoritative/readiness) | PASS |
-| Every worklist row carries fail-closed flags (manual_review_required=True; others False) | PASS |
+| NO outcome columns carried (exact list: validated/approved/effective_date_final/recovered/parsed/safe/executable/authoritative/strategy_ready/execution_ready/production_ready) | PASS |
+| Input-packet fail-closed flags VERIFIED (not carried as worklist columns) | PASS |
+| Worklist navigation-only; single carried flag manual_review_required=True (review marker, not outcome) | PASS |
+| `recovered` column NOT present in worklist (REF-OPEN-011 Pass 2) | PASS |
 | blocked_action_boundary is a WARNING field, not approval | PASS |
 | 862 row count preserved; deterministic worklist_id | PASS |

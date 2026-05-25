@@ -60,11 +60,14 @@ BUCKET_BOUNDARY = {
     "mixed_or_multi_blocker": "manual_triage_only",
 }
 
-# Outcome column names that MUST NOT appear in the worklist (positive-outcome implying).
+# Outcome column names that MUST NOT appear in the worklist — the EXACT directive
+# list (REF-OPEN-011 Pass 2). `recovered` is included exactly: the worklist must NOT
+# carry it as a column. (The input-packet fail-closed check for recovered=False is
+# still performed in worklist_integrity_check.csv against the packet, not carried.)
 FORBIDDEN_OUTCOME_COLS = ["validated", "approved", "effective_date_final",
-                          "parsed", "safe", "executable", "authoritative",
-                          "strategy_ready", "execution_ready", "production_ready",
-                          "recovered_ok", "recovery_done"]
+                          "recovered", "parsed", "safe", "executable",
+                          "authoritative", "strategy_ready", "execution_ready",
+                          "production_ready"]
 
 
 def truthy(v) -> bool:
@@ -179,13 +182,13 @@ def main() -> None:
             # read-only review note + WARNING boundary (not approval)
             "review_note": r.get("review_priority_note", ""),
             "blocked_action_boundary": BUCKET_BOUNDARY.get(bucket, "manual_triage_only"),
-            # carried fail-closed flags (NOT outcome columns; same as packet)
+            # Single fail-closed "still needs review" marker (navigation flag, NOT an
+            # outcome; not on the forbidden list). Per REF-OPEN-011 Pass 2 the worklist
+            # carries NO outcome/status columns (executable_or_safe /
+            # downstream_authoritative / parsed_clean_and_usable / recovered /
+            # human_validation_claimed are verified on the INPUT packet in
+            # worklist_integrity_check.csv, NOT carried here).
             "manual_review_required": True,
-            "executable_or_safe": False,
-            "downstream_authoritative": False,
-            "parsed_clean_and_usable": False,
-            "recovered": False,
-            "human_validation_claimed": False,
         }
         worklist.append(wl)
         ex = examples_by_bucket.setdefault(bucket, [])
@@ -273,8 +276,18 @@ def write_boundary_policy(path: Path) -> None:
     lines += ["", "## Boundary is not approval",
               "- No boundary value authorizes recovery, downloads, parser changes,",
               "  adjudication, validation, or any downstream action.",
-              "- Worklist views are human-navigation-only and fail-closed. Every row",
-              "  remains manual_review_required=True with all usability/authority flags False."]
+              "- `blocked_action_boundary` remains WARNING-ONLY, not approval.",
+              "",
+              "## Worklist carries NO outcome columns (REF-OPEN-011 Pass 2)",
+              "- The input-packet fail-closed flags (manual_review_required=True;",
+              "  executable_or_safe / downstream_authoritative / parsed_clean_and_usable /",
+              "  recovered / human_validation_claimed = False) were VERIFIED on the input",
+              "  packet (see worklist_integrity_check.csv).",
+              "- Worklist rows are navigation-only. They carry NO outcome/status columns",
+              "  (no validated / approved / effective_date_final / recovered / parsed /",
+              "  safe / executable / authoritative / strategy_ready / execution_ready /",
+              "  production_ready). The single carried flag `manual_review_required=True`",
+              "  is the fail-closed 'still needs review' navigation marker, not an outcome."]
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -310,8 +323,10 @@ Phase: KR-STATUS-MANUAL-REVIEW-WORKLIST-VIEWS-A0
 | NO candidate / body confirmation rerun | PASS |
 | NO downstream wiring / C2 / C3 / event-log / executable-status table | PASS |
 | NO strategy / performance / execution / backtest / production / paper / live / P08 / shadow | PASS |
-| NO outcome columns (validated/approved/effective_date_final/parsed/safe/executable/authoritative/readiness) | PASS |
-| Every worklist row carries fail-closed flags (manual_review_required=True; others False) | PASS |
+| NO outcome columns carried (exact list: validated/approved/effective_date_final/recovered/parsed/safe/executable/authoritative/strategy_ready/execution_ready/production_ready) | PASS |
+| Input-packet fail-closed flags VERIFIED (not carried as worklist columns) | PASS |
+| Worklist navigation-only; single carried flag manual_review_required=True (review marker, not outcome) | PASS |
+| `recovered` column NOT present in worklist (REF-OPEN-011 Pass 2) | PASS |
 | blocked_action_boundary is a WARNING field, not approval | PASS |
 | 862 row count preserved; deterministic worklist_id | PASS |
 """, encoding="utf-8")
@@ -332,6 +347,17 @@ def write_report(path, integrity, wbc, shard_rows, defects) -> None:
         "manual adjudication, NOT validation, NOT source recovery, NOT parser design, "
         "NOT an event log, NOT an executable-status table. Existing local artifacts "
         "only; no new data; no edits to closed artifacts; no CLOSE_NOTE.",
+        "",
+        "## Pass 2 (REF-OPEN-011 Option B)",
+        "",
+        "Pass 1 (commit 290f532) carried an exact `recovered` column (=False) plus "
+        "other status flags, which the Referee flagged as outcome-column ambiguity. "
+        "Pass 2 removes ALL outcome/status columns from the worklist; the worklist now "
+        "carries only navigation fields + the single fail-closed review marker "
+        "`manual_review_required=True` + the WARNING-only `blocked_action_boundary`. "
+        "The input-packet fail-closed flags (including recovered=False) are VERIFIED in "
+        "worklist_integrity_check.csv, not carried as worklist columns. The forbidden "
+        "outcome-column scan now uses the EXACT directive list (incl. `recovered`).",
         "",
         "## Input artifacts used",
         "",
@@ -373,11 +399,16 @@ def write_report(path, integrity, wbc, shard_rows, defects) -> None:
         "",
         "- 862-row count preserved; worklist deterministic (sorted by review_bucket, "
         "rcept_no; stable WL-NNNNN ids).",
-        "- Every worklist row fail-closed: manual_review_required=True; "
+        "- Input-packet fail-closed flags VERIFIED (manual_review_required=True; "
         "executable_or_safe / downstream_authoritative / parsed_clean_and_usable / "
-        "recovered / human_validation_claimed = False.",
-        "- NO outcome columns added (no validated / approved / effective_date_final / "
-        "parsed / safe / executable / authoritative / readiness).",
+        "recovered / human_validation_claimed = False) — verified on the INPUT packet "
+        "in worklist_integrity_check.csv, NOT carried as worklist columns.",
+        "- Worklist rows are navigation-only and carry NO outcome columns. The single "
+        "carried flag `manual_review_required=True` is the fail-closed 'still needs "
+        "review' marker, not an outcome. The exact-directive forbidden scan "
+        "(validated / approved / effective_date_final / recovered / parsed / safe / "
+        "executable / authoritative / strategy_ready / execution_ready / "
+        "production_ready) PASSES — none present (incl. `recovered`).",
         "- `blocked_action_boundary` is a WARNING boundary field, NOT approval.",
         "- No new data; no edits to closed artifacts; index/navigation only — no row "
         "fixed / adjudicated / recovered / parsed / validated / approved.",

@@ -8,6 +8,10 @@ Executor: Claude Code. Referee: Codex.
 
 Local worklist-view generation only, derived from the closed 862-row manual-review packet. Navigation/index view for FUTURE human inspection — NOT manual adjudication, NOT validation, NOT source recovery, NOT parser design, NOT an event log, NOT an executable-status table. Existing local artifacts only; no new data; no edits to closed artifacts; no CLOSE_NOTE.
 
+## Pass 2 (REF-OPEN-011 Option B)
+
+Pass 1 (commit 290f532) carried an exact `recovered` column (=False) plus other status flags, which the Referee flagged as outcome-column ambiguity. Pass 2 removes ALL outcome/status columns from the worklist; the worklist now carries only navigation fields + the single fail-closed review marker `manual_review_required=True` + the WARNING-only `blocked_action_boundary`. The input-packet fail-closed flags (including recovered=False) are VERIFIED in worklist_integrity_check.csv, not carried as worklist columns. The forbidden outcome-column scan now uses the EXACT directive list (incl. `recovered`).
+
 ## Input artifacts used
 
 - `reports/experiments/measurement_A0/KR_STATUS_RESIDUAL_MANUAL_REVIEW_PACKET_CONSOLIDATION_A0/manual_review_packet.csv`
@@ -54,8 +58,8 @@ No worklist-build defects. 862 rows / 862 unique; bucket counts match the accept
 ## Confirmations
 
 - 862-row count preserved; worklist deterministic (sorted by review_bucket, rcept_no; stable WL-NNNNN ids).
-- Every worklist row fail-closed: manual_review_required=True; executable_or_safe / downstream_authoritative / parsed_clean_and_usable / recovered / human_validation_claimed = False.
-- NO outcome columns added (no validated / approved / effective_date_final / parsed / safe / executable / authoritative / readiness).
+- Input-packet fail-closed flags VERIFIED (manual_review_required=True; executable_or_safe / downstream_authoritative / parsed_clean_and_usable / recovered / human_validation_claimed = False) — verified on the INPUT packet in worklist_integrity_check.csv, NOT carried as worklist columns.
+- Worklist rows are navigation-only and carry NO outcome columns. The single carried flag `manual_review_required=True` is the fail-closed 'still needs review' marker, not an outcome. The exact-directive forbidden scan (validated / approved / effective_date_final / recovered / parsed / safe / executable / authoritative / strategy_ready / execution_ready / production_ready) PASSES — none present (incl. `recovered`).
 - `blocked_action_boundary` is a WARNING boundary field, NOT approval.
 - No new data; no edits to closed artifacts; index/navigation only — no row fixed / adjudicated / recovered / parsed / validated / approved.
 - No downloads / API / credentials / body repair / parser change / rerun / candidate or body confirmation rerun / source recovery / parser-design.

@@ -32,6 +32,14 @@ KR-STATUS-RESIDUAL-MANUAL-REVIEW-PACKET-CONSOLIDATION-A0.
   fail-closed.
 - **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_MANUAL_REVIEW_WORKLIST_VIEWS_A0/`.
 - **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
+- **Pass 2 (REF-OPEN-011 Option B, 2026-05-26):** Referee required Pass 2 — Pass 1
+  (290f532) carried an exact `recovered` column (outcome-column ambiguity). Pass 2
+  removed ALL outcome/status columns from the worklist (worklist now carries only
+  navigation fields + the single fail-closed marker `manual_review_required=True` +
+  WARNING-only `blocked_action_boundary`); input-packet fail-closed flags (incl.
+  recovered=False) VERIFIED in worklist_integrity_check.csv, not carried; forbidden
+  scan uses the EXACT directive list and PASSES. 862/862 unique + WL-00001..WL-00862
+  + bucket/shard counts + sentinels all preserved; deterministic. Awaiting Referee.
 - Awaiting Referee verdict after the Executor pass.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)

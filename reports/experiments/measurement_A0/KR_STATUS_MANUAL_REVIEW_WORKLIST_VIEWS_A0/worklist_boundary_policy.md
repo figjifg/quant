@@ -20,5 +20,15 @@ action — it grants nothing.
 ## Boundary is not approval
 - No boundary value authorizes recovery, downloads, parser changes,
   adjudication, validation, or any downstream action.
-- Worklist views are human-navigation-only and fail-closed. Every row
-  remains manual_review_required=True with all usability/authority flags False.
+- `blocked_action_boundary` remains WARNING-ONLY, not approval.
+
+## Worklist carries NO outcome columns (REF-OPEN-011 Pass 2)
+- The input-packet fail-closed flags (manual_review_required=True;
+  executable_or_safe / downstream_authoritative / parsed_clean_and_usable /
+  recovered / human_validation_claimed = False) were VERIFIED on the input
+  packet (see worklist_integrity_check.csv).
+- Worklist rows are navigation-only. They carry NO outcome/status columns
+  (no validated / approved / effective_date_final / recovered / parsed /
+  safe / executable / authoritative / strategy_ready / execution_ready /
+  production_ready). The single carried flag `manual_review_required=True`
+  is the fail-closed 'still needs review' navigation marker, not an outcome.
