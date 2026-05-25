@@ -1,0 +1,13 @@
+blocker_tag,count
+manual_review_required,862
+parser_no_label_match,511
+parser_label_no_value,200
+correction_manual_review_required,166
+source_zip_unparseable,42
+source_recovery_required_separate_approval,42
+correction_body_confirmed_below_high,40
+correction_no_link_original_not_found,37
+correction_high_validated_design_only,17
+correction_wrong_candidate_quarantined,17
+correction_no_link_insufficient_evidence,15
+correction_no_link_cross_category_blocked,1
