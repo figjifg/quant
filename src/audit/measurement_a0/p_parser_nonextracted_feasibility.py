@@ -60,7 +60,9 @@ def write_csv(path: Path, rows: list[dict]) -> None:
             if k not in keys:
                 keys.append(k)
     with open(path, "w", newline="", encoding="utf-8") as f:
-        w = _csv.DictWriter(f, fieldnames=keys)
+        # lineterminator="\n" (LF) — the csv module defaults to CRLF, which
+        # `git show --check` flags as trailing whitespace (CR before LF).
+        w = _csv.DictWriter(f, fieldnames=keys, lineterminator="\n")
         w.writeheader()
         for r in rows:
             w.writerow({k: r.get(k, "") for k in keys})
@@ -231,7 +233,14 @@ def main() -> None:
             "scope": "bucket", "feasibility_bucket": fb, "n_rows": cnt,
             "blocker_reason": rep["blocker_reason"],
             "required_future_approval": rep["required_future_approval"],
-            "parser_design_alone_sufficient": fb in ("parser_design_candidate", "needs_table_context_design"),
+            # PLANNING-ONLY flag: whether a FUTURE parser-design route is conceivable
+            # for this bucket. This is NOT current sufficiency and NOT approval — the
+            # row is still blocked/fail-closed and any parser change needs a separate
+            # user + Referee verdict.
+            "future_parser_design_route_possible": fb in ("parser_design_candidate", "needs_table_context_design"),
+            "planning_only_note": "future/planning-only; NOT current sufficiency; NOT "
+                                  "approval; row stays fail-closed; parser change needs "
+                                  "a separate user + Referee verdict",
         })
 
     # bucket summary (counts by parse_status, taxonomy, feasibility bucket, theme)
@@ -255,7 +264,7 @@ def main() -> None:
     write_csv(OUT / "parser_nonextracted_blocker_ledger.csv", blocker_rows or [
         {"scope": "all", "feasibility_bucket": "NONE", "n_rows": 0,
          "blocker_reason": "NONE", "required_future_approval": "NONE",
-         "parser_design_alone_sufficient": ""}])
+         "future_parser_design_route_possible": "", "planning_only_note": ""}])
 
     examples = [e for lst in examples_by_bucket.values() for e in lst]
     write_examples(OUT / "parser_nonextracted_examples.md", examples_by_bucket)
@@ -408,8 +417,13 @@ def write_report(path: Path, ps_ct, tx_ct, fb_ct, theme_ct, approval_ct, n_block
         "",
         f"## Blockers: {n_blockers} bucket-level entries (see parser_nonextracted_blocker_ledger.csv)",
         "",
-        "Every bucket records why a row cannot be handled by parser design alone today "
-        "and what future approval would be required. No row-level blocker beyond these.",
+        "Each bucket records its blocker_reason, the required_future_approval, and a "
+        "PLANNING-ONLY flag `future_parser_design_route_possible` (True for the "
+        "parser-design-route buckets, False for correction/out-of-scope). That flag is "
+        "explicitly NOT current sufficiency and NOT approval — every row stays "
+        "blocked/fail-closed and any parser change needs a separate user + Referee "
+        "verdict (the ledger also carries a `planning_only_note` saying exactly this). "
+        "No row-level blocker beyond these bucket entries.",
         "",
         "## Defects", "",
         "- None. (Unrecovered/non-extracted rows remain fail-closed by design; that is "

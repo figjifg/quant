@@ -57,7 +57,7 @@ Note: parser_design_candidate (522) = 499 contextual/label-pattern (feasibility 
 
 ## Blockers: 4 bucket-level entries (see parser_nonextracted_blocker_ledger.csv)
 
-Every bucket records why a row cannot be handled by parser design alone today and what future approval would be required. No row-level blocker beyond these.
+Each bucket records its blocker_reason, the required_future_approval, and a PLANNING-ONLY flag `future_parser_design_route_possible` (True for the parser-design-route buckets, False for correction/out-of-scope). That flag is explicitly NOT current sufficiency and NOT approval — every row stays blocked/fail-closed and any parser change needs a separate user + Referee verdict (the ledger also carries a `planning_only_note` saying exactly this). No row-level blocker beyond these bucket entries.
 
 ## Defects
 
