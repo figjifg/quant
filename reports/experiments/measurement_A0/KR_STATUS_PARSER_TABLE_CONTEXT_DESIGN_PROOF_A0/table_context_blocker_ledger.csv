@@ -1,0 +1,2 @@
+scope,design_proof_bucket,n_rows,false_positive_risk,required_future_approval,required_guardrail,planning_only_note
+bucket,out_of_scope_keep_fail_closed,170,blocked_not_evaluable,none_keep_fail_closed,matched label value cell is explicitly empty/dash ('-') — resumption/release date not yet determined; no date exists to extract; keep fail-closed (table-aware parsing would not change this),design-proof evidence only; NOT current parser behavior; NOT approval; row stays fail-closed; any parser change needs a separate parser-change verdict

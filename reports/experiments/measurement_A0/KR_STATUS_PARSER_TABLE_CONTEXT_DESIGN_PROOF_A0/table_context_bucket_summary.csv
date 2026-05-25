@@ -1,0 +1,6 @@
+dimension,key,count
+prior_parse_status,label_no_value,170
+structure_class,label_in_table_value_empty_or_dash,170
+design_proof_bucket,out_of_scope_keep_fail_closed,170
+false_positive_risk,blocked_not_evaluable,170
+required_future_approval,none_keep_fail_closed,170
