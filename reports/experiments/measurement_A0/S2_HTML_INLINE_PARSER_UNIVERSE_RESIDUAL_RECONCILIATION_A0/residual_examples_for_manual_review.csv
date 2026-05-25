@@ -1,0 +1,11 @@
+rcept_no,rcept_dt,event_category,source_period,body_format,residual_class,reason,manual_review_required,executable_or_safe
+20150323600022,20150323,suspension_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150128900203,20150128,suspension_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150122900284,20150122,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150526800147,20150526,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150514901020,20150514,suspension_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150421900128,20150421,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150925900143,20150925,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20150911800465,20150911,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20151231900042,20151231,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False
+20151230900233,20151230,resumption_related,pre_2018,zip_unparseable,zip_unparseable,cached ZIP could not be opened/decoded,True,False

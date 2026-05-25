@@ -1,0 +1,3 @@
+residual_class,count,is_usable_html_inline,manual_review_required
+usable_html_inline,12145,True,False
+zip_unparseable,42,False,True

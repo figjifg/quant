@@ -1,0 +1,7 @@
+metric,value
+unique_cached_rcept_no_total,12274
+"cached_in_scope (∈ 12,187 universe)",12187
+cached_out_of_scope (negative-control / correction / effective-date samples),87
+in_scope_universe_total,12187
+in_scope_with_cached_body,12187
+in_scope_body_unavailable (no cache),0
