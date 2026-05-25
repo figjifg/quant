@@ -1,0 +1,9 @@
+confidence_class,count,expected,count_match
+high_validated,17,17,PASS
+medium_needs_manual,52,52,PASS
+low_needs_manual,7,7,PASS
+no_link,73,73,PASS
+rejected_wrong_candidate,17,17,PASS
+high_validated,17,downstream_authoritative=0 & supersession_wired=0,PASS
+rejected_wrong_candidate_quarantined_not_dropped,17,>=1 (17),PASS
+medium/low/no_link/rejected non-authoritative,149,downstream_authoritative=0,PASS

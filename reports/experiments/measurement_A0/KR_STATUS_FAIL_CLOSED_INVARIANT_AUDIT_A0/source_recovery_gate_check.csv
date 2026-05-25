@@ -1,0 +1,10 @@
+flag,expected,rows,compliant,result
+recovery_performed,False,42,42,PASS
+requires_separate_verdict,True,42,42,PASS
+requires_download_approval,True,42,42,PASS
+safe_for_current_use,False,42,42,PASS
+executable_or_safe,False,42,42,PASS
+downstream_authoritative,False,42,42,PASS
+strategy_ready,False,42,42,PASS
+production_ready,False,42,42,PASS
+manual_review_required,True,42,42,PASS

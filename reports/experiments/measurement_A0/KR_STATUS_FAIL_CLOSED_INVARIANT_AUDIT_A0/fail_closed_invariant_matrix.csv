@@ -1,0 +1,31 @@
+ledger,scope,flag,expected,rows_checked,violations,result
+residual_blocker_register,all_862,manual_review_required,True,862,0,PASS
+residual_blocker_register,all_862,executable_or_safe,not True,862,0,PASS
+residual_blocker_register,all_862,downstream_authoritative,not True,862,0,PASS
+residual_blocker_register,all_862,parsed_clean_and_usable,not True,862,0,PASS
+residual_blocker_register,all_862,strategy_ready,not True,862,0,PASS
+residual_blocker_register,all_862,production_ready,not True,862,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,manual_review_required,True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,executable_or_safe,not True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,downstream_authoritative,not True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,parsed_clean_and_usable,not True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,strategy_ready,not True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,production_ready,not True,711,0,PASS
+parser_nonextracted_taxonomy_ledger,all_711,effective_date_extracted,not True,711,0,PASS
+source_recovery_candidate_manifest,all_42,recovery_required,True,42,0,PASS
+source_recovery_candidate_manifest,all_42,requires_separate_verdict,True,42,0,PASS
+source_recovery_candidate_manifest,all_42,requires_download_approval,True,42,0,PASS
+source_recovery_candidate_manifest,all_42,manual_review_required,True,42,0,PASS
+source_recovery_candidate_manifest,all_42,recovery_performed,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,safe_for_current_use,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,executable_or_safe,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,downstream_authoritative,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,parsed_clean_and_usable,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,strategy_ready,not True,42,0,PASS
+source_recovery_candidate_manifest,all_42,production_ready,not True,42,0,PASS
+correction_full_universe_links,all_166,manual_review_required,True,166,0,PASS
+correction_residual_action_ledger,all_166,manual_review_required,True,166,0,PASS
+correction_residual_action_ledger,all_166,downstream_authoritative,not True,166,0,PASS
+correction_residual_action_ledger,all_166,supersession_wired,not True,166,0,PASS
+universe_body_status_reconciled,residual_753_only,manual_review_required,True,753,0,PASS
+universe_body_status_reconciled,all_12187,executable_or_safe,not True,12187,0,PASS

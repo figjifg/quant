@@ -1,0 +1,23 @@
+ledger,flag_column,rows,truthy_count,result
+universe_body_status_reconciled,executable_or_safe,12187,0,PASS
+correction_residual_action_ledger,downstream_authoritative,166,0,PASS
+correction_residual_action_ledger,supersession_wired,166,0,PASS
+residual_blocker_register,executable_or_safe,862,0,PASS
+residual_blocker_register,downstream_authoritative,862,0,PASS
+residual_blocker_register,parsed_clean_and_usable,862,0,PASS
+residual_blocker_register,strategy_ready,862,0,PASS
+residual_blocker_register,production_ready,862,0,PASS
+parser_nonextracted_taxonomy_ledger,executable_or_safe,711,0,PASS
+parser_nonextracted_taxonomy_ledger,downstream_authoritative,711,0,PASS
+parser_nonextracted_taxonomy_ledger,parsed_clean_and_usable,711,0,PASS
+parser_nonextracted_taxonomy_ledger,strategy_ready,711,0,PASS
+parser_nonextracted_taxonomy_ledger,production_ready,711,0,PASS
+parser_nonextracted_taxonomy_ledger,effective_date_extracted,711,0,PASS
+source_recovery_candidate_manifest,recovery_performed,42,0,PASS
+source_recovery_candidate_manifest,safe_for_current_use,42,0,PASS
+source_recovery_candidate_manifest,executable_or_safe,42,0,PASS
+source_recovery_candidate_manifest,downstream_authoritative,42,0,PASS
+source_recovery_candidate_manifest,parsed_clean_and_usable,42,0,PASS
+source_recovery_candidate_manifest,strategy_ready,42,0,PASS
+source_recovery_candidate_manifest,production_ready,42,0,PASS
+(all),parser_change_approved,-,0,ABSENT (no such column; nothing approved)

@@ -1,0 +1,2 @@
+violation_id,ledger,flag,expected,rcept_no,got,scope
+NONE,(all audited),all_invariants,fail-closed,,,no must-be-True flag was False; no forbidden flag was True; correction gate intact; source-recovery gate intact
