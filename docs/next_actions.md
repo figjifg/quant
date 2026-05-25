@@ -6,38 +6,41 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — S2-HTML-INLINE-PARSER-UNIVERSE-RESIDUAL-RECONCILIATION-A0 (Referee verdict 2026-05-26, via relay)
+## Active
 
-**Scope**: Measurement-layer universe-level residual reconciliation only. Reconcile
-the exact remaining non-body / unavailable / out-of-scope / malformed source states
-across the full in-scope 12,187-row universe (suspension_related +
-resumption_related), using **existing local artifacts only**.
-
-**Hard scope exclusions**:
-- No new external downloads / no data acquisition.
-- No parser feature expansion (unless strictly for classification metadata, reported first).
-- No strategy / performance / execution simulation / C2/C3 / production / paper / P08 / live / shadow.
-
-**Reason**: Body-coverage completion closed target-set body_unavailable = 0, but
-universe-level coverage is ~98.3% (≈11,977/12,187), NOT 100%. ~210 universe-level
-residual rows need exact classification + row-level ledger.
-
-**Autonomy**: User allowed autonomous mode for data-cleaning work only. Does NOT
-authorize strategy testing / backtesting / execution sim / C2-C3 / production /
-paper / P08 / live / shadow.
-
-**Delivered to** `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_UNIVERSE_RESIDUAL_RECONCILIATION_A0/`:
-universe_residual_reconciliation_summary.md / universe_body_status_reconciled.csv /
-universe_residual_ledger.csv / residual_classification_counts.csv /
-cache_inventory_reconciliation.csv / prior_phase_input_manifest.md /
-hard_lock_compliance_check.md / report.md (+ optional ledgers).
-
-**Gate**: phase stays Active pending Referee review; Executor does NOT self-close.
-Pass requires: full 12,187 reconciled, residual classes sum exactly to universe
-total, every residual has explicit status+reason, no residual promoted to
-parsed/executable/safe, no 100%-universe misrepresentation.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### S2-HTML-INLINE-PARSER-UNIVERSE-RESIDUAL-RECONCILIATION-A0 — CLOSED AS UNIVERSE RESIDUALS RECONCILED / ZIP-UNPARSEABLE RESIDUALS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-001 (2026-05-26): **CLOSED AS UNIVERSE RESIDUALS
+RECONCILED / ZIP-UNPARSEABLE RESIDUALS PRESERVED / EXECUTION STILL CLOSED.**
+
+- Status: **CLOSED** (option A — initial pass accepted, closed after housekeeping).
+- Initial pass commit accepted: `6510f5a`. Code: `src/audit/measurement_a0/p_universe_residual_reconciliation.py`.
+- 8 required + 2 optional deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted key results (exact reconciliation of the 12,187-row in-scope universe):**
+
+- in-scope universe: 12,187; cache file present: 12,187.
+- usable html_inline: **12,145 = 99.66% (NOT 100%)**.
+- universe residual: **42, ALL zip_unparseable**; unavailable / structured_xml /
+  attachment_only / other = 0.
+- exact reconcile: 12,145 usable + 42 residual = 12,187.
+- parse status: extracted 11,434 / no_label_match 511 / label_no_value 200 /
+  body_unavailable 42.
+- target-set accounting unchanged: 162 + 5,579 + 3 = 5,744; target body_unavailable = 0.
+
+**Accepted limits:** 42 zip_unparseable remain residual source defects
+(manual_review_required / unavailable); 511 no_label + 200 label_no_value are usable
+html_inline but non-extracted → remain manual_review_required, NOT executable/safe;
+NO 100% universe-completion claim; NO strategy-readiness implication.
+
+This phase did NOT open residual-source recovery, strategy testing, execution
+simulation, C2-C3, or any production/paper/P08/live/shadow. Future
+`residual-source-recovery` for the 42 zip_unparseable needs its own Referee verdict
++ download approval.
 
 ### S2-HTML-INLINE-PARSER-BODY-COVERAGE-COMPLETION-A0 — CLOSED AS BODY-COVERAGE COMPLETED FOR TARGET SET / RESIDUAL SOURCE DEFECTS PRESERVED / EXECUTION STILL CLOSED (2026-05-25)
 
@@ -1033,7 +1036,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) → KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (12 outputs + build script + 195-ZIP cache, **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED** — 195 samples / 56.4% extraction = 31× lift; bs4 HTML-inline; suspension 92.5% + resumption 90.2% parser-feasible; gate `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`) → S2-HTML-INLINE-PARSER-REOPEN-PHASE (12 outputs + parser module + 26/26 tests + validator, **CLOSED AS HTML-INLINE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / EXECUTION STILL CLOSED** — 108 in-scope samples / 90.7% overall exact-match / suspension 92.5% / resumption 87.8% / 0 negative-control FPs / 14 defects; gate `HTML_INLINE_PARSER_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY`) → KR-STATUS-CORRECTION-LINKAGE-A0 (3-pass evidence: Pass 1 3d09033 + Pass 2 565f0d3 + Pass 3 2f890d7; 12 outputs each + CLOSE_NOTE.md + 3 audit scripts, **CLOSED AS CORRECTION-LINKAGE VALIDATED FOR SAMPLE / HIGH_VALIDATED ONLY / EXECUTION STILL CLOSED** — Pass-3 body-confirmation gate + 5-tier confidence enum; 72-row sample 78.1% link rate; 35 high_validated universe; 10 wrong-candidate quarantined; 0 residual FP in linked pool; 9 supersession_ready design-only; gate `READY_FOR_NEXT_A0_REVIEW`) → S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 (Pass 1 20fbdf6 + Pass 2 38acaf9; 12 outputs each + CLOSE_NOTE.md + parser 1.1.0 + 34/34 tests + validation scripts, **CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED** — 12,187 in-scope parsed / 1,402 bodies cached after 400 prefetch / 1,331 extracted / 0 negative-control FP / 5,737 / period_change parser fix 95% fix rate / 180-row holdout 99.4% / 1 wrong_date / correction policy unchanged) → S2-HTML-INLINE-PARSER-BODY-COVERAGE-EXPANSION-A0 (commit 1d8a67f; 12 outputs + CLOSE_NOTE.md + acquisition script, **CLOSED AS BODY-COVERAGE-EXPANDED AND VALIDATED FOR AVAILABLE ROWS / INCOMPLETE COVERAGE / EXECUTION STILL CLOSED** — 10,744 target / 5,000 attempts / 4,996 success (99.92%) / 4,526 new extractions / 46.5% target coverage shift / universe body coverage 11.5%→52.5% / 84-row holdout 100% / 0 FP / 0 wrong / 0 regression / 5,744 body_unavailable preserved) → S2-HTML-INLINE-PARSER-BODY-COVERAGE-COMPLETION-A0 (commit b3a971d; 13 outputs + CLOSE_NOTE.md + completion script, **CLOSED AS BODY-COVERAGE COMPLETED FOR TARGET SET / RESIDUAL SOURCE DEFECTS PRESERVED / EXECUTION STILL CLOSED** — 5,744 remaining target / 162 already cached / 5,582 attempts / 5,579 success (99.95%) / 5,577 new extractions / target body_unavailable 5,744→0 / universe body coverage 52.5%→~98.3% / 88-row holdout 100% / 3 zip_unparseable defects / 0 not_attempted_due_to_budget) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) → KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (12 outputs + build script + 195-ZIP cache, **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED** — 195 samples / 56.4% extraction = 31× lift; bs4 HTML-inline; suspension 92.5% + resumption 90.2% parser-feasible; gate `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`) → S2-HTML-INLINE-PARSER-REOPEN-PHASE (12 outputs + parser module + 26/26 tests + validator, **CLOSED AS HTML-INLINE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / EXECUTION STILL CLOSED** — 108 in-scope samples / 90.7% overall exact-match / suspension 92.5% / resumption 87.8% / 0 negative-control FPs / 14 defects; gate `HTML_INLINE_PARSER_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY`) → KR-STATUS-CORRECTION-LINKAGE-A0 (3-pass evidence: Pass 1 3d09033 + Pass 2 565f0d3 + Pass 3 2f890d7; 12 outputs each + CLOSE_NOTE.md + 3 audit scripts, **CLOSED AS CORRECTION-LINKAGE VALIDATED FOR SAMPLE / HIGH_VALIDATED ONLY / EXECUTION STILL CLOSED** — Pass-3 body-confirmation gate + 5-tier confidence enum; 72-row sample 78.1% link rate; 35 high_validated universe; 10 wrong-candidate quarantined; 0 residual FP in linked pool; 9 supersession_ready design-only; gate `READY_FOR_NEXT_A0_REVIEW`) → S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 (Pass 1 20fbdf6 + Pass 2 38acaf9; 12 outputs each + CLOSE_NOTE.md + parser 1.1.0 + 34/34 tests + validation scripts, **CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED** — 12,187 in-scope parsed / 1,402 bodies cached after 400 prefetch / 1,331 extracted / 0 negative-control FP / 5,737 / period_change parser fix 95% fix rate / 180-row holdout 99.4% / 1 wrong_date / correction policy unchanged) → S2-HTML-INLINE-PARSER-BODY-COVERAGE-EXPANSION-A0 (commit 1d8a67f; 12 outputs + CLOSE_NOTE.md + acquisition script, **CLOSED AS BODY-COVERAGE-EXPANDED AND VALIDATED FOR AVAILABLE ROWS / INCOMPLETE COVERAGE / EXECUTION STILL CLOSED** — 10,744 target / 5,000 attempts / 4,996 success (99.92%) / 4,526 new extractions / 46.5% target coverage shift / universe body coverage 11.5%→52.5% / 84-row holdout 100% / 0 FP / 0 wrong / 0 regression / 5,744 body_unavailable preserved) → S2-HTML-INLINE-PARSER-BODY-COVERAGE-COMPLETION-A0 (commit b3a971d; 13 outputs + CLOSE_NOTE.md + completion script, **CLOSED AS BODY-COVERAGE COMPLETED FOR TARGET SET / RESIDUAL SOURCE DEFECTS PRESERVED / EXECUTION STILL CLOSED** — 5,744 remaining target / 162 already cached / 5,582 attempts / 5,579 success (99.95%) / 5,577 new extractions / target body_unavailable 5,744→0 / universe body coverage 52.5%→~98.3% / 88-row holdout 100% / 3 zip_unparseable defects / 0 not_attempted_due_to_budget) → S2-HTML-INLINE-PARSER-UNIVERSE-RESIDUAL-RECONCILIATION-A0 (commit 6510f5a, **first phase run via Codex↔Claude relay**; 8+2 outputs + CLOSE_NOTE.md + reconciliation script, **CLOSED AS UNIVERSE RESIDUALS RECONCILED / ZIP-UNPARSEABLE RESIDUALS PRESERVED / EXECUTION STILL CLOSED** — exact reconcile of 12,187 universe: usable html_inline 12,145 = 99.66% NOT 100% / residual 42 all zip_unparseable / 0 missing/structured/attachment / corrects prior ~210 estimate / target-set 162+5,579+3=5,744 confirmed) |
 
 ## Git Status
 
