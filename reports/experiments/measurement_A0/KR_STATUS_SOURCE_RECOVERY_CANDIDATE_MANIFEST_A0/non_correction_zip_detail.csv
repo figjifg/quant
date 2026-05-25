@@ -1,0 +1,4 @@
+rcept_no,stock_code,event_category,source_period,blocker_tags,note
+20200320902492,043100,suspension_related,post_2018,source_zip_unparseable|source_recovery_required_separate_approval|manual_review_required,non-correction zip; manual_review_required; recovery needs separate verdict + download approval
+20200429901359,900040,suspension_related,post_2018,source_zip_unparseable|source_recovery_required_separate_approval|manual_review_required,non-correction zip; manual_review_required; recovery needs separate verdict + download approval
+20241129900819,900280,suspension_related,post_2018,source_zip_unparseable|source_recovery_required_separate_approval|manual_review_required,non-correction zip; manual_review_required; recovery needs separate verdict + download approval

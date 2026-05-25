@@ -1,0 +1,12 @@
+dimension,key,count
+total_zip_unparseable,all,42
+is_correction,correction,39
+is_correction,non_correction,3
+event_category,suspension_related,23
+event_category,resumption_related,19
+source_period,pre_2018,25
+source_period,post_2018,17
+correction_action_class(39),zip_unparseable_requires_source_recovery,39
+underlying_5tier(39 corr),no_link,20
+underlying_5tier(39 corr),medium_needs_manual,12
+underlying_5tier(39 corr),low_needs_manual,7

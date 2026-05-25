@@ -1,0 +1,13 @@
+rcept_no,event_category,is_correction,correction_action_class,underlying_confidence_5tier,residual_reason
+20150122900284,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20150128900203,suspension_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20150323600022,suspension_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20150421900128,resumption_related,True,zip_unparseable_requires_source_recovery,medium_needs_manual,cached ZIP could not be opened/decoded
+20150514901020,suspension_related,True,zip_unparseable_requires_source_recovery,low_needs_manual,cached ZIP could not be opened/decoded
+20150526800147,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20150911800465,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20150925900143,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20151127900167,suspension_related,True,zip_unparseable_requires_source_recovery,medium_needs_manual,cached ZIP could not be opened/decoded
+20151230900233,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20151231900042,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
+20160224900085,resumption_related,True,zip_unparseable_requires_source_recovery,no_link,cached ZIP could not be opened/decoded
