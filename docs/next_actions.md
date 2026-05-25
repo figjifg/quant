@@ -6,9 +6,72 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — KR-STATUS-CORRECTION-LINKAGE-A0 (Referee verdict 2026-05-25)
 
-비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
+**Scope**: Measurement-layer correction-linkage A0 only. Build and audit correction-
+linkage logic for OPENDART/KRX exchange-status disclosures. Initial scope limited to
+**suspension_related + resumption_related** categories, HTML-inline status
+disclosures, correction-flagged rows + candidate originals, and parser outputs from
+the prior S2-HTML-INLINE-PARSER-REOPEN-PHASE.
+
+**Hard scope exclusions**:
+- No delisting parser.
+- No liquidation parser.
+- No managed / alert parser.
+- No DART body alpha.
+- No overhang parser.
+- No all-event event log finalization.
+- No C2/C3 wiring.
+- No strategy testing.
+- No performance diagnostics.
+- No execution simulation.
+- No production / paper / P08 / live readiness / shadow-track work.
+
+**Reason**: S2-HTML-INLINE-PARSER-REOPEN-PHASE closed validated for suspension /
+resumption HTML-inline samples but 25 / 25 correction-flagged rows were forced to
+manual review. Correction linkage remains unresolved. Likely linkage key =
+corp_code + base_form + series_marker + time-window logic.
+
+**Primary source-of-truth (read-only)**:
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/correction_handling_status.md`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_validation_results.csv`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_defect_ledger.csv`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/downstream_blockers_after_parser_reopen.md`
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/correction_manual_review.md`
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/manual_effective_date_audit.csv`
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/correction_cancellation_effective_date_check.md`
+- `data/acquired/round5_manual_audit_samples/`, `round5_dart_pre2018/`, `round4/s3_krx_status/`
+- `src/parsers/krx_status_html_inline.py`
+
+**10 allowed task groups**: correction-flagged universe construction / base-form
+normalization / series-marker extraction / candidate original-report search / link
+scoring / manual validation sample / supersession rule design / parser interaction
+check / defect ledger / gate status update.
+
+**Correction-linkage gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL`
+/ `CORRECTION_LINKAGE_DESIGNED_BUT_NOT_VALIDATED` /
+`CORRECTION_LINKAGE_VALIDATED_FOR_SAMPLE_ONLY` /
+`CORRECTION_LINKAGE_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`. Do NOT mark
+execution simulation open. Do NOT mark strategy testing open. Do NOT mark parser
+output strategy-ready.
+
+**Allowed code artifacts**:
+- Small linkage / scoring script under `src/audit/measurement_a0/`.
+- Small helper functions for report_nm normalization if needed.
+- NO strategy code. NO performance code. NO execution simulation wiring. NO C2/C3
+  wiring. NO production / paper / P08 / live code modification.
+
+**Required outputs (12)**: see `correction_linkage_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/KR_STATUS_CORRECTION_LINKAGE_A0/`
+
+**Important boundary**:
+- Correction-linkage A0 only.
+- Passing this phase does NOT reopen strategy testing.
+- Passing this phase does NOT open execution simulation automatically.
+- Passing this phase does NOT complete S2 globally.
+- Passing this phase only clarifies whether correction-flagged suspension /
+  resumption status disclosures can be linked to originals.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 

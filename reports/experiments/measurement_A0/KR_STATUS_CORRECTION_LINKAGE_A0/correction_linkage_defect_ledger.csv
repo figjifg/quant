@@ -1,0 +1,221 @@
+defect_id,defect_class,rcept_no,category,notes
+CL_0001,title_similarity_low,20100322900199,suspension_related,"weak similarity, margin=8.46, sim=0.49"
+CL_0002,multiple_candidate_originals,20100319901646,suspension_related,top-2 score margin=0.20
+CL_0003,title_similarity_low,20100311900027,suspension_related,"weak similarity, margin=8.18, sim=0.53"
+CL_0004,no_original_found,20100211900740,suspension_related,"no support, margin=8.12"
+CL_0005,no_original_found,20100415900118,suspension_related,no candidates within window
+CL_0006,no_original_found,20100917900141,suspension_related,no candidates within window
+CL_0007,multiple_candidate_originals,20100721900323,suspension_related,top-2 score margin=0.33
+CL_0008,no_original_found,20100705800432,resumption_related,no candidates within window
+CL_0009,title_similarity_low,20101223900406,suspension_related,"weak similarity, margin=8.47, sim=0.48"
+CL_0010,no_original_found,20101208900051,suspension_related,no candidates within window
+CL_0011,no_original_found,20101126900274,resumption_related,no candidates within window
+CL_0012,base_form_ambiguous,20101126900274,resumption_related,normalization fallback used or no event_type token
+CL_0013,series_marker_missing,20101126900274,resumption_related,no event_type token matched in report_nm
+CL_0014,no_original_found,20101015900434,suspension_related,no candidates within window
+CL_0015,no_original_found,20101015900293,suspension_related,no candidates within window
+CL_0016,title_similarity_low,20110323900724,suspension_related,"weak similarity, margin=0.29, sim=0.61"
+CL_0017,multiple_candidate_originals,20110323900724,suspension_related,top-2 score margin=0.29
+CL_0018,title_similarity_low,20110323900723,suspension_related,"weak similarity, margin=0.29, sim=0.61"
+CL_0019,multiple_candidate_originals,20110323900723,suspension_related,top-2 score margin=0.29
+CL_0020,no_original_found,20110224900602,suspension_related,no candidates within window
+CL_0021,no_original_found,20110614900389,suspension_related,"no support, margin=6.19"
+CL_0022,no_original_found,20110531800008,resumption_related,no candidates within window
+CL_0023,title_similarity_low,20110512900210,suspension_related,"weak similarity, margin=7.52, sim=0.47"
+CL_0024,multiple_candidate_originals,20110411900648,suspension_related,top-2 score margin=0.31
+CL_0025,no_original_found,20110407800122,resumption_related,no candidates within window
+CL_0026,no_original_found,20110923900387,suspension_related,no candidates within window
+CL_0027,title_similarity_low,20120319900631,suspension_related,"weak similarity, margin=8.50, sim=0.54"
+CL_0028,title_similarity_low,20120319900621,suspension_related,"weak similarity, margin=8.47, sim=0.50"
+CL_0029,no_original_found,20120307900749,suspension_related,no candidates within window
+CL_0030,no_original_found,20120209900299,suspension_related,no candidates within window
+CL_0031,no_original_found,20120201900424,suspension_related,no candidates within window
+CL_0032,no_original_found,20120201900262,suspension_related,no candidates within window
+CL_0033,no_original_found,20120131800145,resumption_related,no candidates within window
+CL_0034,no_original_found,20120131800143,resumption_related,no candidates within window
+CL_0035,no_original_found,20120423900095,suspension_related,no candidates within window
+CL_0036,no_original_found,20120423900096,suspension_related,no candidates within window
+CL_0037,no_original_found,20120423900092,suspension_related,no candidates within window
+CL_0038,no_original_found,20120423900091,suspension_related,no candidates within window
+CL_0039,no_original_found,20120912900348,suspension_related,no candidates within window
+CL_0040,multiple_candidate_originals,20120809900022,suspension_related,top-2 score margin=0.06
+CL_0041,no_original_found,20120731900236,suspension_related,no candidates within window
+CL_0042,no_original_found,20130315901436,suspension_related,no candidates within window
+CL_0043,no_original_found,20130314802024,resumption_related,no candidates within window
+CL_0044,multiple_candidate_originals,20130117900277,suspension_related,top-2 score margin=0.09
+CL_0045,no_original_found,20130520900302,suspension_related,no candidates within window
+CL_0046,no_original_found,20140519900313,resumption_related,no candidates within window
+CL_0047,base_form_ambiguous,20140519900313,resumption_related,normalization fallback used or no event_type token
+CL_0048,series_marker_missing,20140519900313,resumption_related,no event_type token matched in report_nm
+CL_0049,no_original_found,20141016900317,suspension_related,no candidates within window
+CL_0050,no_original_found,20150323600022,suspension_related,"no support, margin=8.38"
+CL_0051,no_original_found,20150128900203,suspension_related,no candidates within window
+CL_0052,title_similarity_low,20150122900284,resumption_related,"weak similarity, margin=6.85, sim=0.86"
+CL_0053,base_form_ambiguous,20150122900284,resumption_related,normalization fallback used or no event_type token
+CL_0054,series_marker_missing,20150122900284,resumption_related,no event_type token matched in report_nm
+CL_0055,no_original_found,20150526800147,resumption_related,no candidates within window
+CL_0056,multiple_candidate_originals,20150514901020,suspension_related,top-2 score margin=0.11
+CL_0057,title_similarity_low,20150925900143,resumption_related,"weak similarity, margin=9.88, sim=0.89"
+CL_0058,base_form_ambiguous,20150925900143,resumption_related,normalization fallback used or no event_type token
+CL_0059,series_marker_missing,20150925900143,resumption_related,no event_type token matched in report_nm
+CL_0060,no_original_found,20150911800465,resumption_related,no candidates within window
+CL_0061,title_similarity_low,20151231900042,resumption_related,"weak similarity, margin=9.81, sim=0.89"
+CL_0062,base_form_ambiguous,20151231900042,resumption_related,normalization fallback used or no event_type token
+CL_0063,series_marker_missing,20151231900042,resumption_related,no event_type token matched in report_nm
+CL_0064,title_similarity_low,20151230900233,resumption_related,"weak similarity, margin=9.82, sim=0.89"
+CL_0065,base_form_ambiguous,20151230900233,resumption_related,normalization fallback used or no event_type token
+CL_0066,series_marker_missing,20151230900233,resumption_related,no event_type token matched in report_nm
+CL_0067,no_original_found,20151127900167,suspension_related,no candidates within window
+CL_0068,title_similarity_low,20160224900085,resumption_related,"weak similarity, margin=10.90, sim=0.91"
+CL_0069,base_form_ambiguous,20160224900085,resumption_related,normalization fallback used or no event_type token
+CL_0070,series_marker_missing,20160224900085,resumption_related,no event_type token matched in report_nm
+CL_0071,title_similarity_low,20160429900427,resumption_related,"weak similarity, margin=2.73, sim=0.46"
+CL_0072,title_similarity_low,20161017900147,resumption_related,"weak similarity, margin=4.20, sim=0.89"
+CL_0073,base_form_ambiguous,20161017900147,resumption_related,normalization fallback used or no event_type token
+CL_0074,series_marker_missing,20161017900147,resumption_related,no event_type token matched in report_nm
+CL_0075,multiple_candidate_originals,20170330902219,suspension_related,top-2 score margin=0.04
+CL_0076,title_similarity_low,20170327900337,resumption_related,"weak similarity, margin=10.89, sim=0.92"
+CL_0077,base_form_ambiguous,20170327900337,resumption_related,normalization fallback used or no event_type token
+CL_0078,series_marker_missing,20170327900337,resumption_related,no event_type token matched in report_nm
+CL_0079,no_original_found,20170223600535,suspension_related,no candidates within window
+CL_0080,title_similarity_low,20170124900649,suspension_related,"weak similarity, margin=5.89, sim=0.47"
+CL_0081,title_similarity_low,20170124900643,suspension_related,"weak similarity, margin=5.89, sim=0.47"
+CL_0082,no_original_found,20170421900722,suspension_related,no candidates within window
+CL_0083,no_original_found,20171110900736,resumption_related,no candidates within window
+CL_0084,base_form_ambiguous,20171110900736,resumption_related,normalization fallback used or no event_type token
+CL_0085,series_marker_missing,20171110900736,resumption_related,no event_type token matched in report_nm
+CL_0086,no_original_found,20230717800694,resumption_related,no candidates within window
+CL_0087,no_original_found,20230214900950,suspension_related,no candidates within window
+CL_0088,no_original_found,20230206901186,suspension_related,no candidates within window
+CL_0089,no_original_found,20230131800615,resumption_related,no candidates within window
+CL_0090,no_original_found,20230120800194,resumption_related,no candidates within window
+CL_0091,base_form_ambiguous,20230120800194,resumption_related,normalization fallback used or no event_type token
+CL_0092,series_marker_missing,20230120800194,resumption_related,no event_type token matched in report_nm
+CL_0093,no_original_found,20220620900716,resumption_related,no candidates within window
+CL_0094,no_original_found,20190322600250,suspension_related,no candidates within window
+CL_0095,no_original_found,20190304900009,suspension_related,no candidates within window
+CL_0096,no_original_found,20190117900312,suspension_related,no candidates within window
+CL_0097,no_original_found,20200514900567,suspension_related,no candidates within window
+CL_0098,no_original_found,20200512900593,suspension_related,no candidates within window
+CL_0099,no_original_found,20200506900190,suspension_related,no candidates within window
+CL_0100,no_original_found,20200506900186,suspension_related,no candidates within window
+CL_0101,no_original_found,20200416900247,suspension_related,no candidates within window
+CL_0102,no_original_found,20200414800366,resumption_related,no candidates within window
+CL_0103,no_original_found,20200406900994,suspension_related,no candidates within window
+CL_0104,no_original_found,20210520900119,suspension_related,no candidates within window
+CL_0105,no_original_found,20210430901247,suspension_related,no candidates within window
+CL_0106,no_original_found,20210413900608,suspension_related,no candidates within window
+CL_0107,no_original_found,20180402900901,suspension_related,no candidates within window
+CL_0108,no_original_found,20240913900202,suspension_related,no candidates within window
+CL_0109,no_original_found,20220330900712,suspension_related,no candidates within window
+CL_0110,no_original_found,20220329900679,suspension_related,no candidates within window
+CL_0111,no_original_found,20220328901608,suspension_related,no candidates within window
+CL_0112,no_original_found,20220104900567,suspension_related,no candidates within window
+CL_0113,no_original_found,20180321900419,suspension_related,no candidates within window
+CL_0114,no_original_found,20240610900602,resumption_related,no candidates within window
+CL_0115,no_original_found,20240402900836,suspension_related,no candidates within window
+CL_0116,no_original_found,20181008900702,resumption_related,no candidates within window
+CL_0117,no_original_found,20181008900701,resumption_related,no candidates within window
+CL_0118,no_original_found,20250626900815,resumption_related,no candidates within window
+CL_0119,no_original_found,20250620900644,suspension_related,no candidates within window
+CL_0120,no_original_found,20250612900585,resumption_related,no candidates within window
+CL_0121,no_original_found,20250407601332,suspension_related,no candidates within window
+CL_0122,no_original_found,20250407601118,suspension_related,no candidates within window
+CL_0123,no_original_found,20250123900765,resumption_related,no candidates within window
+CL_0124,no_original_found,20190424600679,suspension_related,no candidates within window
+CL_0125,no_original_found,20190415900808,suspension_related,no candidates within window
+CL_0126,no_original_found,20190411900687,suspension_related,no candidates within window
+CL_0127,no_original_found,20221027800436,resumption_related,no candidates within window
+CL_0128,base_form_ambiguous,20221027800436,resumption_related,normalization fallback used or no event_type token
+CL_0129,series_marker_missing,20221027800436,resumption_related,no event_type token matched in report_nm
+CL_0130,no_original_found,20230518900519,suspension_related,no candidates within window
+CL_0131,no_original_found,20230407901311,suspension_related,no candidates within window
+CL_0132,no_original_found,20230407901054,suspension_related,no candidates within window
+CL_0133,no_original_found,20251219900832,suspension_related,no candidates within window
+CL_0134,no_original_found,20251029900260,suspension_related,no candidates within window
+CL_0135,no_original_found,20180724800459,resumption_related,no candidates within window
+CL_0136,base_form_ambiguous,20180724800459,resumption_related,normalization fallback used or no event_type token
+CL_0137,series_marker_missing,20180724800459,resumption_related,no event_type token matched in report_nm
+CL_0138,no_original_found,20260323801944,resumption_related,no candidates within window
+CL_0139,no_original_found,20260323801642,resumption_related,no candidates within window
+CL_0140,no_original_found,20260323901219,suspension_related,no candidates within window
+CL_0141,no_original_found,20260319902113,suspension_related,no candidates within window
+CL_0142,no_original_found,20260223900512,suspension_related,no candidates within window
+CL_0143,no_original_found,20260205600092,suspension_related,no candidates within window
+CL_0144,no_original_found,20260123900670,resumption_related,no candidates within window
+CL_0145,base_form_ambiguous,20260123900670,resumption_related,normalization fallback used or no event_type token
+CL_0146,series_marker_missing,20260123900670,resumption_related,no event_type token matched in report_nm
+CL_0147,no_original_found,20260123900664,resumption_related,no candidates within window
+CL_0148,base_form_ambiguous,20260123900664,resumption_related,normalization fallback used or no event_type token
+CL_0149,series_marker_missing,20260123900664,resumption_related,no event_type token matched in report_nm
+CL_0150,no_original_found,20260506900571,suspension_related,no candidates within window
+CL_0151,no_original_found,20260401901549,suspension_related,no candidates within window
+CL_0152,no_original_found,20210323901856,suspension_related,no candidates within window
+CL_0153,no_original_found,20210315901847,suspension_related,no candidates within window
+CL_0154,no_original_found,20210217900273,suspension_related,no candidates within window
+CL_0155,no_original_found,20210217900264,suspension_related,no candidates within window
+CL_0156,no_original_found,20210120900703,suspension_related,no candidates within window
+CL_0157,no_original_found,20210104900051,suspension_related,no candidates within window
+CL_0158,no_original_found,20231207900088,suspension_related,no candidates within window
+CL_0159,no_original_found,20231205900605,suspension_related,no candidates within window
+CL_0160,no_original_found,20191230800862,resumption_related,no candidates within window
+CL_0161,no_original_found,20191004900529,resumption_related,no candidates within window
+CL_0162,no_original_found,20240328800097,resumption_related,no candidates within window
+CL_0163,no_original_found,20240214901016,suspension_related,no candidates within window
+CL_0164,no_original_found,20200907900245,suspension_related,no candidates within window
+CL_0165,no_original_found,20200904900564,suspension_related,no candidates within window
+CL_0166,no_original_found,20200814902049,suspension_related,no candidates within window
+CL_0167,no_original_found,20200805900060,suspension_related,no candidates within window
+CL_0168,no_original_found,20200728800110,resumption_related,no candidates within window
+CL_0169,base_form_ambiguous,20200728800110,resumption_related,normalization fallback used or no event_type token
+CL_0170,series_marker_missing,20200728800110,resumption_related,no event_type token matched in report_nm
+CL_0171,no_original_found,20200713900454,suspension_related,no candidates within window
+CL_0172,no_original_found,20210907900509,suspension_related,no candidates within window
+CL_0173,no_original_found,20210825800494,resumption_related,no candidates within window
+CL_0174,no_original_found,20220906900550,suspension_related,no candidates within window
+CL_0175,no_original_found,20220906900547,suspension_related,no candidates within window
+CL_0176,no_original_found,20220905900418,suspension_related,no candidates within window
+CL_0177,no_original_found,20220816903047,resumption_related,no candidates within window
+CL_0178,no_original_found,20220816902970,suspension_related,no candidates within window
+CL_0179,no_original_found,20190828900580,resumption_related,no candidates within window
+CL_0180,no_original_found,20241106900580,suspension_related,no candidates within window
+CL_0181,no_original_found,20241029900334,suspension_related,no candidates within window
+CL_0182,no_original_found,20201223900861,resumption_related,no candidates within window
+CL_0183,correction_changes_effective_date,20140519900313,resumption_related,body has date-change marker
+CL_0184,correction_changes_effective_date,20200506900186,suspension_related,body has date-change marker
+CL_0185,correction_changes_effective_date,20210430901247,suspension_related,body has date-change marker
+CL_0186,correction_changes_effective_date,20220329900679,suspension_related,body has date-change marker
+CL_0187,correction_changes_effective_date,20210120900703,suspension_related,body has date-change marker
+CL_0188,correction_changes_effective_date,20220905900418,suspension_related,body has date-change marker
+CL_0189,correction_requires_manual_review,20150421900128,resumption_related,link_confidence=high
+CL_0190,correction_changes_effective_date,20140214900136,suspension_related,body has date-change marker
+CL_0191,correction_changes_effective_date,20140317900074,resumption_related,body has date-change marker
+CL_0192,correction_changes_effective_date,20120312900806,suspension_related,body has date-change marker
+CL_0193,correction_requires_manual_review,20161125900030,suspension_related,link_confidence=high
+CL_0194,correction_changes_effective_date,20140602800019,resumption_related,body has date-change marker
+CL_0195,correction_changes_effective_date,20101228900194,suspension_related,body has date-change marker
+CL_0196,correction_requires_manual_review,20160429900298,resumption_related,link_confidence=high
+CL_0197,correction_requires_manual_review,20161115900075,suspension_related,link_confidence=high
+CL_0198,correction_requires_manual_review,20160429600510,suspension_related,link_confidence=high
+CL_0199,correction_changes_effective_date,20111109800418,resumption_related,body has date-change marker
+CL_0200,correction_changes_effective_date,20111102900010,suspension_related,body has date-change marker
+CL_0201,correction_changes_effective_date,20100331902855,suspension_related,body has date-change marker
+CL_0202,correction_changes_effective_date,20100428900278,suspension_related,body has date-change marker
+CL_0203,correction_requires_manual_review,20100428900278,suspension_related,link_confidence=high
+CL_0204,correction_changes_effective_date,20130117900277,suspension_related,body has date-change marker
+CL_0205,correction_changes_effective_date,20100319901646,suspension_related,body has date-change marker
+CL_0206,correction_changes_effective_date,20100721900323,suspension_related,body has date-change marker
+CL_0207,correction_changes_effective_date,20110411900648,suspension_related,body has date-change marker
+CL_0208,correction_changes_effective_date,20120322901069,suspension_related,body has date-change marker
+CL_0209,correction_changes_effective_date,20110318800229,resumption_related,body has date-change marker
+CL_0210,correction_changes_effective_date,20110331902711,suspension_related,body has date-change marker
+CL_0211,correction_requires_manual_review,20110331902711,suspension_related,link_confidence=medium
+CL_0212,correction_requires_manual_review,20170330902219,suspension_related,link_confidence=medium
+CL_0213,correction_changes_effective_date,20110506800027,resumption_related,body has date-change marker
+CL_0214,correction_requires_manual_review,20150514901020,suspension_related,link_confidence=medium
+CL_0215,correction_changes_effective_date,20120809900022,suspension_related,body has date-change marker
+CL_0216,correction_requires_manual_review,20160224900085,resumption_related,link_confidence=low
+CL_0217,correction_requires_manual_review,20170327900337,resumption_related,link_confidence=low
+CL_0218,correction_requires_manual_review,20150925900143,resumption_related,link_confidence=low
+CL_0219,correction_requires_manual_review,20161017900147,resumption_related,link_confidence=low
+CL_0220,correction_requires_manual_review,20151230900233,resumption_related,link_confidence=low
