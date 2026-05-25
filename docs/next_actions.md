@@ -6,60 +6,67 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (Referee verdict 2026-05-25, initial pass complete, awaiting Referee close)
+## Active
 
-**Initial pass status (2026-05-25)**:
-- 195 stratified samples reviewed (within 150-200 Referee minima).
-- bs4-driven body inspection; 188 html_inline / 7 unparseable.
-- Effective-date extraction rate **56.4%** (110 / 195) — up from prior simple-regex
-  1.8% (2 / 113).
-- 30 (label × category × format) tuples in label inventory; 12 distinct labels
-  observed.
-- Parser feasibility verdict: **parser_feasible_html_inline** (overall) — driven by
-  suspension 92.5% / resumption 90.2% / delisting 3.8% / managed 28.6%.
-- Gate state: **MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN** (per Referee enum). Conditions
-  support a future S2-HTML-INLINE-PARSER-REOPEN-PHASE verdict (NOT automatic).
-- 5 effective-date defect classifications updated; `rcept_dt_default_forbidden`
-  closed (lock permanent); `body_download_failures` closed (0/195); `html_inline_unparsed`
-  → `parser_required`; `effective_date_unextracted_majority` → `partial`; correction
-  linkage still open (S2 dependency).
-- 12 outputs at `reports/experiments/measurement_A0/KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/`.
-- Code: `src/audit/measurement_a0/p_manual_effective_date_audit.py`.
-- Data cache (gitignored): `data/acquired/round5_manual_audit_samples/`.
-
-**Scope**: Measurement-layer manual audit only. Manually inspect sampled OPENDART/KRX
-exchange-status disclosures to determine whether effective status dates can be
-identified from the actual disclosure content. **No full parser build. No S2 parser
-reopen. No strategy testing. No performance diagnostics. No execution simulation. No
-production / paper / P08 / live / shadow.**
-
-**Reason**: Prior simple-regex audit reached 1.8% extraction. Before reopening S2
-parser engineering, need manual evidence on whether effective dates ARE present in
-body, which labels/structures contain them, whether title-only hints reliable,
-whether correction/cancellation links manually.
-
-**Primary source-of-truth (read-only)**:
-- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_sample_audit.csv`
-- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_defect_ledger.csv`
-- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/dart_body_sample_check.md`
-- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_linkage_rule_design.md`
-- `data/acquired/round5_effective_date_samples/`, `round5_dart_pre2018/`, `round4/s3_krx_status/`
-
-**10 allowed task groups**: sample construction / manual document inspection /
-effective-date field classification / rcept_dt relation / correction manual review /
-label inventory / parser feasibility assessment / reviewer reliability tracking /
-defect & blocker update / gate status update.
-
-**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
-`MANUAL_AUDIT_COMPLETED_BUT_NOT_GENERALIZED` / `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`
-/ `MANUAL_AUDIT_SUPPORTS_MANUAL_ONLY_PATH` / `READY_FOR_NEXT_A0_REVIEW`.
-Do NOT mark execution sim / strategy testing open. Do NOT mark card strategy-ready.
-
-**Required outputs (12)**: see `manual_audit_referee_lock.md`.
-
-**Output 경로**: `reports/experiments/measurement_A0/KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/`
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE — CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED (2026-05-25)
+
+Referee final verdict 2026-05-25: **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS
+HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED — 195 samples; 56.4% extraction;
+suspension 92.5% and resumption 90.2% parser-feasible; delisting/liquidation
+attachment-blocked; correction linkage still open; strategy testing remains closed.**
+
+- Status: **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN /
+  EXECUTION STILL CLOSED**.
+- Initial pass commit accepted: `046cf20`
+- 12 deliverables ACCEPTED.
+- Sample plan: 195 samples (within 150-200 target). Buckets accepted as delivered.
+- Body format: 188 html_inline / 7 unparseable / 0 structured_xml / 0 download_failed.
+- Effective-date extraction: 110 / 195 = **56.4%** (31× lift over prior simple-regex
+  A0 1.8%). bs4-driven HTML-inline label extraction.
+- Label inventory: 30 (label × category × format) tuples; 12 distinct Korean date
+  labels observed.
+- Classification distribution: explicit_suspension_period 63 / no_date_found 60 /
+  explicit_resumption_date 36 / ambiguous_date 18 / explicit_effective_date 10 /
+  body_unavailable 7 / explicit_liquidation_period 1.
+- rcept_dt relation: 139 unknown / 27 equal_to_rcept_dt / 18 after_rcept_dt /
+  11 before_rcept_dt. `rcept_dt` lock remains permanent.
+- Reliability: 110 high / 18 medium / 67 low.
+- Parser feasibility (overall): **parser_feasible_html_inline**. Suspension 92.5% +
+  resumption 90.2% drive the lift; delisting 3.8% / liquidation / investment_alert /
+  short_term_overheated remain attachment-blocked; managed 28.6% needs custom rules.
+- 5 effective-date defect updates: effective_date_unextracted_majority → partial;
+  html_inline_unparsed → parser_required; correction_linkage_partial still_open;
+  rcept_dt_default_forbidden → closed (lock permanent); body_download_failures →
+  closed (0/195).
+- Gate state: **MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN**.
+
+Important boundary (Referee-locked):
+- Manual audit completed.
+- Parser reopen is NOT automatic.
+- This phase did NOT implement a parser.
+- This phase did NOT reopen S2.
+- Execution simulation remains closed.
+- Strategy testing remains closed.
+- No card is strategy-ready.
+
+8 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `S2-HTML-INLINE-PARSER-REOPEN-PHASE` | Reopen parser work for HTML-inline status disclosures. Initial scope = suspension_related + resumption_related only. **Referee-strongest next candidate.** |
+| `KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-EXPANSION` | Add more manual samples (delisting / liquidation / managed / alert). |
+| `KR-STATUS-CORRECTION-LINKAGE-A0` | Resolve correction linkage using corp_code + base_form + series_marker. |
+| `KR-INTRADAY-HALT-SOURCE-BACKLOG` | Intraday halt / VI / circuit-breaker source. |
+| `KR-EXECUTABLE-STATUS-LIMIT-LOCK-OFFICIAL-SOURCE-A0` | Direct KRX/KOSCOM official limit-lock acquisition. |
+| `KR-LIMIT-LOCK-CORPORATE-ACTION-ADJUSTMENT-A0` | CA effects on prev-close limit. |
+| `KR-LISTED-UNIVERSE-DAILY-LIFECYCLE-REFINEMENT-A0` | Monthly → daily lifecycle / merger linkage / rename / code reuse. |
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | 4 ops blockers (touches ops/paper/live). |
+
+Strategy testing + backtesting remain **premature**. Auto-start forbidden.
 
 ### KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 — CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED (2026-05-25)
 
@@ -572,7 +579,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) → KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (12 outputs + build script + 195-ZIP cache, **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED** — 195 samples / 56.4% extraction = 31× lift; bs4 HTML-inline; suspension 92.5% + resumption 90.2% parser-feasible; gate `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`) |
 
 ## Git Status
 
