@@ -8,33 +8,36 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-RESIDUAL-ROWKEY-INTEGRITY-AUDIT-A0 — ACTIVE (2026-05-26, via relay; Referee REF-OPEN-008)
-
-Referee directive REF-OPEN-008 (2026-05-26, via relay): open the next local-only
-measurement-layer data-cleaning phase. Follows the now-closed
-KR-STATUS-LOCAL-ARTIFACT-CONSISTENCY-AUDIT-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close — and
-  this directive explicitly says do NOT create CLOSE_NOTE.md this phase).
-- **Scope:** local **row-key (rcept_no) integrity audit** only — verify the accepted
-  count locks also hold at the rcept_no SET level (set equality, not just aggregate
-  counts), with duplicate-key checks. **Existing local CSV/MD from closed
-  measurement_A0 phases ONLY — NO new data, NO downloads/API/credentials/body-repair/
-  parser-change/rerun/candidate-rerun/body-confirmation-rerun/source-recovery/
-  parser-design/downstream-wiring/C2-C3/event-log/executable-status-table/strategy/
-  execution.**
-- **Goal:** set-level reconciliation of the locked counts — 42 zip set (universe ==
-  register == manifest); 39 corr-zip / 3 non-corr-zip subsets; 711 parser
-  non-extracted set (universe no_label+label_no_value == register == taxonomy); 166
-  correction set (links == adjudication == register); 862 register == 753 universe
-  non-extracted ∪ 166 correction (overlap preserved, not double-counted); confirm no
-  row-key mismatch silently changes parse/safety status. Mismatches RECORDED, not
-  patched (do NOT edit closed artifacts).
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_RESIDUAL_ROWKEY_INTEGRITY_AUDIT_A0/`.
-- **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
-- Awaiting Referee verdict after the Executor pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-RESIDUAL-ROWKEY-INTEGRITY-AUDIT-A0 — CLOSED AS RESIDUAL ROWKEY INTEGRITY AUDIT COMPLETED / ROWKEY SET LOCKS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-008 (2026-05-26): **CLOSED AS RESIDUAL ROWKEY
+INTEGRITY AUDIT COMPLETED / ROWKEY SET LOCKS PRESERVED / EXECUTION STILL CLOSED.**
+Option A accepted + Option D preserved (close after housekeeping; next phase NOT
+opened in the close pass).
+
+- Status: **CLOSED**. Initial pass commit accepted: `73c68a8`. Code:
+  `src/audit/measurement_a0/p_residual_rowkey_integrity_audit.py`.
+- 9 required + 1 supporting deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted result — CLEAN PASS (set level):** verified the accepted count locks hold
+at the exact rcept_no SET level (not merely aggregate counts). 0 duplicate keys across
+all 6 ledgers; 5/5 exact set-equality checks PASS; subset matrix all PASS; status +
+fail-closed flags consistent; 0 mismatches.
+
+**Accepted LOCKED row-key sets:** 42 zip (universe == register == manifest); 39
+correction-zip (adjudication == register == manifest); 3 non-correction-zip (register
+== manifest); 711 parser non-extracted (universe no_label∪label_no_value == register
+== taxonomy); 166 correction (links == adjudication == register); 862 register == 753
+universe-non-extracted ∪ 166 correction with 57-key overlap preserved (753+166−57=862).
+
+This phase made no new data; no downloads/API/credentials/body-repair/parser-change/
+rerun/candidate-rerun/body-confirmation-rerun/source-recovery/parser-design/
+downstream-wiring/C2-C3/event-log/executable-status-table/strategy/execution; no edits
+to closed artifacts. Per the verdict, the next phase was NOT opened in the close pass.
 
 ### KR-STATUS-LOCAL-ARTIFACT-CONSISTENCY-AUDIT-A0 — CLOSED AS LOCAL ARTIFACT CONSISTENCY AUDIT COMPLETED / ACCEPTED COUNT LOCKS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
