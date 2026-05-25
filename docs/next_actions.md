@@ -8,41 +8,41 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-MANUAL-REVIEW-WORKLIST-VIEWS-A0 — ACTIVE (2026-05-26, via relay; Referee REF-OPEN-011)
-
-Referee directive REF-OPEN-011 (2026-05-26, via relay): open the next local-only
-measurement-layer data-cleaning phase. Follows the now-closed
-KR-STATUS-RESIDUAL-MANUAL-REVIEW-PACKET-CONSOLIDATION-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close;
-  directive: no CLOSE_NOTE this phase).
-- **Scope:** local **worklist-view generation** only, derived from the closed
-  862-row manual-review packet — a navigation/index view for FUTURE human inspection.
-  **NOT manual adjudication, NOT validation, NOT source recovery, NOT parser design,
-  NOT an event log, NOT an executable-status table.** Existing local artifacts only;
-  no new data; no edits to closed artifacts; no downloads/API/credentials/body-repair/
-  parser-change/rerun/candidate-rerun/body-confirmation-rerun/downstream-wiring/C2-C3/
-  strategy/execution.
-- **Goal:** deterministic worklist rows with stable worklist_id + review_bucket +
-  rcept_no + source context + read-only review notes; a `blocked_action_boundary`
-  WARNING field (not approval); per-bucket shard metadata; integrity confirmation
-  (862/862 unique, bucket counts, fail-closed flags, prior sentinels clean). NO
-  outcome columns (validated/approved/effective_date_final/recovered/parsed/safe/
-  executable/authoritative/readiness). Worklist views human-navigation-only and
-  fail-closed.
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_MANUAL_REVIEW_WORKLIST_VIEWS_A0/`.
-- **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
-- **Pass 2 (REF-OPEN-011 Option B, 2026-05-26):** Referee required Pass 2 — Pass 1
-  (290f532) carried an exact `recovered` column (outcome-column ambiguity). Pass 2
-  removed ALL outcome/status columns from the worklist (worklist now carries only
-  navigation fields + the single fail-closed marker `manual_review_required=True` +
-  WARNING-only `blocked_action_boundary`); input-packet fail-closed flags (incl.
-  recovered=False) VERIFIED in worklist_integrity_check.csv, not carried; forbidden
-  scan uses the EXACT directive list and PASSES. 862/862 unique + WL-00001..WL-00862
-  + bucket/shard counts + sentinels all preserved; deterministic. Awaiting Referee.
-- Awaiting Referee verdict after the Executor pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-MANUAL-REVIEW-WORKLIST-VIEWS-A0 — CLOSED AS MANUAL-REVIEW WORKLIST VIEWS COMPLETED / NAVIGATION-ONLY FAIL-CLOSED WORKLIST PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-011 (2026-05-26): **CLOSED AS MANUAL-REVIEW WORKLIST
+VIEWS COMPLETED / NAVIGATION-ONLY FAIL-CLOSED WORKLIST PRESERVED / EXECUTION STILL
+CLOSED.** Option A accepted + Option D preserved (close after Pass 2 corrective pass;
+next phase NOT opened in the close pass).
+
+- Status: **CLOSED**. Accepted commits: Pass 1 `290f532` (partial) + Pass 2 `d67950c`
+  (final corrective). Code:
+  `src/audit/measurement_a0/p_manual_review_worklist_views.py`.
+- 10 required deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Pass history:** Pass 1 carried an exact `recovered` outcome column → Referee
+required Pass 2 (Option B). Pass 2 removed ALL outcome/status columns; worklist now
+carries only navigation fields + read-only review_note + WARNING-only
+blocked_action_boundary + the single fail-closed marker manual_review_required=True;
+input-packet fail-closed flags VERIFIED in integrity check (not carried); forbidden
+scan uses the EXACT directive list and PASSES.
+
+**Accepted result:** deterministic, fail-closed, navigation-only worklist over the
+862-row packet — 862 rows / 862 unique (== packet set); WL-00001..WL-00862; 18 columns
+(no outcome columns); 7 per-bucket shards; 12/12 integrity PASS; 0 build defects.
+blocked_action_boundary warning-only (not approval); no row marked parsed/recovered/
+executable/safe/authoritative/validated/approved/strategy-ready/execution-ready/
+production-ready.
+
+This phase made no new data; navigation/index only; no edits to closed artifacts; no
+downloads/API/credentials/body-repair/parser-change/rerun/candidate-rerun/source-
+recovery/parser-design/manual-adjudication/downstream-wiring/C2-C3/event-log/
+executable-status-table/strategy/execution. Per the verdict, the next phase was NOT
+opened in the close pass.
 
 ### KR-STATUS-RESIDUAL-MANUAL-REVIEW-PACKET-CONSOLIDATION-A0 — CLOSED AS RESIDUAL MANUAL-REVIEW PACKET CONSOLIDATION COMPLETED / HUMAN-REVIEW-ONLY FAIL-CLOSED INDEX PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
