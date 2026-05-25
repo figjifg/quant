@@ -1,0 +1,2 @@
+defect_id,kind,detail
+NONE,no_defect,all REF-CLOSE-007..011 CLOSE_NOTEs + key outputs present; lock summaries internally consistent; worklist state intact; only this phase Active

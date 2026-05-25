@@ -1,0 +1,5 @@
+check,value,result
+worklist_rows==862,862,PASS
+worklist_unique_rcept_no==862,862,PASS
+worklist_id WL-00001..WL-00862 sequential,WL-00001..WL-00862,PASS
+no_exact_forbidden_outcome_columns,none,PASS

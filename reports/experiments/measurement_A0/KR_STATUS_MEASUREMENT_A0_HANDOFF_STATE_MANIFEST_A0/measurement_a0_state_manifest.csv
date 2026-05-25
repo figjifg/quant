@@ -1,0 +1,6 @@
+ref_close_id,phase,accepted_commits,accepted_status,lock_role,key_output_file,close_note_present,key_output_present
+REF-CLOSE-007,KR_STATUS_LOCAL_ARTIFACT_CONSISTENCY_AUDIT_A0,1643fd2 + 85909a3,CLOSED,aggregate count locks,count_reconciliation_matrix.csv,True,True
+REF-CLOSE-008,KR_STATUS_RESIDUAL_ROWKEY_INTEGRITY_AUDIT_A0,73c68a8 + 75247a7,CLOSED,rcept_no row-key set locks,rowkey_set_reconciliation.csv,True,True
+REF-CLOSE-009,KR_STATUS_FAIL_CLOSED_INVARIANT_AUDIT_A0,bbfbbaa + a0feb9f,CLOSED,field-level fail-closed locks,fail_closed_invariant_matrix.csv,True,True
+REF-CLOSE-010,KR_STATUS_RESIDUAL_MANUAL_REVIEW_PACKET_CONSOLIDATION_A0,32e30f8 + 4e46c99,CLOSED,"manual-review packet (862, fail-closed)",manual_review_packet.csv,True,True
+REF-CLOSE-011,KR_STATUS_MANUAL_REVIEW_WORKLIST_VIEWS_A0,290f532 + d67950c + 8597af1,CLOSED,navigation-only worklist (862),manual_review_worklist.csv,True,True
