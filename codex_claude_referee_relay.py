@@ -261,6 +261,46 @@ def wait_for_new_block(
     raise TimeoutError(f"Timed out waiting for block {start_marker} ... {end_marker} in {target}")
 
 
+def wait_for_reply_file(
+    *,
+    path: Path,
+    since_ts: float,
+    timeout_s: float,
+    poll_s: float,
+) -> str:
+    """Wait for Claude to WRITE its reply directly to `path`.
+
+    This is the Claude->Codex transport. Claude Code is an alt-screen TUI, so
+    tmux capture-pane only exposes the visible viewport — long marker blocks
+    scroll off-screen and are never captured. Reading the reply from a file that
+    Claude writes removes the length limit entirely and needs no markers.
+
+    Accept the file only when it is FRESH (mtime >= since_ts), non-empty, and
+    SIZE-STABLE across two consecutive polls (guards against reading mid-write,
+    though Claude's editor writes atomically).
+    """
+    deadline = time.time() + timeout_s
+    last_size = -1
+    stable = 0
+    while time.time() < deadline:
+        try:
+            st = path.stat()
+            fresh = st.st_mtime >= since_ts - 1.0 and st.st_size > 0
+        except FileNotFoundError:
+            fresh = False
+            st = None
+        if fresh and st is not None:
+            if st.st_size == last_size:
+                stable += 1
+                if stable >= 2:
+                    return path.read_text(encoding="utf-8", errors="replace")
+            else:
+                stable = 0
+                last_size = st.st_size
+        time.sleep(poll_s)
+    raise TimeoutError(f"Timed out waiting for Claude to write reply file {path}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="tmux relay: Codex is referee; Claude is called only by explicit Codex ASK_CLAUDE blocks."
@@ -322,7 +362,8 @@ def main() -> int:
     print(f"Relay dir: {relay_dir}")
     print(f"Log: {log_path}")
     print("Mode: Codex is referee; only explicit ASK_CLAUDE blocks are forwarded.")
-    print(f"Markers: {ask_start} … {ask_end}  /  {reply_start} … {reply_end}")
+    print(f"ASK detect (Codex pane): {ask_start} … {ask_end}")
+    print("REPLY (Claude->Codex): file-based — Claude writes claude_reply_NN.md (no markers, no length limit)")
     print(f"Priming: {'on' if args.prime else 'off (protocol files ignored)'}")
 
     if args.prime:
@@ -337,10 +378,11 @@ def main() -> int:
             buffer_name,
         )
 
-    # Baseline existing blocks so old text in scrollback is not processed.
+    # Baseline existing ASK blocks so old text in the Codex scrollback is not
+    # reprocessed. The Claude->Codex direction is file-based (claude_reply_NN.md),
+    # so no reply-marker baseline is needed.
     time.sleep(1.0)
     seen_asks: Set[str] = {block_hash(b) for b in extract_blocks(capture_pane(codex_target, args.history_lines), ask_start, ask_end)}
-    seen_replies: Set[str] = {block_hash(b) for b in extract_blocks(capture_pane(claude_target, args.history_lines), reply_start, reply_end)}
 
     calls = 0
     try:
@@ -367,36 +409,43 @@ def main() -> int:
                 append_log(log_path, f"Codex request {calls}", new_ask)
                 print(f"[{calls}/{args.max_calls}] Codex requested Claude: {ask_path}")
 
+                # File-based reply: Claude WRITES its full answer to reply_path.
+                # No length limit, no markers, immune to alt-screen capture loss.
+                # Remove any stale reply file so the freshness check is unambiguous.
+                try:
+                    reply_path.unlink()
+                except FileNotFoundError:
+                    pass
+                request_ts = time.time()
                 send_line(
                     claude_target,
-                    f"Relay request {calls} from Codex: read {ask_path} and respond using your assigned Claude-to-Codex relay markers.",
+                    f"Relay request {calls} from Codex: read {ask_path} and WRITE your full reply "
+                    f"(plain text, any length, no markers needed) to {reply_path} — overwrite it, "
+                    f"write nothing else there. The relay forwards that file to Codex once you save it.",
                     buffer_name,
                 )
 
                 try:
-                    claude_answer = wait_for_new_block(
-                        target=claude_target,
-                        start_marker=reply_start,
-                        end_marker=reply_end,
-                        seen=seen_replies,
+                    claude_answer = wait_for_reply_file(
+                        path=reply_path,
+                        since_ts=request_ts,
                         timeout_s=args.timeout,
                         poll_s=args.poll,
-                        history_lines=args.history_lines,
                     )
                 except TimeoutError as e:
-                    err_text = f"Claude did not return a marked reply before timeout. Error: {e}"
+                    err_text = f"Claude did not write a reply file before timeout. Error: {e}"
                     write_text(reply_path, err_text + "\n")
                     append_log(log_path, f"Claude timeout {calls}", err_text)
                     send_line(
                         codex_target,
-                        f"Relay error for Claude request {calls}: Claude did not return a marked reply before timeout. See {reply_path}. Continue as referee without Claude if possible.",
+                        f"Relay error for Claude request {calls}: Claude did not write a reply before timeout. See {reply_path}. Continue as referee without Claude if possible.",
                         buffer_name,
                     )
                     continue
 
-                write_text(reply_path, claude_answer + "\n")
+                # reply_path was written by Claude; do NOT overwrite it. Just log + notify.
                 append_log(log_path, f"Claude answer {calls}", claude_answer)
-                print(f"[{calls}/{args.max_calls}] Claude replied: {reply_path}")
+                print(f"[{calls}/{args.max_calls}] Claude replied (file): {reply_path}")
 
                 send_line(
                     codex_target,
