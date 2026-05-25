@@ -1,0 +1,2 @@
+defect_id,kind,phase,file,detail,recommended_correction
+NONE,no_defect,(all 6 consistent),,"no count mismatch, no missing core file, no absent CLOSE_NOTE number, no scope-drift phrase found",none

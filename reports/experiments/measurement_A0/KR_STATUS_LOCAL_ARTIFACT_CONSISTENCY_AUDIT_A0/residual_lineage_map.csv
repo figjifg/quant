@@ -1,0 +1,9 @@
+residual_set,origin_phase,flows_into
+"12,187 in-scope universe rows",UNIVERSE_RESIDUAL_RECONCILIATION,blocker register (membership base); correction subset (166)
+42 zip_unparseable,UNIVERSE_RESIDUAL_RECONCILIATION,blocker register (source_zip_unparseable) -> source-recovery manifest (42 = 39 corr + 3 non-corr)
+511 no_label_match,UNIVERSE_RESIDUAL_RECONCILIATION,blocker register (parser_no_label_match) -> non-extracted taxonomy (root causes)
+200 label_no_value,UNIVERSE_RESIDUAL_RECONCILIATION,blocker register (parser_label_no_value) -> non-extracted taxonomy (root causes)
+166 correction rows (5-tier 17/52/7/73/17),CORRECTION_LINKAGE_FULL_UNIVERSE_VALIDATION,adjudication (residual action classes) -> blocker register (correction_* tags)
+39 correction zip subset,CORRECTION_RESIDUAL_LOCAL_ADJUDICATION,blocker register (subset of 42) -> source-recovery manifest (correction zip detail)
+862 blocker register rows,RESIDUAL_BLOCKER_REGISTER,non-extracted taxonomy (711 subset) + source-recovery manifest (42 subset)
+711 parser non-extracted rows,RESIDUAL_BLOCKER_REGISTER/UNIVERSE,non-extracted taxonomy (root-cause classified)
