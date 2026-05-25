@@ -107,8 +107,9 @@ Accepted **as an estimate**, NOT a claim of perfect 100% universe coverage.
 
 1. **Target-set residual**: body_unavailable on the prior expansion target set is
    **0** after completion. The 5,744 rows that prompted this phase are all
-   accounted for (5,742 with bodies + 3 zip_unparseable = 5,745, of which 162
-   already cached, 5,579 newly acquired, 3 zip_unparseable).
+   accounted for as 162 already cached + 5,579 newly acquired + 3 zip_unparseable
+   = 5,744. The 3 zip_unparseable rows are residual source defects, not parsed
+   bodies.
 
 2. **Universe-level / non-target residual**: ~210 rows in the 12,187-row in-scope
    universe still do NOT have an HTML-inline body available. Breakdown:
