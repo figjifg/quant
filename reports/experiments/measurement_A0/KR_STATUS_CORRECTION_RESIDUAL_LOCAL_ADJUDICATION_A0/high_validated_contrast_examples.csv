@@ -1,0 +1,18 @@
+correction_rcept_no,corp_name,candidate_rcept_no,candidate_rcept_dt_iso,title_similarity,body_refs_candidate_title,body_refs_candidate_date,note
+20100331902855,포네이처,20100324900525,2010-03-24,0.8,True,False,design-only validated link; still manual_review_required; NOT wired
+20101228900194,SOOP,20101227900279,2010-12-27,0.842,True,True,design-only validated link; still manual_review_required; NOT wired
+20110407800122,현대지에프홀딩스,20100413800050,2010-04-13,0.864,True,False,design-only validated link; still manual_review_required; NOT wired
+20111109800418,유니켐,20110811800004,2011-08-11,0.864,True,False,design-only validated link; still manual_review_required; NOT wired
+20111102900010,에스티씨라이프,20111101900419,2011-11-01,0.8,False,True,design-only validated link; still manual_review_required; NOT wired
+20120312900806,아인스엠앤엠,20120308901602,2012-03-08,0.889,False,True,design-only validated link; still manual_review_required; NOT wired
+20140317900074,에스지피엠,20140313902133,2014-03-13,0.903,True,True,design-only validated link; still manual_review_required; NOT wired
+20140214900136,스포츠서울,20140213900482,2014-02-13,0.889,True,True,design-only validated link; still manual_review_required; NOT wired
+20140602800019,유니켐,20140530801640,2014-05-30,0.87,True,False,design-only validated link; still manual_review_required; NOT wired
+20200512900593,코다코,20200511900737,2020-05-11,0.936,True,True,design-only validated link; still manual_review_required; NOT wired
+20200506900190,현진소재,20200429901137,2020-04-29,0.875,False,True,design-only validated link; still manual_review_required; NOT wired
+20200506900186,강원에너지,20200429901103,2020-04-29,0.875,False,True,design-only validated link; still manual_review_required; NOT wired
+20220328901608,애닉,20220324901340,2022-03-24,0.875,False,True,design-only validated link; still manual_review_required; NOT wired
+20260319902113,케이이엠텍,20260309901397,2026-03-09,0.941,True,True,design-only validated link; still manual_review_required; NOT wired
+20260205600092,이앤에치,20260204601223,2026-02-04,0.936,False,True,design-only validated link; still manual_review_required; NOT wired
+20210323901856,에스디시스템,20200402900823,2020-04-02,0.889,True,False,design-only validated link; still manual_review_required; NOT wired
+20200805900060,KD,20200804900490,2020-08-04,0.936,True,True,design-only validated link; still manual_review_required; NOT wired

@@ -1,0 +1,8 @@
+residual_action_class,count
+body_confirms_candidate_but_below_high,40
+zip_unparseable_requires_source_recovery,39
+no_link_original_not_found,37
+accepted_high_validated_design_only,17
+rejected_wrong_candidate_quarantined,17
+no_link_insufficient_evidence,15
+no_link_cross_category_blocked,1
