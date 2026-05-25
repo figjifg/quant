@@ -1,7 +1,7 @@
 # KR-STATUS-ZIP-UNPARSEABLE-SOURCE-RECOVERY-A0 — Final Close Note
 
-Date: 2026-05-26  
-Verdict source: Referee final close verdict, 2026-05-26 (via relay).  
+Date: 2026-05-26
+Verdict source: Referee final close verdict, 2026-05-26 (via relay).
 Initial pass commit accepted as evidence: `cf4ad41` on origin/main.
 
 ## Verdict / final status
