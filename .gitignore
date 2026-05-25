@@ -67,3 +67,7 @@ reports/experiments/**/stock_with_sector_daily_*.csv
 
 # Any file > 50MB (defensive — should already be covered above)
 # Use git lfs separately if a large file actually needs sharing.
+
+# Codex<->Claude tmux relay scratch (transport files; reproducible, not source)
+.codex-claude-relay/
+relay.out
