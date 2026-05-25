@@ -6,81 +6,75 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active — S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 (Referee verdict 2026-05-25; PASS 2 REQUIRED)
+## Active
 
-**State (2026-05-25)**: **PASS 2 REQUIRED / FULL_UNIVERSE_VALIDATION_REQUIRES_MORE_WORK**.
-Pass 1 (commit `20fbdf6`) applied parser to 12,187 in-scope rows and found 0
-negative-control false positives, but holdout had 20 wrong_date rows, all
-`period_change_disclosure`; targeted fix + revalidation required.
-
-**Pass 1 artifacts preserved** (do NOT overwrite):
-- 12 base-name outputs.
-- Pass 2 outputs go to same directory with `pass2_` prefix.
-
-**Pass 2 scope**:
-- Narrowly scoped parser fix for `period_change_disclosure` ONLY.
-- Re-run full-universe parser application + negative control + correction
-  policy + holdout (including the 20 Pass-1 wrong rows).
-- No other parser feature expansion.
-
-**Scope**: Measurement-layer full-universe parser validation only. Validate the
-already-built HTML-inline parser across the broader 2010+ OPENDART/KRX status-event
-universe. **Validation only — no parser feature expansion EXCEPT period_change_disclosure.**
-
-**Scope inclusions**:
-- suspension_related + resumption_related only.
-- HTML-inline body only.
-- effective_date / suspension_start / suspension_end / resumption_date / resumption_time fields.
-- Correction handling using closed `KR-STATUS-CORRECTION-LINKAGE-A0` high_validated-only rules.
-
-**Scope exclusions (hard)**:
-- No delisting / liquidation / managed / alert parser.
-- No DART body alpha / overhang parser.
-- No C2/C3 wiring / all-event event log.
-- No strategy testing / performance diagnostics / execution simulation.
-- No production / paper / P08 / live / shadow.
-- No new parser feature work (defect logging only).
-- No `rcept_dt` fallback to `effective_date`.
-
-**Reason**: Parser sample validation (108 samples) + correction linkage Pass-3
-(72-row sample) are both sample-level. Next measurement-layer question: do parser
-+ correction policy hold across the broader 17,924-row status-event universe.
-
-**Primary source-of-truth (read-only)**:
-- `src/parsers/krx_status_html_inline.py`
-- `tests/test_krx_status_html_inline.py`
-- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_validation_results.csv`
-- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_defect_ledger.csv`
-- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/downstream_blockers_after_parser_reopen.md`
-- `KR_STATUS_CORRECTION_LINKAGE_A0/pass3_candidate_links_recalibrated.csv`
-- `KR_STATUS_CORRECTION_LINKAGE_A0/pass3_gate_status.md`
-- `KR_STATUS_CORRECTION_LINKAGE_A0/CLOSE_NOTE.md`
-- `data/acquired/round5_dart_pre2018/`, `round4/s3_krx_status/`, `round5_manual_audit_samples/`
-
-**9 allowed task groups**: universe construction / document availability audit /
-apply existing parser / coverage metrics / negative controls / correction policy
-application / stratified holdout validation / defect ledger / gate status.
-
-**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
-`FULL_UNIVERSE_PARSER_APPLIED_BUT_NOT_VALIDATED` /
-`FULL_UNIVERSE_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY` /
-`FULL_UNIVERSE_VALIDATION_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`.
-Do NOT mark execution simulation open. Do NOT mark strategy testing open. Do NOT
-mark parser output strategy-ready.
-
-**Required outputs (12)**: see `full_universe_referee_lock.md`.
-
-**Output 경로**: `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/`
-
-**Important boundary**:
-- Full-universe parser validation, NOT parser expansion.
-- Passing this phase does NOT reopen strategy testing.
-- Passing this phase does NOT open execution simulation automatically.
-- Passing this phase does NOT complete S2 globally.
-- Passing this phase only validates whether the narrow suspension / resumption
-  HTML-inline parser and high_validated correction policy hold beyond sample.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 — CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED (2026-05-25)
+
+Referee final verdict 2026-05-25: **CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR
+SUSPENSION / RESUMPTION ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED —
+parser 1.1.0 period_change_disclosure fix accepted; 12,187 in-scope rows parsed;
+1,331 extracted; 180-row holdout 99.4% success; 0 false positives; 1 wrong_date;
+19/20 Pass-1 wrong rows fixed; correction policy unchanged; body_unavailable rows
+preserved; no strategy testing.**
+
+- Status: **CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION
+  ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED**.
+- 2 accepted commits: Pass 1 `20fbdf6` (evidence) + Pass 2 `38acaf9` (close-ready).
+- Code: parser 1.0.0 → 1.1.0 (`src/parsers/krx_status_html_inline.py`);
+  34/34 tests (`tests/test_krx_status_html_inline.py`);
+  2 validation scripts at `src/audit/measurement_a0/p_full_universe_parser_validation*.py`.
+- 24 deliverables ACCEPTED (12 Pass-1 + 12 Pass-2) + CLOSE_NOTE.md.
+
+**Pass-1 (commit 20fbdf6) baseline:**
+- 12,187 in-scope rows parsed; 1,402 bodies cached after 400 prefetch (11.5% body coverage).
+- 1,327 extracted (10.89% overall; 94.65% given body).
+- 0 negative-control FP / 5,737.
+- 184-row holdout / 89.1% success / 20 wrong_date all from `period_change_disclosure` pattern.
+- Gate `FULL_UNIVERSE_VALIDATION_REQUIRES_MORE_WORK`.
+
+**Pass-2 (commit 38acaf9) targeted fix:**
+- Parser 1.0.0 → 1.1.0: `PERIOD_CHANGE_RE` + `select_after_change_period_hit()` helper.
+  AFTER markers: 변경후 / 변경 후 / 정정후 / 정정 후 / 변경된 / 정정된.
+  BEFORE markers: 변경전 / 변경 전 / 정정전 / 정정 전 / 당초.
+- Ordinary suspension / resumption / negative-control / correction handling unchanged.
+- 34/34 tests passing.
+- Validation-script Korean-date verification fix accepted transparently.
+- Extracted: 1,327 → 1,331 (+4).
+- Period_change rows in universe: 3,030; 320 took 1.1.0 path.
+- 180-row holdout / 99.4% success / 0 FP / 1 wrong_date / 0 regression.
+- Pass-1 wrong rows revisited: 19/20 fixed = **95.0% fix rate**.
+- Correction policy: 35 allowed / 131 blocked (UNCHANGED).
+- Gate state: **READY_FOR_NEXT_A0_REVIEW**.
+
+Important accepted boundary (Referee-locked):
+- "Full-universe validation" = parser applied to full in-scope universe;
+  body_unavailable rows preserved and marked; available-body parser behavior
+  validated with holdout; negative controls checked at full-universe scale.
+- It does NOT mean every 12,187 in-scope row has a downloaded body.
+- Body coverage remains incomplete (88.5% body_unavailable).
+- `body_unavailable` rows remain manual_review_required / unavailable.
+- No unavailable body may be treated as executable, parsed, or safe by default.
+- No card is strategy-ready.
+
+9 future-phase candidates (none active, separate Referee verdict each):
+
+| Phase candidate | Purpose |
+|---|---|
+| `S2-HTML-INLINE-PARSER-BODY-COVERAGE-EXPANSION-A0` | Increase body availability for 10,000+ body_unavailable rows. **Referee-strongest next candidate.** |
+| `KR-STATUS-CORRECTION-LINKAGE-FULL-UNIVERSE-VALIDATION-A0` | Correction linkage beyond sample across all in-scope correction rows. |
+| `KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-EXPANSION` | More manual samples (delisting / liquidation / managed / alert). |
+| `S2-DELISTING-LIQUIDATION-PARSER-FEASIBILITY-A0` | Separate feasibility for delisting / liquidation (attachment-heavy). |
+| `KR-INTRADAY-HALT-SOURCE-BACKLOG` | Intraday halt / VI / circuit-breaker. |
+| `KR-EXECUTABLE-STATUS-LIMIT-LOCK-OFFICIAL-SOURCE-A0` | Direct KRX/KOSCOM official limit-lock. |
+| `KR-LIMIT-LOCK-CORPORATE-ACTION-ADJUSTMENT-A0` | CA effects on prev-close limit. |
+| `KR-LISTED-UNIVERSE-DAILY-LIFECYCLE-REFINEMENT-A0` | Monthly → daily lifecycle / merger / rename / code reuse. |
+| `KR-OPS-NAV-UPDATE-QUARANTINE-PATCH-PHASE` | 4 ops blockers. |
+
+Strategy testing remains **premature**. Auto-start forbidden.
 
 ### KR-STATUS-CORRECTION-LINKAGE-A0 — CLOSED AS CORRECTION-LINKAGE VALIDATED FOR SAMPLE / HIGH_VALIDATED ONLY / EXECUTION STILL CLOSED (2026-05-25)
 
@@ -866,7 +860,7 @@ requirements, time budget) 필요. 현 S2 phase 의 자동 연속 X.
 | Round 4 Partial Re-A0 | 5/5 PARTIAL PASS, 23/34 CLOSED |
 | Round 4.1 | Residual closure sprint, 25/34 CLOSED, S2 entry criteria met |
 | Round 5 | S2 OPENDART body parser phase — D1 dry run / D2 schema mapping / D3 v1+v2+v3 / Triage / **CLOSED AS PARTIAL** |
-| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) → KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (12 outputs + build script + 195-ZIP cache, **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED** — 195 samples / 56.4% extraction = 31× lift; bs4 HTML-inline; suspension 92.5% + resumption 90.2% parser-feasible; gate `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`) → S2-HTML-INLINE-PARSER-REOPEN-PHASE (12 outputs + parser module + 26/26 tests + validator, **CLOSED AS HTML-INLINE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / EXECUTION STILL CLOSED** — 108 in-scope samples / 90.7% overall exact-match / suspension 92.5% / resumption 87.8% / 0 negative-control FPs / 14 defects; gate `HTML_INLINE_PARSER_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY`) → KR-STATUS-CORRECTION-LINKAGE-A0 (3-pass evidence: Pass 1 3d09033 + Pass 2 565f0d3 + Pass 3 2f890d7; 12 outputs each + CLOSE_NOTE.md + 3 audit scripts, **CLOSED AS CORRECTION-LINKAGE VALIDATED FOR SAMPLE / HIGH_VALIDATED ONLY / EXECUTION STILL CLOSED** — Pass-3 body-confirmation gate + 5-tier confidence enum; 72-row sample 78.1% link rate; 35 high_validated universe; 10 wrong-candidate quarantined; 0 residual FP in linked pool; 9 supersession_ready design-only; gate `READY_FOR_NEXT_A0_REVIEW`) |
+| Round 6 | C2-C3-DESIGN-FINALIZATION (9 design-only outputs, **CLOSED**) → Measurement-layer A0 initial pass (P0-1/P0-2/P1 + P2 backlog registers, **CLOSED AS PARTIAL / DEFECT-FOUND**) → KR-OHLCV-QUARANTINE-ENFORCEMENT-A0 (8 outputs, **CLOSED AS DEFECT-FOUND** — 143 defects recorded; no patches applied) → KR-OHLCV-QUARANTINE-PATCH-PHASE (9 outputs + guard module + 19 tests + 6 patched files, **CLOSED AS PATCHED-PARTIAL / RESIDUAL BLOCKERS PRESERVED** — 45 residual blockers; runtime propagation not verified) → KR-OHLCV-RUNTIME-MASK-PROPAGATION-A0 (9 outputs, **CLOSED AS RUNTIME-VERIFIED FOR TESTED PATHS / RESIDUAL BLOCKERS PRESERVED** — 10/10 synthetic + 11,425 real invalid rows detected; backtest/universe gates verified active) → KR-OHLCV-RESIDUAL-BLOCKER-PATCH-PHASE (9 outputs + helper + 3 tests + 6 closed-strategy entry patches, **CLOSED AS RESIDUAL-BLOCKERS-REDUCED / OPS BLOCKERS PRESERVED** — 40 patched / 4 still_reopen_blocker / 1 false_positive; 6/6 smoke pass) → KR-KRX-CALENDAR-SOURCE-ACQUISITION-A0 (11 outputs + composite calendar, **CLOSED AS CALENDAR-SOURCE-RECONCILED / EXECUTION STILL CLOSED** — 4,034 dates 2010-2026; 4,021/4,021 t+1 match; 12 vendor-cutoff anomalies) → KR-LISTED-UNIVERSE-COVERAGE-A0 (12 outputs + monthly KRX universe, **CLOSED AS LISTED-UNIVERSE-SOURCE-ACQUIRED / PARTIAL LIFECYCLE / NOT SURVIVORSHIP-SAFE** — 3,653 official tickers vs 925 panel = 25.3% coverage; 2,728 official-only; 519 disappeared no-terminal) → KR-EXECUTABLE-STATUS-COVERAGE-A0 (12 outputs, **CLOSED AS EXECUTABLE-STATUS-SOURCE-ACQUIRED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — S3 KRX status events; 10,774 events / 1,855 tickers / 2018+ only; intraday halt + limit-lock + pre-2018 missing) → KR-EXECUTABLE-STATUS-LIMIT-LOCK-SOURCE-A0 (12 outputs, **CLOSED AS LIMIT-LOCK-PROXY-RECONCILED / PARTIAL COVERAGE / EXECUTION STILL CLOSED** — rule-derived 336 candidates; W001 v2 41 rows under-counted; conservative execution rule design; 9 defects) → KR-EXECUTABLE-STATUS-PRE2018-EXTENSION-A0 (12 outputs, **CLOSED AS PRE2018-STATUS-SOURCE-ACQUIRED / RECONCILED / EXECUTION STILL CLOSED** — OPENDART 2010-2017 acquired; 300,829 raw / 7,150 filtered events; pre_2018_status_coverage_gap closed) → KR-EXECUTABLE-EFFECTIVE-DATE-LINKAGE-A0 (12 outputs, **CLOSED AS EFFECTIVE-DATE-LINKAGE-AUDITED / PARTIAL / NOT GENERALIZABLE / EXECUTION STILL CLOSED** — 113 samples / 1.8% extraction rate; HTML-inline + S2 PARTIAL = core blocker) → KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE (12 outputs + build script + 195-ZIP cache, **CLOSED AS MANUAL-AUDIT-COMPLETED / SUPPORTS HTML-INLINE PARSER REOPEN / EXECUTION STILL CLOSED** — 195 samples / 56.4% extraction = 31× lift; bs4 HTML-inline; suspension 92.5% + resumption 90.2% parser-feasible; gate `MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN`) → S2-HTML-INLINE-PARSER-REOPEN-PHASE (12 outputs + parser module + 26/26 tests + validator, **CLOSED AS HTML-INLINE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / EXECUTION STILL CLOSED** — 108 in-scope samples / 90.7% overall exact-match / suspension 92.5% / resumption 87.8% / 0 negative-control FPs / 14 defects; gate `HTML_INLINE_PARSER_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY`) → KR-STATUS-CORRECTION-LINKAGE-A0 (3-pass evidence: Pass 1 3d09033 + Pass 2 565f0d3 + Pass 3 2f890d7; 12 outputs each + CLOSE_NOTE.md + 3 audit scripts, **CLOSED AS CORRECTION-LINKAGE VALIDATED FOR SAMPLE / HIGH_VALIDATED ONLY / EXECUTION STILL CLOSED** — Pass-3 body-confirmation gate + 5-tier confidence enum; 72-row sample 78.1% link rate; 35 high_validated universe; 10 wrong-candidate quarantined; 0 residual FP in linked pool; 9 supersession_ready design-only; gate `READY_FOR_NEXT_A0_REVIEW`) → S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 (Pass 1 20fbdf6 + Pass 2 38acaf9; 12 outputs each + CLOSE_NOTE.md + parser 1.1.0 + 34/34 tests + validation scripts, **CLOSED AS FULL-UNIVERSE-PARSER-VALIDATED FOR SUSPENSION / RESUMPTION ONLY / AVAILABLE-BODY SCOPE / EXECUTION STILL CLOSED** — 12,187 in-scope parsed / 1,402 bodies cached after 400 prefetch / 1,331 extracted / 0 negative-control FP / 5,737 / period_change parser fix 95% fix rate / 180-row holdout 99.4% / 1 wrong_date / correction policy unchanged) |
 
 ## Git Status
 
