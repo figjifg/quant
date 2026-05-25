@@ -29,11 +29,20 @@ try:
 except ImportError as e:
     raise ImportError("BeautifulSoup (bs4) is required") from e
 
+PARSER_VERSION = "krx_status_html_inline-1.1.0"
+
 # Categories the parser will extract from. Anything else = out_of_scope.
 IN_SCOPE_CATEGORIES = {"suspension_related", "resumption_related"}
 
 # Correction markers in report_nm.
 CORRECTION_MARKER_RE = re.compile(r"\[기재정정\]|\[첨부정정\]|\[첨부추가\]|\[변경\]|\[정정\]")
+
+# Period-change disclosure marker in report_nm (added in 1.1.0).
+PERIOD_CHANGE_RE = re.compile(r"기간변경")
+
+# Body markers that indicate the AFTER-change section in a period-change disclosure.
+AFTER_CHANGE_MARKERS = ("변경후", "변경 후", "정정후", "정정 후", "변경된", "정정된")
+BEFORE_CHANGE_MARKERS = ("변경전", "변경 전", "정정전", "정정 전", "당초")
 
 # ---------------------------------------------------------------------------
 # Category labeling — copied from manual-audit categorize_report for consistency
@@ -308,6 +317,49 @@ def find_label_hits(body_text: str, max_hits: int = 40) -> list[LabelHit]:
     return hits
 
 
+def select_after_change_period_hit(
+    body_text: str, hits: list[LabelHit], by_kind: dict[str, list[LabelHit]]
+) -> LabelHit | None:
+    """For period_change_disclosure (기간변경) suspension events: choose the
+    AFTER-change `정지기간` hit, not the (default) FIRST occurrence.
+
+    Strategy:
+    1. Locate `AFTER_CHANGE_MARKERS` positions in normalized body.
+    2. Pick the suspension_period hit whose `pos` is AFTER the LAST after-change
+       marker. If none qualifies, fall through to the LAST suspension_period
+       hit (heuristic: after-change section typically appears later in body).
+    3. If still nothing, fall back to first suspension_period / suspension_start.
+    """
+    if "suspension_period" not in by_kind and "suspension_start" not in by_kind:
+        return None
+    text = _normalize_for_scan(body_text)
+
+    after_marker_positions: list[int] = []
+    for marker in AFTER_CHANGE_MARKERS:
+        start = 0
+        while True:
+            idx = text.find(marker, start)
+            if idx == -1:
+                break
+            after_marker_positions.append(idx)
+            start = idx + len(marker)
+
+    period_hits = by_kind.get("suspension_period", []) + by_kind.get("suspension_start", [])
+
+    if after_marker_positions:
+        last_after = max(after_marker_positions)
+        eligible = [h for h in period_hits if h.iso_date and h.pos > last_after]
+        if eligible:
+            eligible.sort(key=lambda h: h.pos)
+            return eligible[0]
+
+    valued = [h for h in period_hits if h.iso_date]
+    if not valued:
+        return None
+    valued.sort(key=lambda h: h.pos)
+    return valued[-1]  # last valued occurrence as fallback
+
+
 def find_resumption_time(body_text: str, resumption_iso: str | None) -> str | None:
     """Look for HH:MM near the resumption_date label."""
     if not resumption_iso:
@@ -421,15 +473,23 @@ def parse_disclosure(
 
     # Decide fields
     if category == "suspension_related":
-        # Prefer suspension_period (range) → suspension_start → effective_generic
+        is_period_change = bool(PERIOD_CHANGE_RE.search(report_nm or ""))
+
         chosen = None
-        for kind_pref in ("suspension_period", "suspension_start", "effective_generic"):
-            for h in by_kind.get(kind_pref, []):
-                if h.iso_date:
-                    chosen = h
-                    break
+        if is_period_change:
+            # 1.1.0 fix: for 기간변경 disclosures, select AFTER-change period hit.
+            chosen = select_after_change_period_hit(body.text, hits, by_kind)
             if chosen:
-                break
+                out.notes = "period_change_disclosure: after-change period selected"
+        if not chosen:
+            # Default: prefer suspension_period (range) → suspension_start → effective_generic
+            for kind_pref in ("suspension_period", "suspension_start", "effective_generic"):
+                for h in by_kind.get(kind_pref, []):
+                    if h.iso_date:
+                        chosen = h
+                        break
+                if chosen:
+                    break
         if chosen:
             out.parsed_suspension_start = chosen.iso_date
             if chosen.iso_end_date:

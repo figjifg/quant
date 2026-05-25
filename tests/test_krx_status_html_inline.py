@@ -251,3 +251,127 @@ def test_parse_managed_negative_control():
     assert r.event_category == "managed"
     assert r.parse_status == "out_of_scope_category"
     assert r.parsed_effective_date is None
+
+
+# ---------------------------------------------------------------------------
+# 1.1.0: period_change_disclosure handling
+# ---------------------------------------------------------------------------
+
+def test_period_change_after_change_marker_picks_after_period():
+    """When body has 변경전 + 변경후 sections, parser must pick after-change period."""
+    html = """<html><body>
+    <p>변경전</p>
+    <p>정지기간: 2010-02-25 ~ 2010-03-23</p>
+    <p>변경후</p>
+    <p>정지기간: 2010-03-24 ~ 2010-04-20</p>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="20100324", stock_code="x", corp_name="x",
+        report_nm="주권매매거래정지기간변경", zip_bytes=z,
+    )
+    assert r.event_category == "suspension_related"
+    assert r.parse_status == "extracted"
+    assert r.parsed_suspension_start == "2010-03-24"
+    assert r.parsed_suspension_end == "2010-04-20"
+    assert "period_change_disclosure" in r.notes
+
+
+def test_period_change_korean_after_marker():
+    html = """<html><body>
+    <p>당초</p>
+    <p>정지기간: 2020-01-10 ~ 2020-02-10</p>
+    <p>변경된</p>
+    <p>정지기간: 2020-02-15 ~ 2020-03-15</p>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="20200215", stock_code="x", corp_name="x",
+        report_nm="매매거래정지기간변경", zip_bytes=z,
+    )
+    assert r.parsed_suspension_start == "2020-02-15"
+
+
+def test_period_change_jeongjeong_marker():
+    html = """<html><body>
+    <p>정정전</p>
+    <p>정지기간: 2018-07-01 ~ 2018-07-15</p>
+    <p>정정후</p>
+    <p>정지기간: 2018-07-20 ~ 2018-08-05</p>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="20180720", stock_code="x", corp_name="x",
+        report_nm="주권매매거래정지기간변경(구주권 제출)", zip_bytes=z,
+    )
+    assert r.parsed_suspension_start == "2018-07-20"
+    assert r.parsed_suspension_end == "2018-08-05"
+
+
+def test_period_change_without_explicit_markers_falls_back_to_last():
+    """When period-change disclosure has multiple 정지기간 mentions but no
+    explicit before/after marker, prefer LAST occurrence."""
+    html = """<html><body>
+    <table>
+    <tr><td>정지기간</td><td>2015-02-17 ~ 2015-03-10</td></tr>
+    <tr><td>정지기간</td><td>2015-09-15 ~ 2015-10-05</td></tr>
+    </table>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="20150915", stock_code="x", corp_name="x",
+        report_nm="주권매매거래정지기간변경(구주권 제출)", zip_bytes=z,
+    )
+    assert r.parsed_suspension_start == "2015-09-15"
+
+
+def test_ordinary_suspension_unchanged():
+    """1.1.0 must NOT change behavior for ordinary suspension disclosures."""
+    html = """<html><body>
+    <table><tr><td>매매거래정지기간</td><td>2024-05-20 ~ 2024-05-22</td></tr></table>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="20240520", stock_code="x", corp_name="x",
+        report_nm="주권매매거래정지(불성실공시법인 지정)",  # no 기간변경
+        zip_bytes=z,
+    )
+    assert r.parsed_suspension_start == "2024-05-20"
+    assert r.parsed_suspension_end == "2024-05-22"
+    assert "period_change_disclosure" not in r.notes
+
+
+def test_period_change_negative_control_still_blocks():
+    """A delisting disclosure with 기간변경 text must still short-circuit."""
+    html = """<html><body>
+    <p>정지기간: 2020-01-01 ~ 2020-02-01</p>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="x", stock_code="x", corp_name="x",
+        report_nm="상장폐지결정",  # delisting; out-of-scope
+        zip_bytes=z,
+    )
+    assert r.parse_status == "out_of_scope_category"
+    assert r.parsed_effective_date is None
+
+
+def test_period_change_correction_still_forces_manual_review():
+    """기간변경 + 기재정정 correction → still manual_review_required=True."""
+    html = """<html><body>
+    <p>변경후</p>
+    <p>정지기간: 2020-02-15 ~ 2020-03-15</p>
+    </body></html>"""
+    z = _make_zip(html)
+    r = parse_disclosure(
+        rcept_no="x", rcept_dt="x", stock_code="x", corp_name="x",
+        report_nm="[기재정정]주권매매거래정지기간변경", zip_bytes=z,
+    )
+    assert r.parsed_suspension_start == "2020-02-15"
+    assert r.correction_flag is True
+    assert r.manual_review_required is True
+
+
+def test_parser_version_tagged():
+    from src.parsers.krx_status_html_inline import PARSER_VERSION
+    assert PARSER_VERSION == "krx_status_html_inline-1.1.0"

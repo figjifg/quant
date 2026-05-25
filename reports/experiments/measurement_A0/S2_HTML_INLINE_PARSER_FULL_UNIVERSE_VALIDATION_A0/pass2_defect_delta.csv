@@ -1,0 +1,24 @@
+defect_id,defect_class,rcept_no,pass2_holdout_classification,notes
+P2D_0001,period_change_disclosure_fixed,20140423900398,exact_match,1.1.0 after-change selection corrected this row
+P2D_0002,period_change_disclosure_fixed,20100730900561,exact_match,1.1.0 after-change selection corrected this row
+P2D_0003,period_change_disclosure_fixed,20100517901257,exact_match,1.1.0 after-change selection corrected this row
+P2D_0004,period_change_disclosure_fixed,20110816901894,exact_match,1.1.0 after-change selection corrected this row
+P2D_0005,period_change_disclosure_fixed,20190704900342,exact_match,1.1.0 after-change selection corrected this row
+P2D_0006,period_change_disclosure_fixed,20160229900854,exact_match,1.1.0 after-change selection corrected this row
+P2D_0007,period_change_disclosure_fixed,20200326902384,exact_match,1.1.0 after-change selection corrected this row
+P2D_0008,period_change_disclosure_fixed,20210217900716,exact_match,1.1.0 after-change selection corrected this row
+P2D_0009,period_change_disclosure_fixed,20200730900361,exact_match,1.1.0 after-change selection corrected this row
+P2D_0010,period_change_disclosure_fixed,20250407901306,exact_match,1.1.0 after-change selection corrected this row
+P2D_0011,period_change_disclosure_fixed,20230407901311,exact_match,1.1.0 after-change selection corrected this row
+P2D_0012,period_change_disclosure_fixed,20150323901304,exact_match,1.1.0 after-change selection corrected this row
+P2D_0013,period_change_disclosure_fixed,20110331902709,exact_match,1.1.0 after-change selection corrected this row
+P2D_0014,period_change_disclosure_fixed,20230110900598,exact_match,1.1.0 after-change selection corrected this row
+P2D_0015,period_change_disclosure_fixed,20100319901646,exact_match,1.1.0 after-change selection corrected this row
+P2D_0016,period_change_disclosure_fixed,20171108900547,exact_match,1.1.0 after-change selection corrected this row
+P2D_0017,period_change_disclosure_fixed,20110324900668,exact_match,1.1.0 after-change selection corrected this row
+P2D_0018,period_change_still_wrong,20170228900698,wrong_date,1.1.0 fix did not correct this row
+P2D_0019,period_change_disclosure_fixed,20100129900643,exact_match,1.1.0 after-change selection corrected this row
+P2D_0020,period_change_disclosure_fixed,20140731900490,exact_match,1.1.0 after-change selection corrected this row
+P2D_0021,body_unavailable_unchanged,,,Pass-2: 10744 body_unavailable rows preserved
+P2D_0022,remaining_label_no_value,,,Pass-2: 26 label_no_value rows remain
+P2D_0023,remaining_no_label_match,,,Pass-2: 51 no_label_match rows remain

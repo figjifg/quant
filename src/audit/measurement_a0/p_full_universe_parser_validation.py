@@ -490,27 +490,35 @@ def _verify_extracted(zip_bytes: bytes | None, res) -> str:
         d_compact = d_iso.replace("-", "")
         try:
             yyyy, mm, dd = d_iso.split("-")
-            d_korean = f"{int(yyyy)}년 {int(mm)}월 {int(dd)}일"
+            d_korean_variants = (
+                f"{int(yyyy)}년 {int(mm)}월 {int(dd)}일",       # 2010년 2월 25일
+                f"{yyyy}년 {mm}월 {dd}일",                       # 2010년 02월 25일
+                f"{int(yyyy)}년 {mm}월 {dd}일",                  # 2010년 02월 25일
+                f"{yyyy}년 {int(mm)}월 {int(dd)}일",             # 2010년 2월 25일
+                f"{yyyy}.{mm}.{dd}",                             # 2010.02.25
+                f"{yyyy}/{mm}/{dd}",                             # 2010/02/25
+            )
         except Exception:
-            d_korean = ""
+            d_korean_variants = ()
+
+        def _date_in(haystack: str) -> bool:
+            norm = haystack.replace("-", "").replace(".", "").replace("/", "").replace(" ", "")
+            if d_compact in norm:
+                return True
+            return any(v in haystack for v in d_korean_variants)
 
         # Look first for date NEAR the label
         label = res.date_label_used or ""
         if label and label in text:
             idx = text.find(label)
             window_text = text[max(0, idx - 40): idx + len(label) + 120]
-            window_norm = window_text.replace("-", "").replace(".", "").replace(" ", "")
-            if d_compact in window_norm or (d_korean and d_korean in window_text):
+            if _date_in(window_text):
                 return "exact_match"
-            # Date appears in body but NOT near label → acceptable_range_match
-            if d_compact in text.replace("-", "").replace(".", "").replace(" ", "") \
-                    or (d_korean and d_korean in text):
+            if _date_in(text):
                 return "acceptable_range_match"
             return "wrong_date"
 
-        # No label found in body but date appears → acceptable_range_match
-        if d_compact in text.replace("-", "").replace(".", "").replace(" ", "") \
-                or (d_korean and d_korean in text):
+        if _date_in(text):
             return "acceptable_range_match"
         return "wrong_date"
     except Exception:
