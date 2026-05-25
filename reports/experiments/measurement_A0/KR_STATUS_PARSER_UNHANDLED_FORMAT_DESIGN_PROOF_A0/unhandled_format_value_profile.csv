@@ -1,0 +1,24 @@
+rcept_no,body_inspectable,n_label_hits,labels_matched,resumption_label_present,immediate_value_text,resumption_immediate_text,has_relative_tbd_marker,has_two_digit_year_date,two_digit_year_raw_PROOF_ONLY,has_range_period,has_delisting_resolution,parseable_full_date_present,parseable_full_date_iso_NON_TARGET_FIELD,value_pattern_class
+20100305800323,True,1,해제일,True,"시 주요사항보고서(영업양수) 제출일 익일 단,","시 주요사항보고서(영업양수) 제출일 익일 단,",True,False,,False,False,False,,relative_or_tbd_marker
+20100426800466,True,1,해제일,True,"시 주요사항보고서(합병) 제출일 익일 단, 우","시 주요사항보고서(합병) 제출일 익일 단, 우",True,False,,False,False,False,,relative_or_tbd_marker
+20101230900335,True,2,정지일|정지기간,False,시 2010-12-30 15:36:00 나.만 가.정지일시 2010-12-30 15:36:,,False,False,,False,False,True,2010-12-30,other_ambiguous
+20110412800376,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20111013900324,True,1,정지기간,False,가.변경전 2011년 04월 21일~상장폐지,,False,False,,True,True,True,2011-04-21,date_range_or_period_text
+20111214900344,True,3,정지일|정지기간|재개일,True,시 2011-12-14 14:37:00 나.만 가.정지일시 2011-12-14 14:37: 의 장개시전 시간외매매는 성립되지 않습니다.,의 장개시전 시간외매매는 성립되지 않습니다.,False,False,,False,False,True,2011-12-14,other_ambiguous
+20120319800557,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20120416800427,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20121109800571,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20130114800323,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20130520800426,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20130617800407,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20130702800345,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20131015800221,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20140214800645,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20141016800022,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20141016800381,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20141028800440,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20141208800471,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20141215800931,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20150213801013,True,1,해제일,True,시 우회상장 확인서 및 첨부서류 제출일 익일,시 우회상장 확인서 및 첨부서류 제출일 익일,True,False,,False,False,False,,relative_or_tbd_marker
+20210430900254,True,1,변경일,True,자) '21.5.3 □ (대상법인) 코스닥시장,자) '21.5.3 □ (대상법인) 코스닥시장,False,True,'21.5.3,False,False,False,,absolute_date_unhandled_format
+20231017900001,True,1,지정일,True,로부터 1년 이내('24.4.17限) 동 사유,로부터 1년 이내('24.4.17限) 동 사유,True,True,'24.4.17,True,False,False,,relative_or_tbd_marker
