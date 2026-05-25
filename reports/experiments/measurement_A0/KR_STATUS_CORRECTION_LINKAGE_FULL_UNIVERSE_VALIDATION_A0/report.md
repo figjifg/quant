@@ -24,7 +24,7 @@ Measurement-layer correction-linkage FULL-UNIVERSE validation. suspension_relate
 | `html_inline` | 127 |
 | `zip_unparseable` | 39 |
 
-## Exact confidence-class counts (post-body, AUTHORITATIVE)
+## Exact confidence-class counts (post-body, body-gated classifier)
 
 | confidence | count |
 |---|---:|
@@ -70,7 +70,7 @@ Control check: re-deriving the score-only classifier on all 166 here reproduces 
 | `no_link` | 71 | 71 | ✓ |
 | `rejected_wrong_candidate` | 0 | 0 | ✓ |
 
-Applying the body-confirmation gate full-universe then yields the authoritative post-body counts above.
+Applying the body-confirmation gate full-universe then yields the accepted body-gated post-body counts above.
 
 ## Clear explanation of movement between confidence classes
 

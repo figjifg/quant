@@ -102,8 +102,9 @@ def evidence_state(top: dict | None, body_format_cache: str, body: dict) -> str:
 
 def blocked_overlay(confidence_5tier: str, body_format_cache: str, ev_state: str) -> str:
     """Extra blocked class (overlay on the 5-tier), per REF-OPEN-002 task 7.
-    Mapped back to the 5-tier (which stays authoritative) and preserves
-    manual-review status. Empty for high_validated and clean no_link rows."""
+    Mapped back to the 5-tier (which remains the reporting classifier) and
+    preserves manual-review status. Empty for high_validated and clean no_link
+    rows."""
     if body_format_cache == "zip_unparseable":
         return "source_blocked_zip_unparseable"
     if body_format_cache in ("missing",):
@@ -156,7 +157,7 @@ def write_summary(path: Path, *, n: int, post_counts: Counter, score_counts: Cou
         lines.append(f"| `{k}` | {v} |")
     lines += [
         "",
-        "## Full-universe 5-tier confidence (post-body, AUTHORITATIVE — sums to 166)",
+        "## Full-universe 5-tier confidence (post-body, body-gated classifier — sums to 166)",
         "",
         "| confidence | this phase (post-body) | Pass-3 (score-only) | delta |",
         "|---|---:|---:|---:|",
@@ -378,7 +379,7 @@ def write_report(path: Path, *, n: int, post_counts: Counter, score_counts: Coun
         lines.append(f"| `{k}` | {v} |")
     lines += [
         "",
-        "## Exact confidence-class counts (post-body, AUTHORITATIVE)",
+        "## Exact confidence-class counts (post-body, body-gated classifier)",
         "",
         "| confidence | count |",
         "|---|---:|",
@@ -436,7 +437,7 @@ def write_report(path: Path, *, n: int, post_counts: Counter, score_counts: Coun
     lines += [
         "",
         "Applying the body-confirmation gate full-universe then yields the "
-        "authoritative post-body counts above.",
+        "accepted body-gated post-body counts above.",
         "",
         "## Clear explanation of movement between confidence classes",
         "",
@@ -551,7 +552,7 @@ def main() -> None:
         conf_so, reason_so = assign_confidence_pass3(top, cands, c["event_type"], None)
         score_counts[conf_so] += 1
 
-        # 2. cached body format (read-only) — authoritative body_format
+        # 2. cached body format (read-only) — canonical body_format
         in_cache = rcept_no in cached
         zip_path = ZIP_CACHE / f"{rcept_no}.zip"
         body_format_cache = classify_cached_body(zip_path) if in_cache else "missing"
@@ -565,7 +566,7 @@ def main() -> None:
             api_key=None,
         )
 
-        # 4. post-body confidence (authoritative full-universe classification)
+        # 4. post-body confidence (accepted body-gated full-universe classification)
         conf_pb, reason_pb = assign_confidence_pass3(top, cands, c["event_type"], body)
         post_counts[conf_pb] += 1
 

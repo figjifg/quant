@@ -21,7 +21,7 @@ Predecessor: KR-STATUS-CORRECTION-LINKAGE-A0 Pass 3 (commit 2f890d7).
 | `html_inline` | 127 |
 | `zip_unparseable` | 39 |
 
-## Full-universe 5-tier confidence (post-body, AUTHORITATIVE — sums to 166)
+## Full-universe 5-tier confidence (post-body, body-gated classifier — sums to 166)
 
 | confidence | this phase (post-body) | Pass-3 (score-only) | delta |
 |---|---:|---:|---:|
