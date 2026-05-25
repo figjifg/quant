@@ -1,0 +1,2 @@
+defect_id,kind,rcept_no,detail
+NONE,no_defect,,packet built over all 862 register rows; every row bucketed and annotated; both prior audit sentinels clean

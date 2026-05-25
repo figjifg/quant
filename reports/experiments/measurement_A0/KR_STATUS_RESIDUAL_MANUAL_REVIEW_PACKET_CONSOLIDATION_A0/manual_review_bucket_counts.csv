@@ -1,0 +1,9 @@
+review_bucket,count
+parser_generic_or_contextual_label,499
+parser_table_or_attachment_context,170
+correction_manual_review,110
+source_recovery_required,42
+parser_unhandled_format,23
+rejected_wrong_candidate_quarantine,17
+mixed_or_multi_blocker,1
+TOTAL,862

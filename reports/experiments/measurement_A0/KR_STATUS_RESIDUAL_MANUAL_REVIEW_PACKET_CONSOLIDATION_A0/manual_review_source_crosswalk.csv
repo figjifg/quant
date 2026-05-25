@@ -1,0 +1,11 @@
+review_bucket,source_blocker,count
+correction_manual_review,extracted,94
+correction_manual_review,label_no_value,7
+correction_manual_review,no_label_match,9
+mixed_or_multi_blocker,no_label_match,1
+parser_generic_or_contextual_label,no_label_match,499
+parser_table_or_attachment_context,label_no_value,170
+parser_unhandled_format,label_no_value,23
+rejected_wrong_candidate_quarantine,extracted,15
+rejected_wrong_candidate_quarantine,no_label_match,2
+source_recovery_required,body_unavailable,42
