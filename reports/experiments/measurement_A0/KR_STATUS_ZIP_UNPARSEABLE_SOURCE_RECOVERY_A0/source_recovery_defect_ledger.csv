@@ -1,0 +1,2 @@
+defect_id,kind,rcept_no,detail
+NONE,no_defect_beyond_unrecovered,,no reparse errors / no process defects; unrecovered or still-unparseable rows are expected residuals and remain zip_unparseable/fail-closed
