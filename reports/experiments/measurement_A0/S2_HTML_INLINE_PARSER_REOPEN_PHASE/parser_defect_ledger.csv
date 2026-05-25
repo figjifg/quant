@@ -1,0 +1,15 @@
+defect_id,defect_class,rcept_no,category,gt_value,gt_label,parser_value,notes
+PDL_0001,missed_suspension_date,20101208900110,suspension_related,2010-12-08,매매거래정지,,no Korean date label matched
+PDL_0002,missed_suspension_date,20110314900626,suspension_related,2011-03-01,매매거래정지,,no Korean date label matched
+PDL_0003,correction_requires_manual_review,20140519900313,resumption_related,,,,forced manual review
+PDL_0004,missed_resumption_date,20111214900344,resumption_related,2011-12-14,정지기간,,label(s) present without parseable date
+PDL_0005,html_unparseable,20191004900529,resumption_related,,,,zip unparseable
+PDL_0006,correction_requires_manual_review,20191004900529,resumption_related,,,,forced manual review
+PDL_0007,correction_requires_manual_review,20220329900679,suspension_related,,,2022-03-29,forced manual review
+PDL_0008,correction_requires_manual_review,20210120900703,suspension_related,,,2020-05-29,forced manual review
+PDL_0009,correction_requires_manual_review,20200506900186,suspension_related,,,2020-04-03,forced manual review
+PDL_0010,html_unparseable,20180402900901,suspension_related,,,,zip unparseable
+PDL_0011,correction_requires_manual_review,20180402900901,suspension_related,,,,forced manual review
+PDL_0012,missed_suspension_date,20210430901247,suspension_related,2021-04-30,매매거래정지,,no Korean date label matched
+PDL_0013,correction_requires_manual_review,20210430901247,suspension_related,,,,forced manual review
+PDL_0014,correction_requires_manual_review,20220905900418,suspension_related,,,2022-09-05,forced manual review

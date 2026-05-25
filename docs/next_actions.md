@@ -6,9 +6,71 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — S2-HTML-INLINE-PARSER-REOPEN-PHASE (Referee verdict 2026-05-25)
 
-비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
+**Scope**: Measurement-layer parser reopen only. Narrow HTML-inline parser work for
+OPENDART/KRX exchange-status disclosures. Initial scope limited to
+**suspension_related + resumption_related** categories; effective_date /
+suspension_period / resumption_date target fields; HTML-inline body only.
+
+**Hard scope exclusions**:
+- No delisting parser in this first pass.
+- No liquidation parser in this first pass.
+- No managed / alert parser in this first pass.
+- No DART body alpha.
+- No overhang parser.
+- No strategy testing.
+- No performance diagnostics.
+- No execution simulation.
+- No production / paper / P08 / live readiness / shadow-track work.
+- No C2/C3 wiring.
+- No full S2 parser rebuild.
+- No all-event event log finalization.
+
+**Reason**: KR-STATUS-EFFECTIVE-DATE-MANUAL-AUDIT-PHASE closed as
+MANUAL_AUDIT_SUPPORTS_PARSER_REOPEN. Manual audit at 56.4% overall extraction —
+suspension 92.5%, resumption 90.2% — supports a narrow HTML-inline parser reopen for
+those two categories only.
+
+**Primary source-of-truth (read-only)**:
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/manual_effective_date_audit.csv` (195 row ground truth)
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/effective_date_label_inventory.csv` (30 tuples)
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/parser_feasibility_assessment.md`
+- `KR_STATUS_EFFECTIVE_DATE_MANUAL_AUDIT_PHASE/manual_audit_final_summary.md`
+- `KR_EXECUTABLE_EFFECTIVE_DATE_LINKAGE_A0/effective_date_linkage_rule_design.md`
+- `data/acquired/round5_manual_audit_samples/` (195 cached document.xml ZIPs)
+- `data/acquired/round5_dart_pre2018/`, `data/acquired/round4/s3_krx_status/` (event universe)
+
+**9 allowed task groups**: parser input sample construction / HTML-inline parser
+design / parser implementation boundary / parser output schema / validation against
+manual audit / negative controls / correction handling / defect ledger / gate status
+update.
+
+**Parser gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`HTML_INLINE_PARSER_BUILT_BUT_NOT_VALIDATED` /
+`HTML_INLINE_PARSER_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY` /
+`HTML_INLINE_PARSER_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`.
+Do NOT mark execution simulation open. Do NOT mark strategy testing open. Do NOT mark
+any card strategy-ready.
+
+**Allowed code artifacts**:
+- `src/parsers/` or `src/utils/` parser module — suspension/resumption HTML-inline only.
+- `tests/` parser unit tests.
+- `src/audit/measurement_a0/` sample validation script.
+- NO strategy code. NO performance code. NO execution simulation wiring. NO C2/C3
+  wiring. NO production / paper / P08 / live code modification.
+
+**Required outputs (12)**: see `parser_reopen_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_REOPEN_PHASE/`
+
+**Important boundary**:
+- Narrow parser reopen.
+- Passing this phase does NOT reopen strategy testing.
+- Passing this phase does NOT open execution simulation automatically.
+- Passing this phase does NOT complete S2 globally.
+- Passing this phase only validates whether HTML-inline parser can extract suspension /
+  resumption effective dates.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 

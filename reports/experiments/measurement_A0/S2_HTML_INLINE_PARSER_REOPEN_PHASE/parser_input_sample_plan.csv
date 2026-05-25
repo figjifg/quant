@@ -1,0 +1,196 @@
+sample_id,bucket,category,in_scope_for_parser,negative_control,period,rcept_no,rcept_dt,stock_code,corp_name,report_nm,is_correction
+MAN_0001,suspension_related_pre,suspension_related,True,False,pre_2018,20101208900110,20101208,046240,에스브이에이치,기타시장안내(상장폐지 실질심사관련 매매거래정지 안내),False
+MAN_0002,suspension_related_pre,suspension_related,True,False,pre_2018,20120913900335,20120913,900150,성융광전투자유한공사,주권매매거래정지기간변경(상장폐지 결정),False
+MAN_0003,suspension_related_pre,suspension_related,True,False,pre_2018,20150413900174,20150413,900080,에스앤씨엔진그룹리미티드,주권매매거래정지(무상증자),False
+MAN_0004,suspension_related_pre,suspension_related,True,False,pre_2018,20160727900294,20160727,123570,이엠넷,주권매매거래정지(무상증자),False
+MAN_0005,suspension_related_pre,suspension_related,True,False,pre_2018,20100126900167,20100126,009730,이렘,주권매매거래정지,False
+MAN_0006,suspension_related_pre,suspension_related,True,False,pre_2018,20120125900268,20120125,013780,아큐텍,주권매매거래정지(파산신청),False
+MAN_0007,suspension_related_pre,suspension_related,True,False,pre_2018,20140410900468,20140410,052020,에스티큐브,주권매매거래정지(우회상장여부 및 요건충족 확인),False
+MAN_0008,suspension_related_pre,suspension_related,True,False,pre_2018,20131227900138,20131227,096870,엘디티,주권매매거래정지(우회상장여부 및 요건충족확인),False
+MAN_0009,suspension_related_pre,suspension_related,True,False,pre_2018,20170925900619,20170925,122800,썬테크놀로지스,주권매매거래정지(상장적격성 실질심사 대상 (사유발생)),False
+MAN_0010,suspension_related_pre,suspension_related,True,False,pre_2018,20170410900696,20170410,051170,썬코어,주권매매거래정지기간변경(계속기업으로서의 존속능력에 대한 불확실성 관련 사유해소 확인서 제출),False
+MAN_0011,suspension_related_pre,suspension_related,True,False,pre_2018,20130927900267,20130927,024120,KB오토시스,주권매매거래정지(우회상장여부 및 요건충족확인),False
+MAN_0012,suspension_related_pre,suspension_related,True,False,pre_2018,20110314900626,20110314,031950,에듀패스,기타시장안내(상장폐지 실질심사관련 매매거래정지 안내),False
+MAN_0013,suspension_related_pre,suspension_related,True,False,pre_2018,20120330904258,20120330,045470,에이프로테크놀로지,주권매매거래정지기간변경,False
+MAN_0014,suspension_related_pre,suspension_related,True,False,pre_2018,20130129900476,20130129,068420,엔터미디어,주권매매거래정지기간변경(상장폐지 실질심사 대상 결정),False
+MAN_0015,suspension_related_pre,suspension_related,True,False,pre_2018,20110324900033,20110324,081090,씨모텍,주권매매거래정지(감사의견 비적정설),False
+MAN_0016,suspension_related_pre,suspension_related,True,False,pre_2018,20170718900129,20170718,215480,토박스코리아,주권매매거래정지(무상증자),False
+MAN_0017,suspension_related_pre,suspension_related,True,False,pre_2018,20170313900304,20170313,079970,투비소프트,주권매매거래정지(우회상장여부 및 요건충족확인),False
+MAN_0018,suspension_related_pre,suspension_related,True,False,pre_2018,20110824900183,20110824,094820,일진파워,주권매매거래정지(무상증자),False
+MAN_0019,suspension_related_pre,suspension_related,True,False,pre_2018,20150306900310,20150306,045660,에이텍,주권매매거래정지(분할),False
+MAN_0020,suspension_related_pre,suspension_related,True,False,pre_2018,20160502900413,20160502,032820,우리기술,주권매매거래정지(투자자 보호),False
+MAN_0021,suspension_related_post,suspension_related,True,False,post_2018,20191104900302,2019-11-04,035810,이지홀딩스,주권매매거래정지(회사분할),False
+MAN_0022,suspension_related_post,suspension_related,True,False,post_2018,20240702900532,2024-07-02,317240,TS트릴리온,주권매매거래정지기간변경              (풍문사유(채권자에 의한 회생절차개시신청설) 미해소),False
+MAN_0023,suspension_related_post,suspension_related,True,False,post_2018,20200409901121,2020-04-09,030270,에스마크,주권매매거래정지기간변경,False
+MAN_0024,suspension_related_post,suspension_related,True,False,post_2018,20190905900318,2019-09-05,031980,피에스케이홀딩스,주권매매거래정지(우회상장여부 및 요건충족확인),False
+MAN_0025,suspension_related_post,suspension_related,True,False,post_2018,20201110900325,2020-11-10,028150,지에스홈쇼핑,주권매매거래정지(합병),False
+MAN_0026,suspension_related_post,suspension_related,True,False,post_2018,20191028900508,2019-10-28,008800,행남사,주권매매거래정지기간변경(상장폐지 사유 발생),False
+MAN_0027,suspension_related_post,suspension_related,True,False,post_2018,20240703900565,2024-07-03,317240,TS트릴리온,주권매매거래정지기간변경              (회생절차 개시신청),False
+MAN_0028,suspension_related_post,suspension_related,True,False,post_2018,20240716900719,2024-07-16,299910,애닉,주권매매거래정지              (투자자 보호),False
+MAN_0029,suspension_related_post,suspension_related,True,False,post_2018,20201207900601,2020-12-07,159910,에코글로우,주권매매거래정지기간변경(상장폐지 사유 발생),False
+MAN_0030,suspension_related_post,suspension_related,True,False,post_2018,20240626900610,2024-06-26,043100,알파AI,주권매매거래정지              (자본감소),False
+MAN_0031,suspension_related_post,suspension_related,True,False,post_2018,20240612900554,2024-06-12,106520,노블엠앤비,기타시장안내              (기업심사위원회 심의·의결 결과 및 '23사업연도 감사의견 비적정 관련 상장폐지 사유 발생에 따른 매매거래정지 지속 안내 ),False
+MAN_0032,suspension_related_post,suspension_related,True,False,post_2018,20230512900906,2023-05-12,426550,아이비케이에스제19호기업인수목적,주권매매거래정지(SPAC 합병(예비심사청구대상)),False
+MAN_0033,suspension_related_post,suspension_related,True,False,post_2018,20220921900475,2022-09-21,337450,에스케이제5호기업인수목적,주권매매거래정지(SPAC 소멸합병),False
+MAN_0034,suspension_related_post,suspension_related,True,False,post_2018,20200716900528,2020-07-16,196450,코아시아씨엠,주권매매거래정지(풍문 또는 보도 관련),False
+MAN_0035,suspension_related_post,suspension_related,True,False,post_2018,20231114602338,2023-11-14,248020,젬,주권매매거래정지,False
+MAN_0036,suspension_related_post,suspension_related,True,False,post_2018,20200615900487,2020-06-15,018700,졸스,주권매매거래정지(관리종목지정사유발생),False
+MAN_0037,suspension_related_post,suspension_related,True,False,post_2018,20201216900556,2020-12-16,138690,엘아이에스,주권매매거래정지(단일판매공급계약),False
+MAN_0038,suspension_related_post,suspension_related,True,False,post_2018,20231012900098,2023-10-12,264450,유비쿼스,주권매매거래정지(단일판매공급계약),False
+MAN_0039,suspension_related_post,suspension_related,True,False,post_2018,20220415600741,2022-04-15,215050,비엔디생활건강,주권매매거래정지기간변경(상장폐지 사유 발생),False
+MAN_0040,suspension_related_post,suspension_related,True,False,post_2018,20201006900686,2020-10-06,196490,디에이테크놀로지,"주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)",False
+MAN_0041,resumption_related_pre,resumption_related,True,False,pre_2018,20130917800210,20130917,109070,주성코퍼레이션,매매거래정지및정지해제(중요내용공시),False
+MAN_0042,resumption_related_pre,resumption_related,True,False,pre_2018,20130215900228,20130215,074000,에스지피엠,주권매매거래정지해제(회생절차개시결정),False
+MAN_0043,resumption_related_pre,resumption_related,True,False,pre_2018,20140331800017,20140331,001300,제일모직,매매거래정지및정지해제(중요내용공시),False
+MAN_0044,resumption_related_pre,resumption_related,True,False,pre_2018,20100121900059,20100121,018000,유니슨,기타경영사항(자율공시)(유체동산가압류 해제),False
+MAN_0045,resumption_related_pre,resumption_related,True,False,pre_2018,20161021900531,20161021,219550,디와이디,주권매매거래정지해제(상장예비심사결과 통지(승인)),False
+MAN_0046,resumption_related_pre,resumption_related,True,False,pre_2018,20150408800128,20150408,010520,현대하이스코,매매거래정지및정지해제(중요내용공시),False
+MAN_0047,resumption_related_pre,resumption_related,True,False,pre_2018,20140901800022,20140901,010140,삼성중공업,매매거래정지및정지해제(중요내용공시),False
+MAN_0048,resumption_related_pre,resumption_related,True,False,pre_2018,20110520900219,20110520,041140,넥슨지티,주권매매거래정지해제,False
+MAN_0049,resumption_related_pre,resumption_related,True,False,pre_2018,20140519900313,20140519,099830,씨그널엔터테인먼트그룹,[기재정정]기타주요경영사항(유형자산 취득 계약 해제),True
+MAN_0050,resumption_related_pre,resumption_related,True,False,pre_2018,20171219900406,20171219,073070,에이팸,주권매매거래정지해제(액면분할 주권 변경상장),False
+MAN_0051,resumption_related_pre,resumption_related,True,False,pre_2018,20110408800108,20110408,000080,하이트진로,매매거래정지및정지해제(중요내용공시),False
+MAN_0052,resumption_related_pre,resumption_related,True,False,pre_2018,20111214900344,20111214,036090,위지트,주권매매거래정지(채권은행 등의 관리절차 해제),False
+MAN_0053,resumption_related_pre,resumption_related,True,False,pre_2018,20170331905017,20170331,052270,우전,주권매매거래정지해제(상장폐지에 따른 정리매매 개시),False
+MAN_0054,resumption_related_pre,resumption_related,True,False,pre_2018,20161122600380,20161122,185280,이푸른,주권매매거래정지해제,False
+MAN_0055,resumption_related_pre,resumption_related,True,False,pre_2018,20160704800128,20160704,008870,금비,생산재개(자율공시),False
+MAN_0056,resumption_related_pre,resumption_related,True,False,pre_2018,20170331905115,20170331,067630,HLB생명과학,주권매매거래정지해제(우회상장 미해당),False
+MAN_0057,resumption_related_pre,resumption_related,True,False,pre_2018,20130827800396,20130827,053000,우리금융지주,매매거래정지및정지해제(중요내용공시),False
+MAN_0058,resumption_related_pre,resumption_related,True,False,pre_2018,20170228900717,20170228,215790,이노인스트루먼트,기타시장안내(저유동성종목 단일가매매 해제),False
+MAN_0059,resumption_related_pre,resumption_related,True,False,pre_2018,20140530801121,20140530,138440,이코리아자기관리부동산투자회사,매매거래정지및정지해제(중요내용공시),False
+MAN_0060,resumption_related_pre,resumption_related,True,False,pre_2018,20160816901177,20160816,043290,케이맥,최대주주변경을수반하는주식담보제공계약해제ㆍ취소등,False
+MAN_0061,resumption_related_post,resumption_related,True,False,post_2018,20191128800393,2019-11-28,011070,LG이노텍,매매거래정지및정지해제(중요내용공시),False
+MAN_0062,resumption_related_post,resumption_related,True,False,post_2018,20200504800162,2020-05-04,002360,SH에너지화학,생산재개(자율공시),False
+MAN_0063,resumption_related_post,resumption_related,True,False,post_2018,20240404900744,2024-04-04,208350,지란지교시큐리티,주권매매거래정지해제              (상장적격성 실질심사 대상 제외 결정),False
+MAN_0064,resumption_related_post,resumption_related,True,False,post_2018,20190426901134,2019-04-26,065160,라임,주권매매거래정지해제(상장폐지금지 가처분 결정 취소에 따른 정리매매 재개),False
+MAN_0065,resumption_related_post,resumption_related,True,False,post_2018,20201028900718,2020-10-28,127160,매직마이크로,주권매매거래정지해제(파산신청 사유 해소),False
+MAN_0066,resumption_related_post,resumption_related,True,False,post_2018,20240105900723,2024-01-05,017000,신원종합개발,주권매매거래정지해제(풍문 등 조회결과 공시),False
+MAN_0067,resumption_related_post,resumption_related,True,False,post_2018,20180919800447,2018-09-19,002000,생고뱅코리아홀딩스,매매거래정지및정지해제(중요내용공시),False
+MAN_0068,resumption_related_post,resumption_related,True,False,post_2018,20210903900611,2021-09-03,141070,맥스로텍,주권매매거래정지해제(상장폐지에 따른 정리매매 개시),False
+MAN_0069,resumption_related_post,resumption_related,True,False,post_2018,20210701800304,2021-07-01,091090,세원이앤씨,매매거래정지및정지해제(중요내용공시),False
+MAN_0070,resumption_related_post,resumption_related,True,False,post_2018,20200422900651,2020-04-22,058420,제이웨이,주권매매거래정지해제(파산신청 사유 해소),False
+MAN_0071,resumption_related_post,resumption_related,True,False,post_2018,20191004900529,2019-10-04,035480,글로앤웰,[기재정정]주권매매거래정지해제(상장폐지에 따른 정리매매 개시),True
+MAN_0072,resumption_related_post,resumption_related,True,False,post_2018,20221005900286,2022-10-05,182690,테라셈,주권매매거래정지해제(상장폐지에 따른 정리매매 개시),False
+MAN_0073,resumption_related_post,resumption_related,True,False,post_2018,20200428900894,2020-04-28,197210,리드,주권매매거래정지해제(상장폐지결정등효력정지 가처분신청 기각결정에 따른 정리매매절차 재개),False
+MAN_0074,resumption_related_post,resumption_related,True,False,post_2018,20230413900714,2023-04-13,367480,유안타제8호기업인수목적,주권매매거래정지해제(상장예비심사결과 통지(승인)),False
+MAN_0075,resumption_related_post,resumption_related,True,False,post_2018,20210528900666,2021-05-28,195440,퓨전,주권매매거래정지해제(상장폐지에 따른 정리매매 개시),False
+MAN_0076,resumption_related_post,resumption_related,True,False,post_2018,20250512900786,2025-05-12,027040,서울전자통신,주권매매거래정지해제              (감자 주권 변경상장),False
+MAN_0077,resumption_related_post,resumption_related,True,False,post_2018,20210607900469,2021-06-07,033430,디에스티,주권매매거래정지해제(상장폐지에 따른 정리매매 개시),False
+MAN_0078,resumption_related_post,resumption_related,True,False,post_2018,20200922900513,2020-09-22,317240,TS트릴리온,주권매매거래정지해제(상장예비심사결과 통지(승인)),False
+MAN_0079,resumption_related_post,resumption_related,True,False,post_2018,20250626900790,2025-06-26,057880,푸른소나무,주권매매거래정지해제              (상장폐지에 따른 정리매매 개시),False
+MAN_0080,resumption_related_post,resumption_related,True,False,post_2018,20231107600256,2023-11-07,093510,엔지브이아이,주권매매거래정지해제,False
+MAN_0081,delisting_pre,delisting,False,True,pre_2018,20150423900101,20150423,065180,해피드림,기타경영사항(자율공시)(상장폐지금지가처분신청 기각에 대한 항고),False
+MAN_0082,delisting_pre,delisting,False,True,pre_2018,20100121900412,20100121,056850,코어비트,기타시장안내(상장폐지 실질심사위원회 심의결과),False
+MAN_0083,delisting_pre,delisting,False,True,pre_2018,20130403900202,20130403,068420,엔터미디어,기타경영사항(자율공시)(상장폐지결정효력정지 가처분신청 기각 결정),False
+MAN_0084,delisting_pre,delisting,False,True,pre_2018,20120413900509,20120413,064090,인크레더블버즈,기타시장안내(상장폐지 실질심사위원회 심의결과),False
+MAN_0085,delisting_pre,delisting,False,True,pre_2018,20130328900903,20130328,014940,오리엔탈정공,기타시장안내(상장폐지실질심사 사유추가 관련),False
+MAN_0086,delisting_pre,delisting,False,True,pre_2018,20131211800491,20131211,003410,쌍용씨앤이,기타시장안내(2우선주 상장폐지 관련),False
+MAN_0087,delisting_pre,delisting,False,True,pre_2018,20170315901005,20170315,095300,엔에스브이,내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,False
+MAN_0088,delisting_pre,delisting,False,True,pre_2018,20140331803959,20140331,000420,로케트전기,기타시장안내(상장폐지관련 이의신청서 제출),False
+MAN_0089,delisting_pre,delisting,False,True,pre_2018,20170726600272,20170726,204690,다린,상장폐지결정,False
+MAN_0090,delisting_pre,delisting,False,True,pre_2018,20160704900419,20160704,074150,엠제이비,기타시장안내(개선기간 종료에 따른 상장폐지 여부 결정 안내),False
+MAN_0091,delisting_pre,delisting,False,True,pre_2018,20110401900194,20110401,040180,대양글로벌,[기재정정]기타시장안내(상장폐지 관련 이의신청서 접수),True
+MAN_0092,delisting_pre,delisting,False,True,pre_2018,20120217900487,20120217,031920,조은저축은행,기타시장안내(상장폐지실질심사 대상제외 결정),False
+MAN_0093,delisting_pre,delisting,False,True,pre_2018,20170705600279,20170705,189700,디피앤케이,기타시장안내(상장폐지 관련),False
+MAN_0094,delisting_pre,delisting,False,True,pre_2018,20120511900256,20120511,045260,디에이치패션,기타시장안내(상장폐지실질심사 관련 ),False
+MAN_0095,delisting_pre,delisting,False,True,pre_2018,20150813600827,20150813,082220,프렉코,기타시장안내(상장폐지기준 해당여부 심사대상 결정),False
+MAN_0096,delisting_pre,delisting,False,True,pre_2018,20171011900196,20171011,206660,골든브릿지제2호기업인수목적,기타경영사항(자율공시)(상장폐지 및 청산관련 주요사항 안내),False
+MAN_0097,delisting_pre,delisting,False,True,pre_2018,20111219900422,20111219,099660,신텍,기타시장안내(상장폐지 관련 이의신청서 접수 ),False
+MAN_0098,delisting_pre,delisting,False,True,pre_2018,20100413900181,20100413,066930,한국애보트진단,상장폐지결정,False
+MAN_0099,delisting_pre,delisting,False,True,pre_2018,20111107900440,20111107,061140,엘앤피아너스,기타시장안내(상장폐지실질심사 대상 결정),False
+MAN_0100,delisting_pre,delisting,False,True,pre_2018,20120518900107,20120518,900150,성융광전투자유한공사,기타시장안내(상장폐지 관련 이의신청서 접수),False
+MAN_0101,delisting_post,delisting,False,True,post_2018,20200330604384,2020-03-30,220110,드림티엔터테인먼트,기타시장안내(개선기간 종료에 따른 상장폐지 여부 결정 안내),False
+MAN_0102,delisting_post,delisting,False,True,post_2018,20191106900467,2019-11-06,008800,행남사,기타시장안내(상장폐지 관련 이의신청서 접수   ),False
+MAN_0103,delisting_post,delisting,False,True,post_2018,20210907900503,2021-09-07,263540,어스앤에어로스페이스,기타시장안내(상장폐지관련 이의신청서 접수 및 개선기간 부여),False
+MAN_0104,delisting_post,delisting,False,True,post_2018,20220816903026,2022-08-16,064510,유네코,기타시장안내(상장폐지 관련 안내),False
+MAN_0105,delisting_post,delisting,False,True,post_2018,20210408900772,2021-04-08,182690,테라셈,기타시장안내(상장폐지관련 이의신청서 접수 및 개선기간 부여),False
+MAN_0106,delisting_post,delisting,False,True,post_2018,20200323902006,2020-03-23,114570,지스마트글로벌,기타시장안내(상장폐지 관련 안내),False
+MAN_0107,delisting_post,delisting,False,True,post_2018,20190614900448,2019-06-14,225650,쿠첸,상장폐지결정,False
+MAN_0108,delisting_post,delisting,False,True,post_2018,20200724900700,2020-07-24,050320,에스에이치엔엘,기타경영사항(자율공시)(상장폐지 절차 정지 가처분신청),False
+MAN_0109,delisting_post,delisting,False,True,post_2018,20231213900857,2023-12-13,022100,포스코DX,상장폐지결정,False
+MAN_0110,delisting_post,delisting,False,True,post_2018,20200409901099,2020-04-09,106080,케이이엠텍,기타시장안내(개선기간 종료에 따른 상장폐지 여부 결정 안내),False
+MAN_0111,delisting_post,delisting,False,True,post_2018,20190904900379,2019-09-04,017680,데코앤에프,기타시장안내(상장폐지 관련 이의신청서 접수),False
+MAN_0112,delisting_post,delisting,False,True,post_2018,20250829900962,2025-08-29,060240,스타코링크,기타시장안내              (코스닥시장위원회 개최 결과 및 상장폐지 결정),False
+MAN_0113,delisting_post,delisting,False,True,post_2018,20200131900610,2020-01-31,054340,피앤텔,내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,False
+MAN_0114,delisting_post,delisting,False,True,post_2018,20220722900465,2022-07-22,046110,한일네트웍스,상장폐지결정,False
+MAN_0115,delisting_post,delisting,False,True,post_2018,20220602800214,2022-06-02,016380,KG스틸,투자유의안내(KG스틸1우선주 상장폐지 우려),False
+MAN_0116,delisting_post,delisting,False,True,post_2018,20190520600613,2019-05-20,253840,수젠텍,상장폐지결정(코스닥시장 이전상장),False
+MAN_0117,delisting_post,delisting,False,True,post_2018,20190404900832,2019-04-04,123260,파인넥스,기타시장안내(상장폐지 관련 이의신청서 접수),False
+MAN_0118,delisting_post,delisting,False,True,post_2018,20230228901487,2023-02-28,038340,무궁화인포메이션테크놀로지,내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,False
+MAN_0119,delisting_post,delisting,False,True,post_2018,20250917900495,2025-09-17,448740,삼성기업인수목적8호,기타시장안내              (주권 상장폐지 우려 예고),False
+MAN_0120,delisting_post,delisting,False,True,post_2018,20210215900986,2021-02-15,049180,셀루메드,기타시장안내(개선기간 종료에 따른 상장폐지여부 결정 안내),False
+MAN_0121,liquidation_all,liquidation,False,True,post_2018,20250210900015,2025-02-10,078940,퀀타피아,기타경영사항(자율공시)              (주권 정리매매에 대한 강제집행정지 신청),False
+MAN_0122,liquidation_all,liquidation,False,True,pre_2018,20110420900511,20110420,040180,대양글로벌,기타시장안내(정리매매 보류 관련),False
+MAN_0123,liquidation_all,liquidation,False,True,pre_2018,20110420900513,20110420,026540,제일창업투자,기타시장안내(정리매매 보류 관련),False
+MAN_0124,managed_bucket,managed,False,True,post_2018,20260227900707,2026-02-27,457630,대신밸런스제16호기업인수목적,[기재정정]기타시장안내(관리종목지정우려종목)              ,True
+MAN_0125,managed_bucket,managed,False,True,pre_2018,20120312900512,20120312,037240,평안물산,기타시장안내(제재금 미납에 따른 가중벌점 부과 및 관리종목 지정사유 추가),False
+MAN_0126,managed_bucket,managed,False,True,post_2018,20260211901847,2026-02-11,214610,롤링스톤,기타시장안내(관리종목지정우려종목)              ,False
+MAN_0127,managed_bucket,managed,False,True,post_2018,20190808900573,2019-08-08,257730,신한제3호기업인수목적,기타시장안내(관리종목 지정우려 예고),False
+MAN_0128,managed_bucket,managed,False,True,pre_2018,20130802800400,20130802,013000,세우글로벌,투자유의안내(우선주 관리종목 지정 우려),False
+MAN_0129,managed_bucket,managed,False,True,pre_2018,20150211800734,20150211,005960,동부건설,[기재정정]투자유의안내(관리종목지정 사유 추가 우려 예고),True
+MAN_0130,managed_bucket,managed,False,True,pre_2018,20120315901344,20120315,042820,어울림네트웍스,기타시장안내(관리종목지정우려종목),False
+MAN_0131,managed_bucket,managed,False,True,post_2018,20250320902108,2025-03-20,435380,유안타제10호기업인수목적,기타시장안내(관리종목지정우려종목)              ,False
+MAN_0132,managed_bucket,managed,False,True,post_2018,20260331904847,2026-03-31,217620,선샤인푸드,기타시장안내              (관리종목 지정사유 추가 관련 시장조치사항 안내),False
+MAN_0133,managed_bucket,managed,False,True,pre_2018,20131129801113,20131129,006370,대구백화점,투자유의안내(1우선주 관리종목 지정 우려),False
+MAN_0134,managed_bucket,managed,False,True,post_2018,20190701900447,2019-07-01,050320,에스에이치엔엘,기타시장안내(2017사업연도 감사보고서 재발행에 따른 관리종목 지정사유 추가 및 상장적격성 실질심사 관련 안내),False
+MAN_0135,managed_bucket,managed,False,True,pre_2018,20110311901098,20110311,019430,위더스기술금융,기타시장안내(관리종목지정우려종목),False
+MAN_0136,managed_bucket,managed,False,True,pre_2018,20150227801247,20150227,001440,대한전선,투자유의안내(관리종목지정 우려 예고),False
+MAN_0137,managed_bucket,managed,False,True,post_2018,20260206902836,2026-02-06,219550,디와이디,기타시장안내(관리종목지정우려종목)              ,False
+MAN_0138,managed_bucket,managed,False,True,pre_2018,20131223800494,20131223,004960,한신공영,투자유의안내(우선주 관리종목 지정 우려),False
+MAN_0139,managed_bucket,managed,False,True,pre_2018,20120202900338,20120202,045470,에이프로테크놀로지,기타경영사항(자율공시)(관리종목지정결정 효력정지 가처분 신청),False
+MAN_0140,managed_bucket,managed,False,True,post_2018,20260325901482,2026-03-25,050090,비케이홀딩스,기타시장안내(관리종목지정우려종목)              (시가총액 150억원 미달),False
+MAN_0141,managed_bucket,managed,False,True,post_2018,20250221900999,2025-02-21,101390,아이엠,기타시장안내(관리종목지정우려종목)              ,False
+MAN_0142,managed_bucket,managed,False,True,post_2018,20190215900345,2019-02-15,065940,바이오빌,소속부변경(소속부제외 관리종목 지정),False
+MAN_0143,managed_bucket,managed,False,True,pre_2018,20160623800533,20160623,000320,노루홀딩스,투자유의안내(1우선주 관리종목지정 우려 예고),False
+MAN_0144,managed_bucket,investment_alert,False,True,pre_2018,20170926900550,20170926,026180,현대정보기술,투자판단관련주요경영사항(최대주주의 물적분할에 따른 최대주주 변경 예정),False
+MAN_0145,managed_bucket,managed,False,True,pre_2018,20171103900739,20171103,215580,대우기업인수목적3호,기타시장안내(관리종목 지정우려 예고),False
+MAN_0146,managed_bucket,managed,False,True,post_2018,20220215900966,2022-02-15,329560,상상인이안제2호기업인수목적,기타시장안내(관리종목지정우려종목),False
+MAN_0147,managed_bucket,managed,False,True,post_2018,20260311902665,2026-03-11,052770,아이톡시,기타시장안내              (관리종목 지정사유 추가 우려)(시가총액 150억원 미달),False
+MAN_0148,managed_bucket,managed,False,True,pre_2018,20110504900490,20110504,087220,스틸플라워,소속부변경(관리종목 지정),False
+MAN_0149,managed_bucket,managed,False,True,pre_2018,20131223800611,20131223,003960,사조대림,투자유의안내(1우선주 관리종목지정 우려),False
+MAN_0150,managed_bucket,managed,False,True,post_2018,20250516900366,2025-05-16,442130,유진기업인수목적9호,기타시장안내(관리종목지정우려종목)              ,False
+MAN_0151,managed_bucket,managed,False,True,post_2018,20240213900597,2024-02-13,023790,동일스틸럭스,기타시장안내              (관리종목 지정우려종목),False
+MAN_0152,managed_bucket,short_term_overheated,False,True,pre_2018,20130411900373,20130411,043200,파루,기타시장안내(단기과열완화장치발동예고),False
+MAN_0153,managed_bucket,managed,False,True,post_2018,20231220900735,2023-12-20,033200,모아텍,기타시장안내(관리종목 지정우려(거래량 미달)),False
+MAN_0154,correction_flagged,delisting,False,True,post_2018,20180322900667,2018-03-22,101680,한국정밀기계,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0155,correction_flagged,suspension_related,True,False,post_2018,20220329900679,2022-03-29,253840,수젠텍,[기재정정]주권매매거래정지(단일판매공급계약),True
+MAN_0156,correction_flagged,delisting,False,True,post_2018,20210226901514,2021-02-26,195440,퓨전,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0157,correction_flagged,suspension_related,True,False,post_2018,20210120900703,2021-01-20,087730,이엠네트웍스,[기재정정]주권매매거래정지기간변경(회생절차 개시신청),True
+MAN_0158,correction_flagged,suspension_related,True,False,post_2018,20200506900186,2020-05-06,114190,강원에너지,[기재정정]주권매매거래정지기간변경(개선기간 부여),True
+MAN_0159,correction_flagged,delisting,False,True,post_2018,20200302900212,2020-03-02,008800,행남사,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0160,correction_flagged,suspension_related,True,False,post_2018,20180402900901,2018-04-02,009780,엠에스씨,[기재정정]주권매매거래정지(무상증자),True
+MAN_0161,correction_flagged,delisting,False,True,post_2018,20200227901197,2020-02-27,080440,에스제이케이,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0162,correction_flagged,delisting,False,True,post_2018,20200814903247,2020-08-14,036260,이매진아시아,[기재정정]기타시장안내(상장폐지 사유발생),True
+MAN_0163,correction_flagged,other,False,True,post_2018,20250311800669,2025-03-11,002410,범양건영,[기재정정]영업정지(종속회사의주요경영사항)              ,True
+MAN_0164,correction_flagged,suspension_related,True,False,post_2018,20210430901247,2021-04-30,036180,지더블유바이텍,[기재정정]기타시장안내(감사의견 관련 형식적 상장폐지 사유해소 및 매매거래정지 지속 안내),True
+MAN_0165,correction_flagged,delisting,False,True,post_2018,20231121900399,2023-11-21,028300,HLB,[기재정정]상장폐지승인을위한의안상정결정,True
+MAN_0166,correction_flagged,delisting,False,True,post_2018,20200311900827,2020-03-11,197210,리드,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0167,correction_flagged,delisting,False,True,post_2018,20200320902388,2020-03-20,043100,알파AI,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생,True
+MAN_0168,correction_flagged,delisting,False,True,post_2018,20250801801163,2025-08-01,005390,신성통상,[기재정정]상장폐지결정              ,True
+MAN_0169,correction_flagged,delisting,False,True,pre_2018,20110323900721,20110323,039040,유니텍전자,[기재정정]기타시장안내(상장폐지 관련),True
+MAN_0170,correction_flagged,delisting,False,True,post_2018,20181001800507,2018-10-01,002000,생고뱅코리아홀딩스,[기재정정]상장폐지결정,True
+MAN_0171,correction_flagged,suspension_related,True,False,post_2018,20220905900418,2022-09-05,319660,피에스케이,[기재정정]주권매매거래정지(무상증자),True
+MAN_0172,correction_flagged,delisting,False,True,post_2018,20260325901362,2026-03-25,263050,유틸렉스,[기재정정]내부결산시점관리종목지정ㆍ형식적상장폐지ㆍ상장적격성실질심사사유발생              ,True
+MAN_0173,correction_flagged,other,False,True,post_2018,20220829900211,2022-08-29,096640,멜파스,[기재정정]소송등의제기ㆍ신청(경영권분쟁소송)(직무집행정지 및 직무대행자 선임 가처분),True
+MAN_0174,prior_failed_extraction,suspension_related,True,False,pre_2018,20110324900072,20110324,054170,엔빅스,주권매매거래정지기간변경(상장폐지사유발생),False
+MAN_0175,prior_failed_extraction,suspension_related,True,False,pre_2018,20150625900409,20150625,060900,에이전트AI,주권매매거래정지기간변경(구주권 제출),False
+MAN_0176,prior_failed_extraction,suspension_related,True,False,pre_2018,20170817900426,20170817,087220,스틸플라워,주권매매거래정지(상장적격성 실질심사 대상 (사유발생)),False
+MAN_0177,prior_failed_extraction,suspension_related,True,False,pre_2018,20160222900520,20160222,066110,한프,주권매매거래정지(구주권 제출),False
+MAN_0178,prior_failed_extraction,suspension_related,True,False,pre_2018,20121213900703,20121213,099660,신텍,주권매매거래정지(무상증자),False
+MAN_0179,prior_failed_extraction,suspension_related,True,False,pre_2018,20140324900068,20140324,043710,코스리거글로벌,주권매매거래정지(관리종목지정사유발생),False
+MAN_0180,prior_failed_extraction,suspension_related,True,False,pre_2018,20110125900076,20110125,043680,스톰이앤에프,주권매매거래정지(조회공시 신고시한 위반),False
+MAN_0181,prior_failed_extraction,suspension_related,True,False,pre_2018,20160322900935,20160322,036220,오상헬스케어,주권매매거래정지기간변경(상장폐지 사유 발생),False
+MAN_0182,prior_failed_extraction,suspension_related,True,False,pre_2018,20110325901995,20110325,052510,에코솔루션,주권매매거래정지,False
+MAN_0183,prior_failed_extraction,suspension_related,True,False,pre_2018,20130208900071,20130208,012650,쌍용건설,주권매매거래정지(풍문 또는 보도 관련),False
+MAN_0184,prior_failed_extraction,suspension_related,True,False,pre_2018,20100105900568,20100105,054020,지케이파워,주권매매거래정지(풍문 또는 보도관련),False
+MAN_0185,prior_failed_extraction,suspension_related,True,False,pre_2018,20110808900404,20110808,050640,이룸지엔지,주권매매거래정지기간변경(상장폐지 결정),False
+MAN_0186,prior_failed_extraction,suspension_related,True,False,pre_2018,20160909900386,20160909,240810,원익IPS,주권매매거래정지(합병),False
+MAN_0187,prior_failed_extraction,suspension_related,True,False,pre_2018,20111101900437,20111101,015390,엘앤씨피,주권매매거래정지(풍문 또는 보도 관련),False
+MAN_0188,prior_failed_extraction,suspension_related,True,False,post_2018,20191217900559,2019-12-17,108860,셀바스AI,주권매매거래정지기간변경(개선기간 부여),False
+MAN_0189,prior_failed_extraction,suspension_related,True,False,post_2018,20230321902081,2023-03-21,062860,티엘아이,주권매매거래정지기간변경(상장폐지 사유 발생),False
+MAN_0190,prior_failed_extraction,suspension_related,True,False,post_2018,20180907900572,2018-09-07,151910,퓨처코어,주권매매거래정지(자본감소),False
+MAN_0191,prior_failed_extraction,suspension_related,True,False,post_2018,20241106900453,2024-11-06,023460,씨앤에이치,"주권매매거래정지기간변경              (주식의 병합, 분할 등 전자등록 변경, 말소)",False
+MAN_0192,prior_failed_extraction,suspension_related,True,False,post_2018,20190508900651,2019-05-08,083470,이엠앤아이,주권매매거래정지기간변경(개선기간 부여),False
+MAN_0193,prior_failed_extraction,suspension_related,True,False,post_2018,20200420900733,2020-04-20,223310,사토시홀딩스,주권매매거래정지(풍문 또는 보도 관련),False
+MAN_0194,prior_successful_control,suspension_related,True,False,pre_2018,20171220900003,20171220,215750,미래에셋제3호기업인수목적,주권매매거래정지,False
+MAN_0195,prior_successful_control,resumption_related,True,False,post_2018,20240923900616,2024-09-23,111870,케이에이치미래물산,주권매매거래정지해제              (상장폐지에 따른 정리매매 개시),False
