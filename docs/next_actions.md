@@ -8,35 +8,39 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-PARSER-NONEXTRACTED-FEASIBILITY-A0 — ACTIVE (2026-05-26, via relay; Referee verdict, user-approved local-only)
-
-Referee directive (2026-05-26, via relay): open a LOCAL-ONLY parser feasibility /
-design-triage phase, authorized by the user's explicit decision to open it. This is
-**NOT** download/API approval, **NOT** parser-change approval, **NOT** manual
-adjudication approval, **NOT** downstream/execution/strategy/production approval.
-Follows the now-closed KR-STATUS-ZIP-UNPARSEABLE-SOURCE-RECOVERY-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close; no
-  CLOSE_NOTE this pass; do NOT move to Closed/Frozen).
-- **Scope:** the **711 parser non-extracted rows ONLY** (no_label_match 511 +
-  label_no_value 200; taxonomy 499 generic/contextual + 170 table/attachment context
-  + 23 unhandled-format + 18 correction + 1 title/body mismatch), derived from the
-  accepted closed local artifacts. Read existing local artifacts only.
-- **Goal:** feasibility / design-triage classification — assign read-only,
-  non-authoritative feasibility buckets (parser_design_candidate /
-  needs_table_context_design / needs_attachment_or_source_channel / manual_review_only
-  / correction_workflow_only / out_of_scope_or_keep_fail_closed /
-  ambiguous_requires_later_decision); design themes; blocker reasons; required future
-  approval type. Planning evidence ONLY.
-- **Forbidden:** downloads/API/credentials/source-recovery; parser code/rule/version
-  change; parser/candidate/body rerun; manual adjudication/validation/approval;
-  marking any row parsed/recovered/executable/safe/authoritative/validated/approved/
-  ready; downstream/C2-C3/event-log/executable-status-table/strategy/execution; rcept_dt
-  as effective date. Every row stays fail-closed.
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_PARSER_NONEXTRACTED_FEASIBILITY_A0/`.
-- Awaiting Referee review after the initial pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-PARSER-NONEXTRACTED-FEASIBILITY-A0 — CLOSED AS PARSER NON-EXTRACTED FEASIBILITY TRIAGE COMPLETED / PLANNING-ONLY DESIGN ROUTES RECORDED / FAIL-CLOSED ROW STATE PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict (2026-05-26): **Select A (accept Pass 2) + preserve D.**
+Authorized by the user's explicit decision to open a local-only feasibility/design-triage
+phase (NOT download/parser-change/adjudication approval).
+
+- Status: **CLOSED**. Accepted commits: initial pass `d0d2079` + Pass 2 `a6a2dce`.
+  Code: `src/audit/measurement_a0/p_parser_nonextracted_feasibility.py`.
+- 8 required deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted result:** local-only design-triage over the 711 parser non-extracted rows.
+Splits reconciled exactly (511 no_label_match + 200 label_no_value; taxonomy
+499+170+23+18+1). Feasibility buckets (sum 711): **522 parser_design_candidate / 170
+needs_table_context_design / 18 correction_workflow_only / 1 out_of_scope_or_keep_fail_closed**.
+Required-future-approval: 499 parser_change_verdict_after_design_proof + 193
+parser_change_verdict + 18 manual_adjudication_approval + 1 none_keep_fail_closed.
+
+**Pass 2 corrections (Select B):** (1) CSV line endings CRLF→LF (write_csv now uses
+lineterminator="\n"); (2) renamed blocker column parser_design_alone_sufficient →
+future_parser_design_route_possible + added planning_only_note (NOT current sufficiency
+/ NOT approval). `git show --check HEAD` passes after Pass 2.
+
+**Accepted limits:** feasibility/design labels are PLANNING EVIDENCE ONLY; no parser
+code/rule/version change approved; no row parsed/recovered/executable/safe/authoritative/
+validated/approved/ready; all 711 fail-closed. Future parser-change / manual
+adjudication / source work each needs a separate user + Referee verdict.
+
+This phase made no parser change, no downloads/API, no manual adjudication, no
+downstream/strategy/execution. No next phase opened.
 
 ### KR-STATUS-ZIP-UNPARSEABLE-SOURCE-RECOVERY-A0 — CLOSED AS OPENDART-CHANNEL SOURCE RECOVERY ATTEMPT COMPLETED FOR 42 ZIP-UNPARSEABLE ROWS / STATUS-014 SOURCE ABSENCE REPRODUCED / ZIP-UNPARSEABLE FAIL-CLOSED RESIDUALS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
