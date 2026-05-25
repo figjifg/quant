@@ -1,0 +1,260 @@
+defect_id,defect_class,rcept_no,category,notes
+P3_0001,manual_review_required_remaining,20100322900199,suspension_related,low_needs_manual
+P3_0002,manual_review_required_remaining,20100319901646,suspension_related,medium_needs_manual
+P3_0003,manual_review_required_remaining,20100311900027,suspension_related,medium_needs_manual
+P3_0004,manual_review_required_remaining,20100211900740,suspension_related,low_needs_manual
+P3_0005,still_no_link,20100415900118,suspension_related,Pass-3 still no candidate
+P3_0006,still_no_link,20100917900141,suspension_related,Pass-3 still no candidate
+P3_0007,manual_review_required_remaining,20100721900323,suspension_related,medium_needs_manual
+P3_0008,still_no_link,20100705800432,resumption_related,Pass-3 still no candidate
+P3_0009,manual_review_required_remaining,20101223900406,suspension_related,low_needs_manual
+P3_0010,still_no_link,20101208900051,suspension_related,Pass-3 still no candidate
+P3_0011,still_no_link,20101126900274,resumption_related,Pass-3 still no candidate
+P3_0012,long_window_false_match,20101126900274,resumption_related,days_prior=248
+P3_0013,manual_review_required_remaining,20101015900434,suspension_related,medium_needs_manual
+P3_0014,long_window_false_match,20101015900434,suspension_related,days_prior=247
+P3_0015,still_no_link,20101015900293,suspension_related,Pass-3 still no candidate
+P3_0016,manual_review_required_remaining,20110331902711,suspension_related,medium_needs_manual
+P3_0017,long_window_false_match,20110323900724,suspension_related,days_prior=259
+P3_0018,long_window_false_match,20110323900723,suspension_related,days_prior=259
+P3_0019,manual_review_required_remaining,20110318800229,resumption_related,medium_needs_manual
+P3_0020,still_no_link,20110224900602,suspension_related,Pass-3 still no candidate
+P3_0021,manual_review_required_remaining,20110614900389,suspension_related,low_needs_manual
+P3_0022,still_no_link,20110531800008,resumption_related,Pass-3 still no candidate
+P3_0023,manual_review_required_remaining,20110512900210,suspension_related,low_needs_manual
+P3_0024,manual_review_required_remaining,20110506800027,resumption_related,medium_needs_manual
+P3_0025,manual_review_required_remaining,20110411900648,suspension_related,medium_needs_manual
+P3_0026,long_window_false_match,20110407800122,resumption_related,days_prior=359
+P3_0027,still_no_link,20110923900387,suspension_related,Pass-3 still no candidate
+P3_0028,manual_review_required_remaining,20120322901069,suspension_related,medium_needs_manual
+P3_0029,manual_review_required_remaining,20120319900631,suspension_related,medium_needs_manual
+P3_0030,manual_review_required_remaining,20120319900621,suspension_related,medium_needs_manual
+P3_0031,still_no_link,20120307900749,suspension_related,Pass-3 still no candidate
+P3_0032,still_no_link,20120209900299,suspension_related,Pass-3 still no candidate
+P3_0033,manual_review_required_remaining,20120201900424,suspension_related,medium_needs_manual
+P3_0034,long_window_false_match,20120201900424,suspension_related,days_prior=281
+P3_0035,still_no_link,20120201900262,suspension_related,Pass-3 still no candidate
+P3_0036,still_no_link,20120131800145,resumption_related,Pass-3 still no candidate
+P3_0037,still_no_link,20120131800143,resumption_related,Pass-3 still no candidate
+P3_0038,manual_review_required_remaining,20120423900095,suspension_related,medium_needs_manual
+P3_0039,long_window_false_match,20120423900095,suspension_related,days_prior=347
+P3_0040,still_no_link,20120423900096,suspension_related,Pass-3 still no candidate
+P3_0041,still_no_link,20120423900092,suspension_related,Pass-3 still no candidate
+P3_0042,manual_review_required_remaining,20120423900091,suspension_related,medium_needs_manual
+P3_0043,long_window_false_match,20120423900091,suspension_related,days_prior=347
+P3_0044,manual_review_required_remaining,20120912900348,suspension_related,medium_needs_manual
+P3_0045,long_window_false_match,20120912900348,suspension_related,days_prior=181
+P3_0046,manual_review_required_remaining,20120809900022,suspension_related,medium_needs_manual
+P3_0047,still_no_link,20120731900236,suspension_related,Pass-3 still no candidate
+P3_0048,still_no_link,20130315901436,suspension_related,Pass-3 still no candidate
+P3_0049,still_no_link,20130314802024,resumption_related,Pass-3 still no candidate
+P3_0050,manual_review_required_remaining,20130117900277,suspension_related,medium_needs_manual
+P3_0051,still_no_link,20130520900302,suspension_related,Pass-3 still no candidate
+P3_0052,still_no_link,20140519900313,resumption_related,Pass-3 still no candidate
+P3_0053,still_no_link,20141016900317,suspension_related,Pass-3 still no candidate
+P3_0054,manual_review_required_remaining,20150323600022,suspension_related,low_needs_manual
+P3_0055,still_no_link,20150128900203,suspension_related,Pass-3 still no candidate
+P3_0056,still_no_link,20150122900284,resumption_related,Pass-3 still no candidate
+P3_0057,still_no_link,20150526800147,resumption_related,Pass-3 still no candidate
+P3_0058,manual_review_required_remaining,20150514901020,suspension_related,medium_needs_manual
+P3_0059,still_no_link,20150925900143,resumption_related,Pass-3 still no candidate
+P3_0060,still_no_link,20150911800465,resumption_related,Pass-3 still no candidate
+P3_0061,still_no_link,20151231900042,resumption_related,Pass-3 still no candidate
+P3_0062,still_no_link,20151230900233,resumption_related,Pass-3 still no candidate
+P3_0063,long_window_false_match,20151127900167,suspension_related,days_prior=290
+P3_0064,still_no_link,20160224900085,resumption_related,Pass-3 still no candidate
+P3_0065,manual_review_required_remaining,20160429900427,resumption_related,low_needs_manual
+P3_0066,still_no_link,20161017900147,resumption_related,Pass-3 still no candidate
+P3_0067,manual_review_required_remaining,20170330902219,suspension_related,medium_needs_manual
+P3_0068,still_no_link,20170327900337,resumption_related,Pass-3 still no candidate
+P3_0069,still_no_link,20170223600535,suspension_related,Pass-3 still no candidate
+P3_0070,manual_review_required_remaining,20170124900649,suspension_related,low_needs_manual
+P3_0071,manual_review_required_remaining,20170124900643,suspension_related,low_needs_manual
+P3_0072,still_no_link,20170421900722,suspension_related,Pass-3 still no candidate
+P3_0073,still_no_link,20171110900736,resumption_related,Pass-3 still no candidate
+P3_0074,long_window_false_match,20171110900736,resumption_related,days_prior=200
+P3_0075,still_no_link,20230717800694,resumption_related,Pass-3 still no candidate
+P3_0076,still_no_link,20230214900950,suspension_related,Pass-3 still no candidate
+P3_0077,manual_review_required_remaining,20230206901186,suspension_related,medium_needs_manual
+P3_0078,long_window_false_match,20230206901186,suspension_related,days_prior=325
+P3_0079,still_no_link,20230131800615,resumption_related,Pass-3 still no candidate
+P3_0080,still_no_link,20230120800194,resumption_related,Pass-3 still no candidate
+P3_0081,manual_review_required_remaining,20220620900716,resumption_related,low_needs_manual
+P3_0082,still_no_link,20190304900009,suspension_related,Pass-3 still no candidate
+P3_0083,still_no_link,20200514900567,suspension_related,Pass-3 still no candidate
+P3_0084,still_no_link,20200416900247,suspension_related,Pass-3 still no candidate
+P3_0085,still_no_link,20200414800366,resumption_related,Pass-3 still no candidate
+P3_0086,manual_review_required_remaining,20200406900994,suspension_related,low_needs_manual
+P3_0087,still_no_link,20210520900119,suspension_related,Pass-3 still no candidate
+P3_0088,still_no_link,20210430901247,suspension_related,Pass-3 still no candidate
+P3_0089,long_window_false_match,20210430901247,suspension_related,days_prior=204
+P3_0090,manual_review_required_remaining,20210413900608,suspension_related,medium_needs_manual
+P3_0091,still_no_link,20180402900901,suspension_related,Pass-3 still no candidate
+P3_0092,still_no_link,20240913900202,suspension_related,Pass-3 still no candidate
+P3_0093,still_no_link,20220329900679,suspension_related,Pass-3 still no candidate
+P3_0094,manual_review_required_remaining,20220104900567,suspension_related,medium_needs_manual
+P3_0095,manual_review_required_remaining,20240610900602,resumption_related,medium_needs_manual
+P3_0096,manual_review_required_remaining,20240402900836,suspension_related,medium_needs_manual
+P3_0097,manual_review_required_remaining,20181008900702,resumption_related,low_needs_manual
+P3_0098,manual_review_required_remaining,20181008900701,resumption_related,low_needs_manual
+P3_0099,manual_review_required_remaining,20250626900815,resumption_related,medium_needs_manual
+P3_0100,manual_review_required_remaining,20250620900644,suspension_related,medium_needs_manual
+P3_0101,manual_review_required_remaining,20250612900585,resumption_related,medium_needs_manual
+P3_0102,manual_review_required_remaining,20250407601332,suspension_related,medium_needs_manual
+P3_0103,still_no_link,20250407601118,suspension_related,Pass-3 still no candidate
+P3_0104,manual_review_required_remaining,20250123900765,resumption_related,medium_needs_manual
+P3_0105,manual_review_required_remaining,20190424600679,suspension_related,medium_needs_manual
+P3_0106,still_no_link,20221027800436,resumption_related,Pass-3 still no candidate
+P3_0107,manual_review_required_remaining,20230518900519,suspension_related,medium_needs_manual
+P3_0108,manual_review_required_remaining,20230407901311,suspension_related,medium_needs_manual
+P3_0109,long_window_false_match,20230407901311,suspension_related,days_prior=224
+P3_0110,manual_review_required_remaining,20230407901054,suspension_related,low_needs_manual
+P3_0111,manual_review_required_remaining,20251219900832,suspension_related,medium_needs_manual
+P3_0112,still_no_link,20251029900260,suspension_related,Pass-3 still no candidate
+P3_0113,still_no_link,20180724800459,resumption_related,Pass-3 still no candidate
+P3_0114,still_no_link,20260323801944,resumption_related,Pass-3 still no candidate
+P3_0115,still_no_link,20260323801642,resumption_related,Pass-3 still no candidate
+P3_0116,manual_review_required_remaining,20260323901219,suspension_related,medium_needs_manual
+P3_0117,long_window_false_match,20260323901219,suspension_related,days_prior=348
+P3_0118,still_no_link,20260223900512,suspension_related,Pass-3 still no candidate
+P3_0119,still_no_link,20260123900670,resumption_related,Pass-3 still no candidate
+P3_0120,still_no_link,20260123900664,resumption_related,Pass-3 still no candidate
+P3_0121,manual_review_required_remaining,20260506900571,suspension_related,medium_needs_manual
+P3_0122,manual_review_required_remaining,20260401901549,suspension_related,medium_needs_manual
+P3_0123,long_window_false_match,20210323901856,suspension_related,days_prior=355
+P3_0124,manual_review_required_remaining,20210315901847,suspension_related,medium_needs_manual
+P3_0125,long_window_false_match,20210315901847,suspension_related,days_prior=357
+P3_0126,still_no_link,20210217900273,suspension_related,Pass-3 still no candidate
+P3_0127,still_no_link,20210217900264,suspension_related,Pass-3 still no candidate
+P3_0128,manual_review_required_remaining,20210120900703,suspension_related,low_needs_manual
+P3_0129,still_no_link,20210104900051,suspension_related,Pass-3 still no candidate
+P3_0130,still_no_link,20231207900088,suspension_related,Pass-3 still no candidate
+P3_0131,still_no_link,20231205900605,suspension_related,Pass-3 still no candidate
+P3_0132,still_no_link,20191230800862,resumption_related,Pass-3 still no candidate
+P3_0133,manual_review_required_remaining,20240328800097,resumption_related,medium_needs_manual
+P3_0134,long_window_false_match,20240328800097,resumption_related,days_prior=265
+P3_0135,still_no_link,20240214901016,suspension_related,Pass-3 still no candidate
+P3_0136,manual_review_required_remaining,20200907900245,suspension_related,low_needs_manual
+P3_0137,still_no_link,20200904900564,suspension_related,Pass-3 still no candidate
+P3_0138,still_no_link,20200814902049,suspension_related,Pass-3 still no candidate
+P3_0139,still_no_link,20200728800110,resumption_related,Pass-3 still no candidate
+P3_0140,still_no_link,20200713900454,suspension_related,Pass-3 still no candidate
+P3_0141,long_window_false_match,20210907900509,suspension_related,days_prior=365
+P3_0142,still_no_link,20210825800494,resumption_related,Pass-3 still no candidate
+P3_0143,manual_review_required_remaining,20220906900547,suspension_related,medium_needs_manual
+P3_0144,still_no_link,20220905900418,suspension_related,Pass-3 still no candidate
+P3_0145,still_no_link,20220816903047,resumption_related,Pass-3 still no candidate
+P3_0146,manual_review_required_remaining,20220816902970,suspension_related,low_needs_manual
+P3_0147,manual_review_required_remaining,20190828900580,resumption_related,low_needs_manual
+P3_0148,manual_review_required_remaining,20241106900580,suspension_related,medium_needs_manual
+P3_0149,long_window_false_match,20241106900580,suspension_related,days_prior=215
+P3_0150,manual_review_required_remaining,20241029900334,suspension_related,medium_needs_manual
+P3_0151,manual_review_required_remaining,20201223900861,resumption_related,medium_needs_manual
+P3_0152,wrong_candidate_risk_remaining,20100428900278,suspension_related,score high but body cross-check failed
+P3_0153,supersession_not_safe,20100428900278,suspension_related,date change present but link not high_validated
+P3_0154,wrong_candidate_risk_remaining,20110323900724,suspension_related,score high but body cross-check failed
+P3_0155,supersession_not_safe,20110323900724,suspension_related,date change present but link not high_validated
+P3_0156,wrong_candidate_risk_remaining,20110323900723,suspension_related,score high but body cross-check failed
+P3_0157,supersession_not_safe,20110323900723,suspension_related,date change present but link not high_validated
+P3_0158,wrong_candidate_risk_remaining,20220330900712,suspension_related,score high but body cross-check failed
+P3_0159,supersession_not_safe,20220330900712,suspension_related,date change present but link not high_validated
+P3_0160,wrong_candidate_risk_remaining,20210907900509,suspension_related,score high but body cross-check failed
+P3_0161,supersession_not_safe,20210907900509,suspension_related,date change present but link not high_validated
+P3_0162,wrong_candidate_risk_remaining,20220906900550,suspension_related,score high but body cross-check failed
+P3_0163,supersession_not_safe,20220906900550,suspension_related,date change present but link not high_validated
+P3_0164,wrong_candidate_risk_remaining,20110331902711,suspension_related,score high but body cross-check failed
+P3_0165,supersession_not_safe,20110331902711,suspension_related,date change present but link not high_validated
+P3_0166,supersession_not_safe,20250626900815,resumption_related,date change present but link not high_validated
+P3_0167,wrong_candidate_risk_remaining,20250620900644,suspension_related,score high but body cross-check failed
+P3_0168,supersession_not_safe,20250620900644,suspension_related,date change present but link not high_validated
+P3_0169,supersession_not_safe,20250612900585,resumption_related,date change present but link not high_validated
+P3_0170,wrong_candidate_risk_remaining,20250407601332,suspension_related,score high but body cross-check failed
+P3_0171,supersession_not_safe,20250407601332,suspension_related,date change present but link not high_validated
+P3_0172,wrong_candidate_risk_remaining,20230407901311,suspension_related,score high but body cross-check failed
+P3_0173,supersession_not_safe,20230407901311,suspension_related,date change present but link not high_validated
+P3_0174,supersession_not_safe,20100319901646,suspension_related,date change present but link not high_validated
+P3_0175,supersession_not_safe,20100311900027,suspension_related,date change present but link not high_validated
+P3_0176,supersession_not_safe,20100721900323,suspension_related,date change present but link not high_validated
+P3_0177,supersession_not_safe,20101015900434,suspension_related,date change present but link not high_validated
+P3_0178,supersession_not_safe,20110318800229,resumption_related,date change present but link not high_validated
+P3_0179,supersession_not_safe,20110506800027,resumption_related,date change present but link not high_validated
+P3_0180,supersession_not_safe,20110411900648,suspension_related,date change present but link not high_validated
+P3_0181,supersession_not_safe,20120322901069,suspension_related,date change present but link not high_validated
+P3_0182,supersession_not_safe,20120319900631,suspension_related,date change present but link not high_validated
+P3_0183,supersession_not_safe,20120319900621,suspension_related,date change present but link not high_validated
+P3_0184,supersession_not_safe,20120201900424,suspension_related,date change present but link not high_validated
+P3_0185,supersession_not_safe,20120423900095,suspension_related,date change present but link not high_validated
+P3_0186,supersession_not_safe,20120423900091,suspension_related,date change present but link not high_validated
+P3_0187,supersession_not_safe,20120912900348,suspension_related,date change present but link not high_validated
+P3_0188,supersession_not_safe,20120809900022,suspension_related,date change present but link not high_validated
+P3_0189,supersession_not_safe,20130117900277,suspension_related,date change present but link not high_validated
+P3_0190,body_confirmation_missing,20150421900128,resumption_related,body could not be retrieved; high downgraded to medium
+P3_0191,body_confirmation_missing,20151127900167,suspension_related,body could not be retrieved; high downgraded to medium
+P3_0192,body_confirmation_missing,20160429600510,suspension_related,body could not be retrieved; high downgraded to medium
+P3_0193,body_confirmation_missing,20160429900298,resumption_related,body could not be retrieved; high downgraded to medium
+P3_0194,supersession_not_safe,20100415900118,suspension_related,date change present but link not high_validated
+P3_0195,supersession_not_safe,20100917900141,suspension_related,date change present but link not high_validated
+P3_0196,supersession_not_safe,20100705800432,resumption_related,date change present but link not high_validated
+P3_0197,supersession_not_safe,20101208900051,suspension_related,date change present but link not high_validated
+P3_0198,supersession_not_safe,20101126900274,resumption_related,date change present but link not high_validated
+P3_0199,supersession_not_safe,20101015900293,suspension_related,date change present but link not high_validated
+P3_0200,supersession_not_safe,20110224900602,suspension_related,date change present but link not high_validated
+P3_0201,supersession_not_safe,20110531800008,resumption_related,date change present but link not high_validated
+P3_0202,supersession_not_safe,20110923900387,suspension_related,date change present but link not high_validated
+P3_0203,supersession_not_safe,20120307900749,suspension_related,date change present but link not high_validated
+P3_0204,supersession_not_safe,20120209900299,suspension_related,date change present but link not high_validated
+P3_0205,supersession_not_safe,20120201900262,suspension_related,date change present but link not high_validated
+P3_0206,supersession_not_safe,20120131800145,resumption_related,date change present but link not high_validated
+P3_0207,supersession_not_safe,20120131800143,resumption_related,date change present but link not high_validated
+P3_0208,supersession_not_safe,20120423900096,suspension_related,date change present but link not high_validated
+P3_0209,supersession_not_safe,20120423900092,suspension_related,date change present but link not high_validated
+P3_0210,supersession_not_safe,20120731900236,suspension_related,date change present but link not high_validated
+P3_0211,supersession_not_safe,20130315901436,suspension_related,date change present but link not high_validated
+P3_0212,supersession_not_safe,20130314802024,resumption_related,date change present but link not high_validated
+P3_0213,supersession_not_safe,20130520900302,suspension_related,date change present but link not high_validated
+P3_0214,supersession_not_safe,20140519900313,resumption_related,date change present but link not high_validated
+P3_0215,supersession_not_safe,20141016900317,suspension_related,date change present but link not high_validated
+P3_0216,original_not_in_source,20100415900118,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0217,original_not_in_source,20100917900141,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0218,original_not_in_source,20100705800432,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0219,original_not_in_source,20101208900051,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0220,original_not_in_source,20101015900293,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0221,original_not_in_source,20110224900602,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0222,original_not_in_source,20110531800008,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0223,original_not_in_source,20110923900387,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0224,original_not_in_source,20120307900749,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0225,original_not_in_source,20120209900299,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0226,original_not_in_source,20120131800145,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0227,original_not_in_source,20120131800143,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0228,original_not_in_source,20120423900096,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0229,original_not_in_source,20120423900092,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0230,original_not_in_source,20130314802024,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0231,original_not_in_source,20130520900302,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0232,original_not_in_source,20150128900203,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0233,original_not_in_source,20150526800147,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0234,original_not_in_source,20150911800465,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0235,original_not_in_source,20170223600535,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0236,original_not_in_source,20170421900722,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0237,original_not_in_source,20230214900950,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0238,original_not_in_source,20230131800615,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0239,original_not_in_source,20190304900009,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0240,original_not_in_source,20200416900247,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0241,original_not_in_source,20200414800366,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0242,original_not_in_source,20240913900202,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0243,original_not_in_source,20220329900679,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0244,original_not_in_source,20250407601118,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0245,original_not_in_source,20251029900260,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0246,original_not_in_source,20260323801944,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0247,original_not_in_source,20260323801642,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0248,original_not_in_source,20260223900512,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0249,original_not_in_source,20210217900273,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0250,original_not_in_source,20210217900264,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0251,original_not_in_source,20210104900051,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0252,original_not_in_source,20231207900088,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0253,original_not_in_source,20231205900605,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0254,original_not_in_source,20191230800862,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0255,original_not_in_source,20240214901016,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0256,original_not_in_source,20200814902049,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0257,original_not_in_source,20210825800494,resumption_related,no candidate even at 730d after Pass-3 search
+P3_0258,original_not_in_source,20220905900418,suspension_related,no candidate even at 730d after Pass-3 search
+P3_0259,original_not_in_source,20220816903047,resumption_related,no candidate even at 730d after Pass-3 search

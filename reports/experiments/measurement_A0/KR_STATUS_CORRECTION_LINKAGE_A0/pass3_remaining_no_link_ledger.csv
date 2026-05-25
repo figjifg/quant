@@ -1,0 +1,72 @@
+correction_rcept_no,correction_rcept_dt,correction_report_nm,event_category,stock_code,corp_code,pass3_classification,notes
+20100415900118,20100415,[기재정정]주권매매거래정지,suspension_related,036850,00208693,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20100917900141,20100917,[기재정정]주권매매거래정지(우회상장여부 및 요건충족확인),suspension_related,027710,00192499,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20100705800432,20100705,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,001260,00107066,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20101208900051,20101208,[기재정정]주권매매거래정지(무상증자),suspension_related,095190,00526951,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20101126900274,20101126,[기재정정]기타경영사항(자율공시)(광업권 매매계약 해제 등),resumption_related,060900,00367695,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20101015900293,20101015,[기재정정]주권매매거래정지(우회상장여부 및 요건충족확인),suspension_related,068930,00398808,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20110224900602,20110224,[기재정정]주권매매거래정지,suspension_related,026250,00127370,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20110531800008,20110531,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,000800,00101257,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20110923900387,20110923,[기재정정]주권매매거래정지,suspension_related,065940,00155382,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120307900749,20120307,[기재정정]주권매매거래정지(관리종목지정우려),suspension_related,037760,00239596,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120209900299,20120209,[기재정정]주권매매거래정지,suspension_related,083930,00442145,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120201900262,20120201,[기재정정]주권매매거래정지,suspension_related,038500,00239639,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20120131800145,20120131,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,114130,00778040,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120131800143,20120131,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,114140,00778059,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120423900096,20120423,[기재정정]주권매매거래정지(합병 및 감자),suspension_related,036170,00232821,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120423900092,20120423,[기재정정]주권매매거래정지(합병 및 감자),suspension_related,036170,00232821,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20120731900236,20120731,[기재정정]주권매매거래정지(풍문 또는 보도 관련),suspension_related,105070,00579379,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20130315901436,20130315,[기재정정]주권매매거래정지(투자자 보호),suspension_related,060910,00353230,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20130314802024,20130314,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,003190,00112004,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20130520900302,20130520,[기재정정]주권매매거래정지(무상증자),suspension_related,101170,00567222,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20140519900313,20140519,[기재정정]기타주요경영사항(유형자산 취득 계약 해제),resumption_related,099830,00232496,original_likely_cross_category_not_allowed,cross-category with weak score
+20141016900317,20141016,[기재정정]주권매매거래정지(분할),suspension_related,121440,00674498,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20150128900203,20150128,[기재정정]주권매매거래정지,suspension_related,035620,00259590,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20150122900284,20150122,[기재정정]기타주요경영사항(주식 및 경영권 양수도 계약 해제),resumption_related,054300,00339072,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20150526800147,20150526,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,051310,00181934,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20150925900143,20150925,[기재정정]최대주주변경을수반하는주식양수도계약해제ㆍ취소등,resumption_related,066270,00361725,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20150911800465,20150911,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,003940,00132105,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20151231900042,20151231,[기재정정]최대주주변경을수반하는주식양수도계약해제ㆍ취소등,resumption_related,023440,00148531,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20151230900233,20151230,[기재정정]최대주주변경을수반하는주식양수도계약해제ㆍ취소등,resumption_related,023440,00148531,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20160224900085,20160224,[기재정정]기타주요경영사항(타법인 주식 및 출자증권 취득계약 해제),resumption_related,086200,00413824,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20161017900147,20161017,[기재정정]최대주주변경을수반하는주식담보제공계약해제ㆍ취소등,resumption_related,131100,00814786,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20170327900337,20170327,[기재정정]기타주요경영사항(타법인 주식 및 출자증권 취득결정 계약해제),resumption_related,086830,00317830,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20170223600535,20170223,[기재정정]주권매매거래정지(무상증자),suspension_related,224810,00607797,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20170421900722,20170421,[기재정정]주권매매거래정지(불성실공시법인 지정),suspension_related,039230,00295370,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20171110900736,20171110,[기재정정]최대주주변경을수반하는주식담보제공계약해제ㆍ취소등,resumption_related,117670,00605124,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20230717800694,2023-07-17,[기재정정]매매거래정지및정지해제(풍문등조회공시),resumption_related,001340,122472,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20230214900950,2023-02-14,[기재정정]주권매매거래정지(무상증자),suspension_related,291650,1265251,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20230131800615,2023-01-31,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,140910,860730,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20230120800194,2023-01-20,[기재정정]생산재개(자율공시),resumption_related,005490,155319,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20190304900009,2019-03-04,[기재정정]주권매매거래정지(관리종목지정우려),suspension_related,178780,923826,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20200514900567,2020-05-14,[기재정정]주권매매거래정지(무상증자),suspension_related,148140,610490,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20200416900247,2020-04-16,[기재정정]주권매매거래정지(단일판매공급계약),suspension_related,241820,1051092,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20200414800366,2020-04-14,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,083380,526465,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20210520900119,2021-05-20,[기재정정]주권매매거래정지(무상증자),suspension_related,007530,140858,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20210430901247,2021-04-30,[기재정정]기타시장안내(감사의견 관련 형식적 상장폐지 사유해소 및 매매거래정지 지속 안내),suspension_related,036180,257149,original_possible_but_title_too_generic,title_similarity=0.214
+20180402900901,2018-04-02,[기재정정]주권매매거래정지(무상증자),suspension_related,009780,121154,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20240913900202,2024-09-13,[기재정정]주권매매거래정지              (자본감소),suspension_related,030350,230036,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20220329900679,2022-03-29,[기재정정]주권매매거래정지(단일판매공급계약),suspension_related,253840,1063954,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20250407601118,2025-04-07,[기재정정]주권매매거래정지              (상장폐지 사유발생),suspension_related,276240,1119651,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20221027800436,2022-10-27,[기재정정]생산재개(자율공시),resumption_related,058430,155258,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20251029900260,2025-10-29,[기재정정]주권매매거래정지              (무상증자),suspension_related,347850,1376715,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20180724800459,2018-07-24,[기재정정]채권은행등의관리절차해제,resumption_related,073240,481454,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20260323801944,2026-03-23,[기재정정]매매거래정지및정지해제(풍문등조회공시)              ,resumption_related,143210,119140,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20260323801642,2026-03-23,[기재정정]매매거래정지및정지해제(풍문등조회공시)              ,resumption_related,143210,119140,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20260223900512,2026-02-23,[기재정정]주권매매거래정지              (무상증자),suspension_related,163280,1663116,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20260123900670,2026-01-23,[기재정정]기타시장안내              (상장폐지결정 등 효력정지 가처분 신청 기각결정에 따른 정리매매절차 재개),resumption_related,111870,125965,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20260123900664,2026-01-23,[기재정정]기타시장안내              (상장폐지결정 등 효력정지 가처분 신청 기각에 따른 정리매매절차 재개 ),resumption_related,226360,1097906,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20210217900273,2021-02-17,[기재정정]주권매매거래정지(무상증자),suspension_related,069410,415707,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20210217900264,2021-02-17,[기재정정]주권매매거래정지(무상증자),suspension_related,069410,415707,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20210104900051,2021-01-04,[기재정정]주권매매거래정지(상장적격성 실질심사 대상 (사유발생)),suspension_related,016670,125725,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20231207900088,2023-12-07,[기재정정]주권매매거래정지(SPAC 합병(예비심사청구대상)),suspension_related,386580,1572489,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20231205900605,2023-12-05,"[기재정정]주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)",suspension_related,302550,1275665,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20191230800862,2019-12-30,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,004920,127158,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20240214901016,2024-02-14,[기재정정]주권매매거래정지              (상장적격성 실질심사 대상(사유대상)),suspension_related,222160,1037542,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20200904900564,2020-09-04,"[기재정정]주권매매거래정지(주식의 병합, 분할 등 전자등록 변경, 말소)",suspension_related,083640,475976,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20200814902049,2020-08-14,[기재정정]주권매매거래정지(상장적격성 실질심사 대상 (사유발생)),suspension_related,039310,264671,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20200728800110,2020-07-28,[기재정정]채권은행등의관리절차해제,resumption_related,145210,453488,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20200713900454,2020-07-13,[기재정정]주권매매거래정지(주권매매거래정지 사유취소),suspension_related,206400,1043853,insufficient_evidence,candidates exist but none passes Pass-3 confidence rules
+20210825800494,2021-08-25,[기재정정]매매거래정지및정지해제(중요내용공시),resumption_related,042670,344287,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20220905900418,2022-09-05,[기재정정]주권매매거래정지(무상증자),suspension_related,319660,1365825,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
+20220816903047,2022-08-16,[기재정정]주권매매거래정지해제(풍문 등 조회결과 공시),resumption_related,082800,533191,original_not_in_raw_pool,no candidate even at 730d after Pass-3 search
