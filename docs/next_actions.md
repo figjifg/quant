@@ -6,9 +6,64 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — S2-HTML-INLINE-PARSER-BODY-COVERAGE-COMPLETION-A0 (Referee verdict 2026-05-25)
 
-비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
+**Scope**: Measurement-layer body-coverage completion A0 only. Attempt the
+remaining body_unavailable rows from `S2-HTML-INLINE-PARSER-BODY-COVERAGE-EXPANSION-A0`
+(5,744 not_attempted rows). **Body coverage only — no parser feature expansion.**
+
+**Scope inclusions**:
+- Remaining body_unavailable rows from prior expansion phase.
+- suspension_related + resumption_related only.
+- HTML-inline body candidates only.
+- Parser `krx_status_html_inline-1.1.0` used as-is.
+
+**Scope exclusions (hard)**:
+- No parser feature expansion.
+- No delisting / liquidation / managed / alert parser.
+- No DART body alpha / overhang.
+- No C2/C3 wiring / all-event event log finalization.
+- No strategy testing / performance diagnostics / execution simulation.
+- No production / paper / P08 / live / shadow.
+- No `rcept_dt` fallback to `effective_date`.
+- No `body_unavailable` row treated as parsed / executable / safe.
+
+**Reason**: Prior phase had 99.92% download success with 0 errors but 5,744
+rows remained not_attempted due to budget cap. Another controlled pass should
+close most of the residual.
+
+**Primary source-of-truth (read-only)**:
+- `S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/body_unavailable_target_universe.csv`
+- `S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/body_acquisition_attempt_log.csv`
+- `S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/post_acquisition_parser_outputs.csv`
+- `S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/body_coverage_defect_ledger.csv`
+- `S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/CLOSE_NOTE.md`
+- `src/parsers/krx_status_html_inline.py` (1.1.0)
+- `src/audit/measurement_a0/p_body_coverage_expansion.py`
+
+**10 allowed task groups**: remaining target universe / cache re-inventory /
+completion acquisition plan / controlled OPENDART download with full error taxonomy
+/ re-apply parser 1.1.0 / completion coverage metrics / validation sample on new
+bodies / residual body_unavailable classification / defect ledger / gate status.
+
+**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`BODY_COVERAGE_COMPLETED_WITH_RESIDUALS` /
+`BODY_COVERAGE_COMPLETED_AND_VALIDATED_FOR_AVAILABLE_ROWS` /
+`BODY_COVERAGE_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`. Do NOT mark
+execution simulation open. Do NOT mark strategy testing open. Do NOT mark parser
+output strategy-ready.
+
+**Required outputs (13)**: see `body_completion_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_BODY_COVERAGE_COMPLETION_A0/`
+
+**Important boundary**:
+- Body-coverage completion, NOT parser expansion.
+- Passing this phase does NOT reopen strategy testing.
+- Passing this phase does NOT open execution simulation automatically.
+- Passing this phase does NOT complete S2 globally.
+- Only reduces or classifies remaining body_unavailable rows for the already
+  validated suspension / resumption parser.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 

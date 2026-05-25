@@ -1,0 +1,4 @@
+defect_id,defect_class,rcept_no,category,notes
+CP_00001,zip_unparseable,20241129900819,suspension_related,zip_unparseable/http_200_size_147
+CP_00002,zip_unparseable,20170421900722,suspension_related,zip_unparseable/http_200_size_147
+CP_00003,zip_unparseable,20190304900009,suspension_related,zip_unparseable/http_200_size_147
