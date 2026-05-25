@@ -1,0 +1,5 @@
+scope,feasibility_bucket,n_rows,blocker_reason,required_future_approval,parser_design_alone_sufficient
+bucket,parser_design_candidate,522,no exact date label in body (domain tokens present); contextual date extraction without a label risks false positives; a future parser-design phase must prove safety first,parser_change_verdict_after_design_proof,True
+bucket,needs_table_context_design,170,label is a table/column header; date value sits in a non-adjacent cell lost during HTML->text flattening; needs structure/table-aware extraction design,parser_change_verdict,True
+bucket,correction_workflow_only,18,correction disclosure; not addressable by parser design alone; belongs to the correction adjudication workflow,manual_adjudication_approval,False
+bucket,out_of_scope_or_keep_fail_closed,1,body does not discuss the status event in recognizable terms (possible categorization/source issue); not a parser-design target,none_keep_fail_closed,False
