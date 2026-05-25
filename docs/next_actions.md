@@ -8,29 +8,35 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-LOCAL-ARTIFACT-CONSISTENCY-AUDIT-A0 — ACTIVE (2026-05-26, via relay; Referee REF-OPEN-007)
-
-Referee directive REF-OPEN-007 (2026-05-26, via relay): open the next local-only
-measurement-layer data-cleaning phase. Follows the now-closed
-KR-STATUS-SOURCE-RECOVERY-CANDIDATE-MANIFEST-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close).
-- **Scope:** measurement-layer **local artifact CONSISTENCY AUDIT** only — verify the
-  6 recently-closed phases' artifacts report the SAME canonical counts and the SAME
-  hard-lock state. **Existing local reports / CSV / CLOSE_NOTE / docs/next_actions.md
-  ONLY — NO downloads, NO API, NO credentials, NO body repair, NO parser change/rerun,
-  NO candidate/body rerun, NO downstream wiring, NO C2/C3, NO event-log finalization,
-  NO executable-status table, NO strategy/performance/execution.** No new data;
-  index + numeric reconciliation + hard-lock phrase audit only.
-- **Goal:** artifact inventory + count reconciliation matrix (12,187 / 12,145 / 42 /
-  511 / 200 / 862 / 711 / 166 / 39 / 3) + CLOSE_NOTE & next_actions consistency +
-  hard-lock phrase audit + residual lineage map + defect ledger. Inconsistencies are
-  RECORDED, not patched (unless purely within this phase's own outputs).
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_LOCAL_ARTIFACT_CONSISTENCY_AUDIT_A0/`.
-- **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
-- Awaiting Referee verdict after the Executor pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-LOCAL-ARTIFACT-CONSISTENCY-AUDIT-A0 — CLOSED AS LOCAL ARTIFACT CONSISTENCY AUDIT COMPLETED / ACCEPTED COUNT LOCKS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-007 (2026-05-26): **CLOSED AS LOCAL ARTIFACT
+CONSISTENCY AUDIT COMPLETED / ACCEPTED COUNT LOCKS PRESERVED / EXECUTION STILL
+CLOSED.** Option A accepted + Option D preserved (close after housekeeping; next
+phase NOT opened in the close pass).
+
+- Status: **CLOSED**. Initial pass commit accepted: `1643fd2`. Code:
+  `src/audit/measurement_a0/p_local_artifact_consistency_audit.py`.
+- 10 required + 6 optional/supporting deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted result — CLEAN PASS:** meta-audit of the 6 recently-closed
+measurement-layer phases. 19/19 count reconciliations PASS (recomputed from source
+CSVs); 4/4 derived identities PASS; 25/25 CLOSE_NOTE numbers present; next_actions
+consistent; hard-lock phrase audit 0 affirmative scope-drift (175 trigger lines all
+reviewed-benign); 0 consistency defects.
+
+**Accepted LOCKED canonical counts:** universe 12,187 / usable html_inline 12,145 /
+zip_unparseable 42 / no_label_match 511 / label_no_value 200 / blocker register 862 /
+parser non-extracted 711 / correction 166 / correction-zip 39 / non-correction-zip 3.
+Derived: 711=511+200; 42=39+3; 862=753+109; 12,187=12,145+42.
+
+This phase made no new data; no downloads/API/credentials/body-repair/parser-change/
+rerun/downstream-wiring/C2-C3/event-log/executable-status-table/strategy/execution.
+Per the verdict, the next phase was NOT opened in the close pass.
 
 ### KR-STATUS-SOURCE-RECOVERY-CANDIDATE-MANIFEST-A0 — CLOSED AS SOURCE-RECOVERY CANDIDATE MANIFEST COMPLETED / RECOVERY-GATED FAIL-CLOSED STATE PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
