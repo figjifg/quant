@@ -6,9 +6,63 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — S2-HTML-INLINE-PARSER-BODY-COVERAGE-EXPANSION-A0 (Referee verdict 2026-05-25)
 
-비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
+**Scope**: Measurement-layer body-coverage expansion A0 only. Increase OPENDART
+document.xml body availability for the body_unavailable in-scope rows from the
+prior validation phase. **Body coverage only — no parser feature expansion.**
+
+**Scope inclusions**:
+- suspension_related + resumption_related only.
+- HTML-inline body candidates only.
+- body_unavailable rows from `S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0`.
+- Use the already validated parser version `krx_status_html_inline-1.1.0`.
+
+**Scope exclusions (hard)**:
+- No parser feature expansion.
+- No delisting / liquidation / managed / alert parser.
+- No DART body alpha / overhang parser.
+- No C2/C3 wiring / all-event event log.
+- No strategy testing / performance diagnostics / execution simulation.
+- No production / paper / P08 / live / shadow.
+- No `rcept_dt` fallback to `effective_date`.
+- No `body_unavailable` row treated as parsed / executable / safe.
+
+**Reason**: Prior phase validated parser for available-body suspension /
+resumption rows but body coverage was 1,402 / 12,187 ≈ 11.5%. Body availability
+is the dominant remaining blocker in this lane.
+
+**Primary source-of-truth (read-only)**:
+- `S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/full_universe_parser_outputs.csv`
+- `S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/pass2_full_universe_parser_outputs.csv`
+- `S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/document_availability_audit.csv`
+- `S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/CLOSE_NOTE.md`
+- `src/parsers/krx_status_html_inline.py` (1.1.0)
+- `data/acquired/round5_*` + `round4/s3_krx_status/`
+
+**9 allowed task groups**: body-unavailable target universe / prior cache inventory
+/ coverage expansion plan with P0-P5 priorities / controlled OPENDART acquisition
+with throttling and error taxonomy / re-apply parser 1.1.0 / coverage delta
+metrics / validation sample on newly acquired bodies / defect ledger / gate status.
+
+**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`BODY_COVERAGE_EXPANDED_BUT_INCOMPLETE` /
+`BODY_COVERAGE_EXPANDED_AND_VALIDATED_FOR_AVAILABLE_ROWS` /
+`BODY_COVERAGE_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`. Do NOT mark
+execution simulation open. Do NOT mark strategy testing open. Do NOT mark parser
+output strategy-ready.
+
+**Required outputs (12)**: see `body_coverage_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_BODY_COVERAGE_EXPANSION_A0/`
+
+**Important boundary**:
+- Body-coverage expansion, NOT parser expansion.
+- Passing this phase does NOT reopen strategy testing.
+- Passing this phase does NOT open execution simulation automatically.
+- Passing this phase does NOT complete S2 globally.
+- Only increases or documents body availability for the already validated
+  suspension / resumption parser.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 
