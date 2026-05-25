@@ -1,0 +1,6 @@
+root_cause_class,count
+only_generic_or_contextual_label,499
+label_present_but_attachment_or_table_context_required,170
+label_present_but_value_in_unhandled_format,23
+correction_disclosure_manual_only,18
+title_body_mismatch,1
