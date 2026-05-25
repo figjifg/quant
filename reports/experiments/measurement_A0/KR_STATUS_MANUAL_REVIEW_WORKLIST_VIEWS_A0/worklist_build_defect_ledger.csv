@@ -1,0 +1,2 @@
+defect_id,kind,detail
+NONE,no_defect,862 rows / 862 unique; bucket counts match; all fail-closed; prior sentinels clean; no forbidden outcome column; worklist deterministic

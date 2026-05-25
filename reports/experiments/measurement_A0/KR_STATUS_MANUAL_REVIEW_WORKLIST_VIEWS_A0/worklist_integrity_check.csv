@@ -1,0 +1,13 @@
+check,value,result
+packet_rows==862,862,PASS
+packet_unique_rcept_no==862,862,PASS
+bucket_counts_sum==862_and_match_packet,862,PASS
+failclosed:manual_review_required==True,0,PASS
+failclosed:executable_or_safe==False,0,PASS
+failclosed:downstream_authoritative==False,0,PASS
+failclosed:parsed_clean_and_usable==False,0,PASS
+failclosed:recovered==False,0,PASS
+failclosed:human_validation_claimed==False,0,PASS
+prior_audit_sentinel_check_all_clean,True,PASS
+packet_build_defect_ledger_only_NONE,1,PASS
+no_forbidden_outcome_columns,none,PASS
