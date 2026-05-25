@@ -1,0 +1,18 @@
+correction_rcept_no,corp_name,candidate_rcept_no,candidate_event_type,title_similarity,pass3_score,body_format_cache,reason
+20100428900278,선우중공업,20100413900404,주권매매거래정지기간변경,0.8,14.138,html_inline,score high but body cross-check failed
+20110331902711,한와이어리스,20110323900713,주권매매거래정지기간변경,0.585,9.845,html_inline,score high but body cross-check failed
+20110323900724,뉴젠아이씨티,20100707900434,주권매매거래정지기간변경,0.8,13.136,html_inline,score high but body cross-check failed
+20110323900723,뉴젠아이씨티,20100707900434,주권매매거래정지기간변경,0.8,13.136,html_inline,score high but body cross-check failed
+20200406900994,앤로보틱스,20200206900937,주권매매거래정지기간변경,0.476,9.468,html_inline,score high but body cross-check failed
+20210430901247,지더블유바이텍,20201008900858,주권매매거래정지기간변경,0.214,5.983,html_inline,score high but body cross-check failed
+20220330900712,스마트솔루션즈,20220329902747,주권매매거래정지기간변경,0.864,15.291,html_inline,score high but body cross-check failed
+20250626900815,푸른소나무,20250624900626,주권매매거래정지기간변경,0.635,5.945,html_inline,score high but body cross-check failed
+20250620900644,엔케이젠바이오텍코리아,20250321902323,주권매매거래정지기간변경,0.505,6.882999999999999,html_inline,score high but body cross-check failed
+20250612900585,세토피아,20250424900608,주권매매거래정지기간변경,0.617,5.724,html_inline,score high but body cross-check failed
+20250407601332,나라소프트,20250310600141,주권매매거래정지기간변경,0.682,9.908,html_inline,score high but body cross-check failed
+20230407901311,비디아이,20220826900407,주권매매거래정지기간변경,0.677,9.095,html_inline,score high but body cross-check failed
+20210315901847,지스마트글로벌,20200323902004,주권매매거래정지기간변경,0.54,8.343,html_inline,score high but body cross-check failed
+20210120900703,이엠네트웍스,20210107900567,주권매매거래정지기간변경,0.448,9.618,html_inline,score high but body cross-check failed
+20210907900509,에스에이치엔엘,20200907900640,주권매매거래정지기간변경,0.875,13.812,html_inline,score high but body cross-check failed
+20220906900550,지나인제약,20220408900716,주권매매거래정지기간변경,0.875,14.692,html_inline,score high but body cross-check failed
+20241106900580,대산F&B,20240405901013,주권매매거래정지기간변경,0.769,9.27,html_inline,score high but body cross-check failed

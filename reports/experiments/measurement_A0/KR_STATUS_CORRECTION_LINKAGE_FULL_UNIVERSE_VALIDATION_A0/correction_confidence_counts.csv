@@ -1,0 +1,7 @@
+confidence_5tier,post_body_count,score_only_count,pass3_prior_count,delta_vs_pass3
+high_validated,17,35,35,-18
+medium_needs_manual,52,42,42,10
+low_needs_manual,7,18,18,-11
+no_link,73,71,71,2
+rejected_wrong_candidate,17,0,0,17
+TOTAL,166,166,166,0

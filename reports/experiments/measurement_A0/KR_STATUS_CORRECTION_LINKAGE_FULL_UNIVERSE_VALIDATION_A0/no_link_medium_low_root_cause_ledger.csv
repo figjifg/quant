@@ -1,0 +1,133 @@
+correction_rcept_no,corp_name,event_category,confidence_5tier,root_cause,body_format_cache,notes
+20100322900199,헤파호프코리아,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.72
+20100319901646,아이알디,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.10
+20100311900027,초록뱀미디어,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.63
+20100211900740,위지트,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.47
+20100415900118,나리지*온,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20100917900141,팜스토리,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20100721900323,에이전트AI,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.17
+20100705800432,남광토건,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20101223900406,세실,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.72
+20101208900051,신화프리텍,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20101126900274,에이전트AI,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20101015900434,에이디모터스,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=9.84
+20101015900293,디지털대성,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20110318800229,인바이오젠,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.29
+20110224900602,삼우이엠씨,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20110614900389,이룸지엔지,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=2.39
+20110531800008,경남기업,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20110512900210,네이처셀,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.24
+20110506800027,다산자기관리부동산투자회사,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=10.84
+20110411900648,에코솔루션,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.44
+20110923900387,바이오빌,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120322901069,스타코링크,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=5.09
+20120319900631,엔스퍼트,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=5.25
+20120319900621,엔스퍼트,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=4.79
+20120307900749,쎄니트,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120209900299,아바코,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120201900424,라온시큐어,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.23
+20120201900262,삼표시멘트,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20120131800145,거북선5호선박투자회사,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120131800143,거북선6호선박투자회사,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120423900095,엑큐리스,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=9.34
+20120423900096,에이치엠넥스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120423900092,에이치엠넥스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20120423900091,엑큐리스,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=9.34
+20120912900348,무한투자,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=4.25
+20120809900022,오리엔탈정공,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.03
+20120731900236,금강제강,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20130315901436,프리젠,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20130314802024,알앤엘재생의학연구소,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20130117900277,아큐텍,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.07
+20130520900302,우림피티에스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20140519900313,씨그널엔터테인먼트그룹,resumption_related,no_link,original_likely_cross_category_not_allowed,html_inline,cross-category with weak score
+20141016900317,골프존홀딩스,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20150323600022,웹솔루스,suspension_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20150128900203,바른손이앤에이,suspension_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20150122900284,팬스타엔터프라이즈,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20150526800147,플랜텍,resumption_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20150514901020,코데즈컴바인,suspension_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20150421900128,해피드림,resumption_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20150925900143,네이트커뮤니케이션즈,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20150911800465,삼양제넥스,resumption_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20151231900042,제이스코홀딩스,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20151230900233,제이스코홀딩스,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20151127900167,모베이스,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20160224900085,제이앤유글로벌,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20160429600510,비엘사이언스,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20160429900427,제이앤유글로벌,resumption_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20160429900298,오상헬스케어,resumption_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20161125900030,네이트커뮤니케이션즈,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20161115900075,케이엔씨글로벌,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20161017900147,티엔엔터테인먼트,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20170330902219,퓨처코어,suspension_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20170327900337,신양오라컴디스플레이,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20170223600535,엄지하우스,suspension_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20170124900649,케이에스피,suspension_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20170124900643,케이에스피,suspension_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20170421900722,제이앤케이인더스트리,suspension_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20171110900736,알파칩스,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20230717800694,PKC,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20230214900950,압타머사이언스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20230206901186,광무,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.11
+20230131800615,에이리츠,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20230120800194,POSCO홀딩스,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20220620900716,엘아이에스,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.02
+20190322600250,영현무역,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20190304900009,일월지엠엘,suspension_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20190117900312,이엠앤아이,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20200514900567,비디아이,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20200416900247,피씨엘,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20200414800366,동북아13호선박투자회사,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20210520900119,와이엠,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20210413900608,앤에스,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.12
+20180402900901,엠에스씨,suspension_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20240913900202,드래곤플라이,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20220329900679,수젠텍,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20220104900567,나노캠텍,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=2.40
+20180321900419,수성웹툰,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20240610900602,대양제지공업,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.11
+20240402900836,디에이테크놀로지,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=1.56
+20181008900702,지디,resumption_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20181008900701,우성아이비,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20250407601118,엘리비젼,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20250123900765,캔버스엔,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.14
+20190424600679,로지스몬,suspension_related,low_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20190415900808,모다,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20190411900687,에스마크,suspension_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20221027800436,포스코스틸리온,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20230518900519,오스템임플란트,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.48
+20230407901054,노블엠앤비,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=5.18
+20251219900832,파두,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=8.87
+20251029900260,디앤디파마텍,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20180724800459,금호타이어,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20260323801944,핸즈코퍼레이션,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20260323801642,핸즈코퍼레이션,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20260323901219,롤링스톤,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=3.49
+20260223900512,에어레인,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20260123900670,케이에이치미래물산,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20260123900664,케이에이치건설,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20260506900571,딥커머스,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=1.01
+20260401901549,이화공영,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.27
+20210217900273,엔텔스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20210217900264,엔텔스,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20210104900051,디모아,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20231207900088,한화플러스제2호기업인수목적,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20231205900605,리메드,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20191230800862,씨아이테크,resumption_related,no_link,original_not_in_raw_pool,zip_unparseable,no candidate even at 730d after Pass-3 search
+20191004900529,글로앤웰,resumption_related,medium_needs_manual,body_blocked_zip_unparseable,zip_unparseable,body cannot be cross-checked
+20240328800097,한창,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=9.67
+20240214901016,NPX,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20200907900245,푸른소나무,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.00
+20200904900564,인콘,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20200814902049,세중,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20200728800110,다이나믹디자인,resumption_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20200713900454,베노티앤알,suspension_related,no_link,insufficient_evidence,html_inline,candidates exist but none passes Pass-3 confidence rules
+20210825800494,에이치디현대인프라코어,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20220906900547,일월지엠엘,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.87
+20220905900418,피에스케이,suspension_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20220816903047,비보존 제약,resumption_related,no_link,original_not_in_raw_pool,html_inline,no candidate even at 730d after Pass-3 search
+20220816902970,오성첨단소재,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.08
+20190828900580,모다,resumption_related,no_link,insufficient_evidence,zip_unparseable,candidates exist but none passes Pass-3 confidence rules
+20241029900334,주성엔지니어링,suspension_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=0.51
+20201223900861,제이시스메디칼,resumption_related,medium_needs_manual,needs_manual_adjudication,html_inline,body partial confirm; margin=6.87
