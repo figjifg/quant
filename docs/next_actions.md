@@ -8,31 +8,38 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-SOURCE-RECOVERY-CANDIDATE-MANIFEST-A0 — ACTIVE (2026-05-26, via relay; Referee REF-OPEN-006)
-
-Referee directive REF-OPEN-006 (2026-05-26, via relay): open the next local-only
-measurement-layer data-cleaning phase. Follows the now-closed
-KR-STATUS-PARSER-NONEXTRACTED-LOCAL-TAXONOMY-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close).
-- **Scope:** measurement-layer **source-recovery candidate manifest** (local artifact
-  consolidation) only; the **42 source_zip_unparseable rows** (39 correction + 3
-  non-correction) from the accepted blocker register. **Existing local artifacts
-  ONLY — NO downloads, NO API, NO credentials, NO body repair, NO file replacement,
-  NO parser feature expansion / code change, NO candidate/body rerun, NO downstream
-  wiring, NO C2/C3, NO event-log finalization, NO executable-status table, NO
-  strategy/performance/execution.** This is NOT recovery — a local manifest/packet.
-- **Goal:** 42-row manifest keyed by rcept_no with event metadata, correction
-  status + action class, blocker tags, and recovery-boundary flags
-  (recovery_performed=False, requires_separate_verdict=True,
-  requires_download_approval=True, safe_for_current_use=False); reconcile 42 = 39
-  correction + 3 non-correction; future-recovery-requirements + approval-boundary
-  memo (no recovery authorized).
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_SOURCE_RECOVERY_CANDIDATE_MANIFEST_A0/`.
-- **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
-- Awaiting Referee verdict after the Executor pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-SOURCE-RECOVERY-CANDIDATE-MANIFEST-A0 — CLOSED AS SOURCE-RECOVERY CANDIDATE MANIFEST COMPLETED / RECOVERY-GATED FAIL-CLOSED STATE PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-006 (2026-05-26): **CLOSED AS SOURCE-RECOVERY
+CANDIDATE MANIFEST COMPLETED / RECOVERY-GATED FAIL-CLOSED STATE PRESERVED / EXECUTION
+STILL CLOSED.** Option A (initial pass accepted; closed after housekeeping).
+
+- Status: **CLOSED**. Initial pass commit accepted: `1a9de6a`. Code:
+  `src/audit/measurement_a0/p_source_recovery_candidate_manifest.py`.
+- 11 required + 3 optional deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted key results:** local manifest of the **42** zip_unparseable source defects
+= **39 correction + 3 non-correction**. event_category 23 suspension + 19 resumption;
+source_period 25 pre_2018 + 17 post_2018; 39 corrections all
+zip_unparseable_requires_source_recovery (underlying 5-tier 20 no_link + 12 medium +
+7 low). All 42 recovery-gated + fail-closed: recovery_performed=False,
+requires_separate_verdict=True, requires_download_approval=True,
+safe_for_current_use=False; manual_review_required=True; executable_or_safe /
+downstream_authoritative / parsed_clean_and_usable / strategy_ready / production_ready
+= False.
+
+**Accepted limits:** all 42 corrupt cached ZIPs are locally irrecoverable; this is a
+local manifest only, NOT recovery; no row recovered/repaired/parsed/safe; no
+effective_date; no parser change. Future recovery needs a separate Referee verdict +
+explicit download/API approval.
+
+This phase did NOT perform recovery/downloads/API/body-repair, change parser code, or
+open strategy/backtest/execution/C2-C3/event-log/executable-status-table/production/
+paper/P08/live/shadow.
 
 ### KR-STATUS-PARSER-NONEXTRACTED-LOCAL-TAXONOMY-A0 — CLOSED AS PARSER NON-EXTRACTED LOCAL TAXONOMY COMPLETED / FAIL-CLOSED PARSE STATUS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
