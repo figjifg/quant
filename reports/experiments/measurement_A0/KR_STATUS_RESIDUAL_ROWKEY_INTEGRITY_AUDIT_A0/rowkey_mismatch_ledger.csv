@@ -1,0 +1,2 @@
+mismatch_id,check,detail,example_keys,n_keys
+NONE,all_rowkey_checks,"no duplicate key, no set-equality violation, no subset violation, no union/overlap mismatch, no parse_status disagreement, no safety-flag flip",,0

@@ -1,0 +1,7 @@
+ledger,key_col,rows,unique_keys,duplicates,result
+universe_body_status_reconciled,rcept_no,12187,12187,0,PASS
+correction_full_universe_links,correction_rcept_no,166,166,0,PASS
+correction_residual_action_ledger,correction_rcept_no,166,166,0,PASS
+residual_blocker_register,rcept_no,862,862,0,PASS
+parser_nonextracted_taxonomy_ledger,rcept_no,711,711,0,PASS
+source_recovery_candidate_manifest,rcept_no,42,42,0,PASS

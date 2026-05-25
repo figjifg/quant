@@ -1,0 +1,12 @@
+check,shared,disagreements,result
+parse_status agree universe vs register (shared keys),862,0,PASS
+parse_status agree universe vs taxonomy (shared keys),711,0,PASS
+register.manual_review_required all == True,862,0,PASS
+register.executable_or_safe all == False,862,0,PASS
+register.downstream_authoritative all == False,862,0,PASS
+taxonomy.manual_review_required all == True,711,0,PASS
+taxonomy.executable_or_safe all == False,711,0,PASS
+taxonomy.downstream_authoritative all == False,711,0,PASS
+manifest.manual_review_required all == True,42,0,PASS
+manifest.executable_or_safe all == False,42,0,PASS
+manifest.downstream_authoritative all == False,42,0,PASS

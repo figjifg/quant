@@ -1,0 +1,6 @@
+check,expected_size,sets_compared,sizes,set_equality
+zip_unparseable_set_42,42,universe == register == manifest,42/42/42,PASS
+correction_zip_set_39,39,adjudication == register == manifest,39/39/39,PASS
+non_correction_zip_set_3,3,register == manifest,3/3,PASS
+parser_nonextracted_set_711,711,universe == register == taxonomy,711/711/711,PASS
+correction_set_166,166,links == adjudication == register,166/166/166,PASS

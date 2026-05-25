@@ -1,0 +1,7 @@
+component,size
+U_753 (universe non-extracted: no_label+label_no_value+zip),753
+correction_166 (register correction subset),166
+overlap (corrections that are also universe non-extracted),57
+union = 753 + 166 - overlap,862
+register_all,862
+union == register_all,PASS

@@ -1,0 +1,7 @@
+child_set,parent_set,child_size,parent_size,child_subset_of_parent,n_outside_parent
+correction_zip_39,zip_42,39,42,PASS,0
+non_correction_zip_3,zip_42,3,42,PASS,0
+zip_42,body_unavailable_universe,42,42,PASS,0
+correction_166,register_all_862,166,862,PASS,0
+parser_nonextracted_711,register_all_862,711,862,PASS,0
+zip_42,register_all_862,42,862,PASS,0
