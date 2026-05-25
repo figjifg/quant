@@ -6,9 +6,64 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 비어 있는 것이 정상이다. 사용자가 명시적으로 결정한 active 작업만 여기 적는다.
 
-## Active
+## Active — S2-HTML-INLINE-PARSER-FULL-UNIVERSE-VALIDATION-A0 (Referee verdict 2026-05-25)
 
-비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
+**Scope**: Measurement-layer full-universe parser validation only. Validate the
+already-built HTML-inline parser across the broader 2010+ OPENDART/KRX status-event
+universe. **Validation only — no parser feature expansion.**
+
+**Scope inclusions**:
+- suspension_related + resumption_related only.
+- HTML-inline body only.
+- effective_date / suspension_start / suspension_end / resumption_date / resumption_time fields.
+- Correction handling using closed `KR-STATUS-CORRECTION-LINKAGE-A0` high_validated-only rules.
+
+**Scope exclusions (hard)**:
+- No delisting / liquidation / managed / alert parser.
+- No DART body alpha / overhang parser.
+- No C2/C3 wiring / all-event event log.
+- No strategy testing / performance diagnostics / execution simulation.
+- No production / paper / P08 / live / shadow.
+- No new parser feature work (defect logging only).
+- No `rcept_dt` fallback to `effective_date`.
+
+**Reason**: Parser sample validation (108 samples) + correction linkage Pass-3
+(72-row sample) are both sample-level. Next measurement-layer question: do parser
++ correction policy hold across the broader 17,924-row status-event universe.
+
+**Primary source-of-truth (read-only)**:
+- `src/parsers/krx_status_html_inline.py`
+- `tests/test_krx_status_html_inline.py`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_validation_results.csv`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/parser_defect_ledger.csv`
+- `S2_HTML_INLINE_PARSER_REOPEN_PHASE/downstream_blockers_after_parser_reopen.md`
+- `KR_STATUS_CORRECTION_LINKAGE_A0/pass3_candidate_links_recalibrated.csv`
+- `KR_STATUS_CORRECTION_LINKAGE_A0/pass3_gate_status.md`
+- `KR_STATUS_CORRECTION_LINKAGE_A0/CLOSE_NOTE.md`
+- `data/acquired/round5_dart_pre2018/`, `round4/s3_krx_status/`, `round5_manual_audit_samples/`
+
+**9 allowed task groups**: universe construction / document availability audit /
+apply existing parser / coverage metrics / negative controls / correction policy
+application / stratified holdout validation / defect ledger / gate status.
+
+**Gate enum (Referee-permitted)**: `DATA_SOURCE_FAIL` / `PARTIAL` /
+`FULL_UNIVERSE_PARSER_APPLIED_BUT_NOT_VALIDATED` /
+`FULL_UNIVERSE_VALIDATED_FOR_SUSPENSION_RESUMPTION_ONLY` /
+`FULL_UNIVERSE_VALIDATION_REQUIRES_MORE_WORK` / `READY_FOR_NEXT_A0_REVIEW`.
+Do NOT mark execution simulation open. Do NOT mark strategy testing open. Do NOT
+mark parser output strategy-ready.
+
+**Required outputs (12)**: see `full_universe_referee_lock.md`.
+
+**Output 경로**: `reports/experiments/measurement_A0/S2_HTML_INLINE_PARSER_FULL_UNIVERSE_VALIDATION_A0/`
+
+**Important boundary**:
+- Full-universe parser validation, NOT parser expansion.
+- Passing this phase does NOT reopen strategy testing.
+- Passing this phase does NOT open execution simulation automatically.
+- Passing this phase does NOT complete S2 globally.
+- Passing this phase only validates whether the narrow suspension / resumption
+  HTML-inline parser and high_validated correction policy hold beyond sample.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
 
