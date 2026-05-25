@@ -8,35 +8,43 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-FAIL-CLOSED-INVARIANT-AUDIT-A0 — ACTIVE (2026-05-26, via relay; Referee REF-OPEN-009)
-
-Referee directive REF-OPEN-009 (2026-05-26, via relay): open the next local-only
-measurement-layer data-cleaning phase. Follows the now-closed
-KR-STATUS-RESIDUAL-ROWKEY-INTEGRITY-AUDIT-A0.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close;
-  directive: no CLOSE_NOTE this phase).
-- **Scope:** local **fail-closed invariant audit** only — verify all residual /
-  correction / source-defect row sets remain fail-closed by FIELD-LEVEL status flags
-  (not just count or row-key membership). Third verification dimension after count
-  locks (REF-007) and row-key set locks (REF-008). **Existing local CSV/MD from
-  closed measurement_A0 phases ONLY — NO new data, NO edits to closed artifacts, NO
-  downloads/API/credentials/body-repair/parser-change/rerun/candidate-rerun/
-  body-confirmation-rerun/source-recovery/parser-design/downstream-wiring/C2-C3/
-  event-log/executable-status-table/strategy/execution.**
-- **Goal:** flag schema inventory per ledger; confirm 862 register + 711 taxonomy +
-  166 correction rows fail-closed (manual_review_required=True; executable_or_safe /
-  downstream_authoritative / parsed_clean_and_usable / strategy_ready /
-  production_ready not True); 42 manifest recovery-gated (recovery_performed=False,
-  requires_separate_verdict=True, requires_download_approval=True,
-  safe_for_current_use=False); correction confidence gate preserved (high_validated
-  design-only/not wired; rejected_wrong_candidate quarantined not dropped); forbidden
-  -truthy flag scan = 0 True anywhere. Violations RECORDED row-level, not patched.
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_FAIL_CLOSED_INVARIANT_AUDIT_A0/`.
-- **Autonomy:** user-authorized local measurement-layer data-cleaning (local-only).
-- Awaiting Referee verdict after the Executor pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-FAIL-CLOSED-INVARIANT-AUDIT-A0 — CLOSED AS FAIL-CLOSED INVARIANT AUDIT COMPLETED / FIELD-LEVEL FAIL-CLOSED FLAGS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict REF-CLOSE-009 (2026-05-26): **CLOSED AS FAIL-CLOSED INVARIANT
+AUDIT COMPLETED / FIELD-LEVEL FAIL-CLOSED FLAGS PRESERVED / EXECUTION STILL CLOSED.**
+Option A accepted + Option D preserved (close after housekeeping; next phase NOT
+opened in the close pass).
+
+- Status: **CLOSED**. Initial pass commit accepted: `bbfbbaa`. Code:
+  `src/audit/measurement_a0/p_fail_closed_invariant_audit.py`.
+- 9 required deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted result — CLEAN PASS (field level):** the THIRD verification dimension
+(after count locks REF-007 + row-key set locks REF-008). 30/30 invariant-matrix
+checks PASS; 8/8 correction-confidence-gate PASS; 9/9 source-recovery-gate PASS;
+22/22 forbidden-truthy scans PASS (0 forbidden flag True anywhere); 0 violations.
+
+**Accepted field-level locks:** 862 register + 711 taxonomy + 166 correction
+fail-closed (manual_review_required=True; no executable/safe/authoritative/ready
+truthy flags); 42 manifest recovery-gated; high_validated (17) design-only NOT wired;
+rejected_wrong_candidate (17) quarantined NOT dropped. Universe scoping accepted:
+manual_review_required=True on the 753 residuals only (11,434 extracted legitimately
+False); executable_or_safe=False universe-wide (12,187).
+
+**Close-note nuance preserved:** positive design-evidence fields (link_validated,
+supersession_ready) remain DESIGN-ONLY evidence — NOT downstream authority / execution
+safety / strategy readiness / wired supersession — accepted only because
+downstream_authoritative=False and supersession_wired=False stay locked.
+
+This phase made no new data; no downloads/API/credentials/body-repair/parser-change/
+rerun/candidate-rerun/body-confirmation-rerun/source-recovery/parser-design/
+downstream-wiring/C2-C3/event-log/executable-status-table/strategy/execution; no
+edits to closed artifacts. Per the verdict, the next phase was NOT opened in the
+close pass.
 
 ### KR-STATUS-RESIDUAL-ROWKEY-INTEGRITY-AUDIT-A0 — CLOSED AS RESIDUAL ROWKEY INTEGRITY AUDIT COMPLETED / ROWKEY SET LOCKS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
