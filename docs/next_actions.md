@@ -8,37 +8,40 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### KR-STATUS-ZIP-UNPARSEABLE-SOURCE-RECOVERY-A0 — ACTIVE (2026-05-26, via relay; Referee verdict opening source recovery)
-
-Referee directive (2026-05-26, via relay): open the source-recovery phase, authorized
-by the **user's explicit decision + explicit download/OPENDART-API approval** (key in
-`research_input_data/.env`, used for this phase only; never printed/committed/logged).
-First phase this session that performs EXTERNAL DOWNLOADS.
-
-- **Status: ACTIVE** (Executor pass in progress; Executor does NOT self-close;
-  directive: no CLOSE_NOTE this phase; do NOT move to Closed/Frozen).
-- **Scope:** re-acquire + re-validate the **42 accepted zip_unparseable rows ONLY**
-  (39 correction-related + 3 non-correction), target set derived from the accepted
-  closed artifacts (source-recovery candidate manifest / blocker register / handoff
-  manifest). NO downloads/API for any other rcept_no. **Preserve the existing corrupt
-  cached ZIPs UNCHANGED** — store recovered files as NEW recovery artifacts with
-  manifest rows + sha256 (do not overwrite prior evidence).
-- **Revalidation:** parser `1.1.0` read-only on recovered bodies only; no parser
-  code/rule/version change. Failed/unreadable recovery stays `zip_unparseable` /
-  fail-closed. Successful read-only extraction does NOT promote a row to executable/
-  safe/authoritative/validated/approved/strategy-ready/execution-ready/production-ready.
-- **Allowed exception:** record phase-local `source_recovery_status` (evidence about
-  reacquired source availability only — NOT downstream authority).
-- **Still forbidden:** parser design/change, manual adjudication/validation, downstream
-  supersession wiring, C2/C3, event-log finalization, executable-status table,
-  strategy/backtest/execution/performance, production/paper/P08/live/shadow, rcept_dt
-  as effective date.
-- **Outputs under** `reports/experiments/measurement_A0/KR_STATUS_ZIP_UNPARSEABLE_SOURCE_RECOVERY_A0/`;
-  new source artifacts under `data/acquired/zip_unparseable_source_recovery_a0/` + a
-  data-catalog note.
-- Awaiting Referee review after the initial pass.
+비어 있음. 다음 phase 진입 = 사용자 + Referee 명시 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### KR-STATUS-ZIP-UNPARSEABLE-SOURCE-RECOVERY-A0 — CLOSED AS OPENDART-CHANNEL SOURCE RECOVERY ATTEMPT COMPLETED FOR 42 ZIP-UNPARSEABLE ROWS / STATUS-014 SOURCE ABSENCE REPRODUCED / ZIP-UNPARSEABLE FAIL-CLOSED RESIDUALS PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
+
+Referee final verdict (2026-05-26): **Select A (accept) + preserve D.** Authorized by
+the user's explicit decision + explicit OPENDART download approval. First (and only)
+external-download phase this session.
+
+- Status: **CLOSED**. Initial pass commit accepted: `cf4ad41`. Code:
+  `src/audit/measurement_a0/p_zip_unparseable_source_recovery.py`.
+- 8 required deliverables ACCEPTED + CLOSE_NOTE.md.
+
+**Accepted key results:** re-acquired all 42 zip_unparseable rows (39 correction + 3
+non-correction) from OPENDART document.xml. **42/42 returned OPENDART status 014
+(파일이 존재하지 않습니다 / file does not exist)** — NOT auth/quota. **42/42 re-acquired
+payloads byte-identical to the prior cache (1 sha256, 147 bytes)** → the prior "corrupt
+cache" was itself the persisted 014 error payload, never a real document. 0 recovered
+readable ZIP; 42/42 remain zip_unparseable / fail-closed. read-only parser N/A (0
+readable). Defect ledger NONE sentinel (unrecovered = expected residuals).
+
+**Accepted caveats:** proves source absence ONLY for the authorized OPENDART
+document.xml channel (NOT every external source); KRX/KIND or other-source recovery
+needs a separate user + Referee verdict; source_recovery_status is availability
+evidence only. **Local-artifact nuance:** the raw 42 artifacts + DATA_CATALOG_NOTE.md
+under `data/acquired/zip_unparseable_source_recovery_a0/` are gitignored local evidence
+(NOT committed); the committed manifest of record is
+`source_recovery_artifact_inventory.csv` (paths + sha256 + readability). No row became
+parsed/recovered/executable/safe/authoritative/validated/approved/strategy-ready/
+execution-ready/production-ready.
+
+Existing corrupt cache preserved unchanged; OPENDART key never printed/committed/logged.
+No next phase opened.
 
 ### KR-STATUS-MEASUREMENT-A0-HANDOFF-STATE-MANIFEST-A0 — CLOSED AS MEASUREMENT-A0 HANDOFF STATE MANIFEST COMPLETED / VERIFIED FAIL-CLOSED HANDOFF INDEX PRESERVED / EXECUTION STILL CLOSED (2026-05-26, via relay)
 
