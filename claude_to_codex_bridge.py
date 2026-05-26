@@ -11,9 +11,18 @@ Codex keeps terminal scrollback, so capture-pane can read its reply reliably
 (unlike Claude Code's alt-screen). "Done" = pane output unchanged for --idle-secs
 and the idle footer is visible.
 
+Send direction (Claude -> Codex) is FILE-BASED by default: the (possibly long)
+message is written to a payload file and only a SHORT one-line "read FILE"
+instruction is pasted into the Codex pane. A long bracketed paste does NOT submit
+cleanly (it stays pending in the composer and needs extra Enters, which is fragile);
+a short single line submits with one Enter. Use --inline-send for the old behavior.
+Reply direction is already file-based (Codex writes the reply file; pane capture is
+the fallback).
+
 Usage:
   claude_to_codex_bridge.py --message-file MSG.txt [--codex codex-session]
       [--submit-delay 0.5] [--idle-secs 8] [--timeout 300] [--history-lines 3000]
+      [--inline-send]
 
 Prints Codex's reply (the new content after the sent message) to stdout.
 """
@@ -123,6 +132,8 @@ def main() -> int:
     ap.add_argument("--history-lines", type=int, default=3000)
     ap.add_argument("--reply-file", default=None, help="file Codex should write its reply to (preferred over capture); default <repo>/.codex-claude-relay/codex_reply.md")
     ap.add_argument("--no-file-reply", action="store_true", help="do not ask Codex to write a file; capture-only")
+    ap.add_argument("--inline-send", action="store_true", help="paste the FULL message into the pane (old behavior). Default writes the message to a payload file and pastes only a short 'read FILE' instruction, because long bracketed pastes do not submit cleanly.")
+    ap.add_argument("--payload-file", default=None, help="file the (long) message is written to for file-based send; default <repo>/.codex-claude-relay/claude_to_codex_payload.md")
     args = ap.parse_args()
 
     target = require_tmux_target(args.codex)
@@ -135,8 +146,8 @@ def main() -> int:
     reply_file = Path(args.reply_file) if args.reply_file else repo / ".codex-claude-relay" / "codex_reply.md"
     reply_file.parent.mkdir(parents=True, exist_ok=True)
 
-    # Append a unique end sentinel (anchors capture-fallback extraction) and, unless
-    # disabled, a file-reply instruction (preferred: clean + unlimited length).
+    # Build the message body (the full, possibly long content) and, unless disabled,
+    # a file-reply instruction. The end sentinel anchors capture-fallback extraction.
     end_token = f"[[bridge-end {secrets.token_hex(3)}]]"
     parts = [msg.rstrip()]
     if not args.no_file_reply:
@@ -144,8 +155,7 @@ def main() -> int:
             f"(relay protocol: write your FULL reply, plain text, overwrite, to {reply_file} "
             f"— the bridge reads that file; you may also answer in-pane as usual.)"
         )
-    parts.append(end_token)
-    sent = " ".join(parts)
+    body = "\n\n".join(parts)
 
     # Remove stale reply file so the freshness check is unambiguous.
     if not args.no_file_reply:
@@ -153,6 +163,21 @@ def main() -> int:
             reply_file.unlink()
         except FileNotFoundError:
             pass
+
+    # SEND DIRECTION. Default = file-based: write the (possibly long) body to a payload
+    # file and paste only a SHORT one-line "read FILE" instruction into the pane (a long
+    # bracketed paste does not submit cleanly). --inline-send keeps the old behavior of
+    # pasting the whole message. The end sentinel is in the pasted line either way so the
+    # capture-fallback can still anchor on it.
+    payload_file = (Path(args.payload_file) if args.payload_file
+                    else repo / ".codex-claude-relay" / "claude_to_codex_payload.md")
+    if args.inline_send:
+        sent = f"{body} {end_token}"
+    else:
+        payload_file.parent.mkdir(parents=True, exist_ok=True)
+        payload_file.write_text(body + "\n", encoding="utf-8")
+        sent = (f"Bridge message from Claude Code — read {payload_file} and follow the "
+                f"instructions in it (it specifies where to write your reply). {end_token}")
 
     buffer_name = "claude_to_codex_bridge"
     since_ts = time.time()
