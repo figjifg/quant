@@ -50,3 +50,33 @@ source feasibility, audit-first, BEFORE acquiring.
 
 Each completed item: dataset under `data/acquired/w000_<item>/` (gitignored) + a committed
 lineage/inventory CSV + a short coverage note appended here. No strategy use.
+
+## VERIFIED on-disk status (2026-05-26 audit-first, FULL-file, corrects the table above)
+
+Audit-first re-check against the actual full files (not row-samples, not the 2026-05-20
+backlog doc) materially corrected the gaps:
+
+- **Item 1 PIT sector — ALREADY DONE (NOT a gap).** `stock_with_sector_daily_pit.csv`
+  and `stock_sector_mapping_pit_daily.csv` ALREADY cover **2010-01 .. 2026-05** (402,198 /
+  393,436 rows; 4,022 / 3,962 distinct dates; ~97.8% mapped; PIT-correct backward
+  merge_asof; OHLCV-quarantine-aware). The earlier "gap 2018-2026" was a FALSE ALARM from
+  reading only the first 200k date-sorted rows (which stopped at 2018). An in-memory
+  rebuild matches the on-disk file (tail differs by ~2 days only). **No action needed**;
+  the W000 doc overstated this item as "open".
+- **Item 2 Korean total return — REAL P0 GAP (the main one).** The on-disk adjusted OHLC
+  (`adjusted_ohlc_all_tickers_2018_2026.csv`, 1.58M rows, 841 tickers, 2018-2026) is from
+  pykrx `get_market_ohlcv(adjusted=True)` = **split/rights-adjusted ONLY, NOT
+  dividend-inclusive**. No dividend data exists anywhere on disk. So true total return
+  (dividend-reinvested) is genuinely missing. Real gap = acquire dividend/DPS + ex-date
+  data and construct total return; also pre-2018 not covered.
+- **Item 3 Execution data — genuinely ABSENT; likely INFEASIBLE** without broker fills /
+  historical quotes. Surface for decision (probably cannot be acquired meaningfully).
+- **Item 4 Survivorship-safe US universe — genuinely ABSENT.** Needs a chosen
+  PIT S&P-membership dataset. Surface for source decision.
+- **Item 5 DART body parser — STANDBY** (the KR-status measurement program; do not reopen).
+- **Item 6 KRX borrow / short-sale — ABSENT but SOURCE IDENTIFIED** (금융위원회 /
+  DATA.GO.KR 주식대차정보 API; `DATA_GO_KR_API_KEY` available). Lowest ROI; feasible.
+
+**Revised execution order:** Item 2 (Korean total-return: acquire dividends + construct)
+is now the primary real P0 task. Item 6 is a feasible low-ROI add. Items 3/4 need
+source/feasibility decisions. Items 1 and 5 need no acquisition (done / standby).
