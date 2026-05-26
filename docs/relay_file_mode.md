@@ -1,7 +1,14 @@
 # Relay file ask-mode — robust Codex→Claude directive transport
 
-Prepared 2026-05-26 (code committed; **NOT yet deployed** — switch at a clean moment per
-the steps below). Fixes the root cause of duplicate / replayed relay directives.
+Prepared + **DEPLOYED & VERIFIED 2026-05-26**. Fixes the root cause of duplicate /
+replayed relay directives.
+
+> **Status: LIVE.** The relay was restarted with `--ask-mode file` (PID at deploy: 617383)
+> and the Referee acked the new protocol (`FILE_MODE_PROTOCOL_OK`). End-to-end test passed:
+> the Referee wrote `codex_outbox/ask_0001.md` → the file-mode relay forwarded it as relay
+> request 1 → Claude replied via `claude_reply_01.md` → relay returned it. Pane scraping is
+> DISABLED, so the stale-replay class of bug is structurally gone. The Referee now writes
+> directives to `codex_outbox/ask_<NNNN>.md` (next = `ask_0002.md`).
 
 ## The problem it fixes
 
