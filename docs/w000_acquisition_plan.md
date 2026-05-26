@@ -93,3 +93,14 @@ source/feasibility decisions. Items 1 and 5 need no acquisition (done / standby)
   strategy use). **Remaining for item 2 (optional): pre-2018 + the 22 delisted gaps.**
 - Item 1 PIT sector: already DONE (no action). Items 3/4: pending source decision. Item 6:
   feasible (DATA.GO.KR), not yet started. Item 5 DART parser: STANDBY.
+- **2026-05-26 — Item 6 KRX borrow data: ACQUIRED + validated.** Source = DATA.GO.KR
+  금융위 주식대차정보 `getStItemLendAndBorrStatu_V2` (pykrx shorting broken). 2,052 dates
+  all ok; **4,757,456 rows**, 3,154 tickers, 2018-2026; borrow_balance 100% non-null
+  (99.93% >0); 831/833 research tickers covered. Checkpointed/resumable script
+  `src/data/w000_kr_borrow_acquire.py` (~100 min, API ~3s/call). Lineage:
+  `docs/w000_kr_borrow_lineage.md`. Raw under `data/acquired/w000_kr_borrow/` (gitignored).
+  **Partial coverage:** BALANCE side only — no borrow fee / short-rebate / restriction list
+  / buy-in (residual gap, different source needed). DATA INFRA only (W000 Hard Rule).
+- **W000 autonomous-acquisition status: items 1 (done), 2 (acquired), 6 (acquired) complete.
+  Items 3 (execution, likely infeasible) + 4 (US PIT universe, needs dataset choice) remain
+  PENDING USER DECISION; item 5 (DART parser) STANDBY.**
