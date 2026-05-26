@@ -22,10 +22,21 @@ N006 / Z000 / W001 v1 모두 COMPLETE, blocker 없음). 남은 데이터 작업 
   Q-family/sector/event/long-short research 재개를 의미하지 않음 (각각 별도 ticket+verdict).
 - **체크인 지점 (자율 아님):** 유료 vendor 필요 / P08 영향 발견 / standby된 KR-status
   측정(DART body parser, 항목 5) 재개.
-- **실행 순서:** ① PIT 섹터 일별 매핑 2018→2026 (P0, 로컬 가능성 높음) → ② 한국 total
-  return 검증+배당 backfill (P0) → ③ KRX 공매도/대차 (P3, 기회시) → ④ execution data /
-  US PIT 유니버스 = 소스 결정 필요시 surface → ⑤ DART body parser = STANDBY 유지.
-- 각 항목 완료 시 lineage/coverage 기록, 전략 사용 X.
+- **현재 accepted 상태 (2026-05-26, Referee interim acknowledgement 반영 — 이전 "실행 순서"는
+  stale 폐기):**
+  - **Item 1 PIT 섹터 일별 매핑:** 이미 DONE (디스크에 2010–2026 존재; "2018 갭"은 200k행
+    샘플 착시였음). 조치 없음.
+  - **Item 2 한국 total return:** 취득 + 검증 완료 (yfinance, commit `ee5a189`); Referee
+    interim acknowledgement 수락됨 (caveat: Yahoo proxy / 22 delisted no_data / pre-2018 미포함).
+  - **Item 6 KRX 대차(borrow):** 취득 + 검증 완료 (DATA.GO.KR, commit `2778926`); Referee
+    interim acknowledgement 수락됨 (caveat: 대차잔고만 — fee/short-rebate/제한종목/buy-in 없음).
+  - **Item 3 execution data:** PENDING 사용자/소스 결정. **자율 취득 금지** (사실상 취득 불가 추정).
+  - **Item 4 survivorship-safe US PIT universe:** PENDING 사용자/소스 결정. **자율 취득 금지**
+    (데이터셋 선택 필요).
+  - **Item 5 DART body parser / KR-status 측정:** STANDBY. 여기서 재개 금지.
+  - **W000 트랙 = ACTIVE (NOT closed). self-close 금지.** item 3/4 결정 또는 1/2/6에서 닫고
+    3/4/5 보류하는 close 는 사용자 결정 사항.
+- 각 항목 lineage/coverage 기록됨 (`docs/w000_*_lineage.md`); 전략/실행 사용 X.
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee
