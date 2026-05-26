@@ -301,6 +301,38 @@ def wait_for_reply_file(
     raise TimeoutError(f"Timed out waiting for Claude to write reply file {path}")
 
 
+_OUTBOX_RE = re.compile(r"ask_(\d+)\.md$")
+
+
+def list_outbox_asks(outbox: Path) -> List[Tuple[int, Path]]:
+    """File ask-mode: return [(seq, path), ...] sorted by seq for ask_<seq>.md files."""
+    found: List[Tuple[int, Path]] = []
+    if not outbox.exists():
+        return found
+    for p in outbox.glob("ask_*.md"):
+        m = _OUTBOX_RE.search(p.name)
+        if m:
+            found.append((int(m.group(1)), p))
+    return sorted(found, key=lambda t: t[0])
+
+
+def read_stable_file(path: Path, poll_s: float) -> str | None:
+    """Read path only if size-stable across two checks (guards against reading a
+    directive mid-write). Returns None if missing, empty, or still changing."""
+    try:
+        s1 = path.stat().st_size
+    except FileNotFoundError:
+        return None
+    time.sleep(min(poll_s, 0.5))
+    try:
+        s2 = path.stat().st_size
+    except FileNotFoundError:
+        return None
+    if s2 == 0 or s1 != s2:
+        return None
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="tmux relay: Codex is referee; Claude is called only by explicit Codex ASK_CLAUDE blocks."
@@ -312,7 +344,16 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=10800, help="seconds to wait for Claude per call (default 3h)")
     parser.add_argument("--poll", type=float, default=1.0, help="poll interval in seconds")
     parser.add_argument("--submit-delay", type=float, default=0.4, help="seconds between paste and Enter (raise if a TUI does not auto-submit)")
-    parser.add_argument("--history-lines", type=int, default=4000, help="tmux scrollback lines to scan")
+    parser.add_argument("--history-lines", type=int, default=4000, help="tmux scrollback lines to scan (pane ask-mode only)")
+    parser.add_argument("--ask-mode", choices=["pane", "file"], default="pane",
+                        help="how Codex directives are detected: 'pane' (legacy) scrapes the Codex tmux pane for "
+                             "ASK_CLAUDE blocks — fragile: a pane re-render (resize / codex resume) reflows the "
+                             "text so the same directive hashes differently and is re-forwarded. 'file' watches an "
+                             "outbox dir for monotonically-numbered ask_<seq>.md directive files — robust dedup by "
+                             "sequence, immune to pane re-render. Recommended.")
+    parser.add_argument("--outbox", default=None,
+                        help="file ask-mode: dir the Referee writes ask_<seq>.md directives to; "
+                             "default <relay_dir>/codex_outbox")
     parser.add_argument("--prime", action="store_true", help="opt-in: send protocol setup messages to Codex/Claude (default off — protocol files ignored)")
     parser.add_argument("--run-id", default=None, help="optional fixed run id; default random")
     args = parser.parse_args()
@@ -384,23 +425,51 @@ def main() -> int:
     time.sleep(1.0)
     seen_asks: Set[str] = {block_hash(b) for b in extract_blocks(capture_pane(codex_target, args.history_lines), ask_start, ask_end)}
 
+    # File ask-mode: watch an outbox dir for monotonically-numbered directive files.
+    # Baseline = highest existing seq, so pre-existing directives are not reprocessed.
+    outbox = (Path(args.outbox).expanduser().resolve() if args.outbox else relay_dir / "codex_outbox")
+    last_outbox_seq = 0
+    if args.ask_mode == "file":
+        outbox.mkdir(parents=True, exist_ok=True)
+        existing = list_outbox_asks(outbox)
+        last_outbox_seq = existing[-1][0] if existing else 0
+        print(f"ASK detect: FILE mode — watching {outbox} (baseline seq={last_outbox_seq}); pane scraping DISABLED")
+
     calls = 0
     try:
         while calls < args.max_calls:
             try:
-                codex_text = capture_pane(codex_target, args.history_lines)
-                ask_blocks = extract_blocks(codex_text, ask_start, ask_end)
-                new_ask = None
-                for body in ask_blocks:
-                    h = block_hash(body)
-                    if h not in seen_asks:
-                        seen_asks.add(h)
-                        new_ask = body
+                if args.ask_mode == "file":
+                    # Robust: process the next directive file with seq > last seen.
+                    # A pane re-render cannot create a new outbox file, so there is no
+                    # re-forward of already-handled directives.
+                    new_ask = None
+                    for seq, p in list_outbox_asks(outbox):
+                        if seq <= last_outbox_seq:
+                            continue
+                        body = read_stable_file(p, args.poll)
+                        if body is None:
+                            break  # still being written; retry next tick (do NOT advance seq)
+                        last_outbox_seq = seq
+                        new_ask = body.strip()
                         break
+                    if new_ask is None:
+                        time.sleep(args.poll)
+                        continue
+                else:
+                    codex_text = capture_pane(codex_target, args.history_lines)
+                    ask_blocks = extract_blocks(codex_text, ask_start, ask_end)
+                    new_ask = None
+                    for body in ask_blocks:
+                        h = block_hash(body)
+                        if h not in seen_asks:
+                            seen_asks.add(h)
+                            new_ask = body
+                            break
 
-                if new_ask is None:
-                    time.sleep(args.poll)
-                    continue
+                    if new_ask is None:
+                        time.sleep(args.poll)
+                        continue
 
                 calls += 1
                 ask_path = relay_dir / f"ask_claude_{calls:02d}.md"
