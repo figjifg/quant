@@ -80,3 +80,16 @@ backlog doc) materially corrected the gaps:
 **Revised execution order:** Item 2 (Korean total-return: acquire dividends + construct)
 is now the primary real P0 task. Item 6 is a feasible low-ROI add. Items 3/4 need
 source/feasibility decisions. Items 1 and 5 need no acquisition (done / standby).
+
+## Progress log
+
+- **2026-05-26 — Item 2 Korean total return: ACQUIRED + validated.** Source = yfinance
+  (pykrx fundamental broken). 811/833 tickers ok (22 delisted no_data); 1,554,803 price
+  rows 2018-2026 (`adj_close` = total-return); 4,898 dividends / 655 tickers; 499 splits.
+  Cross-check vs pykrx adjusted: median rel diff 0.0000, 88% <2%. Dividend uplift sane
+  (000020 +8.13% TR vs PR). Lineage: `docs/w000_korean_total_return_lineage.md`. Raw under
+  `data/acquired/w000_korean_total_return/` (gitignored). Script:
+  `src/data/w000_korean_total_return_acquire.py`. DATA INFRA only (W000 Hard Rule; no
+  strategy use). **Remaining for item 2 (optional): pre-2018 + the 22 delisted gaps.**
+- Item 1 PIT sector: already DONE (no action). Items 3/4: pending source decision. Item 6:
+  feasible (DATA.GO.KR), not yet started. Item 5 DART parser: STANDBY.
