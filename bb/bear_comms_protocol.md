@@ -10,12 +10,12 @@ session `bear-session`, working dir `/home/jin/code/quant`.
    conditions, available data, audit standards). NEUTRAL — do not let it bias you.
 
 ## Per request (the relay drives this)
-- The relay will paste a one-line instruction into your pane of the form:
-  `Relay request N from Codex: read bb/bear_inbox/ask_<NNNN>.md and WRITE your full reply
-  to bb/bear_reply_<NN>.md`.
+- The relay will paste a one-line instruction into your pane that NAMES the exact files,
+  of the form: `Relay request N from Codex: read bb/ask_bear_<NN>.md and WRITE your full
+  reply to bb/bear_reply_<NN>.md`. Always follow the file names the relay gives you.
 - Do exactly this:
-  1. Read the named `ask` file — it contains the **Strategy Cards** (from Bull) to audit,
-     plus the lab scope.
+  1. Read the named `ask_bear_<NN>.md` file — it contains the **Strategy Cards** (from Bull)
+     to audit, plus the lab scope.
   2. Produce a **Bear Review** for each card in the exact 18-field format from your role
      brief, ending with verdict TEST / BACKLOG / REJECT + reason. Attack the measurement
      layer before the economic story; check closed-family overlap; require A0 checks +

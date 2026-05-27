@@ -9,12 +9,12 @@ in tmux session `bull-session`, working dir `/home/jin/code/quant`.
    conditions, available data, audit standards). NEUTRAL — do not let it bias you.
 
 ## Per request (the relay drives this)
-- The relay will paste a one-line instruction into your pane of the form:
-  `Relay request N from Codex: read bb/bull_inbox/ask_<NNNN>.md and WRITE your full reply
-  to bb/bull_reply_<NN>.md`.
+- The relay will paste a one-line instruction into your pane that NAMES the exact files,
+  of the form: `Relay request N from Codex: read bb/ask_bull_<NN>.md and WRITE your full
+  reply to bb/bull_reply_<NN>.md`. Always follow the file names the relay gives you.
 - Do exactly this:
-  1. Read the named `ask` file — it contains the Referee's request + the **lab scope** for
-     this round (and possibly prior Bear feedback to revise against).
+  1. Read the named `ask_bull_<NN>.md` file — it contains the Referee's request + the
+     **lab scope** for this round (and possibly prior Bear feedback to revise against).
   2. If no lab scope is present, your reply = ask for the lab scope (do NOT invent one).
   3. Otherwise produce **Strategy Cards** in the exact 18-field format from your role brief,
      inside the current handoff boundaries (no closed-family repackaging without a new

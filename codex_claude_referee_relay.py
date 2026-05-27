@@ -354,6 +354,13 @@ def main() -> int:
     parser.add_argument("--outbox", default=None,
                         help="file ask-mode: dir the Referee writes ask_<seq>.md directives to; "
                              "default <relay_dir>/codex_outbox")
+    parser.add_argument("--responder-name", default="claude",
+                        help="name of the responder agent; sets the responder-facing file prefixes "
+                             "ask_<name>_NN.md / <name>_reply_NN.md (default 'claude'). Use 'bull'/'bear' "
+                             "for the Bull/Bear channels so multiple relays do not collide.")
+    parser.add_argument("--io-dir", default=None,
+                        help="dir for the responder-facing ask_<name>_NN.md / <name>_reply_NN.md files; "
+                             "default <relay_dir> (.codex-claude-relay). Use e.g. 'bb' for Bull/Bear.")
     parser.add_argument("--prime", action="store_true", help="opt-in: send protocol setup messages to Codex/Claude (default off — protocol files ignored)")
     parser.add_argument("--run-id", default=None, help="optional fixed run id; default random")
     args = parser.parse_args()
@@ -427,6 +434,9 @@ def main() -> int:
 
     # File ask-mode: watch an outbox dir for monotonically-numbered directive files.
     # Baseline = highest existing seq, so pre-existing directives are not reprocessed.
+    io_dir = (Path(args.io_dir).expanduser().resolve() if args.io_dir else relay_dir)
+    io_dir.mkdir(parents=True, exist_ok=True)
+    rname = args.responder_name
     outbox = (Path(args.outbox).expanduser().resolve() if args.outbox else relay_dir / "codex_outbox")
     last_outbox_seq = 0
     if args.ask_mode == "file":
@@ -472,8 +482,8 @@ def main() -> int:
                         continue
 
                 calls += 1
-                ask_path = relay_dir / f"ask_claude_{calls:02d}.md"
-                reply_path = relay_dir / f"claude_reply_{calls:02d}.md"
+                ask_path = io_dir / f"ask_{rname}_{calls:02d}.md"
+                reply_path = io_dir / f"{rname}_reply_{calls:02d}.md"
                 write_text(ask_path, new_ask + "\n")
                 append_log(log_path, f"Codex request {calls}", new_ask)
                 print(f"[{calls}/{args.max_calls}] Codex requested Claude: {ask_path}")
