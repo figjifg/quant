@@ -71,3 +71,10 @@ reports/experiments/**/stock_with_sector_daily_*.csv
 # Codex<->Claude tmux relay scratch (transport files; reproducible, not source)
 .codex-claude-relay/
 relay.out
+
+# Bull/Bear (bb/) workflow: keep the .md role briefs/handoff/protocols versioned, but
+# the runtime channels (Referee directive queues + agent reply files) are scratch.
+bb/bull_inbox/
+bb/bear_inbox/
+bb/ask_*.md
+bb/*_reply_*.md
