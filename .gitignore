@@ -43,8 +43,14 @@ Thumbs.db
 .claude/settings.local.json
 
 # Round 4 acquired data — large vendor data, regenerable from API keys
-data/acquired/
+data/acquired/*
 data/processed/
+
+# BX01 exception: commit small derived artifacts + manifest (raw artifacts stay ignored,
+# their sha256 lives in manifest.csv). Per ask_0006: "Raw downloaded artifacts may
+# remain gitignored if large/noisy; if so, commit checksummed manifests."
+!data/acquired/bx01_kospi200_index_event_source_a0/
+data/acquired/bx01_kospi200_index_event_source_a0/raw/
 
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
