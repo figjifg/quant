@@ -41,6 +41,7 @@ Thumbs.db
 .codex/
 *.codex-session
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Round 4 acquired data — large vendor data, regenerable from API keys
 data/acquired/*

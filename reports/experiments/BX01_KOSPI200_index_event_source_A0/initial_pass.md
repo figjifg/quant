@@ -311,11 +311,42 @@ self-authorized):
 
 ## 8. Repo state
 
-(Filled in at commit time by the next task.)
+### 8.1 Initial-pass commit
 
-- `git status` — clean working tree expected after the BX01-A0 commit.
-- `git show --check HEAD` — passes expected.
-- Commit hash + summary — to be filled.
+- **Commit hash:** `05a0b8c` ("BX01: source-A0 initial pass — KRX KOSPI200 notice
+  metadata acquired; attachment download blocked").
+- **`git show --check HEAD`** on `05a0b8c`: passes (no whitespace errors; commit-msg
+  body intact).
+- **Files changed (10):**
+  - `.gitignore` (+exception lines for BX01 acquired-data subtree)
+  - `docs/next_actions.md` (BX01 added to Active)
+  - `research/experiments/BX01_KOSPI200_index_event_source_A0.md` (pre-reg)
+  - `reports/experiments/BX01_KOSPI200_index_event_source_A0/initial_pass.md`
+    (this report)
+  - `src/audit/bx01/download_krx_notice_attachments.py`,
+    `src/audit/bx01/build_event_table.py`,
+    `src/audit/bx01/build_reconciliation.py`
+  - `data/acquired/bx01_kospi200_index_event_source_a0/manifest.csv`,
+    `events.csv`, `reconciliation.csv`
+- **Tracking policy:** raw artifacts under `data/acquired/bx01_kospi200_index_event_source_a0/raw/`
+  are gitignored per ask_0006.md ("Raw downloaded artifacts may remain gitignored if
+  large/noisy; if so, commit checksummed manifests"). `manifest.csv` is the
+  **committed record-of-record** for those raw artifacts (sha256, byte counts, source
+  URL, retrieval timestamp, license note).
+
+### 8.2 Close-housekeeping commit (this report's §8 fill-in + status move)
+
+To follow on Referee-approved close. Contents:
+
+- Fill §8 of this report with concrete commit / git state info (above).
+- `.gitignore` additional rule for the local `.claude/scheduled_tasks.lock` agent-runtime
+  file so `git status` reports a clean working tree.
+- `docs/next_actions.md`: move BX01 from Active → Closed/Frozen with the
+  Referee-approved close wording.
+- After this commit, `git status --short` is empty (clean working tree).
+- No source acquisition retry, no attachment parsing, no near-miss work, no
+  rulebook reconstruction, no return calc — none of those are pre-authorized; they
+  require a separate user + Referee decision.
 
 ---
 
