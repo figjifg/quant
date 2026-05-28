@@ -1,0 +1,10 @@
+signal_id,family,status,reason
+sig_fund_value_PBR,DATA_GATED_fundamental,data_gated,no clean KR PIT fundamentals on disk; pykrx fundamental endpoint broken; DART body parser standby — NOT measured this sweep
+sig_fund_value_PER,DATA_GATED_fundamental,data_gated,no clean KR PIT fundamentals on disk; pykrx fundamental endpoint broken; DART body parser standby — NOT measured this sweep
+sig_fund_quality_ROE,DATA_GATED_fundamental,data_gated,no clean KR PIT fundamentals on disk; pykrx fundamental endpoint broken; DART body parser standby — NOT measured this sweep
+sig_fund_quality_accruals,DATA_GATED_fundamental,data_gated,no clean KR PIT fundamentals on disk; pykrx fundamental endpoint broken; DART body parser standby — NOT measured this sweep
+sig_fund_shareholder_yield_buyback_div,DATA_GATED_fundamental,data_gated,no clean KR PIT fundamentals on disk; pykrx fundamental endpoint broken; DART body parser standby — NOT measured this sweep
+sig_borrow_fee,DATA_GATED_borrow_residual,data_gated,W000 item6 residual: API gives borrow BALANCE only (no fee/rebate/restriction/buy-in) — NOT measured this sweep
+sig_short_rebate,DATA_GATED_borrow_residual,data_gated,W000 item6 residual: API gives borrow BALANCE only (no fee/rebate/restriction/buy-in) — NOT measured this sweep
+sig_shortsale_restriction_list,DATA_GATED_borrow_residual,data_gated,W000 item6 residual: API gives borrow BALANCE only (no fee/rebate/restriction/buy-in) — NOT measured this sweep
+sig_buy_in_events,DATA_GATED_borrow_residual,data_gated,W000 item6 residual: API gives borrow BALANCE only (no fee/rebate/restriction/buy-in) — NOT measured this sweep

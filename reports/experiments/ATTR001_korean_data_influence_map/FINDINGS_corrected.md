@@ -73,6 +73,39 @@ edge; (c) SECTOR-level signals are weak (E014 corroborated); (d) MACRO is weak m
 shows sane modest positive abnormal returns — known effects, presence-level, R-family caveat.
 Nothing here is a strategy. Preserve-all: every signal/regime/horizon row retained with status.
 
-## 4. Status
-All rows across passes preserved with status labels; nothing discarded. Engine fix applied to
-all passes. Executor + Referee to analyze jointly. No strategy / P08 / production opened.
+## 4. Referee-required enhancements (completed — pre-registration compliance)
+- **A) Artifact-fix audit table** (`artifact_fix_audit_table.csv`): per horizon, the gap-guard
+  NaN'd 28,532 (1d) … 124,702 (20d) rows; raw forward-return max 283–380 → guarded 1.2–7.5;
+  raw mean ≈ 2× guarded. Confirms the survivorship inflation + the fix.
+- **B) data_gated rows** (`data_gated_rows.csv`): KR fundamentals (value/quality/shareholder-
+  yield) + borrow fee/rebate/restriction/buy-in preserved as `data_gated` (not measured, reason
+  given) — per pre-reg.
+- **C) FDR / q-values** added to all maps. 16 cross-section signals are q<0.10 in PRESENT 5d —
+  **but every surviving IC is tiny (−0.04…+0.03); they pass FDR only because n≈1000–2000 days,
+  NOT because of economic size.** Surviving FDR ≠ tradable. Strongest q: borrow_ratio
+  (−0.040, q≈4e-14), within_sector_rs (−0.031), vol_surge, mom_20, vol_20.
+- **D) Liquidity-bucket breakdown** (`liquidity_bucket_breakdown.csv`): 5d IC by 20d-traded-value
+  tercile, market-cap tercile, and the 거래대금추정==True diagnostic slice.
+- **E) Event MATCHED control** (`influence_map_pass2c_events_matched.csv`, same date × sector ×
+  cap-tercile): **event effects SHRINK markedly vs the universe-mean control** — earnings
+  +1.42%→**+0.36%** (most of the apparent abnormal was sector/cap beta, not the event), contract
+  +4.69%→+1.50%; treasury/buyback +3.33%→**+2.09%** and large_holder +1.18%→+0.94% hold better
+  (more event-specific). BUT n_unique_ticker is small (e.g. earnings 327 tickers / 849 dates) →
+  events cluster, t-stats overstated by overlap. Net: events are MODEST + presence-level +
+  clustered + known (PEAD/buyback) — plausible, not a clean tradable edge (R-family caveat).
+
+## 4b. Wording refinements (per Referee joint analysis)
+- NOT "positioning as a family faded": precisely, **foreign-flow and borrow-CHANGE 5d influence
+  faded from weak-contrarian (PAST) to near-neutral (PRESENT); but borrow_RATIO level stays
+  significantly negative in PRESENT** (short-interest pressure proxy, strongest q in the map).
+- within_sector_rs is the reversal/relative-price effect, NOT a sector effect (sector-level RS
+  weak → E014 corroborated).
+- Events: "plausible, not yet robust" — matched-control shrinkage + clustering confirm this.
+- Macro pass: only ts-corr + tercile-conditional were computed; beta-adjusted / interaction
+  (pre-reg-listed) were NOT separately computed → documented CAVEAT, not claimed.
+
+## 5. Status
+All rows across passes preserved with status labels (incl. data_gated); nothing discarded.
+Engine artifact fix applied to all passes; all 6 Referee-required enhancements completed.
+Diagnostic-only — no strategy / P08 / production / closed-family reopening. Ready for Referee
+final sign-off.
