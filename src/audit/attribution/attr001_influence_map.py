@@ -69,16 +69,28 @@ def load() -> pd.DataFrame:
 
 def add_forward_returns(panel: pd.DataFrame) -> pd.DataFrame:
     """PIT forward returns per ticker. prediction = close->close over h (info >T).
-    executability = enter T+1 open -> exit close at T+h, minus round-trip cost."""
+    executability = enter T+1 open -> exit close at T+h, minus round-trip cost.
+
+    GAP GUARD (fixes dynamic-universe re-entry artifact): the panel is in_universe-filtered,
+    so a ticker can leave and re-enter top100 → shift(-h) would connect across a multi-month
+    hole and (because re-entry is conditional on the stock rising) inject a huge survivorship
+    -positive forward return. We NaN any forward return whose T→T+h window spans more calendar
+    days than ~h trading days plausibly allow (h*1.7 + 7), so only genuinely consecutive
+    in-universe windows count."""
+    panel = panel.sort_values(["ticker", "date"]).reset_index(drop=True)
     g = panel.groupby("ticker", group_keys=False)
     panel["_close"] = panel["close"]
     for h in HORIZONS:
         fwd_close = g["close"].shift(-h)
-        panel[f"pred_ret_{h}"] = fwd_close / panel["close"] - 1.0
+        fwd_date = g["date"].shift(-h)
+        gap_days = (fwd_date - panel["date"]).dt.days
+        gap_ok = gap_days <= (h * 1.7 + 7)  # consecutive in-universe window only
+        pred = fwd_close / panel["close"] - 1.0
+        panel[f"pred_ret_{h}"] = pred.where(gap_ok)
         nxt_open = g["open"].shift(-1)
         exit_close = g["close"].shift(-h)  # exit at close of T+h (h>=1 → after T+1 open)
         gross = exit_close / nxt_open - 1.0
-        panel[f"exec_ret_{h}"] = gross - COST_RT_LONG_BPS / 1e4
+        panel[f"exec_ret_{h}"] = (gross - COST_RT_LONG_BPS / 1e4).where(gap_ok)
     return panel
 
 

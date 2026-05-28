@@ -1,3 +1,7 @@
+> **SUPERSEDED (2026-05-28):** the magnitudes below were contaminated by a dynamic-universe
+> forward-return artifact (re-entry survivorship). See `FINDINGS_corrected.md` for the fixed,
+> authoritative findings. This file is kept for the honest audit trail.
+
 # ATTR001 — Influence Map Findings, Pass 1 (cross-section: flow / price-volume / total-return)
 
 Diagnostic-only. PRESERVE-ALL (nothing dropped). NOT recommendations — an influence map.
