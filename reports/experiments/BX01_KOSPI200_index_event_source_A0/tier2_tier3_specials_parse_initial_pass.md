@@ -27,12 +27,16 @@ Wayback empty).
 (directive's expected wording for "no structured Tier 2/3 sources acquired/
 parsed").
 
-**Conflation reconciliation:** of 55 specials, **48 fall pre-2021-06**
-(i.e., BEFORE Class B parsing started — they cannot affect Class B
-regular/special conflation by construction). The remaining **7 fall inside
-Class B windows** (2021-12: 3 / 2022-06: 1 / 2024-06: 2 / 2025-12: 1) and
-all 7 remain UNRESOLVED. So Class B regular/special conflation persists for
-4 of the 9 Class B cycles.
+**Conflation reconciliation (post-Referee 2026-05-31 main-index scope
+cleanup):** of 55 specials, **48 fall pre-2021-06** (i.e., BEFORE Class B
+parsing started — they cannot affect Class B regular/special conflation by
+construction). The remaining **7 fall inside Class B windows** (2021-12: 3
+main-index / 2022-06: 1 main-index / 2024-06: 2 main-index / 2025-12: 1
+**ESG SUB-INDEX VARIANT — out-of-scope for KOSPI 200 main-index
+conflation**). Therefore **6 main-index-relevant unresolved specials** + 1
+sub-index variant caveat. Class B main-index regular/special conflation
+persists for **3 of 9 Class B cycles** (2021-12 / 2022-06 / 2024-06).
+2025-12 is now main-index-clean with a sub-index caveat.
 
 ---
 
@@ -141,7 +145,7 @@ unrepresented in the user-supplied set.
 
 `conflation_reconciliation.csv` (6 cols × 9 Class B cycles):
 
-| Class B cycle | specials in window | parsed | unparsed | status | notes |
+| Class B cycle | main-index specials in window | parsed | unparsed | status | notes |
 |---|---|---|---|---|---|
 | 2021-12 | 3 | 0 | 3 | UNRESOLVED | bbsSeq 758/759 (2021-08; KraftON/KakaoBank specials) + 773 (2021-11; KakaoPay) |
 | 2022-06 | 1 | 0 | 1 | UNRESOLVED | bbsSeq 789 (2022-02; LG에너지솔루션 신규상장) |
@@ -150,16 +154,22 @@ unrepresented in the user-supplied set.
 | 2024-06 | 2 | 0 | 2 | UNRESOLVED | bbsSeq 907 (2023-12 에코프로머티) + bbsSeq 921 (2024-01 포스코DX) |
 | 2024-12 | 0 | 0 | 0 | clean | |
 | 2025-06 | 0 | 0 | 0 | clean | |
-| 2025-12 | 1 | 0 | 1 | UNRESOLVED | bbsSeq 1020 (2025-06 코스피200 ESG sub-index — actually sub-index variant; carried forward caveat from prior phases) |
+| 2025-12 | 0 | 0 | 0 | no_main_index_intermediate_specials__subindex_variant_deferred | window had bbsSeq=1020 (코스피 200 ESG 지수 수시변경) — ESG SUB-INDEX VARIANT, NOT main-index constituent change; deferred per Referee 2026-05-31 cleanup |
 | 2026-06 | 0 | 0 | 0 | clean | |
 
-**Class B regular/special conflation status:**
-- **4 of 9 Class B cycles** (2021-12 / 2022-06 / 2024-06 / 2025-12) have
+**Class B regular/special conflation status (post-Referee 2026-05-31
+main-index scope cleanup):**
+- **3 of 9 Class B cycles** (2021-12 / 2022-06 / 2024-06) have main-index
   intermediate specials inside their window AND those specials remain
-  unparsed in this phase. Conflation persists.
-- **5 of 9 Class B cycles** are clean (no intermediate specials inside their
-  window) — these were already clean per the rulebook-A0 carry-forward; no
-  change.
+  unparsed in this phase. Main-index conflation persists for these 3.
+- **6 of 9 Class B cycles** are main-index clean (no main-index
+  intermediate specials inside their window). Of those 6, 1 (2025-12)
+  carries a SUB-INDEX caveat (bbsSeq=1020 ESG sub-index variant), 5
+  (2023-06 / 2023-12 / 2024-12 / 2025-06 / 2026-06) were already clean
+  per the rulebook-A0 carry-forward.
+- Total: 6 main-index-relevant unresolved specials + 1 sub-index variant
+  caveat. (Previous over-statement of "7 in window all UNRESOLVED" /
+  "4 cycles UNRESOLVED" corrected per Referee 2026-05-31 review.)
 
 The 48 pre-2021-06 specials fall BEFORE Class B parsing started; they never
 caused Class B conflation by construction, and are out of conflation scope
@@ -196,7 +206,9 @@ the authoritative BX01 event artifact.
 events_v3.csv state UNCHANGED (220 rows; 133 effective_dt_rulebook_derived
 filled; 6 residual blockers). The conflation_reconciliation.csv documents
 that Class B regular/special conflation is now **explicitly mapped** but
-unresolved for 4 of 9 cycles.
+unresolved for **3 of 9 cycles** (main-index): 2021-12 / 2022-06 / 2024-06.
+2025-12 carries a sub-index variant deferred caveat (bbsSeq=1020 ESG sub-
+index, not main-index).
 
 ---
 
