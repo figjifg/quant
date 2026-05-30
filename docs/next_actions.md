@@ -8,7 +8,41 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-(비어 있음 — active 작업 없음. 새 작업은 사용자의 명시적 결정으로만 추가된다.)
+### BX01-KOSPI200-ATTACHMENT-PARSE-A0 (opened 2026-05-30; initial pass 2026-05-31)
+
+- **Phase pre-reg + addendum:** `research/experiments/BX01_KOSPI200_index_event_source_A0.md`
+  + `reports/experiments/BX01_KOSPI200_index_event_source_A0/attachment_parse_initial_pass.md`
+- **Decision channel:** user → claude-session AskUserQuestion answer "B — Tier 1 14개만 먼저 다운"
+  + user delivered 17 files (11 xlsx + 4 hwp + 2 broker pdf) into
+  `research_input_data/정기변경/` (read-only-protected) + user renamed all files with
+  date-coded form (`YY.M(M).ext`) confirming cycle mapping. Phase opened via Referee
+  `ask_0008.md` / `ask_claude_04.md`; Executor acknowledged in `claude_reply_04.md`;
+  intake-time halt+escalate triggered + resolved via Referee 2026-05-30 clarification
+  extending directive with snapshot-diff design (Class A direct + Class B diff under
+  strict conditions; Class C/D deferred).
+- **Status: INITIAL PASS COMPLETE, awaiting Referee gate verdict.**
+- **Diagnostic-only.** Attachment intake + parse + reconciliation only. Does **not**
+  open backtest / strategy / P08 / production / paper-live / parser / measurement-
+  layer reopening / DART body parser / closed-family reopening / MSCI / FTSE /
+  KOSDAQ150 scope; does **not** parse Class C (hwp) or Class D (broker pdf).
+- **Allowed (executed):** Class A direct parse (12 rows, 2021-06 review); Class B
+  consecutive-snapshot diff (133 rows, 9 Tier 1 + 2 bridge 2022-12); consolidated v2
+  events artifact (220 rows total); per-row preserve-all + strong source-record-type
+  + caveat labels; missing-field census; PIT assessment update.
+- **Forbidden (preserved):** no backtest / return / run-up / edge calc; no
+  signals/trades/portfolio/P08/paper-live/execution; no parser/measurement-layer
+  reopening; no Tier 2/3 / MSCI / FTSE / KOSDAQ150 expansion; no effective_dt
+  fill by rule/memory/convention/diff/rebalance; no row labeled
+  strategy-ready/executable/approved/production-ready/paper-ready; no self-close.
+- **Recommended gate to Referee:** `BACKLOG_ATTACHMENT_PARSE_GAP` — parse for 10/14
+  Tier 1 cycles is auditable + caveated, but (a) diff conflates regular+intermediate-
+  special for 3+ cycles, (b) effective_dt universally blank (Referee rule), (c) 4
+  Tier 1 cycles still skeleton (hwp/broker pdf deferred), (d) listing-name cross-
+  check not yet run. Not `PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN` (gaps named); not
+  `FAIL_CLOSED` (materially better than skeleton; blocker decomposable).
+- **Next:** Bridge initial pass to Referee for gate verdict + close housekeeping.
+  Any next step (special/regular separation phase, hwp parse, rulebook A0, listing
+  cross-check, etc.) requires separate user + Referee decision.
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee

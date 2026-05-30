@@ -1,0 +1,36 @@
+section,key,value,note
+,,,
+GLOBAL,total_rows_events_v2,220,
+GLOBAL,notice_level_skeleton_only,75,
+GLOBAL,constituent_level_direct_from_change_detail_sheet,12,
+GLOBAL,constituent_level_derived_from_consecutive_official_snapshot_diff,133,
+,,,
+TIER1_COVERAGE,bbs_seq,cycle,status / counts
+TIER1_COVERAGE,555,2018-06,skeleton_only (NOT parsed; hwp deferred OR broker pdf deferred)
+TIER1_COVERAGE,613,2019-06,skeleton_only (NOT parsed; hwp deferred OR broker pdf deferred)
+TIER1_COVERAGE,667,2020-06,skeleton_only (NOT parsed; hwp deferred OR broker pdf deferred)
+TIER1_COVERAGE,696,2020-12,skeleton_only (NOT parsed; hwp deferred OR broker pdf deferred)
+TIER1_COVERAGE,734,2021-06,DIRECT parse (Class A); +5 / -7
+TIER1_COVERAGE,774,2021-12,DERIVED via snapshot diff (Class B); +10 / -10
+TIER1_COVERAGE,799,2022-06,DERIVED via snapshot diff (Class B); +8 / -8
+TIER1_COVERAGE,861,2023-06,DERIVED via snapshot diff (Class B); +5 / -5
+TIER1_COVERAGE,899,2023-12,DERIVED via snapshot diff (Class B); +8 / -8
+TIER1_COVERAGE,939,2024-06,DERIVED via snapshot diff (Class B); +8 / -8
+TIER1_COVERAGE,979,2024-12,DERIVED via snapshot diff (Class B); +5 / -5
+TIER1_COVERAGE,1015,2025-06,DERIVED via snapshot diff (Class B); +9 / -9
+TIER1_COVERAGE,1050,2025-12,DERIVED via snapshot diff (Class B); +7 / -8
+TIER1_COVERAGE,1090,2026-06,DERIVED via snapshot diff (Class B); +5 / -5
+,,,
+BRIDGE_NOT_IN_TIER1,key,value,note
+BRIDGE_NOT_IN_TIER1,cycle,2022-12,+1 / -1 (bridge-only)
+,,,
+MISSING_FIELDS_constituent_level_only,field,missing_count,total_constituent_level
+MISSING_FIELDS_constituent_level_only,effective_dt,145,145
+MISSING_FIELDS_constituent_level_only,announcement_time,145,145
+MISSING_FIELDS_constituent_level_only,company_name,0,145
+MISSING_FIELDS_constituent_level_only,ticker,0,145
+,,,
+DERIVATION_CAVEAT,key,value,note
+DERIVATION_CAVEAT,derived_rows_may_include_intermediate_specials,YES,Snapshot diff between consecutive cycles captures ALL changes between snapshots — regular review at curr-cycle PLUS any SPECIAL/SUPPLEMENTAL events between cycles. Tier 2/3 specials deferred this phase; separation requires separate user + Referee decision.
+DERIVATION_CAVEAT,effective_dt_fill,FORBIDDEN,effective_dt is direct-from-attachment-only per Referee. Snapshot diff does NOT fill effective_dt.
+DERIVATION_CAVEAT,listing_name_cross_check,NOT_YET_PERFORMED,ticker/company_name cross-check against listing-universe-A0 outputs not yet executed; flagged for downstream
