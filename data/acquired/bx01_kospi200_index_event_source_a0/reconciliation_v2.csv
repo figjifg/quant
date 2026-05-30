@@ -33,4 +33,13 @@ MISSING_FIELDS_constituent_level_only,ticker,0,145
 DERIVATION_CAVEAT,key,value,note
 DERIVATION_CAVEAT,derived_rows_may_include_intermediate_specials,YES,Snapshot diff between consecutive cycles captures ALL changes between snapshots — regular review at curr-cycle PLUS any SPECIAL/SUPPLEMENTAL events between cycles. Tier 2/3 specials deferred this phase; separation requires separate user + Referee decision.
 DERIVATION_CAVEAT,effective_dt_fill,FORBIDDEN,effective_dt is direct-from-attachment-only per Referee. Snapshot diff does NOT fill effective_dt.
-DERIVATION_CAVEAT,listing_name_cross_check,NOT_YET_PERFORMED,ticker/company_name cross-check against listing-universe-A0 outputs not yet executed; flagged for downstream
+DERIVATION_CAVEAT,listing_name_cross_check,NOT_YET_PERFORMED,ticker/company_name cross-check against listing-universe-A0 outputs not yet executed; flagged for downstream,,,
+LISTING_NAME_CROSS_CHECK,key,value,note
+LISTING_NAME_CROSS_CHECK,match_clean,0,
+LISTING_NAME_CROSS_CHECK,match_ticker_only_listing_name_unavailable,138,
+LISTING_NAME_CROSS_CHECK,match_name_diff,0,
+LISTING_NAME_CROSS_CHECK,ticker_not_in_pit_listing,5,
+LISTING_NAME_CROSS_CHECK,pit_snapshot_unavailable,2,
+LISTING_NAME_CROSS_CHECK,non_constituent_level_skipped,75,
+LISTING_NAME_CROSS_CHECK,method,PIT: latest listing snapshot_date <= announcement_dt; name compared ignoring space + case,
+LISTING_NAME_CROSS_CHECK,drop_policy,NONE — every row preserved with xref_match_status caveat per Referee,

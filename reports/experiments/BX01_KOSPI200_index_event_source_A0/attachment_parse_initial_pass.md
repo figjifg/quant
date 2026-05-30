@@ -29,12 +29,20 @@ deferred per Referee.
 
 Results:
 - **12 rows** Class A direct (2021-06 review)
-- **131 rows** Class B derived for 9 Tier 1 cycles + 2 bridge rows (2022-12, NOT in
-  Tier 1)
+- **133 rows** Class B derived for 9 Tier 1 cycles + 2 bridge rows (2022-12, NOT in
+  Tier 1; 2 bridge rows are part of the 133 — i.e. 131 Tier 1 + 2 bridge)
 - **75 rows** notice-level skeleton carried forward (4 uncovered Tier 1 cycles +
   Tier 2/3 specials)
 - **220 rows total** in `events_v2.csv`, fully preserve-all, with every row
   carrying explicit `source_record_type` and `parse_status` and full caveats.
+- **Listing-name cross-check (final-pass per Referee 2026-05-31): 138/145
+  constituent-level rows (95.2%) confirmed in PIT listing snapshot**; 5
+  ticker_not_in_pit_listing edge cases (new-listing/post-merger near event date);
+  2 pit_snapshot_unavailable; 0 ticker conflicts. Listing-name fields were
+  largely empty in the listing-universe-A0 source (25.3% panel coverage gap —
+  known limit per `project-listed-universe-coverage-a0`), so we use the
+  refined `match_ticker_only_listing_name_unavailable` label rather than
+  inflating "name mismatch".
 
 Mandatory caveat (also carried per-row): snapshot-diff derived rows capture ALL
 changes between consecutive snapshots — i.e. regular review at the curr-cycle PLUS
@@ -244,23 +252,44 @@ rulebook-A0 (NOT opened here) would be needed.
 
 ---
 
-## 7. Listing-name cross-check (NOT YET RUN)
+## 7. Listing-name cross-check — EXECUTED (final pass per Referee 2026-05-31)
 
 Per Referee directive: "Cross-check name/ticker against the existing listing-
 universe-coverage A0 outputs if available locally. Rows that fail to cross-match
 must be kept with caveat such as `ticker_unresolved_against_listing_table`; do not
 drop them."
 
-**Status: NOT YET RUN.** All 145 constituent-level rows are flagged for listing-
-name cross-check as a follow-on step. The listing-universe-coverage A0 outputs
-exist locally (`data/acquired/krx_listed_universe/`); cross-check is a
-mechanical join + caveat-tag pass that is in-scope for this phase but is deferred
-to a final-pass cross-check task for cleanliness (the diff results above are the
-primary deliverable; the cross-check enrichment is a clean follow-on).
+**Executed.** PIT join: each constituent-level row joined against
+`data/acquired/krx_listed_universe/krx_listed_monthly_snapshots_2010_2026.csv`
+(441,359 rows; 197 monthly snapshots 2010-01-04 .. 2026-05-04); join key =
+latest listing snapshot_date ≤ announcement_dt (PIT — never later snapshots);
+output = `events_v2_xref.csv` with 5 added columns: `xref_match_status`,
+`xref_pit_snapshot_date`, `xref_listing_name`, `xref_market`.
 
-If Referee prefers it baked into this initial pass, the script is ready; one Bash
-invocation runs it. Otherwise, treat the cross-check as the mechanical close
-sub-step.
+Match counts (145 constituent-level rows + 75 skeleton rows = 220 total):
+
+| status | count | note |
+|---|---|---|
+| `match_clean` (ticker AND name match) | 0 | listing names mostly empty in source CSV |
+| `match_ticker_only_listing_name_unavailable` | **138** | ticker confirmed in PIT listing; listing name field empty (known panel-coverage gap from `project-listed-universe-coverage-a0`) |
+| `match_name_diff` | 0 | no actual ticker→name conflicts |
+| `ticker_not_in_pit_listing` | 5 | edge cases (new-listing or post-merger near event date) |
+| `pit_snapshot_unavailable` | 2 | event date outside listing-A0 snapshot range |
+| `non_constituent_level_skipped` | 75 | skeleton rows; not applicable |
+
+**Effective ticker confirmation rate: 138 / 145 = 95.2%.** Zero ticker→name
+conflicts. The 5 `ticker_not_in_pit_listing` rows include 카카오페이 (2021-12 add,
+listed 2021-11-03 — between PIT snapshot timing), SK스퀘어 (2021-12 add, SK텔레콤
+분할 신설), 메리츠화재 / 메리츠증권 (2023-06 deletion; post-merger 폐지 timing),
+HD현대인프라코어 (2026-06 deletion; name change history). All preserved with caveat;
+NONE dropped.
+
+The 138 `match_ticker_only_listing_name_unavailable` rows are NOT a real audit
+failure — they reflect the documented 25.3% panel-coverage gap in the
+listing-universe-A0 source where the `name` column was empty (NaN) for many
+older tickers. Ticker existence in PIT listing IS confirmed for these.
+
+LISTING_NAME_CROSS_CHECK section appended to `reconciliation_v2.csv`.
 
 ---
 
@@ -291,15 +320,18 @@ BRIDGE_NOT_IN_TIER1, MISSING_FIELDS_constituent_level_only, DERIVATION_CAVEAT).
 data/acquired/bx01_kospi200_index_event_source_a0/
   raw/                               # source-A0 raw artifacts (gitignored)
   intake_inventory.csv               # 17 user-supplied + 1 dup-of-21.6
-  coverage_matrix.csv                # per-file class + cycle mapping confidence
+  coverage_matrix.csv                # initial-pass: pre-rename auto-fingerprint
+  coverage_matrix_prerename.csv      # FINAL-PASS: explicit copy of pre-rename matrix (kept for transparency)
+  coverage_matrix_final.csv          # FINAL-PASS: post-rename high-confidence mapping (canonical)
   class_b_mapping_proposal.csv       # earlier auto-fingerprint proposal (superseded by user rename)
   events.csv                         # source-A0 phase: notice-level skeleton (preserved)
-  events_class_a.csv                 # NEW — 12 direct rows (2021-06)
-  events_class_b_derived.csv         # NEW — 133 snapshot-diff rows
-  snapshots.csv                      # NEW — KOSPI 200 snapshot table (2198 ticker-cycle pairs)
-  events_v2.csv                      # NEW — consolidated 220 rows (12 direct + 133 derived + 75 skeleton)
+  events_class_a.csv                 # 12 direct rows (2021-06)
+  events_class_b_derived.csv         # 133 snapshot-diff rows
+  snapshots.csv                      # KOSPI 200 snapshot table (2198 ticker-cycle pairs)
+  events_v2.csv                      # consolidated 220 rows (12 direct + 133 derived + 75 skeleton)
+  events_v2_xref.csv                 # FINAL-PASS: events_v2 + 4 listing-name xref columns
   reconciliation.csv                 # source-A0 phase (preserved)
-  reconciliation_v2.csv              # NEW — attachment-parse-A0 reconciliation
+  reconciliation_v2.csv              # attachment-parse + appended LISTING_NAME_CROSS_CHECK (final-pass)
   manifest.csv                       # 8 source-A0 + 18 user-supplied = 26 rows total
   tier1_download_list.csv            # download guide (source-A0; preserved)
 
@@ -307,15 +339,17 @@ src/audit/bx01/
   download_krx_notice_attachments.py # source-A0 phase
   build_event_table.py               # source-A0 phase
   build_reconciliation.py            # source-A0 phase
-  build_coverage_matrix.py           # NEW
-  parse_class_a.py                   # NEW
-  build_class_b_mapping_proposal.py  # NEW
-  parse_class_b_with_diff.py         # NEW
-  consolidate_v2.py                  # NEW
+  build_coverage_matrix.py
+  parse_class_a.py
+  build_class_b_mapping_proposal.py
+  parse_class_b_with_diff.py
+  consolidate_v2.py
+  cross_check_listing_universe.py    # FINAL-PASS
+  rewrite_coverage_matrix_final.py   # FINAL-PASS
 
 reports/experiments/BX01_KOSPI200_index_event_source_A0/
   initial_pass.md                    # source-A0 phase (preserved; not modified)
-  attachment_parse_initial_pass.md   # NEW — THIS FILE
+  attachment_parse_initial_pass.md   # THIS FILE (initial + final-pass edits)
 ```
 
 ---
@@ -360,12 +394,51 @@ Referee decision):**
 
 ## 11. Repo state (filled per Referee 2026-05-28 close requirement)
 
-- **Initial-pass commit (this phase):** to be filled at commit time below.
-- **Working tree before commit:** clean except for the new artifacts listed in §9.
-- **Tracking policy:** `research_input_data/정기변경/` is the protected read-only
-  input dir; the source files there are NEVER modified by this phase. The committed
-  record-of-record for those files is the appended rows in
-  `data/acquired/bx01_kospi200_index_event_source_a0/manifest.csv` with sha256.
+### 11.1 Initial-pass commit
+
+- **Commit hash:** `daf7e10` ("BX01-attachment-parse-A0 initial pass: 10/14
+  Tier 1 cycles parsed (1 direct + 9 derived); halt-and-escalate + Referee
+  clarification recorded").
+- **`git show --check HEAD`** on `daf7e10`: passes (no whitespace errors;
+  commit-msg body intact).
+- **Files changed (17):**
+  - `docs/next_actions.md` (BX01-attachment-parse-A0 added to Active)
+  - `reports/experiments/BX01_KOSPI200_index_event_source_A0/attachment_parse_initial_pass.md`
+    (this report)
+  - `src/audit/bx01/{build_coverage_matrix,parse_class_a,build_class_b_mapping_proposal,parse_class_b_with_diff,consolidate_v2}.py`
+  - `data/acquired/bx01_kospi200_index_event_source_a0/{intake_inventory,coverage_matrix,
+    class_b_mapping_proposal,events_class_a,events_class_b_derived,snapshots,events_v2,
+    reconciliation_v2,tier1_download_list,manifest}.csv`
+
+### 11.2 Final-pass commit (this report's §7 cross-check + §11 fill-in + matrix
+   rewrite + row-count fix)
+
+To follow on Referee-approved final-pass review. Contents:
+- `src/audit/bx01/cross_check_listing_universe.py` (new — listing-name PIT join).
+- `src/audit/bx01/rewrite_coverage_matrix_final.py` (new — coverage matrix v2).
+- `data/acquired/bx01_kospi200_index_event_source_a0/events_v2_xref.csv` (new —
+  enriched events with `xref_*` columns).
+- `data/acquired/bx01_kospi200_index_event_source_a0/coverage_matrix_final.csv`
+  (new — post-rename high-confidence mapping).
+- `data/acquired/bx01_kospi200_index_event_source_a0/coverage_matrix_prerename.csv`
+  (preserved copy of the pre-rename auto-fingerprint matrix; for transparency).
+- `data/acquired/bx01_kospi200_index_event_source_a0/reconciliation_v2.csv`
+  (appended LISTING_NAME_CROSS_CHECK section).
+- This report (`attachment_parse_initial_pass.md`) — final-pass edits:
+  TL;DR row-count fixed (131 → 133 with explicit decomposition), §7 cross-check
+  EXECUTED, §11 commit / git state filled, §9 outputs list updated.
+- `docs/next_actions.md` — BX01-attachment-parse-A0 entry updated with final-
+  pass status.
+
+After this commit, `git status --short` is empty (clean working tree). Read-only-
+protected `research_input_data/정기변경/` files NEVER modified.
+
+### 11.3 Tracking policy (carry-forward)
+
+`research_input_data/정기변경/` is the protected read-only input dir; the source
+files there are NEVER modified by this phase. The committed record-of-record for
+those files is the appended rows in
+`data/acquired/bx01_kospi200_index_event_source_a0/manifest.csv` with sha256.
 
 ---
 
