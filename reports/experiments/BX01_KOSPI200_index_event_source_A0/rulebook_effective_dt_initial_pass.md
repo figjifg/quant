@@ -23,7 +23,7 @@ Referee 2026-05-31 hybrid (c) clarification accepted:
 Derivation under hybrid (c):
 - **9/10 in-calendar Tier 1 cycles** (2021-06 through 2025-12) → effective_dt filled with `confidence=provisional_secondary_rulebook_calendar_confirmed` and full per-row caveats citing the secondary basis classes.
 - **2026-06 cycle** → blank with caveat `calendar_coverage_cutoff_2026-05-22__effective_dt_not_computed`; 2026-06-12 KRX press release match recorded only as reconciliation evidence, NOT used as fill basis (per Referee directive).
-- **events_v3.csv** = events_v2_xref.csv + 4 added columns (effective_dt_filled / effective_dt_methodology_basis_class / effective_dt_futures_ltd_basis_class / effective_dt_confidence_v3 / effective_dt_caveat_v3). Preserve-all (zero rows dropped; zero prior caveats lost).
+- **events_v3.csv** = events_v2_xref.csv + **5 added columns**: `effective_dt_rulebook_derived` (the rulebook-derived fill — renamed from `effective_dt_filled` per Referee 2026-05-31 review #2 to remove ambiguity with the canonical `effective_dt` column), `effective_dt_methodology_basis_class`, `effective_dt_futures_ltd_basis_class`, `effective_dt_confidence_v3`, `effective_dt_caveat_v3`. **The canonical `effective_dt` column REMAINS BLANK** (no direct-from-attachment fill is available per the attachment-parse-A0 phase finding; per Referee rule, no rule/convention/news fill). Preserve-all (zero rows dropped; zero prior caveats lost).
 
 **Recommended gate verdict to Referee: `BACKLOG_EFFECTIVE_DT_PARTIAL_SECONDARY_BASIS`** — per Referee's own expected wording. 9 cycles filled under provisional secondary-triangulated basis is a meaningful improvement over the previously 0/220 filled state, but (a) primary KRX access blocked, (b) 2026-06 blank, (c) prior phase blockers intact (4 skeleton Tier 1 cycles + Class B regular/special conflation + Tier 2/3 deferred). NOT `PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN`. NOT `FAIL_CLOSED`.
 
@@ -131,12 +131,19 @@ src/audit/bx01/
 
 ## 4. PIT / tradability assessment (updated)
 
+**Clarification (per Referee 2026-05-31 review #2):** the canonical `effective_dt`
+column remains BLANK across all 220 rows of events_v3.csv (no direct-from-
+attachment fill exists; per Referee rule, no rule/convention fill is allowed
+into that legacy column). The rulebook-derived fill lives in the renamed
+`effective_dt_rulebook_derived` column.
+
 | Field | Before (attachment-parse phase) | After (this phase) | Rule applied |
 |---|---|---|---|
-| `effective_dt` (const-level rows, 9 cycles) | 0/133 | **133/133** under provisional secondary basis | Mirae §7.1 + Hana p8/p15 + local calendar |
-| `effective_dt` (const-level rows, 2026-06 cycle) | 0/10 | 0/10 (blank with caveat) | calendar coverage cutoff |
-| `effective_dt` (bridge 2022-12) | 0/2 | 0/2 (not_applicable; not in this phase scope) | n/a |
-| `effective_dt` (skeleton 75 rows) | 0/75 | 0/75 (not_applicable) | n/a |
+| canonical `effective_dt` (all 220 rows) | 0/220 | 0/220 (unchanged) | direct-from-attachment-only rule preserved |
+| `effective_dt_rulebook_derived` (const-level rows, 9 cycles) | n/a (col didn't exist) | **133/133** under provisional secondary basis | Mirae §7.1 + Hana p8/p15 + local calendar |
+| `effective_dt_rulebook_derived` (const-level rows, 2026-06 cycle) | n/a | 0/10 (blank with caveat) | calendar coverage cutoff |
+| `effective_dt_rulebook_derived` (bridge 2022-12) | n/a | 0/2 (not_applicable; not in phase scope) | n/a |
+| `effective_dt_rulebook_derived` (skeleton 75 rows) | n/a | 0/75 (not_applicable) | n/a |
 
 **Updated PIT execution rule guidance (recommended for any later TEST design — NOT in this phase scope):**
 - Announcement date: KRX REG_DT from notice metadata (unchanged).
@@ -175,17 +182,18 @@ Total: 133 filled + 10 blank + (2 + 75) = 133 + 10 + 77 = 220 ✓
 
 ## 6. Residual blockers (preserved + new)
 
-Carry-forward from prior phases:
+Carry-forward from prior phases (3):
 1. 4 Tier 1 cycles (2018-06 / 2019-06 / 2020-06 / 2020-12) — hwp / broker pdf deferred.
 2. Class B regular vs intermediate-special conflation — preserved as caveat.
 3. Tier 2 / Tier 3 specials — deferred.
 
-New (this phase):
+New (this phase) (3):
 4. Primary KRX rulebook access — BLOCKED (sandbox OTP path).
 5. Primary KRX derivatives product spec access — BLOCKED.
 6. 2026-06 calendar coverage cutoff at 2026-05-22.
 
-These five together prevent any `PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN` verdict.
+**6 residual blockers total.** These six together prevent any
+`PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN` verdict.
 
 ---
 
@@ -198,7 +206,7 @@ Rationale:
 - All Referee-required strict labels applied per row. ✅
 - 0 convention/news/memory fills. ✅
 - Reconciliation against the 2026-06 KRX press release date is PERFECT (rule predicts 2026-06-12; press says 2026-06-12). ✅
-- 5 residual blockers above remain. → not PASS. → not FAIL.
+- 6 residual blockers above remain (3 carry-forward + 3 new). → not PASS. → not FAIL.
 
 **NOT FAIL_CLOSED** — derivation method is auditable + rule-cited + calendar-confirmed.
 

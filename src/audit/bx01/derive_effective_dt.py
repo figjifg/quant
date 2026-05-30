@@ -11,7 +11,10 @@ Inputs:
 
 Outputs:
 - per_cycle_effective_dt.csv (full basis table with 12 fields per Referee spec)
-- events_v3.csv (events_v2_xref.csv + 4 new effective_dt_* columns; preserve-all)
+- events_v3.csv (events_v2_xref.csv + 5 new effective_dt_* columns; preserve-all).
+  NOTE: legacy/direct `effective_dt` column REMAINS BLANK (no direct-from-attachment
+  fill is available; per Referee directive). The new `effective_dt_rulebook_derived`
+  column is the rulebook-derived fill under provisional secondary basis.
 - reconciliation_v3.csv (per-cycle counts, confidence breakdown, 2026-06 gap note)
 
 Per Referee 2026-05-31 hybrid (c) clarification:
@@ -215,7 +218,7 @@ def main() -> int:
     in_rows = list(csv.DictReader(EVENTS_IN.open(encoding="utf-8")))
     print(f"loaded {len(in_rows)} events_v2_xref rows")
 
-    new_cols = ["effective_dt_filled",
+    new_cols = ["effective_dt_rulebook_derived",
                 "effective_dt_methodology_basis_class",
                 "effective_dt_futures_ltd_basis_class",
                 "effective_dt_confidence_v3",
@@ -229,7 +232,7 @@ def main() -> int:
         cycle = r.get("review_cycle", "")
         if cycle in cycle_to_eff:
             eff, mbasis, fbasis, conf, cav = cycle_to_eff[cycle]
-            r["effective_dt_filled"] = eff
+            r["effective_dt_rulebook_derived"] = eff
             r["effective_dt_methodology_basis_class"] = mbasis
             r["effective_dt_futures_ltd_basis_class"] = fbasis
             r["effective_dt_confidence_v3"] = conf
@@ -239,7 +242,7 @@ def main() -> int:
             else:
                 blank_count += 1
         else:
-            r["effective_dt_filled"] = ""
+            r["effective_dt_rulebook_derived"] = ""
             r["effective_dt_methodology_basis_class"] = ""
             r["effective_dt_futures_ltd_basis_class"] = ""
             r["effective_dt_confidence_v3"] = "not_applicable_cycle_out_of_rulebook_phase_scope"
@@ -264,14 +267,14 @@ def main() -> int:
         w.writerow(["section", "key", "value", "note"])
         w.writerow(["", "", "", ""])
         w.writerow(["GLOBAL", "total_events_v3_rows", len(in_rows), ""])
-        w.writerow(["GLOBAL", "effective_dt_filled_rows", filled_count,
+        w.writerow(["GLOBAL", "effective_dt_rulebook_derived_rows", filled_count,
                     "provisional secondary basis; rule-cited; calendar-confirmed"])
         w.writerow(["GLOBAL", "effective_dt_blank_rows", blank_count,
                     "includes 2026-06 cycle calendar cutoff"])
         w.writerow(["GLOBAL", "effective_dt_not_applicable_rows", not_applicable_count,
                     "skeleton or out-of-rulebook-scope rows"])
         w.writerow(["", "", "", ""])
-        w.writerow(["PER_CYCLE", "review_cycle", "effective_dt_filled", "confidence"])
+        w.writerow(["PER_CYCLE", "review_cycle", "effective_dt_rulebook_derived", "confidence"])
         for r in rows:
             w.writerow(["PER_CYCLE", r["review_cycle"], r["effective_dt"] or "(blank)",
                         r["effective_dt_confidence"]])

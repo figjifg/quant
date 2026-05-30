@@ -1,11 +1,11 @@
 section,key,value,note
 ,,,
 GLOBAL,total_events_v3_rows,220,
-GLOBAL,effective_dt_filled_rows,133,provisional secondary basis; rule-cited; calendar-confirmed
+GLOBAL,effective_dt_rulebook_derived_rows,133,provisional secondary basis; rule-cited; calendar-confirmed
 GLOBAL,effective_dt_blank_rows,10,includes 2026-06 cycle calendar cutoff
 GLOBAL,effective_dt_not_applicable_rows,77,skeleton or out-of-rulebook-scope rows
 ,,,
-PER_CYCLE,review_cycle,effective_dt_filled,confidence
+PER_CYCLE,review_cycle,effective_dt_rulebook_derived,confidence
 PER_CYCLE,2021-06,2021-06-11,provisional_secondary_rulebook_calendar_confirmed
 PER_CYCLE,2021-12,2021-12-10,provisional_secondary_rulebook_calendar_confirmed
 PER_CYCLE,2022-06,2022-06-10,provisional_secondary_rulebook_calendar_confirmed
@@ -33,3 +33,4 @@ RESIDUAL_BLOCKERS,primary_KRX_derivatives_spec_access,blocked,blocker
 RESIDUAL_BLOCKERS,2026-06_calendar_cutoff,blocked,blocker
 RESIDUAL_BLOCKERS,tier1_skeleton_only_cycles_2018-06_2019-06_2020-06_2020-12,4 cycles still skeleton (carry-forward from attachment-parse phase),blocker for cycle-complete TEST design
 RESIDUAL_BLOCKERS,regular_special_conflation_class_b_rows,preserved as caveat from attachment-parse phase,blocker
+RESIDUAL_BLOCKERS,tier2_tier3_specials_deferred,55 special/supplemental events deferred per ask_0008.md,blocker for diff-conflation resolution
