@@ -1,0 +1,1856 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" >
+<title>Indices | 정보센터 | 지수산출방법</title>
+<script>
+var getContextPath = function () {
+	return '';
+};
+var getSiteName = function () {
+	return 'IDX';
+};
+var getDevice = function () {
+	return 'pc';
+};
+
+var getLang = function () {
+	return $('html').attr('lang');
+};
+
+var getFileServer = function () {
+	return 'https://file.krx.co.kr';
+};
+
+var getPdfServer = function () {
+	return 'https://pdf.krx.co.kr';
+};
+
+
+	
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	
+	gtag('config', 'G-MBSVWZWSP1');
+	
+	(function() {
+	  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	  ga.src = ('https:' == document.location.protocol ? 'https://www' : 'http://www') + '.googletagmanager.com/gtag/js?id=G-MBSVWZWSP1';
+	  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+
+
+
+</script>
+
+
+<!--[if lt IE 9]>
+<script>
+document.createElement('aricle');
+document.createElement('aside');
+document.createElement('canvas');
+document.createElement('details');
+document.createElement('figcaption');
+document.createElement('figure');
+document.createElement('footer');
+document.createElement('header');
+document.createElement('hgroup');
+document.createElement('menu');
+document.createElement('nav');
+document.createElement('section');
+document.createElement('summary');
+</script>
+<![endif]-->
+<link rel="shortcut icon" href="/res/pc/img/favicon.ico">
+<link rel="stylesheet" type="text/css" href="/WEB-APP/jquery/jquery-ui-1.10.4.custom.min.css" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/default.css" />
+<link rel="stylesheet" type="text/css" href="/templets/pc/css/templet-new.css" />
+<link rel="stylesheet" type="text/css" href="/templets/pc/css/gnb-gap.css" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/func.css" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/design.css" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/contents.css?20220325" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/calendar.css" />
+<link rel="stylesheet" type="text/css" href="/WEB-APP/webponent/grid/css/webponent.grid.css" />
+<link rel="stylesheet" type="text/css" href="/WEB-APP/webponent/grid/css/webponent.grid.flat.css" />
+<link rel="stylesheet" type="text/css" href="/WEB-APP/webponent/grid/css/webponent.pagingUI.css" />
+<link rel="stylesheet" type="text/css" href="/WEB-APP/webponent/grid/css/webponent.Tree.css" />
+<link rel="stylesheet" type="text/css" href="/res/pc/css/grid.css" />
+<script type="text/javascript" src="/WEB-APP/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/jquery/js.cookie.js"></script>
+<script type="text/javascript" src="/WEB-APP/jquery/jquery.scrollTo.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/jquery/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="/templets/pc/js/templet.js"></script>
+<script type="text/javascript" src="/res/pc/js/design.js"></script>
+<script type="text/javascript" src="/res/pc/js/func.js"></script>
+<script type="text/javascript" src="/WEB-APP/calendar/calendar.js"></script>
+<script type="text/javascript" src="/WEB-APP/coreboard/inc/js/common.js"></script>
+<script type="text/javascript" src="/WEB-APP/autocomplete/autocomplete.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/webponent.licenseKey.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/external/underscore-min.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/external/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/webponent.grid.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/external/webponent.pagingUI.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/webponent.grid.UIplugin.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/external/json2.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/external/lz-string.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/webponent.report.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/grid/webponent.grid.AjaxTree.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/comm/raphael.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/comm/webponent.comm.common.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/comm/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/chart/webponent.chart.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/visual/webponent.visual.horizon.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/visual/webponent.visual.korea.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/visual/webponent.visual.pie.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/visual/webponent.visual.scatterplot.js"></script>
+<script type="text/javascript" src="/WEB-APP/webponent/chart/lib/visual/webponent.visual.treemap.js"></script>
+ 
+<!--h:s--><title>Indices | 정보센터 | 지수산출방법</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>시장동향 | 통계간행물 | 지수산출방법</title>
+
+<!--h:e-->
+</head>
+<body>
+<div class="html-wrap">
+	<div class="header-wrap">
+		<div class="header-outer">
+		
+
+<div class="skip-nav">
+<ul>
+    <li><a href="#body" onclick="$.goContents(); return false;" class="skip-nav-content">본문 바로가기</a></li>
+    <li><a href="#topmenu" onclick="$.goGLBMenu(); return false;" class="skip-nav-menu">주 메뉴 바로가기</a></li>
+</ul>
+</div>
+<nav class="com-nav">
+	<div class="nav-outer">
+		<ul>
+		
+		
+		<li>
+			<a href="https://open.krx.co.kr" title="KRX 시장과 상품을 소개하는 사이트 입니다." target="_blnak">KRX 시장</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+						
+						<dd><a href="https://open.krx.co.kr/contents/OPN/01/01010101/OPN01010101.jsp">시장 안내</a></dd>
+						
+						<dd><a href="https://open.krx.co.kr/contents/OPN/02/02010100/OPN02010100.jsp">상품 안내</a></dd>
+						
+						<dd><a href="https://open.krx.co.kr/contents/OPN/03/03010000/OPN03010000.jsp">고객서비스</a></dd>
+						
+						<dd><a href="https://open.krx.co.kr/contents/OPN/04/04010000/OPN04010000.jsp">간행물</a></dd>
+						
+						<dd><a href="https://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp">보도자료</a></dd>
+						
+						<dd><a href="https://open.krx.co.kr/board/OPN07010000/bbs">행사소식</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		<li>
+			<a href="https://listing.krx.co.kr" title="상장 개요, 절차와 상장 혜택을 안내하는 사이트 입니다." target="_blnak">상장공시</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/01/01020000/LST01020000.jsp">신규상장</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/02/02010000/LST02010000.jsp">상장개요</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/03/03010000/LST03010000.jsp">IPO절차</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/04/04010101/LST04010101.jsp">주권상장</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/05/05010000/LST05010000.jsp">채권상장</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/06/06010100/LST06010100.jsp">증권상품상장</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/LST/07/07010000/LST07010000.jsp">SPAC상장</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/contents/MKD/01/01110000/MKD01110000.jsp">상장법인자료</a></dd>
+						
+						<dd><a href="https://listing.krx.co.kr/board/LST09000000/bbs">업무 관련 서식</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		<li>
+			<a href="https://moc.krx.co.kr" title="시장감시위원회, 지분정보센터, 분쟁조정센터, 불공정피해자지원센터, 준법감시위원회, 불공정거래신고센터를 안내하는 사이트입니다." target="_blnak">시장감시</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+						
+						<dd><a href="https://moc.krx.co.kr/contents/SVL/M/01010100/MOC01010100.jsp">위원회소개</a></dd>
+						
+						<dd><a href="https://moc.krx.co.kr/contents/SVL/M/02010100/MOC02010100.jsp">위원회업무</a></dd>
+						
+						<dd><a href="https://moc.krx.co.kr/contents/SVL/M/03010100/MOC03010100.jsp">시장경보/ 투자유의안내</a></dd>
+						
+						<dd><a href="https://moc.krx.co.kr/contents/SVL/M/04010000/MOC04010000.jsp">불공정거래 예방교실</a></dd>
+						
+						<dd><a href="https://moc.krx.co.kr/contents/SVL/M/05010000/MOC05010000.jsp">위원회정보센터</a></dd>
+					
+						<dd><a href="http://voc.krx.co.kr" target="_blank">민원센터</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		<li>
+			<a href="https://regulation.krx.co.kr" title="자본시장 관련 다양한 규정과 제도를 안내하는 사이트 입니다." target="_blnak">규정/제도</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/01/01010000/RGL01010000.jsp">법규</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/02/02010101/RGL02010101.jsp">공시제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/03/03010100/RGL03010100.jsp">매매거래제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/04/04010101/RGL04010101.jsp">일반상품제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/05/05010100/RGL05010100.jsp">글로벌연계 상품제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/06/06020201/RGL06020201.jsp">청산결제제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/07/07010000/RGL07010000.jsp">회원제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/08/08010100/RGL08010100.jsp">참가자 제도</a></dd>
+						
+						<dd><a href="https://regulation.krx.co.kr/contents/RGL/09/09010100/RGL09010100.jsp">규제개혁</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		<li>
+			<a href="http://main.krxverse.co.kr" title="건전한 투자 활성화를 위해 교육 컨텐츠를 제공하는 사이트 입니다." target="_blnak">금융교육</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+					
+						<dd><a href="http://main.krxverse.co.kr/krx-academy/capital/video/beginner" target="_blank">KRX 아카데미</a></dd>
+					
+						<dd><a href="http://main.krxverse.co.kr/busan/busan-guide" target="_blank">박물관(부산)</a></dd>
+					
+						<dd><a href="http://main.krxverse.co.kr/seoul/seoul-guide" target="_blank">홍보관(서울)</a></dd>
+					
+						<dd><a href="http://main.krxverse.co.kr/lecture/lec-etf-etn" target="_blank">현장강의</a></dd>
+					
+						<dd><a href="http://main.krxverse.co.kr/community/notice" target="_blank">커뮤니티</a></dd>
+					
+						<dd><a href="http://trn.krx.co.kr" target="_blank">파생상품 모의거래</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		<li>
+			<a href="https://info.krx.co.kr" title="KRX의 경영이념과 비전 및 주요사업을 안내하는 사이트 입니다." target="_blnak">KRX 소개</a>
+			<span></span>
+			<div class="depth1">
+				<div class="text">
+					<dl>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/01/01010000/KRX01010000.jsp">KRX소개</a></dd>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/03/03010000/KRX03010000.jsp">사업본부소개</a></dd>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/04/04010000/KRX04010000.jsp">채용안내</a></dd>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/02/02010000/KRX02010000.jsp">지속가능경영</a></dd>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/05/05010000/KRX05010000.jsp">사회공헌</a></dd>
+						
+						<dd><a href="https://info.krx.co.kr/contents/KRX/06/06010000/KRX06010000.jsp">고객서비스</a></dd>
+									
+					</dl>
+				</div>
+			</div>
+		</li>
+		</ul>
+		<div class="datacenter">
+			<span class="datacenter-icon1"></span><span><a href="https://data.krx.co.kr"  target="_blank">Data Marketplace</a></span></span><span class="datacenter-icon2"></span>
+		</div>		
+		<div class="lang-change">
+			<button class="btn-dropdown">Language<span></span></button>
+			<ul class="dpn">
+			
+				<li><a href="https://eindex.krx.co.kr"><span class="bu"></span>English</a></li>
+				<li><a href="https://global.krx.co.kr/cn"><span class="bu"></span>中文</a></li>
+			
+			</ul>
+		</div>
+		<div class="all-site-map">
+			<a href="#" onclick="$.popupAllMenuSite(this); return false;" title="사이트맵">전체 사이트 맵 보기<span></span></a>
+		</div>
+	</div>
+</nav>
+
+		
+<div class="header-member">
+	<div class="header-member-outer">
+	<div class="link-group">
+	
+
+	 
+		<a href="/contents/MKD/11/1103/11030500/MKD11030500S1_01.jsp" class="sign-in">로그인</a>
+		<a href="/contents/MKD/11/1103/11030500/MKD11030500S1_01.jsp"  class="join">회원가입</a>
+			
+	
+
+	</div>
+	</div>
+</div>
+
+		
+
+
+
+
+
+
+
+
+
+
+
+<div class="header">
+	<div class="site-title">
+		<span class="logo">
+		
+		<a href="https://www.krx.co.kr/main/main.jsp"><img src="/res/pc/img/logo-krx.png" alt="KRX"></a>
+		
+		</span>
+		<span class="title"><a href="/main/main.jsp">
+		
+		
+		<img src="/main/img/pc/logo-indices.png" alt="logo">
+		
+		</a></span>
+	</div>
+	<div class="gnb-wrap">
+		<ul>
+		
+		
+			<li class="gnb-depth1 ">
+				<div><a href="/contents/IDX/0101/IDX0101.jsp" data-menu-id="01" >KRX 지수</a></div>
+				
+				<div class="scrollable">
+				<ul class="dpn">
+				
+				<li class="gnb-depth2">
+					<a href="/contents/IDX/0101/IDX0101.jsp" data-menu-id="0101" >전체지수 시세</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0304/03040100/MKD03040100.jsp" data-menu-id="0102" >주가지수</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0304/03040100/MKD03040100.jsp" data-menu-id="010201" >KRX 시리즈</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0304/03040200/MKD03040200.jsp" data-menu-id="010202" >KOSPI 시리즈</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0304/03040300/MKD03040300.jsp" data-menu-id="010203" >KOSDAQ 시리즈</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0304/03040400/MKD03040400.jsp" data-menu-id="010204" >테마지수</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0305/03050100/MKD03050100.jsp" data-menu-id="0103" >파생상품지수</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0305/03050100/MKD03050100.jsp" data-menu-id="010301" >선물</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0305/03050200/MKD03050200.jsp" data-menu-id="010302" >옵션</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0306/03060100/MKD03060100.jsp" data-menu-id="0104" >전략형지수</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060100/MKD03060100.jsp" data-menu-id="010401" >동일가중지수</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060200/MKD03060200.jsp" data-menu-id="010402" >인버스/레버리지</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060300/MKD03060300.jsp" data-menu-id="010403" >멀티에셋</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060400/MKD03060400.jsp" data-menu-id="010404" >리스크컨트롤</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060500/MKD03060500.jsp" data-menu-id="010405" >스마트베타</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060600/MKD03060600.jsp" data-menu-id="010406" >총수익지수</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0306/03060700/MKD03060700.jsp" data-menu-id="010407" >자산배분</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0307/03070000/MKD03070000.jsp" data-menu-id="0105" >글로벌지수</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp" data-menu-id="0106" >채권지수</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080401/MKD03080401.jsp" data-menu-id="010604" >KTB 10년 지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080401/MKD03080401.jsp" data-menu-id="01060401" >시간대별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080402/MKD03080402.jsp" data-menu-id="01060402" >일자별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080403/MKD03080403.jsp" data-menu-id="01060403" >일자별보조지표</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080501/MKD03080501.jsp" data-menu-id="010605" >KRX 종합채권(AA- 이상) 지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080501/MKD03080501.jsp" data-menu-id="01060501" >일자별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080502/MKD03080502.jsp" data-menu-id="01060502" >일자별 보조지표</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp" data-menu-id="010601" >KTB 지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp" data-menu-id="01060101" >시간대별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010303/MKD10010303.jsp" data-menu-id="01060102" >일자별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010304/MKD10010304.jsp" data-menu-id="01060103" >일자별보조지표</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080201/MKD03080201.jsp" data-menu-id="010602" >KRX 채권종합지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080201/MKD03080201.jsp" data-menu-id="01060201" >종합시세</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080202/MKD03080202.jsp" data-menu-id="01060202" >유형별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080203/MKD03080203.jsp" data-menu-id="01060203" >채권종류별/만기별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010301/MKD10010301.jsp" data-menu-id="01060204" >유형별/기간별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010302/MKD10010302.jsp" data-menu-id="01060205" >상세그룹별/기간별지수</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080301/MKD03080301.jsp" data-menu-id="010603" >국고채프라임지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080301/MKD03080301.jsp" data-menu-id="01060301" >시간대별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080302/MKD03080302.jsp" data-menu-id="01060302" >만기물별/시간대별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010305/MKD10010305.jsp" data-menu-id="01060303" >일별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/10/1001/10010306/MKD10010306.jsp" data-menu-id="01060304" >만기물별/일별지수</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0308/03080601/MKD03080601.jsp" data-menu-id="010606" >KRX 미국채 10년 지수</a>
+						
+						<div>
+						<ul class="dpn">
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080601/MKD03080601.jsp" data-menu-id="01060601" >일자별지수</a>
+							
+						</li>
+						
+						<li class="gnb-depth4">
+							<a href="/contents/MKD/03/0308/03080602/MKD03080602.jsp" data-menu-id="01060602" >일자별 보조지표</a>
+							
+						</li>
+						
+						</ul>
+						</div>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0310/03100000/MKD03100000.jsp" data-menu-id="0108" >상품지수</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0309/03090000/MKD03090000.jsp" data-menu-id="0107" >커스텀지수</a>
+					
+				</li>
+				
+				</ul>
+				</div>
+				
+			</li>
+		
+			<li class="gnb-depth1 ">
+				<div><a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp" data-menu-id="02" >산업분류</a></div>
+				
+				<div class="scrollable">
+				<ul class="dpn">
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp" data-menu-id="0201" >KRX 지수산업분류</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp" data-menu-id="020101" >개요</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030102/MKD03030102.jsp" data-menu-id="020102" >산업분류</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030103/MKD03030103.jsp" data-menu-id="020103" >산업별현황</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/03/0303/03030201/MKD03030201.jsp" data-menu-id="0202" >GICS 산업분류</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030201/MKD03030201.jsp" data-menu-id="020201" >개요</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030202/MKD03030202S1.jsp" data-menu-id="020202" >산업분류</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030203/MKD03030203.jsp" data-menu-id="020203" >산업별현황</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/03/0303/03030204/MKD03030204.jsp" data-menu-id="020204" >산업별 종목현황</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				</ul>
+				</div>
+				
+			</li>
+		
+			<li class="gnb-depth1  gnb-active">
+				<div><a href="/board/MKD01040000/bbs" data-menu-id="03" >정보센터</a></div>
+				
+				<div class="scrollable">
+				<ul class="dpn">
+				
+				<li class="gnb-depth2">
+					<a href="/board/MKD01040000/bbs" data-menu-id="0301" >지수운영공지</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/board/OPN02010400/bbs" data-menu-id="0302" >이벤트</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/01/0111/01110900/MKD01110900.jsp" data-menu-id="0305" >인덱스 규제</a>
+					
+				</li>
+				
+				<li class="gnb-depth2 on">
+					<a href="/contents/MKD/01/0111/01110600/MKD01110600.jsp" data-menu-id="0304" >지수산출방법</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/01/0111/01110700/MKD01110700.jsp" data-menu-id="0303" >연관자료</a>
+					
+					<div>
+					<ul class="dpn">
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/01/0111/01111000/MKD01111000.jsp" data-menu-id="030305" >지수성과평가보고서</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/01/0111/01110700/MKD01110700.jsp" data-menu-id="030302" >FactSheet</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/01/0108/MKD01080000.jsp" data-menu-id="030303" >브로셔/가이드</a>
+						
+					</li>
+					
+					<li class="gnb-depth3">
+						<a href="/contents/MKD/01/0111/01110800/MKD01110800.jsp" data-menu-id="030304" >참고자료</a>
+						
+					</li>
+					
+					</ul>
+					</div>
+					
+				</li>
+				
+				</ul>
+				</div>
+				
+			</li>
+		
+			<li class="gnb-depth1 ">
+				<div><a href="/contents/MKD/11/1103/11030100/MKD11030100.jsp" data-menu-id="04" >고객서비스</a></div>
+				
+				<div class="scrollable">
+				<ul class="dpn">
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030100/MKD11030100.jsp" data-menu-id="0401" >지수라이센스</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030200/MKD11030200.jsp" data-menu-id="0402" >지수정보상품</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030900/MKD11030900.jsp" data-menu-id="0409" >지수 라이선스 구매요청</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11031000/MKD11031000.jsp" data-menu-id="0410" >지수 구성정보 구매요청</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030300/MKD11030300.jsp" data-menu-id="0403" >지수정보상품 조회</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030600/MKD11030600.jsp" data-menu-id="11030300" >지수정보상품 월별조회</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030800/MKD11030800.jsp" data-menu-id="0408" >지수정보상품 타켓웨이트</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/MKD/11/1103/11030400/MKD11030400.jsp" data-menu-id="0404" >이용자정보관리</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/board/MKD11030700/bbs" data-menu-id="0406" >Webzine</a>
+					
+				</li>
+				
+				</ul>
+				</div>
+				
+			</li>
+		
+			<li class="gnb-depth1 ">
+				<div><a href="/contents/OPN/02/02010100/OPN02010100.jsp" data-menu-id="05" >About Us</a></div>
+				
+				<div class="scrollable">
+				<ul class="dpn">
+				
+				<li class="gnb-depth2">
+					<a href="/contents/OPN/02/02010100/OPN02010100.jsp" data-menu-id="0501" >KRX 지수사업</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/OPN/02/02010200/OPN02010200.jsp" data-menu-id="0502" >주가지수운영위원회</a>
+					
+				</li>
+				
+				<li class="gnb-depth2">
+					<a href="/contents/OPN/02/02010300/OPN02010300.jsp" data-menu-id="0503" >조직구성 및 연락처</a>
+					
+				</li>
+				
+				</ul>
+				</div>
+				
+			</li>
+		
+		
+		</ul>
+	</div>
+</div>
+<div class="gnb-bg-wrap dpn">
+	<div class="gnb-bg">
+		<div class="depth2"></div>
+		<div class="depth3"></div>
+		<div class="depth4">
+			<div class="top-link-banner">
+				 
+			</div>
+			
+			
+				<div class="favorite-link">
+				
+					<img src="/res/pc/img/ele-gnb-01.png" alt="자주 찾는 메뉴 BOOKMARK MENU">
+					
+					<dl>
+						<dd>
+							<ul>
+							
+							
+							<li><span></span><a href="/board/MKD01040000/bbs">지수운영공지</a></li>
+							
+							</ul>
+						</dd>
+					</dl>
+				</div>	
+					
+		</div>
+		
+	</div>
+	<div class="gnb-shadow"></div>
+</div>
+		
+<div class="breadcrumb-wrap">
+	<div class="breadcrumb">
+		<div class="breadcrumb-group">
+			<button type="button" class="btn-breadcrumb btn-home" onclick="location.href='/index.html'">홈</button>
+		</div>
+		<div class="breadcrumb-group">
+			<button type="button" class="btn-breadcrumb btn-dropdown">
+			정보센터
+			<span class="caret"></span>
+			</button>
+			<ul class="dpn">
+			<li><a href="/contents/IDX/0101/IDX0101.jsp">KRX 지수</a></li><li><a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp">산업분류</a></li><li><a href="/board/MKD01040000/bbs">정보센터</a></li><li><a href="/contents/MKD/11/1103/11030100/MKD11030100.jsp">고객서비스</a></li><li><a href="/contents/OPN/02/02010100/OPN02010100.jsp">About Us</a></li>
+			</ul>
+		</div>
+		<div class="breadcrumb-group">
+			<button type="button" class="btn-breadcrumb btn-dropdown">
+			지수산출방법
+			<span class="caret"></span>
+			</button>
+			<ul class="dpn">
+			<li><a href="/board/MKD01040000/bbs" data-menu-id="0301" >지수운영공지</a></li><li><a href="/board/OPN02010400/bbs" data-menu-id="0302" >이벤트</a></li><li><a href="/contents/MKD/01/0111/01110900/MKD01110900.jsp" data-menu-id="0305" >인덱스 규제</a></li><li><a href="/contents/MKD/01/0111/01110600/MKD01110600.jsp" data-menu-id="0304" >지수산출방법</a></li><li><a href="/contents/MKD/01/0111/01110700/MKD01110700.jsp" data-menu-id="0303" >연관자료</a></li>
+			</ul>
+		</div>
+		
+		<div class="fullmenu-wrap">
+			<button type="button" class="btn btn-nav-fullmenu">메뉴전체보기</button>
+			<div class="menu-sitemap dpn">
+			<div class="ms-header">
+				<span class="ms-header-title">메뉴전체보기</span>
+				<span class="ms-depth-open"><button data-open-status="close">펼쳐보기<span>+</span></button></span>
+				<span class="ms-search">
+					<span><label for="full-menu-search-text">검색</label></span>
+					<span>
+						<input type="text" id="full-menu-search-text"/>
+					 	<button>검색</button>
+				 	</span>
+				</span>
+				
+			</div>
+			<div class="ms-list">
+			<ul>
+			<li>
+				<div class="depth1-name"><span></span><a href="/contents/IDX/0101/IDX0101.jsp">KRX 지수</a></div>
+				
+				<ul>
+				
+				<li><a href="/contents/IDX/0101/IDX0101.jsp">전체지수 시세</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0304/03040100/MKD03040100.jsp">주가지수</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0304/03040100/MKD03040100.jsp" class="depth-last"><span></span>KRX 시리즈</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0304/03040200/MKD03040200.jsp" class="depth-last"><span></span>KOSPI 시리즈</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0304/03040300/MKD03040300.jsp" class="depth-last"><span></span>KOSDAQ 시리즈</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0304/03040400/MKD03040400.jsp" class="depth-last"><span></span>테마지수</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0305/03050100/MKD03050100.jsp">파생상품지수</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0305/03050100/MKD03050100.jsp" class="depth-last"><span></span>선물</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0305/03050200/MKD03050200.jsp" class="depth-last"><span></span>옵션</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0306/03060100/MKD03060100.jsp">전략형지수</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060100/MKD03060100.jsp" class="depth-last"><span></span>동일가중지수</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060200/MKD03060200.jsp" class="depth-last"><span></span>인버스/레버리지</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060300/MKD03060300.jsp" class="depth-last"><span></span>멀티에셋</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060400/MKD03060400.jsp" class="depth-last"><span></span>리스크컨트롤</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060500/MKD03060500.jsp" class="depth-last"><span></span>스마트베타</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060600/MKD03060600.jsp" class="depth-last"><span></span>총수익지수</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0306/03060700/MKD03060700.jsp" class="depth-last"><span></span>자산배분</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0307/03070000/MKD03070000.jsp">글로벌지수</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp">채권지수</a>
+					
+					<ul>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080401/MKD03080401.jsp" class="has-children children-close"><span></span>KTB 10년 지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080401/MKD03080401.jsp">- 시간대별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080402/MKD03080402.jsp">- 일자별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080403/MKD03080403.jsp">- 일자별보조지표</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080501/MKD03080501.jsp" class="has-children children-close"><span></span>KRX 종합채권(AA- 이상) 지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080501/MKD03080501.jsp">- 일자별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080502/MKD03080502.jsp">- 일자별 보조지표</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp" class="has-children children-close"><span></span>KTB 지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080101/MKD03080101.jsp">- 시간대별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010303/MKD10010303.jsp">- 일자별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010304/MKD10010304.jsp">- 일자별보조지표</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080201/MKD03080201.jsp" class="has-children children-close"><span></span>KRX 채권종합지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080201/MKD03080201.jsp">- 종합시세</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080202/MKD03080202.jsp">- 유형별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080203/MKD03080203.jsp">- 채권종류별/만기별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010301/MKD10010301.jsp">- 유형별/기간별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010302/MKD10010302.jsp">- 상세그룹별/기간별지수</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080301/MKD03080301.jsp" class="has-children children-close"><span></span>국고채프라임지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080301/MKD03080301.jsp">- 시간대별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080302/MKD03080302.jsp">- 만기물별/시간대별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010305/MKD10010305.jsp">- 일별지수</a></li>
+						
+						<li><a href="/contents/MKD/10/1001/10010306/MKD10010306.jsp">- 만기물별/일별지수</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					<li>
+						
+						
+						<a href="/contents/MKD/03/0308/03080601/MKD03080601.jsp" class="has-children children-close"><span></span>KRX 미국채 10년 지수</a>
+						<ul class="dpn">
+						
+						<li><a href="/contents/MKD/03/0308/03080601/MKD03080601.jsp">- 일자별지수</a></li>
+						
+						<li><a href="/contents/MKD/03/0308/03080602/MKD03080602.jsp">- 일자별 보조지표</a></li>
+						
+						</ul>
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0310/03100000/MKD03100000.jsp">상품지수</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0309/03090000/MKD03090000.jsp">커스텀지수</a>
+					
+				</li>
+				
+				</ul>
+				
+			</li><li>
+				<div class="depth1-name"><span></span><a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp">산업분류</a></div>
+				
+				<ul>
+				
+				<li><a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp">KRX 지수산업분류</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030101/MKD03030101.jsp" class="depth-last"><span></span>개요</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030102/MKD03030102.jsp" class="depth-last"><span></span>산업분류</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030103/MKD03030103.jsp" class="depth-last"><span></span>산업별현황</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/03/0303/03030201/MKD03030201.jsp">GICS 산업분류</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030201/MKD03030201.jsp" class="depth-last"><span></span>개요</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030202/MKD03030202S1.jsp" class="depth-last"><span></span>산업분류</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030203/MKD03030203.jsp" class="depth-last"><span></span>산업별현황</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/03/0303/03030204/MKD03030204.jsp" class="depth-last"><span></span>산업별 종목현황</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				</ul>
+				
+			</li><li>
+				<div class="depth1-name"><span></span><a href="/board/MKD01040000/bbs">정보센터</a></div>
+				
+				<ul>
+				
+				<li><a href="/board/MKD01040000/bbs">지수운영공지</a>
+					
+				</li>
+				
+				<li><a href="/board/OPN02010400/bbs">이벤트</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/01/0111/01110900/MKD01110900.jsp">인덱스 규제</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/01/0111/01110600/MKD01110600.jsp">지수산출방법</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/01/0111/01110700/MKD01110700.jsp">연관자료</a>
+					
+					<ul>
+					
+					<li>
+						
+						<a href="/contents/MKD/01/0111/01111000/MKD01111000.jsp" class="depth-last"><span></span>지수성과평가보고서</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/01/0111/01110700/MKD01110700.jsp" class="depth-last"><span></span>FactSheet</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/01/0108/MKD01080000.jsp" class="depth-last"><span></span>브로셔/가이드</a>
+						
+						
+					</li>
+					
+					<li>
+						
+						<a href="/contents/MKD/01/0111/01110800/MKD01110800.jsp" class="depth-last"><span></span>참고자료</a>
+						
+						
+					</li>
+					
+					</ul>
+					
+				</li>
+				
+				</ul>
+				
+			</li><li>
+				<div class="depth1-name"><span></span><a href="/contents/MKD/11/1103/11030100/MKD11030100.jsp">고객서비스</a></div>
+				
+				<ul>
+				
+				<li><a href="/contents/MKD/11/1103/11030100/MKD11030100.jsp">지수라이센스</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030200/MKD11030200.jsp">지수정보상품</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030900/MKD11030900.jsp">지수 라이선스 구매요청</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11031000/MKD11031000.jsp">지수 구성정보 구매요청</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030300/MKD11030300.jsp">지수정보상품 조회</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030600/MKD11030600.jsp">지수정보상품 월별조회</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030800/MKD11030800.jsp">지수정보상품 타켓웨이트</a>
+					
+				</li>
+				
+				<li><a href="/contents/MKD/11/1103/11030400/MKD11030400.jsp">이용자정보관리</a>
+					
+				</li>
+				
+				<li><a href="/board/MKD11030700/bbs">Webzine</a>
+					
+				</li>
+				
+				</ul>
+				
+			</li><li>
+				<div class="depth1-name"><span></span><a href="/contents/OPN/02/02010100/OPN02010100.jsp">About Us</a></div>
+				
+				<ul>
+				
+				<li><a href="/contents/OPN/02/02010100/OPN02010100.jsp">KRX 지수사업</a>
+					
+				</li>
+				
+				<li><a href="/contents/OPN/02/02010200/OPN02010200.jsp">주가지수운영위원회</a>
+					
+				</li>
+				
+				<li><a href="/contents/OPN/02/02010300/OPN02010300.jsp">조직구성 및 연락처</a>
+					
+				</li>
+				
+				</ul>
+				
+			</li>
+			</ul>
+			</div>
+			<span class="ms-close"><button>Close</button></span>
+			</div>
+		</div>
+		
+	</div>
+	
+</div>
+		</div>
+	</div>
+	<div class="body-wrap">
+		<div class="content-wrap">	
+			
+
+
+
+
+
+
+
+
+
+
+<div class="menu-title open-">
+<h1>
+	<span>지수산출방법</span>
+	<span class="sub-title">GLOBAL PREMIER EXCHANGE</span>
+</h1>
+<div class="search-market">
+	
+	<!-- global 홈페이지 > KRX Market > Market > Bond 타이틀 부분에 버튼 추가 -->
+	
+</div>
+<div class="title-util">
+	
+
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+		
+	
+		
+	
+
+	
+		
+	
+		
+	
+		
+	
+		
+		
+		
+	
+		
+	
+
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+		
+	
+
+	
+		
+	
+		
+	
+		
+	
+
+
+</div>
+</div>
+			<article class="body-content IDX0304">
+			<!--b:s-->
+<div id="pagec4ca4238a0b923820dcc509a6f75849b">
+<fieldset class="design-fieldset">
+<legend>지수산출방법</legend>
+
+	<form action="/contents/IDX/99/IDX99000001.jspx" method="post" id="formc4ca4238a0b923820dcc509a6f75849b" data-bld="/IDX/01/0111/01110600/mkd01110600_01" onsubmit="return false;" autocomplete="off">
+
+  		<dl>
+			<dt>Search</dt>
+			<dd>
+				<select name="idx_upclss_cd" id="idx_upclss_cdc4ca4238a0b923820dcc509a6f75849b" class="select" onchange="setMidclssCd(this);"></select>
+				<select name="idx_midclss_cd" id="idx_midclss_cdc4ca4238a0b923820dcc509a6f75849b" class="select dpn"></select>
+			</dd>
+		</dl>
+  		<input type="hidden" name="lang" value="ko"/>
+	  	<div class="design-center">
+
+		  	<button class="btn-board btn-board-search" type="button" id="btnidc4ca4238a0b923820dcc509a6f75849b"><span></span>조회</button>
+<script>
+$(document).ready(function(){
+	if(typeof sijangjiPdf == "undefined"){
+		$('#btnidc4ca4238a0b923820dcc509a6f75849b').on('click', function (event, params) {
+			//event.preventDefault();
+			
+			var $f =  $(this).closest('form');
+			var isChecked = $.func.checkPeriod($f);
+			if(!true){
+				isChecked = true;
+			}
+			
+			if (isChecked) {
+				var formData = $f.serializeArray();
+				var code = $.otpCode('form', {'bld' : $f.attr('data-bld')});
+				formData.push({name:'code',value: code});
+				
+				var isCurPageChk = true;
+				var isNaviEvtChk = false;
+				if(params != undefined){
+					formData.push(params);
+					//페이지 처음호출이 아닌 두번째 조회버튼 클릭시 curPage를 초기화한다.
+					if(params.name == 'pageFirstCall'){
+						isCurPageChk = false;
+					}
+					if(params.name == 'naviBtnEvt'){
+						isNaviEvtChk = true;
+						//form의 값이 변경되고 페이징 버튼을 클릭한 경우
+						if(params.value == 'R'){
+							isNaviEvtChk = false;
+						}
+					}
+				}
+				
+				//페이징을 하는경우 해당페이지의 페이지네비게이션 이벤트가 아닌경우 조회시 1로 초기화한다.
+				if(isCurPageChk && $('input[name=curPage]',$f).length > 0){
+					var findObj = _.findWhere(formData,{name:'curPage'});
+					if(isNaviEvtChk == false){
+						var curPageIdx = _.indexOf(formData, findObj);
+						formData[curPageIdx] = {name:'curPage', value:1};
+						$('input[name=curPage]',$f).val(1);
+					}
+				}
+				
+				$f.attr('data-code', code);
+				var ajaxSync = true;
+				
+				$.func.ajaxSubmit($f.attr('action'), formData, ajaxSync, 'json', false);
+				
+				//화면 조회"WebContent/WEB-INF/tags/func/submitBtn.tag"시 조회시간(time tag) 동기화
+				//time tag는 일자, 일자+시간, 일자+시간+20분지연메시지(영문포함) 유형
+				
+				//시장정보 화면은 pageId 기준으로 찾음 pageId 가 없는 화면은 body에서 찾자
+				var $time = $('#pagec4ca4238a0b923820dcc509a6f75849b').find('.func-icon-time');
+				var syncTime = $time.find('span:eq(1)').html();
+				var nDay = $.nowTimeDate().getDateFormat('/');
+				var nTime = $.nowTimeDate().getTimeFormat(':');
+				
+				if (syncTime === undefined) {
+					var $b = $(this).closest('body');
+					$time = $b.find('.func-icon-time');
+					syncTime = $time.find('span:eq(1)').html();
+				}
+				
+				if ($time.length > 0) {
+					syncTime = syncTime.replace(syncTime.split(' ')[0], nDay).replace(syncTime.split(' ')[2], nTime);
+					$time.find('span:eq(1)').html(syncTime);
+				}
+				$('#btnidc4ca4238a0b923820dcc509a6f75849b').prop('disabled', true);
+			} else {
+				alert('조회기간은 1년을 초과할 수 없습니다.');
+			}
+		});
+		$(document).ready(function(){
+			setTimeout(function () {
+				$('#btnidc4ca4238a0b923820dcc509a6f75849b').trigger('click', {name:'pageFirstCall',value:'Y'});
+			}, 300);
+		});
+		
+		
+	 	$(document).ajaxSuccess(function (event, xhr, settings) {
+			var $frm = $('#btnidc4ca4238a0b923820dcc509a6f75849b').closest('form');
+			if(settings.url == $frm.attr('action') && decodeURIComponent(settings.data).indexOf($frm.attr('data-code')) != -1){
+				setTimeout(function () {
+					$('#btnidc4ca4238a0b923820dcc509a6f75849b').prop('disabled', false);
+				}, 1000);
+			}
+		}); 
+ 	
+	}
+});
+</script>
+	  	
+</div>	
+  	
+<input type="hidden" name="pagePath" value="/contents/MKD/01/0111/01110600/MKD01110600.jsp"/>
+</form>
+
+</fieldset>
+<div class="design-table1" id="eccbc87e4b5ce2fe28308fd9f2a7baf3">
+
+	
+<table id="gridtablea87ff679a2f3e71d9181a67b7542122c" summary="시장동향 지수산출방법정보입니다."><caption>시장동향 지수산출방법입니다.</caption><colgroup>
+			
+<col style="width: 15%">
+			
+<col style="width: 30%">
+			
+<col style="width: 45%">
+			
+<col style="width: 10%">
+		
+</colgroup>
+<thead><tr><th>지수분류</th><th>지수명</th><th>제목</th><th>파일</th></tr></thead><tbody><tr>
+				<td bind="idx_ind_clss_nm"></td>
+
+				<td bind="idx_nm"></td>
+
+				<td bind="title"></td>
+
+				<td align="center"><a data-param="seq:{{seq}}, lang:{{lang}}" data-url="/IDX/01/0111/01110600/mkd01110600_02" href="#" onclick="$.down(this, 'att')"><span class="icon-file-pdf">pdf</span></a></td>
+
+			</tr></tbody></table>
+
+<script>
+$(document).ready(function(){
+	var $tablea87ff679a2f3e71d9181a67b7542122c = $('#gridtablea87ff679a2f3e71d9181a67b7542122c');
+	var tableCola87ff679a2f3e71d9181a67b7542122c = $tablea87ff679a2f3e71d9181a67b7542122c.find('col');
+	var $tbodyClonea87ff679a2f3e71d9181a67b7542122c = $tablea87ff679a2f3e71d9181a67b7542122c.clone(true);
+	var $tbodya87ff679a2f3e71d9181a67b7542122c = $tablea87ff679a2f3e71d9181a67b7542122c.find('tbody');
+	$tablea87ff679a2f3e71d9181a67b7542122c.before($tablea87ff679a2f3e71d9181a67b7542122c.children('caption').children('span'));
+	$tbodya87ff679a2f3e71d9181a67b7542122c.hide();
+	if(typeof sijangjiPdf == "undefined"){
+		$(document).ajaxSuccess(function (event, xhr, settings) {
+			if(settings.url == $('#formc4ca4238a0b923820dcc509a6f75849b').attr('action')){
+				if($('#formc4ca4238a0b923820dcc509a6f75849b').attr('data-bld') == '/IDX/01/0111/01110600/mkd01110600_01' && decodeURIComponent(settings.data).indexOf($('#formc4ca4238a0b923820dcc509a6f75849b').attr('data-code')) != -1){
+					var tabledata = xhr.responseJSON[$.func.getJsonKey(xhr.responseJSON,0)];
+					$tbodya87ff679a2f3e71d9181a67b7542122c.show();
+					if(tabledata.length > 0){
+						
+						$.func.makeTable(tabledata, $tablea87ff679a2f3e71d9181a67b7542122c, $tbodyClonea87ff679a2f3e71d9181a67b7542122c, tableCola87ff679a2f3e71d9181a67b7542122c, $tbodya87ff679a2f3e71d9181a67b7542122c.length, true);
+						
+					}else{
+						var cellInt = 0;
+						$tablea87ff679a2f3e71d9181a67b7542122c.find('thead tr:eq(0) th').each(function(i, th){
+							var colspan = 1;
+							if($(th).attr('colspan') != undefined){
+								colspan = parseInt($(th).attr('colspan'));
+							}
+							cellInt = cellInt + colspan;
+						});
+						var noData = '<tr><td colspan="'+cellInt+'" class="tac">데이터가 없습니다</td></tr>';
+						if($tablea87ff679a2f3e71d9181a67b7542122c.find('tbody').length > 0){
+							$tablea87ff679a2f3e71d9181a67b7542122c.find('tbody').empty().append(noData);
+						}else{
+							$tablea87ff679a2f3e71d9181a67b7542122c.append('<tbody>').append(noData);
+						}
+					}
+					$.tableFirstChild('gridtablea87ff679a2f3e71d9181a67b7542122c');
+				}
+			}
+		});
+	} else {
+		var $f =  $('#formc4ca4238a0b923820dcc509a6f75849b');
+		var code = $.otpCode('form', {'bld' : $f.attr('data-bld')});
+		
+		var formData = $f.serializeArray();
+		formData.push({name:'code',value: code});
+		$f.attr('data-code', code);
+		
+		var sijangjiFormId = $tablea87ff679a2f3e71d9181a67b7542122c.closest('.pdf_container').attr('data-form-id');
+		
+		if ($('#' + sijangjiFormId).length > 0) {
+			var sijangformData = $('#' + sijangjiFormId).serializeArray();
+			for (var i = 0; i < sijangformData.length; i++) {
+				
+				var merge = 0;
+				for (var j = 0; j < formData.length; j++) {
+					if (sijangformData[i].name == formData[j].name) {
+						formData[j].value = sijangformData[i].value;
+						merge++;
+					}
+				}
+				if (merge == 0) {
+					formData.push({name:sijangformData[i].name,value:sijangformData[i].value});
+				}
+			}
+		}
+		$.func.ajaxSubmit($f.attr('action'), formData, false).success(function(data){
+			var tabledata = data[$.func.getJsonKey(data,0)];
+			$.each(formData, function(x, data){
+				var columDate;
+				var thItem = $tablea87ff679a2f3e71d9181a67b7542122c.find("th:contains('{{" + data.name + "}}')");
+				if(thItem.length > 0){
+					if(data.name == 'schdate'){
+						columDate = data.value.substring(0,4) + '/' + data.value.substring(4,6) + '/' + data.value.substring(6,8);
+					}else if(data.name == 'schyear'){
+						columDate = data.value;
+					}
+					thItem.html(thItem.html().replace("{{" + data.name + "}}", columDate));	
+				}
+			});
+			if(tabledata.length > 0){
+				$tbodya87ff679a2f3e71d9181a67b7542122c.show();
+				
+				$.func.makeTable(tabledata, $tablea87ff679a2f3e71d9181a67b7542122c, $tbodyClonea87ff679a2f3e71d9181a67b7542122c, tableCola87ff679a2f3e71d9181a67b7542122c, $tbodya87ff679a2f3e71d9181a67b7542122c.length, true);
+				
+			}else{
+				var cellInt = 0;
+				$tablea87ff679a2f3e71d9181a67b7542122c.find('thead tr:eq(0) th').each(function(i, th){
+					var colspan = 1;
+					if($(th).attr('colspan') != undefined){
+						colspan = parseInt($(th).attr('colspan'));
+					}
+					cellInt = cellInt + colspan;
+				});
+				var noData = '<tr><td colspan="'+ cellInt +'">데이터가 없습니다</td></tr>"';
+				if($tablea87ff679a2f3e71d9181a67b7542122c.find('tbody').length > 0){
+					$tablea87ff679a2f3e71d9181a67b7542122c.find('tbody').empty().append(noData);
+				}else{
+					$tablea87ff679a2f3e71d9181a67b7542122c.append('<tbody>').append(noData);
+				}
+			}
+		});
+	}
+});
+</script>
+
+</div>
+<script>
+$.tableFirstChild('eccbc87e4b5ce2fe28308fd9f2a7baf3');
+
+</script>
+<script type="text/javascript">
+$(document).ready(function(){	
+	$.selectbox('idx_upclss_cdc4ca4238a0b923820dcc509a6f75849b', '/IDX/01/0111/01110600/mkd01110600_03');	
+});
+
+function setMidclssCd(obj){
+	var thisVal = $(obj).val();
+	var midclssCd = $('#idx_midclss_cdc4ca4238a0b923820dcc509a6f75849b');
+	
+	if(thisVal == 'ALL') {		
+		midclssCd.addClass('dpn');
+	} else {		
+		$.selectbox( midclssCd.attr('id'), '/IDX/01/0111/01110600/mkd01110600_04');
+		midclssCd.removeClass('dpn');
+	}
+}
+</script>
+</div>
+<!--b:e-->
+			</article>
+			
+
+
+		</div>
+	</div>
+	<div class="footer-wrap">
+		
+
+<div class="footer-outer">
+	<div class="footer">
+		<div class="footer-util">
+			<nav>
+				<ul>
+				<li><a href="https://info.krx.co.kr/contents/KRX/06/06070100/KRX06070100.jsp"  target="_blank"><strong>개인정보처리방침</strong></a></li>
+				<li><a href="https://info.krx.co.kr/contents/KRX/06/06070400/KRX06070400.jsp"  target="_blank">영상정보처리기기 운영관리방침</a></li>
+				<li><a href="https://info.krx.co.kr/contents/KRX/06/06070200/KRX06070200.jsp"  target="_blank">법적고지</a></li>
+				
+				<li><a href="/contents/COM/Sitemap.jsp" class="footer-sitemap">사이트맵</a></li>
+				
+				<li><a href="https://info.krx.co.kr/contents/KRX/06/06010000/KRX06010000.jsp"  target="_blank">고객서비스헌장</a></li>
+				</ul>
+			</nav>
+			
+			
+
+
+
+<div id="family-site" class="family-site">
+	<button id="ft-family-site-ah1" class="btn-family-site btn-dropdown" type="button" aria-expanded="false" aria-controls="ft-family-site-panel">Family Site</button>
+	<ul class="dpn" id="ft-family-site-panel">
+	
+		
+		
+		
+			
+			<li><a href="http://task.krx.co.kr" target="_blank">&middot; 대외업무</a></li>
+			
+			<li><a href="http://kind.krx.co.kr" target="_blank">&middot; 상장공시시스템(KIND)</a></li>
+			<li><a href="http://isin.krx.co.kr/main/main.do" target="_blank">&middot; 표준코드시스템</a></li>
+			<li><a href="http://www.krxfoundation.or.kr" target="_blank">&middot; KRX 국민행복재단</a></li>
+			<li><a href="http://trn.krx.co.kr" target="_blank">&middot; 파생상품 모의거래시스템</a></li>
+			<li><a href="http://bonds.krx.co.kr" target="_blank">&middot; 채권상장시스템</a></li>
+			<li><a href="http://voc.krx.co.kr" target="_blank">&middot; 민원센터</a></li>
+			<li><a href="https://data.krx.co.kr" target="_blank">&middot; Data Marketplace</a></li>
+			
+			
+			<li><a href="http://konex.krx.co.kr" target="_blank">&middot; 코넥스시장</a></li>
+			
+			
+			<li><a href="http://krxrnd.krx.co.kr" target="_blank">&middot; 증권·파생상품연구센터</a></li>
+			
+			<li><a href="http://startup.krx.co.kr" target="_blank">&middot; KRX Start-Up</a></li>
+			<li><a href="http://ksm.krx.co.kr" target="_blank">&middot; KRX Startup Market</a></li>
+			<li><a href="http://mna.krx.co.kr" target="_blank">&middot; M&A중개망</a></li>
+			<li><a href="http://tr.krx.co.kr" target="_blank">&middot; KRX 거래정보저장소(TR)</a></li>
+		
+		
+	
+	</ul>
+</div>
+			
+		</div>
+	</div>
+	<div class="footer-address">
+		<address>
+		본사 : 48400 부산광역시 남구 문현금융로 40(문현동) 사업자 등록번호 : 602-81-35420  금융서비스업 대표자 : 정은보<br/>
+		서울 : 07329 서울특별시 영등포구 여의나루로 76(여의도동) TEL : 1577-0088 / 02-3774-9000 / 통신판매신고 부산남구 .0036호<br/>
+		</address>
+		<div class="copyright">
+		COPYRIGHT&copy;2015 KOREA EXCHANGE ALL RIGHTS RESERVED. WEBMASTER@KRX.CO.KR
+		</div>
+		
+
+		<div class="mark"><span class="hidden-alt">KRX 한국거래소 로고</span></div>
+	</div>
+</div>
+
+	</div>
+	<div class="pageutil">
+	<span class="home"><button type="button">HOME</button></span>
+	<span class="pc-ver"><button type="button">PC Ver</button></span>
+	<span class="top"><button type="button">TOP</button></span>
+</div>
+</div>
+</body>
+</html>

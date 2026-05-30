@@ -1,0 +1,35 @@
+section,key,value,note
+,,,
+GLOBAL,total_events_v3_rows,220,
+GLOBAL,effective_dt_filled_rows,133,provisional secondary basis; rule-cited; calendar-confirmed
+GLOBAL,effective_dt_blank_rows,10,includes 2026-06 cycle calendar cutoff
+GLOBAL,effective_dt_not_applicable_rows,77,skeleton or out-of-rulebook-scope rows
+,,,
+PER_CYCLE,review_cycle,effective_dt_filled,confidence
+PER_CYCLE,2021-06,2021-06-11,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2021-12,2021-12-10,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2022-06,2022-06-10,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2023-06,2023-06-09,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2023-12,2023-12-15,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2024-06,2024-06-14,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2024-12,2024-12-13,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2025-06,2025-06-13,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2025-12,2025-12-12,provisional_secondary_rulebook_calendar_confirmed
+PER_CYCLE,2026-06,(blank),blocked_calendar_coverage_cutoff
+,,,
+BASIS,methodology_source_id,miraeasset_kospi200_methodology_v2.pdf,sha256=373b478accfa4e5eca9e4d8f60ad93fac468ebc005ae1db6bbf72b33c45cf3d8
+BASIS,methodology_basis_class,secondary_KRX_publisher_attributed_rulebook_copy__primary_KRX_access_blocked,
+BASIS,futures_ltd_source_id,hana_listed_derivatives_trade_description.pdf,sha256=f62e511f1867fcc0cd704c94ec5cf3ebc81f5e5210cd1797c6cbe9d92459b446
+BASIS,futures_ltd_basis_class,secondary_broker_hosted_KRX_attributed_derivatives_product_description__primary_KRX_access_blocked,
+BASIS,calendar_source,data/acquired/krx_calendar/krx_official_calendar_2010_2026.csv,coverage 2010-01-04 .. 2026-05-22
+,,,
+RECONCILIATION_NOTE,key,value,note
+RECONCILIATION_NOTE,2026-06_press_release_match,press_says_2026-06-12; rule_computes_2026-06-11_Thu_plus_1_trading_day=2026-06-12,RECONCILIATION ONLY — not used as fill basis (per Referee Q2)
+RECONCILIATION_NOTE,primary_KRX_access,BLOCKED (index.krx.co.kr OTP path) — same blocker as BX01-source-A0,secondary-triangulated derivation is provisional
+,,,
+RESIDUAL_BLOCKERS,key,value,note
+RESIDUAL_BLOCKERS,primary_KRX_rulebook_access,blocked,blocker
+RESIDUAL_BLOCKERS,primary_KRX_derivatives_spec_access,blocked,blocker
+RESIDUAL_BLOCKERS,2026-06_calendar_cutoff,blocked,blocker
+RESIDUAL_BLOCKERS,tier1_skeleton_only_cycles_2018-06_2019-06_2020-06_2020-12,4 cycles still skeleton (carry-forward from attachment-parse phase),blocker for cycle-complete TEST design
+RESIDUAL_BLOCKERS,regular_special_conflation_class_b_rows,preserved as caveat from attachment-parse phase,blocker

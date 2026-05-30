@@ -53,6 +53,11 @@ data/processed/
 !data/acquired/bx01_kospi200_index_event_source_a0/
 data/acquired/bx01_kospi200_index_event_source_a0/raw/
 
+# BX01 rulebook-A0 exception: derived artifacts + small public PDFs (rulebook refs)
+# tracked; together ~2.2MB. Per Referee allowance for committable rulebook references.
+!data/acquired/bx01_kospi200_rulebook_effective_dt_a0/
+!data/acquired/bx01_kospi200_rulebook_effective_dt_a0/raw/
+
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
 paper_trading/operations/tax_ledger/

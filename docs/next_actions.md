@@ -8,7 +8,39 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-(비어 있음 — active 작업 없음. 새 작업은 사용자의 명시적 결정으로만 추가된다.)
+### BX01-KOSPI200-RULEBOOK-EFFECTIVE-DT-A0 (opened 2026-05-31; initial pass 2026-05-31)
+
+- **Phase pre-reg + addendum:** `research/experiments/BX01_KOSPI200_index_event_source_A0.md`
+  + `reports/experiments/BX01_KOSPI200_index_event_source_A0/rulebook_effective_dt_initial_pass.md`
+- **Decision channel:** user → claude-session AskUserQuestion answer "C — Rulebook-A0
+  (effective_dt 채움) (Recommended)". Phase opened via Referee `ask_0009.md` /
+  `ask_claude_05.md`; Executor acknowledged in `claude_reply_05.md`; two halt+escalate
+  bridges (primary KRX access + futures LTD basis) both resolved via Referee 2026-05-31
+  clarifications under hybrid (c) framework (secondary KRX-publisher-attributed +
+  broker-hosted KRX-attributed sources accepted with strict provisional labels).
+- **Status: INITIAL PASS COMPLETE, awaiting Referee gate verdict.**
+- **Diagnostic-only.** Per-cycle effective_dt derivation only. Does **not** open
+  backtest / strategy / P08 / production / paper-live / parser-measurement-layer
+  reopening / closed-family reopening / MSCI / FTSE / KOSDAQ150 / Tier 2/3 / hwp parser /
+  broker pdf parsing.
+- **Derived (provisional secondary basis):** 9/10 Tier 1 cycles (2021-06 .. 2025-12)
+  filled with effective_dt under `provisional_secondary_rulebook_calendar_confirmed`
+  confidence. Per-cycle rule = Mirae 2021-11 §7.1 (methodology) + Hana 2020-05-25 p8/p15
+  (futures LTD) + local KRX calendar. 2026-06 blank (calendar cutoff). Reconciliation
+  against 2026-05-22 KRX press release PERFECT match (rule predicts 2026-06-12; press
+  says 2026-06-12).
+- **Forbidden (preserved):** no backtest / return / edge calc; no signals/trades/P08/
+  paper-live; no convention/news/rebalance fill; no 2026-06 fill from press; no
+  calendar fetch; no OTP bypass; no paid feed; no parser/measurement-layer reopening;
+  no Tier 2/3 / MSCI / FTSE / KOSDAQ150 expansion; no row labeled
+  strategy/executable/approved/production/paper-ready; no self-close.
+- **Recommended gate to Referee:** `BACKLOG_EFFECTIVE_DT_PARTIAL_SECONDARY_BASIS`
+  (Referee's own expected wording) — 9 cycles filled is material progress, but (a)
+  primary KRX access blocked, (b) 2026-06 blank, (c) prior phase blockers intact
+  (4 skeleton Tier 1 + Class B conflation + Tier 2/3 deferred).
+- **Next:** Bridge initial pass to Referee for gate verdict. Any next step (primary KRX
+  acquisition route, calendar extension, Tier 2/3 parse, hwp parser, missing Tier 1
+  acquisition, diagnostic backtest design) requires separate user + Referee decision.
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee
