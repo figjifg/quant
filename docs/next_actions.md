@@ -8,41 +8,7 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### BX01-KOSPI200-ATTACHMENT-PARSE-A0 (opened 2026-05-30; initial pass 2026-05-31)
-
-- **Phase pre-reg + addendum:** `research/experiments/BX01_KOSPI200_index_event_source_A0.md`
-  + `reports/experiments/BX01_KOSPI200_index_event_source_A0/attachment_parse_initial_pass.md`
-- **Decision channel:** user → claude-session AskUserQuestion answer "B — Tier 1 14개만 먼저 다운"
-  + user delivered 17 files (11 xlsx + 4 hwp + 2 broker pdf) into
-  `research_input_data/정기변경/` (read-only-protected) + user renamed all files with
-  date-coded form (`YY.M(M).ext`) confirming cycle mapping. Phase opened via Referee
-  `ask_0008.md` / `ask_claude_04.md`; Executor acknowledged in `claude_reply_04.md`;
-  intake-time halt+escalate triggered + resolved via Referee 2026-05-30 clarification
-  extending directive with snapshot-diff design (Class A direct + Class B diff under
-  strict conditions; Class C/D deferred).
-- **Status: INITIAL PASS COMPLETE, awaiting Referee gate verdict.**
-- **Diagnostic-only.** Attachment intake + parse + reconciliation only. Does **not**
-  open backtest / strategy / P08 / production / paper-live / parser / measurement-
-  layer reopening / DART body parser / closed-family reopening / MSCI / FTSE /
-  KOSDAQ150 scope; does **not** parse Class C (hwp) or Class D (broker pdf).
-- **Allowed (executed):** Class A direct parse (12 rows, 2021-06 review); Class B
-  consecutive-snapshot diff (133 rows, 9 Tier 1 + 2 bridge 2022-12); consolidated v2
-  events artifact (220 rows total); per-row preserve-all + strong source-record-type
-  + caveat labels; missing-field census; PIT assessment update.
-- **Forbidden (preserved):** no backtest / return / run-up / edge calc; no
-  signals/trades/portfolio/P08/paper-live/execution; no parser/measurement-layer
-  reopening; no Tier 2/3 / MSCI / FTSE / KOSDAQ150 expansion; no effective_dt
-  fill by rule/memory/convention/diff/rebalance; no row labeled
-  strategy-ready/executable/approved/production-ready/paper-ready; no self-close.
-- **Recommended gate to Referee:** `BACKLOG_ATTACHMENT_PARSE_GAP` — parse for 10/14
-  Tier 1 cycles is auditable + caveated, but (a) diff conflates regular+intermediate-
-  special for 3+ cycles, (b) effective_dt universally blank (Referee rule), (c) 4
-  Tier 1 cycles still skeleton (hwp/broker pdf deferred), (d) listing-name cross-
-  check not yet run. Not `PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN` (gaps named); not
-  `FAIL_CLOSED` (materially better than skeleton; blocker decomposable).
-- **Next:** Bridge initial pass to Referee for gate verdict + close housekeeping.
-  Any next step (special/regular separation phase, hwp parse, rulebook A0, listing
-  cross-check, etc.) requires separate user + Referee decision.
+(비어 있음 — active 작업 없음. 새 작업은 사용자의 명시적 결정으로만 추가된다.)
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee
@@ -57,6 +23,67 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 > 측정 레이어 재개 또는 P08 ops 착수 모두 사용자의 새 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### BX01-KOSPI200-ATTACHMENT-PARSE-A0 — CLOSED AS BACKLOG_ATTACHMENT_PARSE_GAP / TIER 1 PARTIAL CONSTITUENT PARSE COMPLETED / 2021-06 DIRECT CHANGE ROWS + SNAPSHOT-DIFF DERIVED ROWS PRESERVED WITH REGULAR-SPECIAL CONFLATION CAVEAT / LISTING XREF COMPLETED / EFFECTIVE_DATES STILL UNFILLED / NO BACKTEST OR STRATEGY OPENED (2026-05-31, via bridge)
+
+사용자 결정(2026-05-30)으로 BX01-source-A0 closure 직후 옵션 B (사용자 직접 KRX
+attachment 공급 + parse A0) 채택. 사용자가 `research_input_data/정기변경/` (read-only
+protected dir) 에 17 파일 supply (11 xlsx + 4 hwp + 2 broker pdf) + 모든 파일을
+date-coded form (`YY.M(M).ext`) 으로 rename → high-confidence cycle mapping. Phase
+발행 = Referee `ask_0008.md` / `ask_claude_04.md`. Intake-time halt+escalate
+triggered → Referee 2026-05-30 clarification extending directive with snapshot-diff
+design (Class A direct + Class B diff strict conditions; Class C hwp + Class D
+broker pdf deferred). **Referee 최종 verdict = BACKLOG_ATTACHMENT_PARSE_GAP** (via
+bridge 2026-05-31, after 4 mandatory pre-close items executed + 2 stale-text
+cleanup items).
+
+- Status: **CLOSED AS BACKLOG_ATTACHMENT_PARSE_GAP**. 사전등록 source-A0 pre-reg +
+  addendum `reports/experiments/BX01_KOSPI200_index_event_source_A0/attachment_parse_initial_pass.md`;
+  코드 `src/audit/bx01/{build_coverage_matrix,parse_class_a,build_class_b_mapping_proposal,parse_class_b_with_diff,consolidate_v2,cross_check_listing_universe,rewrite_coverage_matrix_final}.py`;
+  산출 `data/acquired/bx01_kospi200_index_event_source_a0/` (events_v2.csv +
+  events_v2_xref.csv + events_class_a.csv + events_class_b_derived.csv +
+  snapshots.csv + coverage_matrix_final.csv + reconciliation_v2.csv + manifest.csv;
+  raw/ gitignored ; manifest record-of-record).
+- 커밋 lineage: `daf7e10` (initial pass) → `c83bef7` (final pass: cross-check +
+  matrix rewrite + report fixes) → close-housekeeping commit (this).
+- **취득한 것:** 17 user-supplied 파일 cycle 매핑; Class A 직접 parse 1 cycle
+  (2021-06, +5 add / -7 del); Class B consecutive snapshot-diff 9 Tier 1 cycles
+  (2021-12 ~ 2026-06) + 1 bridge cycle (2022-12, not in Tier 1); v2 events =
+  220행 (12 direct + 133 derived + 75 skeleton carry-forward); listing-name xref
+  via PIT 조인 (138/145 = 95.2% ticker confirmed); coverage_matrix_final.csv
+  (post-rename canonical mapping); coverage_matrix_prerename.csv (transparency
+  preserved).
+- **차단/보류된 것:** Class C 4 hwp deferred (hwp parser out-of-scope); Class D 2
+  broker pdf deferred (secondary source authority, not record-of-record); 4/14
+  Tier 1 cycles (2018-06, 2019-06, 2020-06, 2020-12) skeleton-only (hwp/pdf
+  deferred); effective_dt 0/220 blank (Referee rule: direct-from-file only; not
+  filled by rule/convention/diff/rebalance); Class B derived rows conflate
+  regular review + intermediate special/supplemental events (named cases:
+  2021-12 includes 크래프톤/카카오뱅크 2021-08 special + 카카오페이 2021-11
+  special; 2022-06 includes LG에솔 2022-01 special; 2023-12 includes 에코프로머티
+  2023-12 special; 2024-06 includes 포스코DX 2024-01 special) — preserved as
+  caveat, not silently dropped.
+- **하드룰 유지:** diagnostic-only — 수익률/run-up/edge 계산 0; signals.csv/trades.csv/
+  portfolio/P08/production/paper-live 0; parser/measurement-layer/DART body-parser/
+  closed-family 재개 0; MSCI/FTSE/KOSDAQ150 확장 0; Tier 2/3 / BX02 / BX03 / BX04
+  진행 0; effective_dt rule-fill 0; row 단 한 줄도 strategy-ready/executable/approved/
+  production-ready/paper-ready 라벨 없음; sandbox OTP 재시도 0; paid/licensed feed
+  search 0.
+- **Referee verdict 근거 (수락):** Class A direct + Class B snapshot-diff parse는
+  notice-level skeleton에서 220행 보존형 산출물로 의미 있는 확장; direct vs
+  derived 신뢰도 source_record_type으로 분리 유지; regular-special conflation은
+  caveat로 보존 (FAIL 사유 아님); effective_dt 0/220 = 지시 정확 준수;
+  Class C/D defer 적절; listing-name cross-check 완료 (95.2% ticker
+  confirmation + 0 conflicts). NOT FAIL_CLOSED (parse 품질 materially 개선);
+  NOT PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN (effective_dt blank + 4 skeleton
+  cycles + diff conflation + cross-check 후에도 미해결).
+- **명시적 금지 (Referee, 별도 승인 없이는):** Tier 2/3 parse, hwp parser, broker
+  pdf cross-check, rulebook-A0 for effective_dt, 4 missing Tier 1 acquisition,
+  diagnostic backtest design, 모두 별도 사용자 + Referee 결정 필요. 자동 재개 X.
+- **사용자 선택지 (Referee 제시; 다음 결정 사항):** (A) Tier 2/3 parse phase
+  (deferred specials) — diff conflation 해결. (B) hwp parser 별도 phase — 4
+  missing Tier 1 cycles 해결. (C) rulebook-A0 — effective_dt 채움. (D) 4 missing
+  Tier 1 cycle 별도 acquire. (E) 모든 것 backlog + standby.
 
 ### BX01-KOSPI200-INDEX-EVENT-SOURCE-A0 — CLOSED AS BACKLOG_SOURCE_GAP / KRX NOTICE METADATA ACQUIRED / CONSTITUENT ATTACHMENTS BLOCKED BY ENVIRONMENTAL DOWNLOAD GAP / NO BACKTEST OR STRATEGY OPENED (2026-05-28, via bridge)
 

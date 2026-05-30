@@ -53,8 +53,11 @@ user decision must separate them.
 the 10 covered cycles is auditable + caveated, but (a) special/regular conflation is
 unresolved, (b) effective_dt is universally blank (Referee rule: direct-from-file
 only; nothing inside the attachments provided a direct effective_dt), (c) 4 of 14
-Tier 1 cycles remain skeleton-only (hwp / broker pdf deferred), (d) listing-name
-cross-check against the listing-universe A0 outputs has not yet been run.
+Tier 1 cycles remain skeleton-only (hwp / broker pdf deferred). The listing-name
+cross-check has been EXECUTED in the final pass (see §7): 138/145 const-level
+rows ticker-confirmed in PIT listing; remaining blockers above (effective_dt
+blank, 4 skeleton-only cycles, regular/special conflation) are not resolved by
+the cross-check.
 
 NOT `PASS_TO_DIAGNOSTIC_BACKTEST_DESIGN` for those reasons.
 NOT `FAIL_CLOSED` — the parse for 10 cycles is materially better than the prior
@@ -370,8 +373,9 @@ Rationale per directive's gate notes:
     one intermediate special).
   - `effective_dt` universally blank — any downstream TEST would need a rulebook-A0
     or per-cycle effective-date acquisition.
-  - listing-name cross-check not yet performed (mechanical; can be done as final
-    pass).
+  - listing-name cross-check EXECUTED in the final pass (see §7); 138/145
+    const-level rows ticker-confirmed in PIT listing (95.2%), 0 ticker
+    conflicts. Does NOT resolve the other three blockers above.
 
 **NOT FAIL_CLOSED** — parse quality for 10 cycles materially improved over the
 prior skeleton; blocker is decomposable into named follow-on steps that require
