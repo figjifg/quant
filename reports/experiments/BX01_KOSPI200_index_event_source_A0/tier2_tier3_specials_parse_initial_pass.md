@@ -189,7 +189,8 @@ data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/
   attempt_log.csv               220 rows (55 × 4 attempt classes)
   manifest.csv                  2 rows (OTP step1/step2 evidence)
   coverage_matrix.csv           55 rows (all acquired=NO)
-  conflation_reconciliation.csv 9 rows (4 UNRESOLVED + 5 clean)
+  conflation_reconciliation.csv 9 rows (3 UNRESOLVED main-index + 5 clean
+                                  + 1 sub-index caveat = 6 main-index-clean total)
 
 reports/experiments/BX01_KOSPI200_index_event_source_A0/
   tier2_tier3_specials_parse_initial_pass.md  THIS FILE
