@@ -8,33 +8,7 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 
 ## Active
 
-### BX01-KOSPI200-TIER2-TIER3-SPECIALS-PARSE-A0 (opened 2026-05-31; initial pass 2026-05-31)
-
-- **Phase pre-reg + addendum:** carry-forward from prior BX01 phases +
-  `reports/experiments/BX01_KOSPI200_index_event_source_A0/tier2_tier3_specials_parse_initial_pass.md`
-- **Decision channel:** Referee directive `ask_claude_06.md` (option C from
-  rulebook-A0 close options; autonomous mode per user 2026-05-31 authorization).
-- **Status: INITIAL PASS COMPLETE, awaiting Referee gate verdict.**
-- **Target count verified:** 55 Tier 2/3 specials exact match between
-  notice_index.json and events_v3.csv BX01-*-SPECIAL rows.
-- **Outcome:** **0/55 parseable** within directive scope (xlsx/csv/HTML-table only).
-  Source format mix = 0 xlsx + 16 hwp + 1 pdf + 38 no-attach. Network probes
-  confirm prior blockers (OTP 0-byte / static 404-405 / Wayback empty).
-- **Conflation reconciliation (post-Referee 2026-05-31 main-index scope
-  cleanup):** 3 of 9 Class B cycles (2021-12 / 2022-06 / 2024-06) have main-index
-  intermediate specials inside their window and remain UNRESOLVED. 6 of 9
-  Class B cycles are main-index clean — of which 1 (2025-12) carries a sub-
-  index variant deferred caveat (bbsSeq=1020 KOSPI 200 ESG 수시변경, NOT
-  main-index constituent change), 5 (2023-06 / 2023-12 / 2024-12 / 2025-06 /
-  2026-06) were already clean. 48 of 55 specials fall pre-2021-06 — before
-  Class B parsing started, cannot affect Class B conflation by construction.
-  Total: 6 main-index-relevant unresolved specials + 1 sub-index variant
-  caveat. Catalogue target count = 55 preserved; main-index conflation-
-  relevant unresolved count = 6.
-- **Recommended gate:** `BACKLOG_TIER2_TIER3_STRUCTURED_SOURCE_GAP`
-  (directive's expected wording).
-- **Next:** Bridge initial pass to Referee for gate verdict + close housekeeping.
-  Any next step requires separate Referee directive.
+(비어 있음 — active 작업 없음. 새 작업은 사용자의 명시적 결정으로만 추가된다.)
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee
@@ -49,6 +23,68 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 > 측정 레이어 재개 또는 P08 ops 착수 모두 사용자의 새 명시적 결정 필요.
 
 ## Closed / Frozen (변경 시 사용자 결정 필요)
+
+### BX01-KOSPI200-TIER2-TIER3-SPECIALS-PARSE-A0 — CLOSED AS BACKLOG_TIER2_TIER3_STRUCTURED_SOURCE_GAP / 55 TIER 2-3 SPECIAL-SUPPLEMENTAL CATALOGUE ROWS VERIFIED / 0 OF 55 PARSEABLE IN STRUCTURED-SOURCE SCOPE / 16 HWP + 1 PDF + 38 NO-ATTACH + 0 XLSX-CSV-HTML / 3 OF 9 MAIN-INDEX CLASS B CYCLES REMAIN CONFLATED / 2025-12 ESG SUB-INDEX CAVEAT PRESERVED / NO HWP-PDF PARSING / NO EVENT CONSOLIDATION CHANGE / NO BACKTEST OR STRATEGY OPENED (2026-05-31, via bridge, autonomous mode)
+
+Referee directive `ask_claude_06.md` (option C from rulebook-A0 close options;
+autonomous mode per user 2026-05-31 authorization "외부 네트워크 허용 + 자율
+모드"). Three Referee-required cleanup rounds (initial pass + ESG sub-index
+scope fix + 2 stale-text passes). **Referee 최종 verdict =
+BACKLOG_TIER2_TIER3_STRUCTURED_SOURCE_GAP** (via bridge 2026-05-31).
+
+- Status: **CLOSED AS BACKLOG_TIER2_TIER3_STRUCTURED_SOURCE_GAP**.
+- 사전등록 + 보고서 `reports/experiments/BX01_KOSPI200_index_event_source_A0/
+  tier2_tier3_specials_parse_initial_pass.md`; 산출 `data/acquired/
+  bx01_kospi200_tier2_tier3_specials_parse_a0/` (target_list.csv 55 rows 12-col
+  w/ scope_flag + attempt_log.csv 220 rows + manifest.csv 10-col provenance +
+  coverage_matrix.csv 55 rows + conflation_reconciliation.csv 9 rows +
+  attempt_log/ OTP step1/step2 evidence; .gitattributes whitespace-exempt).
+- 커밋 lineage: `f196280` (initial pass) → `64ed2f7` (ESG sub-index scope fix:
+  bbsSeq=1020 out-of-scope) → `e8019ab` (stale-text §9) → `76fa552` (outputs-
+  block §6 stale text) → close-housekeeping commit (이 커밋).
+- **Catalogue target count VERIFIED: 55** (notice_index.json ∩ events_v3.csv =
+  55 EXACT match; no halt). 54 in-scope main-index specials + 1 sub-index
+  variant (bbsSeq=1020 KOSPI 200 ESG 수시변경 = out-of-scope per Referee
+  2026-05-31 cleanup).
+- **Format distribution (decisive):** **0/55 parseable in directive scope.**
+  16 hwp + 1 pdf + 38 no-attach + 0 xlsx/csv/HTML-table. Per directive
+  ("Parse clearly structured sources only: xlsx, csv, HTML tables"),
+  parseable count = 0 regardless of network access.
+- **Network probes (single sample bbsSeq=159):** OTP 2-step HTTP 200 +
+  Content-Length: 0 (same blocker as BX01-source-A0 + missing-tier1-A0;
+  route stopped) / direct static data.krx 404 + kind.krx 405 / Wayback
+  empty. 220 attempt rows logged (55 × 4 classes).
+- **Conflation reconciliation per Class B cycle (post-cleanup):** 3 of 9
+  main-index cycles UNRESOLVED (2021-12: KraftON/KakaoBank/KakaoPay; 2022-06:
+  LG에솔; 2024-06: 에코프로머티/포스코DX). 6 of 9 main-index clean (5 already
+  clean: 2023-06/2023-12/2024-12/2025-06/2026-06; 1 with sub-index caveat:
+  2025-12 has bbsSeq=1020 ESG sub-index out-of-scope). 48 of 55 specials
+  fall pre-2021-06 (before Class B parsing started). Catalogue 55 vs main-
+  index unresolved 6 specials × 3 cycles distinction explicit.
+- **events_v3.csv UNCHANGED** (220 rows; 133 effective_dt_rulebook_derived
+  filled; 6 residual blockers from rulebook-A0 carry-forward). NO
+  events_v4.csv produced. NO tier2_tier3_candidate_events.csv produced.
+- **하드룰 유지:** no HWP parser invoked / no broker PDF constituent parse /
+  no 4-missing-Tier1 hwp-pdf parse / no rulebook re-acquisition / no calendar
+  extension / no 2026-06 fill / no convention/news/memory/rebalance fill /
+  no backtest/return/edge/strategy/P08/production/paper-live/execution / no
+  Bull-Bear / no measurement-layer reopening / no parser reopening / no
+  closed-family reopening / no MSCI/FTSE/KOSDAQ150/BX02-04 expansion / no
+  row strategy-ready/executable/approved/production-ready/paper-ready /
+  research_input_data/ unchanged / no push / no self-close.
+- **Referee verdict 근거 (수락):** 55-row catalogue verified exact match;
+  decisive format finding (0 xlsx in scope) shows the gap is source-format
+  + persistent environmental blocker, not source-legal; main-index Class B
+  conflation explicitly mapped (3/9 unresolved); bbsSeq=1020 ESG sub-index
+  properly out-of-scope with caveat preserved. NOT FAIL_CLOSED (decomposable
+  format-gap + named follow-on candidates); NOT a backtest gate.
+- **다음 phase (Referee 발행 대기 — autonomous mode):** Referee recommends
+  `BX01-KOSPI200-SPECIALS-TITLE-ENRICHMENT-A0` first — narrow local-only
+  title-based + listing-name cross-check enrichment to PARTIALLY address the
+  3 unresolved main-index Class B cycles WITHOUT opening HWP parser
+  infrastructure or broker-PDF extraction. Will be labeled
+  secondary/triangulated. Formal directive to come after close-housekeeping
+  acceptance.
 
 ### BX01-KOSPI200-MISSING-TIER1-XLSX-ACQUIRE-A0 — CLOSED AS BACKLOG_MISSING_TIER1_STRUCTURED_SOURCE_GAP / 0 OF 4 MISSING TIER 1 STRUCTURED XLSX SOURCES ACQUIRED / PUBLIC NETWORK PATHS DOCUMENTED BUT BLOCKED OR EMPTY / USER-SUPPLIED HWP AND BROKER PDF FILES INVENTORIED BUT DEFERRED / NO HWP OR PDF PARSING / NO EVENT CONSOLIDATION CHANGE / NO BACKTEST OR STRATEGY OPENED (2026-05-31, via bridge, autonomous mode)
 
