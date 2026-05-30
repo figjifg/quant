@@ -1,0 +1,4 @@
+class_b_cycle,unresolved_specials_before_title_enrichment,candidate_special_additions_linked,remaining_unresolved,conflation_status_after_title_enrichment,caveat
+2021-12,3,3,0,ALL_ADDITIONS_LINKED__deletions_replacements_may_remain_unresolved,title-derived = secondary/triangulated; addition-side only; deletion/replacement remain inferable only from primary parse
+2022-06,1,1,0,ALL_ADDITIONS_LINKED__deletions_replacements_may_remain_unresolved,title-derived = secondary/triangulated; addition-side only; deletion/replacement remain inferable only from primary parse
+2024-06,2,2,0,ALL_ADDITIONS_LINKED__deletions_replacements_may_remain_unresolved,title-derived = secondary/triangulated; addition-side only; deletion/replacement remain inferable only from primary parse

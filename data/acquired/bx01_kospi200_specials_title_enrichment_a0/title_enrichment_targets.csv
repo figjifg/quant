@@ -1,0 +1,8 @@
+bbs_seq,reg_dt,title,affected_class_b_cycle,expected_company_name_token,scope_flag
+758,2021-08-31,카카오뱅크 신규상장에 따른 KOSPI 200 등 수시변경 안내,2021-12,카카오뱅크,in_scope_kospi200_main_index_special
+759,2021-08-31,크래프톤 신규상장에 따른 KOSPI 200 등 수시변경 안내,2021-12,크래프톤,in_scope_kospi200_main_index_special
+773,2021-11-24,카카오페이 신규상장에 따른 코스피200 등 수시변경 안내,2021-12,카카오페이,in_scope_kospi200_main_index_special
+789,2022-02-22,LG에너지솔루션 신규상장에 따른 코스피200 등 수시변경 안내,2022-06,LG에너지솔루션,in_scope_kospi200_main_index_special
+907,2023-12-08,에코프로머티 신규상장에 따른 코스피200 등 수시변경 안내,2024-06,에코프로머티,in_scope_kospi200_main_index_special
+921,2024-01-23,포스코DX 이전상장에 따른 코스피 200 등 수시변경 안내,2024-06,포스코DX,in_scope_kospi200_main_index_special
+1020,2025-06-04,코스피 200 ESG 지수 수시변경 안내,2025-12,(out_of_scope_ESG_sub_index),out_of_scope_subindex_ESG_caveat_only

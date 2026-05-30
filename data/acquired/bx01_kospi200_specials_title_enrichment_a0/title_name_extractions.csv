@@ -1,0 +1,7 @@
+bbs_seq,title,extracted_name,extraction_rule,extraction_confidence,caveat
+758,카카오뱅크 신규상장에 따른 KOSPI 200 등 수시변경 안내,카카오뱅크,new_listing,high,title-derived only; secondary/triangulated; not authoritative parse
+759,크래프톤 신규상장에 따른 KOSPI 200 등 수시변경 안내,크래프톤,new_listing,high,title-derived only; secondary/triangulated; not authoritative parse
+773,카카오페이 신규상장에 따른 코스피200 등 수시변경 안내,카카오페이,new_listing,high,title-derived only; secondary/triangulated; not authoritative parse
+789,LG에너지솔루션 신규상장에 따른 코스피200 등 수시변경 안내,LG에너지솔루션,new_listing,high,title-derived only; secondary/triangulated; not authoritative parse
+907,에코프로머티 신규상장에 따른 코스피200 등 수시변경 안내,에코프로머티,new_listing,high,title-derived only; secondary/triangulated; not authoritative parse
+921,포스코DX 이전상장에 따른 코스피 200 등 수시변경 안내,포스코DX,transfer_listing,high,title-derived only; secondary/triangulated; not authoritative parse

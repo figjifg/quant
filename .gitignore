@@ -70,6 +70,9 @@ data/acquired/bx01_kospi200_index_event_source_a0/raw/
 !data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/raw/
 !data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/attempt_log/
 
+# BX01 specials title-enrichment-A0 exception: local-only enrichment artifacts.
+!data/acquired/bx01_kospi200_specials_title_enrichment_a0/
+
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
 paper_trading/operations/tax_ledger/
