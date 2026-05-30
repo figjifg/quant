@@ -247,7 +247,9 @@ If Class B conflation resolution is the goal, the natural follow-on phases
 3. **Title-extraction enrichment phase (NEW)** — leverage existing
    `title_extracted_name` (14/55 already populated in events_v3.csv) +
    listing-name cross-check to PARTIALLY identify intermediate specials
-   for the 4 UNRESOLVED Class B cycles. This would NOT be a primary parse;
+   for the **3 UNRESOLVED main-index Class B cycles** (2021-12 / 2022-06 /
+   2024-06). The 2025-12 sub-index caveat (bbsSeq=1020) is separate scope.
+   This would NOT be a primary parse;
    it would be a secondary triangulation similar to the rulebook-A0
    hybrid (c). Would need a fresh directive.
 4. **G — backlog + standby.**
