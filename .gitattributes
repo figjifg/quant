@@ -1,4 +1,7 @@
-# BX01 rulebook-A0 acquired raw artifacts: preserve faithfully as fetched (no
-# whitespace normalization; manifest sha256 is the record-of-record). Skip
-# `git show --check` trailing-whitespace flags on these immutable raw bytes.
+# BX01 rulebook-A0 + missing-tier1-acquire-A0 acquired raw artifacts: preserve
+# faithfully as fetched (no whitespace normalization; manifest sha256 is the
+# record-of-record). Skip `git show --check` trailing-whitespace flags on these
+# immutable raw bytes.
 data/acquired/bx01_kospi200_rulebook_effective_dt_a0/raw/** -whitespace
+data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/raw/** -whitespace
+data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/attempt_log/** -whitespace

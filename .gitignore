@@ -58,6 +58,12 @@ data/acquired/bx01_kospi200_index_event_source_a0/raw/
 !data/acquired/bx01_kospi200_rulebook_effective_dt_a0/
 !data/acquired/bx01_kospi200_rulebook_effective_dt_a0/raw/
 
+# BX01 missing-Tier1-xlsx-acquire-A0 exception: attempt log + small probe artifacts
+# tracked (no structured source acquired; all evidence kept for audit).
+!data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/
+!data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/raw/
+!data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/attempt_log/
+
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
 paper_trading/operations/tax_ledger/
