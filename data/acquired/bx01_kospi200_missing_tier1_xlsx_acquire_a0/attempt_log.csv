@@ -1,29 +1,41 @@
 bbs_seq,cycle,reg_dt,attempt_type,url_template_or_call,observed_result,blocker_class,attempted_at_utc
-555,2018-06,2018-05-24,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,direct_static_kind,https://kind.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,direct_static_open,https://open.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,direct_static_global,https://global.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-30T17:09:26.106173+00:00
-555,2018-06,2018-05-24,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,direct_static_kind,https://kind.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,direct_static_open,https://open.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,direct_static_global,https://global.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-30T17:09:26.106173+00:00
-613,2019-06,2019-05-21,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,direct_static_kind,https://kind.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,direct_static_open,https://open.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,direct_static_global,https://global.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-30T17:09:26.106173+00:00
-667,2020-06,2020-05-27,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,direct_static_kind,https://kind.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,direct_static_open,https://open.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,direct_static_global,https://global.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-30T17:09:26.106173+00:00
-696,2020-12,2020-11-25,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-30T17:09:26.106173+00:00
+555,2018-06,2018-05-24,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,direct_static_kind,https://kind.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,direct_static_open,https://open.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,direct_static_global,https://global.krx.co.kr/<paths>/201805241527146804198.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,wikipedia_ko,https://ko.wikipedia.org/wiki/KOSPI_200,fetched 135870 bytes; grep '정기변경' returned -1 (no history section),NO_PUBLIC_HISTORY_TABLE,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,namuwiki,https://en.namu.wiki/w/KOSPI200,WebFetch returned HTTP 403 Forbidden,NO_PUBLIC_HISTORY_TABLE_AUTH_REQUIRED,2026-05-31T01:50:00Z
+555,2018-06,2018-05-24,korean_news_search,Google site:smarttoday.co.kr OR site:seoulfn.com OR news.naver.com 2018/2019/2020 specific cycles,WebSearch returned recent (2023+) articles only; no structured add/del tables for target cycles,NO_STRUCTURED_NEWS_MIRROR,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,direct_static_kind,https://kind.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,direct_static_open,https://open.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,direct_static_global,https://global.krx.co.kr/<paths>/201905211558422430924.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,wikipedia_ko,https://ko.wikipedia.org/wiki/KOSPI_200,fetched 135870 bytes; grep '정기변경' returned -1 (no history section),NO_PUBLIC_HISTORY_TABLE,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,namuwiki,https://en.namu.wiki/w/KOSPI200,WebFetch returned HTTP 403 Forbidden,NO_PUBLIC_HISTORY_TABLE_AUTH_REQUIRED,2026-05-31T01:50:00Z
+613,2019-06,2019-05-21,korean_news_search,Google site:smarttoday.co.kr OR site:seoulfn.com OR news.naver.com 2018/2019/2020 specific cycles,WebSearch returned recent (2023+) articles only; no structured add/del tables for target cycles,NO_STRUCTURED_NEWS_MIRROR,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,direct_static_kind,https://kind.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,direct_static_open,https://open.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,direct_static_global,https://global.krx.co.kr/<paths>/202005271590564979622.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,wikipedia_ko,https://ko.wikipedia.org/wiki/KOSPI_200,fetched 135870 bytes; grep '정기변경' returned -1 (no history section),NO_PUBLIC_HISTORY_TABLE,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,namuwiki,https://en.namu.wiki/w/KOSPI200,WebFetch returned HTTP 403 Forbidden,NO_PUBLIC_HISTORY_TABLE_AUTH_REQUIRED,2026-05-31T01:50:00Z
+667,2020-06,2020-05-27,korean_news_search,Google site:smarttoday.co.kr OR site:seoulfn.com OR news.naver.com 2018/2019/2020 specific cycles,WebSearch returned recent (2023+) articles only; no structured add/del tables for target cycles,NO_STRUCTURED_NEWS_MIRROR,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,OTP_two_step,data.krx.co.kr requestUrlFileUrl + file.krx.co.kr download.jspx,HTTP 200 with Content-Length: 0 (empty body),BLOCKED_OTP_SANDBOX_EGRESS_ANTI_BOT_SAME_AS_BX01_SOURCE_A0,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,direct_static_data_krx,https://data.krx.co.kr/hpbbs/kor/dyn/etc/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,direct_static_kind,https://kind.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 405 Method Not Allowed,STATIC_PATH_405,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,direct_static_open,https://open.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,direct_static_global,https://global.krx.co.kr/<paths>/202011251606292057125.xlsx.xlsx,HTTP 404,STATIC_PATH_NOT_AVAILABLE,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,wayback_machine,archive.org/wayback/available?url=<detail_page>,archived_snapshots: {} (no archives),NO_WAYBACK_COVERAGE,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,finance_datareader,fdr.SnapDataReader('KRX/INDEX/STOCK/1028'),Expecting value: line 1 column 1 (char 0) [empty JSON response],BLOCKED_SAME_OTP_PATH_VIA_LIBRARY,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,wikipedia_ko,https://ko.wikipedia.org/wiki/KOSPI_200,fetched 135870 bytes; grep '정기변경' returned -1 (no history section),NO_PUBLIC_HISTORY_TABLE,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,namuwiki,https://en.namu.wiki/w/KOSPI200,WebFetch returned HTTP 403 Forbidden,NO_PUBLIC_HISTORY_TABLE_AUTH_REQUIRED,2026-05-31T01:50:00Z
+696,2020-12,2020-11-25,korean_news_search,Google site:smarttoday.co.kr OR site:seoulfn.com OR news.naver.com 2018/2019/2020 specific cycles,WebSearch returned recent (2023+) articles only; no structured add/del tables for target cycles,NO_STRUCTURED_NEWS_MIRROR,2026-05-31T01:50:00Z

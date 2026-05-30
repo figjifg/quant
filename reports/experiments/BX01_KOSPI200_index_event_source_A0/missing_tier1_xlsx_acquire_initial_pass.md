@@ -36,14 +36,25 @@ confirmed the same 0-byte response → route stopped + recorded.
 | Direct static `global.krx.co.kr/...` | per 4 save_file_nm | HTTP 404 | `STATIC_PATH_NOT_AVAILABLE` |
 | Wayback Machine | `archive.org/wayback/available?url=<detail_page>` | `archived_snapshots: {}` | `NO_WAYBACK_COVERAGE` |
 | FinanceDataReader | `fdr.SnapDataReader('KRX/INDEX/STOCK/1028')` | "Expecting value: line 1 column 1 (char 0)" — empty JSON | `BLOCKED_SAME_OTP_PATH_VIA_LIBRARY` |
-| Wikipedia ko / namuwiki | `ko.wikipedia.org/wiki/KOSPI_200` (fetched); `namu.wiki/w/KOSPI200` (403) | no 정기변경 history section / 403 forbidden | `NO_PUBLIC_HISTORY_TABLE` |
-| Korean news search | broker/news mirrors for 2018-06/2019-06/2020-06/2020-12 specific results | recent (2023+) articles only; no structured add/del tables for target cycles | `NO_STRUCTURED_NEWS_MIRROR` |
+| Wikipedia ko | `ko.wikipedia.org/wiki/KOSPI_200` (fetched 135870 bytes) | no 정기변경 history section (grep returned -1) | `NO_PUBLIC_HISTORY_TABLE` |
+| namuwiki | `namu.wiki/w/KOSPI200` (WebFetch) | HTTP 403 Forbidden | `NO_PUBLIC_HISTORY_TABLE_AUTH_REQUIRED` |
+| Korean news search | WebSearch broker/news mirrors for 2018-06/2019-06/2020-06/2020-12 specific results | recent (2023+) articles only; no structured add/del tables for target cycles | `NO_STRUCTURED_NEWS_MIRROR` |
 
 All attempts logged in
 `data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/attempt_log.csv`
-(28 attempt rows = 4 cycles × 7 attempt classes). Per Referee directive, the
-OTP path was probed once (bbsSeq=555) → identical 0-byte result as prior
-BX01-source-A0 → route stopped + recorded. No aggressive retry.
+(40 attempt rows = 4 cycles × 10 attempt classes — 7 KRX-direct/library probes
++ 3 supplementary checks: Wikipedia ko / namuwiki / Korean news search). Per
+Referee directive, the OTP path was probed once (bbsSeq=555) → identical
+0-byte result as prior BX01-source-A0 → route stopped + recorded. No
+aggressive retry.
+
+Note on the 4 raw detail-page HTMLs (each ~453 KB) committed in `raw/`:
+these are the KRX detail-page TEMPLATE returned for each bbsSeq — the
+actual notice body + attachment list are loaded via JS AJAX after page
+load, so the HTML contains only KRX boilerplate / template chrome and NOT
+the target structured xlsx content. They are committed as endpoint-discovery
+evidence (provenance trail for the OTP probe + static-path probes), NOT as
+usable content.
 
 ---
 
