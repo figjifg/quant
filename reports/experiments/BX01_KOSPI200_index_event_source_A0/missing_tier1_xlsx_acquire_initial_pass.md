@@ -86,8 +86,13 @@ data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/
   attempt_log/
     step1_555.json            OTP step 1 response (valid OTP token issued)
     step2_555.bin             OTP step 2 result (0 bytes)
-  manifest.csv                6 rows; all `documented_attempt_only`
-  attempt_log.csv             28 rows (4 cycles × 7 attempt classes)
+  manifest.csv                6 rows with full provenance schema
+                              (10 cols: filename / local_path / bytes / sha256 /
+                              source_url / final_url / retrieved_at_utc /
+                              source_class / license_note / parse_status)
+  attempt_log.csv             40 rows (4 cycles × 10 attempt classes:
+                              7 KRX-direct/library probes +
+                              3 supplementary checks)
   coverage_matrix.csv         4 rows; all `krx_xlsx_acquired=NO`
 reports/experiments/BX01_KOSPI200_index_event_source_A0/
   missing_tier1_xlsx_acquire_initial_pass.md  THIS FILE
