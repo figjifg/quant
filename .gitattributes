@@ -5,3 +5,5 @@
 data/acquired/bx01_kospi200_rulebook_effective_dt_a0/raw/** -whitespace
 data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/raw/** -whitespace
 data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/attempt_log/** -whitespace
+data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/raw/** -whitespace
+data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/attempt_log/** -whitespace

@@ -64,6 +64,12 @@ data/acquired/bx01_kospi200_index_event_source_a0/raw/
 !data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/raw/
 !data/acquired/bx01_kospi200_missing_tier1_xlsx_acquire_a0/attempt_log/
 
+# BX01 Tier 2/3 specials-parse-A0 exception: target list + attempt log + probe
+# artifacts tracked (no structured source acquired; format-deferred per directive).
+!data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/
+!data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/raw/
+!data/acquired/bx01_kospi200_tier2_tier3_specials_parse_a0/attempt_log/
+
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
 paper_trading/operations/tax_ledger/

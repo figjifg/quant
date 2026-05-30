@@ -1,0 +1,10 @@
+class_b_review_cycle,tier2_3_specials_in_window,specials_parsed,specials_unparsed,conflation_status,caveat_note
+2021-12,3,0,3,UNRESOLVED__intermediate_specials_present_and_unparsed,"specials in window (bbsSeq): 759,758,773; titles: 크래프톤 신규상장에 따른 KOSPI 200 등 수시변경|카카오뱅크 신규상장에 따른 KOSPI 200 등 수시변|카카오페이 신규상장에 따른 코스피200 등 수시변경 안"
+2022-06,1,0,1,UNRESOLVED__intermediate_specials_present_and_unparsed,specials in window (bbsSeq): 789; titles: LG에너지솔루션 신규상장에 따른 코스피200 등 수시변
+2023-06,0,0,0,no_intermediate_specials__class_b_window_is_pure_regular_review,no specials in window
+2023-12,0,0,0,no_intermediate_specials__class_b_window_is_pure_regular_review,no specials in window
+2024-06,2,0,2,UNRESOLVED__intermediate_specials_present_and_unparsed,"specials in window (bbsSeq): 907,921; titles: 에코프로머티 신규상장에 따른 코스피200 등 수시변경 |포스코DX 이전상장에 따른 코스피 200 등 수시변경 "
+2024-12,0,0,0,no_intermediate_specials__class_b_window_is_pure_regular_review,no specials in window
+2025-06,0,0,0,no_intermediate_specials__class_b_window_is_pure_regular_review,no specials in window
+2025-12,1,0,1,UNRESOLVED__intermediate_specials_present_and_unparsed,specials in window (bbsSeq): 1020; titles: 코스피 200 ESG 지수 수시변경 안내
+2026-06,0,0,0,no_intermediate_specials__class_b_window_is_pure_regular_review,no specials in window
