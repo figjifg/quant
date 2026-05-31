@@ -73,6 +73,9 @@ data/acquired/bx01_kospi200_index_event_source_a0/raw/
 # BX01 specials title-enrichment-A0 exception: local-only enrichment artifacts.
 !data/acquired/bx01_kospi200_specials_title_enrichment_a0/
 
+# BX01 inclusion-runup-diagnostic-backtest-design-A0 exception: design artifacts.
+!data/acquired/bx01_kospi200_inclusion_runup_diagnostic_design_a0/
+
 # User portfolio operations / NAV history — private financial data
 paper_trading/operations/nav_history/
 paper_trading/operations/tax_ledger/
