@@ -311,3 +311,23 @@ gate verdicts in the close note will determine the next step.
 
 Frozen P08_IEF30 — untouched. Measurement-layer DECIDED STANDBY — untouched.
 Closed families — untouched. Bear's BX02 / BX03 / BX04 verdicts — intact.
+
+---
+
+## 14. Addendum — Referee gate `NOT_CLOSE_READY_SCOPE_BREACH` (added per
+ask_claude_55 forward-only correction)
+
+After this design specification was committed at `88e7f94`, the commit was
+pushed to `origin/main` (push #2, range `a7c180b..88e7f94`). That push
+violated `ask_0015.md`'s explicit `no push` lock for this phase. Referee
+issued gate verdict `NOT_CLOSE_READY_SCOPE_BREACH`.
+
+The design itself (objective, sample rules, timing model, cost model,
+matched-control / placebo / negative-control design, success / kill criteria,
+weakness list, audit-first 12-item checklist) is UNCHANGED by this addendum
+and was not the reason for the breach verdict. The phase remains
+NOT_CLOSE_READY pending a later Referee re-verdict. This correction commit
+itself is NOT to be pushed per ask_claude_55.
+
+The companion initial-pass report's §9 addendum carries the full breach
+record.
