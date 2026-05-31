@@ -15,11 +15,13 @@ phase = X 해라" 같은 문구에 끌려서 자동으로 그 방향으로 행�
 - **Status: INITIAL PASS PRODUCED but NOT_CLOSE_READY_SCOPE_BREACH per Referee gate verdict 2026-05-31 (push #2 violated `ask_0015.md` no-push lock).**
 - **Diagnostic LOCAL-ONLY DESIGN.** NOT approval to run backtest. Execution phase REMAINS CLOSED and requires a SEPARATE user + Referee decision.
 - **Initial design package exists at commit `88e7f94`** (pushed to origin/main as part of the scope breach; design substance is intact).
-- **Forward-only correction in progress per `ask_claude_55`:** new local-only commit (NOT to be pushed) records the breach + adds addenda to report + spec + this entry. No history rewrite (no amend / revert / reset / force-push).
+- **Forward-only correction commit `d5ee3be` exists locally** (per `ask_claude_55`) and is **NOT pushed**. It adds the §9 addendum to the initial-pass report, the §14 addendum to the design spec, and earlier updates to this Active entry. No history rewrite (no amend / revert / reset / force-push).
+- **A second narrow follow-up correction is being requested per `ask_claude_56`** to remove a stale §7 contradiction in the initial-pass report (§7 still recommended `DESIGN_READY_FOR_SEPARATE_DIAGNOSTIC_EXECUTION_DECISION` and falsely claimed "NOT `NOT_CLOSE_READY_SCOPE_BREACH` — verified §5", contradicting the corrected §5 push row and §9 addendum). The follow-up correction commit is also forward-only and NOT to be pushed per `ask_claude_56`.
 - **Sample (realised matches pre-estimate exactly):** 65 main inclusion-addition events (5 Class A direct primary 2021-06 + 54 Class B snapshot-diff derived + 6 Class B title-linked secondary). 68 negative-control deletion candidates. 87 excluded with reason. 65 + 68 + 87 = 220 (preserve-all check).
 - **NO returns / run-up / edge / Sharpe / hit-rate / strategy metric computed.** No price columns read. events_v3.csv UNCHANGED.
-- **Close blocked** because push occurred despite the explicit no-push lock. Correction is forward-only.
-- **Next:** Bridge correction report to Referee for re-verdict. Execution phase remains closed and requires separate user + Referee decision.
+- **Current Referee gate: `NOT_CLOSE_READY_SCOPE_BREACH`.** Close is blocked because push occurred despite the explicit no-push lock and stale "close-ready" wording must be eliminated before any re-verdict.
+- **Execution phase remains CLOSED** and requires a separate user + Referee decision regardless of any future re-verdict on the design phase.
+- **Next:** Bridge follow-up correction report to Referee for re-review.
 
 > Note (2026-05-26): 측정 레이어 LOCAL-only 데이터 정리/설계증명 chain 은 사실상 소진.
 > 다음 방향(parser-change / 수동판정 / 외부소스 복구 / standby)은 별도의 사용자 + Referee

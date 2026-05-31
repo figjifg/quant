@@ -133,26 +133,55 @@ To be reported in the commit message after staging.
 
 ---
 
-## 7. Recommended gate (NOT self-applied)
+## 7. Gate history (operative gate is NOT close-ready)
 
-**Recommended: `DESIGN_READY_FOR_SEPARATE_DIAGNOSTIC_EXECUTION_DECISION`** (per directive expected wording).
+### 7.1 Pre-breach Executor-recommended gate (historical, before push breach was recognized)
 
-Rationale:
-- Design specification complete, audit-first 12-item checklist filled. ✅
-- 65 main inclusion-addition events (matches pre-estimate; > 12 minimum). ✅
-- LOCAL-ONLY; no forbidden action. ✅
-- No backtest execution; no return / run-up / edge / strategy / placebo statistic computed. ✅
-- Caveat tags applied per row (source_record_type / effective_dt_confidence / title_link_status / conflation_status / sample_role). ✅
-- ≥12 named weaknesses; pre-registered success + kill criteria. ✅
-- events_v3.csv UNCHANGED; preserve-all reconciliation 65 + 68 + 87 = 220. ✅
+At the time the initial-pass report was first written and submitted to
+Referee, the Executor's recommended gate was
+`DESIGN_READY_FOR_SEPARATE_DIAGNOSTIC_EXECUTION_DECISION`, with the
+following per-criterion rationale at that point in time:
 
-NOT `BACKLOG_DIAGNOSTIC_DESIGN_LOCAL_DATA_GAP` — local data sufficient for the design + sample preview + control-matching registry (peer selection deferred to execution phase per spec).
+- Design specification complete, audit-first 12-item checklist filled.
+- 65 main inclusion-addition events (matches pre-estimate; > 12 minimum).
+- LOCAL-ONLY; no forbidden computation; no backtest execution.
+- Per-row caveat tags applied (source_record_type / effective_dt_confidence /
+  title_link_status / conflation_status / sample_role).
+- ≥12 named weaknesses; pre-registered success + kill criteria.
+- events_v3.csv UNCHANGED; preserve-all reconciliation 65 + 68 + 87 = 220.
 
-NOT `NOT_CLOSE_READY_FORBIDDEN_COMPUTATION` — verified §4.
+The pre-breach rationale also stated:
+- NOT `BACKLOG_DIAGNOSTIC_DESIGN_LOCAL_DATA_GAP` (local data sufficient).
+- NOT `NOT_CLOSE_READY_FORBIDDEN_COMPUTATION` (no returns / statistics).
+- NOT `NOT_CLOSE_READY_SCOPE_BREACH` — this last claim was **wrong**:
+  the push that occurred concurrently with the original submission violated
+  the explicit `no push` lock in `ask_0015.md`. See §5 push row, §8
+  boundary, and §9 addendum for the correction.
 
-NOT `NOT_CLOSE_READY_SCOPE_BREACH` — verified §5.
+### 7.2 Operative Referee gate (post-breach, current)
 
-The actual execution of this design would be a SEPARATE phase under SEPARATE user + Referee decision.
+After review, Referee issued:
+
+**`NOT_CLOSE_READY_SCOPE_BREACH`**
+
+(via bridge 2026-05-31). The phase is NOT close-ready. The design artifact
+itself appears within the local-only design boundary, but the operative
+gate is dictated by the push breach, not by the design content.
+
+### 7.3 Re-verdict eligibility
+
+Per Referee `ask_claude_55` and `ask_claude_56` follow-up correction
+directives, the design artifact may become eligible for a re-verdict
+only after:
+
+1. The breach documentation across this report, the design spec, and
+   `docs/next_actions.md` is internally consistent (no stale "close-ready"
+   or "verified no breach" claims remain anywhere).
+2. Referee re-reviews and accepts the corrected documentation.
+
+The actual execution of this design would still be a SEPARATE phase
+under a SEPARATE user + Referee decision, regardless of any future
+re-verdict on the design phase itself.
 
 ---
 
